@@ -55,7 +55,10 @@ document.addEventListener("DOMContentLoaded", () => {
     eventDiv.style.height = `${hours*distanceBetweenTwoLines + (minutes/60)*distanceBetweenTwoLines}px`;
 
     // TODO: Set left (check the number of events already placed that occupy the time
-    // period of event to be placed)
+    // period of the event to be placed, if no events are placed set left nonetheless to
+    // a certain distance that is the line's left margin + some more margin...
+    // add this margin for every event occupying same time period)
 
-    document.body.appendChild(eventDiv);
+    const daily_calendar = document.getElementById("daily_calendar");
+    daily_calendar.appendChild(eventDiv);
 });
