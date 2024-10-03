@@ -1,9 +1,3 @@
-const events = [
-    { title: "Event 1", startTime: "00:30", endTime: "01:30" },
-    { title: "Event 2", startTime: "02:15", endTime: "03:00" },
-    { title: "Event 3", startTime: "04:45", endTime: "05:15" }
-];
-
 function createDefaultEventDiv(event) {
     const eventDiv = document.createElement("div");
     eventDiv.classList.add("absolute", "bg-blue-700", "left-20", 
@@ -35,7 +29,14 @@ function getTimeBetweenStartEnd(endTimeString, startTimeString) {
     return (hours_end*60+minutes_end) - (hours_start*60+minutes_start);
 }
 
+/*
 document.addEventListener("DOMContentLoaded", () => {
+    const events = [
+        { title: "Event 1", startTime: "00:30", endTime: "01:30" },
+        { title: "Event 2", startTime: "02:15", endTime: "03:00" },
+        { title: "Event 3", startTime: "04:45", endTime: "05:15" }
+    ];
+
     const event = events[0];
     const eventDiv = createDefaultEventDiv(event);
     const startTime = event.startTime;
@@ -62,3 +63,4 @@ document.addEventListener("DOMContentLoaded", () => {
     const daily_calendar = document.getElementById("daily_calendar");
     daily_calendar.appendChild(eventDiv);
 });
+*/
