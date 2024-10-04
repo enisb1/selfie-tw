@@ -9,7 +9,7 @@ function eventsOverlap(event1StartMinutes, event1EndMinutes, event2StartMinutes,
 
 function createDefaultEventDiv(event) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("absolute", "bg-blue-700", "text-white", "p-1", "rounded-md", "shadow-md");
+    eventDiv.classList.add("absolute", "bg-blue-700", "text-white", "p-1", "text-truncate");
     
     const title = document.createElement("p");
     title.innerText = event.title;
@@ -23,21 +23,21 @@ function addEvent(eventToAdd) {
     // TODO: CHANGE ENDTIMESTRING below
     const [eventToAddHEnd, eventToAddMEnd] = eventToAdd.endTime.split(':').map(Number);
     const [eventToAddHStart, eventToAddMStart] = eventToAdd.startTime.split(':').map(Number);
-    const eventToAddStartTotalMinutes = eventToAddHStart*60 + eventToAddMStart;
-    const eventToAddEndTotalMinutes = eventToAddHEnd*60 + eventToAddMEnd;
+    const evtToAddStartTotalMinutes = eventToAddHStart*60 + eventToAddMStart;
+    const evtToAddEndTotalMinutes = eventToAddHEnd*60 + eventToAddMEnd;
 
     // add height based on duration and left based on number of events in same time frame
-    let day = 2;    // TODO: change this based on actual day
+    let day = 1;    // TODO: change this based on actual day
     let numOfEventsInTimeFrame = 0;
     let eventsSharingTimeFrame = [];    // need to be able to retrieve events' div id
     // get events and number of events sharing time frame
     addedEvents[day].forEach(e => {
         const [eventHEnd, eventMEnd] = e.endTime.split(':').map(Number);
         const [eventHStart, eventMStart] = e.startTime.split(':').map(Number);
-        const eventStartTotalMinutes = eventHStart*60 + eventMStart;
-        const eventEndTotalMinutes = eventHEnd*60 + eventMEnd;
+        const evtStartTotalMinutes = eventHStart*60 + eventMStart;
+        const evtEndTotalMinutes = eventHEnd*60 + eventMEnd;
         
-        if (eventsOverlap(eventStartTotalMinutes, eventEndTotalMinutes, eventToAddStartTotalMinutes, eventToAddEndTotalMinutes)) {
+        if (eventsOverlap(evtStartTotalMinutes, evtEndTotalMinutes, evtToAddStartTotalMinutes, evtToAddEndTotalMinutes)) {
             numOfEventsInTimeFrame++;
             eventsSharingTimeFrame.push(e);
         } 
@@ -46,7 +46,7 @@ function addEvent(eventToAdd) {
     // set new left and width to the events that are in the same time frame as the event to add
     numOfEventsInTimeFrame++;    // including the event to add
     for (let i = 0; i<numOfEventsInTimeFrame-1; i++) {
-        const eventDiv = document.getElementById(eventsSharingTimeFrame[i].elementId);
+        const eventDiv = document.getElementById(eventsSharingTimeFrame[i].divId);
         eventDiv.style.left = `${100/numOfEventsInTimeFrame*i}%`;
         eventDiv.style.width = `${100/numOfEventsInTimeFrame}%`;
     }
@@ -55,29 +55,27 @@ function addEvent(eventToAdd) {
     const eventToAddDiv = createDefaultEventDiv(eventToAdd);
 
     // grid positon
+    // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
     eventToAddDiv.style.gridColumn = "2 / span 1";  //TODO: change 2 to actual day
-    eventToAddDiv.style.gridRow = `${eventToAddHStart*12 + eventToAddMStart/5}`;
+    eventToAddDiv.style.gridRow = `${eventToAddHStart*12+1 + (eventToAddMStart/5)} / ${eventToAddHEnd*12+1 + (eventToAddMEnd/5)}`;
+    eventToAddDiv.style.height = "100%";
 
     // left
-    eventToAddDiv.style.left = `${100-100/numOfEventsInTimeFrame}`;
+    eventToAddDiv.style.left = `${100-100/numOfEventsInTimeFrame}%`;
 
     // width
-    eventToAddDiv.style.width = `${100/numOfEventsInTimeFrame}`;
+    eventToAddDiv.style.width = `${100/numOfEventsInTimeFrame}%`;
 
     // id
     eventToAddDiv.id = `event${nEvents}Weekly`;
 
-    // set height
-    const eventToAddDurationH = (eventToAddEndTotalMinutes-eventToAddStartTotalMinutes) / 60;
-    const eventToAddDurationM = (eventToAddEndTotalMinutes-eventToAddStartTotalMinutes) % 60;
-    eventToAddDiv.style.height = `${timeslotHeight*eventToAddDurationH + (eventToAddDurationM/60)*timeslotHeight}rem`;
-    
+    // add to events container
     const eventsContainerDiv = document.getElementById("events_container");
     eventsContainerDiv.appendChild(eventToAddDiv);
 
     // add id field to eventToAdd and push it to addedEvents
-    eventToAdd.id = `event${nEvents}Weekly`;
-    addedEvents[2-1].push(eventToAdd);  //TODO: change this(2) to actual day
+    eventToAdd.divId = `event${nEvents}Weekly`;
+    addedEvents[1].push(eventToAdd);  //TODO: change addedEvents' index to actual day
     nEvents++;
 }
 
@@ -86,16 +84,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const events = [
         { title: "Event 1", startTime: "00:30", endTime: "01:30"},
         { title: "Event 2", startTime: "00:45", endTime: "03:00"},
-        { title: "Event 3", startTime: "04:45", endTime: "05:15"}
+        { title: "Event 3", startTime: "01:00", endTime: "02:00"}
     ];
 
     addEvent(events[0]);
-   
-    /*const eventToAddDiv = createDefaultEventDiv(events[0]);
-    eventToAddDiv.style.gridColumn = "2 / span 1";
-    eventToAddDiv.style.gridRow = "37";
-
-    const eventsContainerDiv = document.getElementById("events_container");
-    eventsContainerDiv.appendChild(eventToAddDiv);
-    */
+    addEvent(events[1]);
+    addEvent(events[2]);
 });
