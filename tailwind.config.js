@@ -1,7 +1,8 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./index.html", 
-    "./js/calendar-script.js"],
+    "./js/daily-calendar.js",
+    "./js/weekly-calendar.js"],
   theme: {
     extend: {
       colors:{

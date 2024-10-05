@@ -2,6 +2,7 @@
 let addedEvents = [[],[],[],[],[],[],[]];   // array with a list of added events for each day of the week
 let nEvents = 0;
 let timeslotHeight = 4.1;   // rem, including line (infact each timeslot has min-height of 4rem + 0.1rem line)
+let eventsBgColors = ["bg-cyan-500", "bg-cyan-700", "bg-sky-500", "bg-sky-700", "bg-sky-900", "bg-blue-500", "bg-blue-700", "bg-blue-900", "bg-violet-400", "bg-violet-700", "bg-violet-900"];
 
 function eventsOverlap(event1StartMinutes, event1EndMinutes, event2StartMinutes, event2EndMinutes) {
     return (event1StartMinutes<event2EndMinutes && event1EndMinutes>event2StartMinutes);
@@ -9,7 +10,7 @@ function eventsOverlap(event1StartMinutes, event1EndMinutes, event2StartMinutes,
 
 function createDefaultEventDiv(event) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("absolute", "bg-blue-700", "text-white", "p-1", "text-truncate");
+    eventDiv.classList.add("absolute", "text-white", "p-1", "text-truncate", "rounded-md", "shadow-md");
     
     const title = document.createElement("p");
     title.innerText = event.title;
@@ -47,8 +48,8 @@ function addEvent(eventToAdd) {
     numOfEventsInTimeFrame++;    // including the event to add
     for (let i = 0; i<numOfEventsInTimeFrame-1; i++) {
         const eventDiv = document.getElementById(eventsSharingTimeFrame[i].divId);
-        eventDiv.style.left = `${100/numOfEventsInTimeFrame*i}%`;
-        eventDiv.style.width = `${100/numOfEventsInTimeFrame}%`;
+        //eventDiv.style.left = `${100/numOfEventsInTimeFrame*i}%`;
+        //eventDiv.style.width = `${100/numOfEventsInTimeFrame}%`;
     }
 
     // create div for new event
@@ -59,12 +60,14 @@ function addEvent(eventToAdd) {
     eventToAddDiv.style.gridColumn = "2 / span 1";  //TODO: change 2 to actual day
     eventToAddDiv.style.gridRow = `${eventToAddHStart*12+1 + (eventToAddMStart/5)} / ${eventToAddHEnd*12+1 + (eventToAddMEnd/5)}`;
     eventToAddDiv.style.height = "100%";
+    eventToAddDiv.classList.add(eventsBgColors[Math.floor(Math.random() * eventsBgColors.length)]);
 
     // left
-    eventToAddDiv.style.left = `${100-100/numOfEventsInTimeFrame}%`;
+    //eventToAddDiv.style.left = `${100-100/numOfEventsInTimeFrame}%`;
 
     // width
-    eventToAddDiv.style.width = `${100/numOfEventsInTimeFrame}%`;
+    //eventToAddDiv.style.width = `${100/numOfEventsInTimeFrame}%`;
+    eventToAddDiv.style.width = "100%"
 
     // id
     eventToAddDiv.id = `event${nEvents}Weekly`;
