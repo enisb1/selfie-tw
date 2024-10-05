@@ -45,32 +45,24 @@ function setZIndex(event, day) {
 }
 
 function addEvent(eventToAdd) {
-    // TODO: CHANGE ENDTIMESTRING below
     const [eventToAddHEnd, eventToAddMEnd] = eventToAdd.endTime.split(':').map(Number);
     const [eventToAddHStart, eventToAddMStart] = eventToAdd.startTime.split(':').map(Number);
-    eventToAdd.startInMinutes = eventToAddHStart*60 + eventToAddMStart; // add start in minutes to event's prototype (will be useful)
-    eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd; // add end in minutes to event's prototype (will be useful)
+    // add startInMinutes and endInMinutes to event's prototype
+    eventToAdd.startInMinutes = eventToAddHStart*60 + eventToAddMStart;
+    eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd;
 
-    let numEventsSharingStart = 0;
-    let day = 2;
-    /*change this for events with same start time
+    //TODO: change this for events with same start time
     // add height based on duration and left based on number of events in same time frame
-    let day = 1;    // TODO: change this based on actual day
-    let numOfEventsInTimeFrame = 0;
-    let eventsSharingTimeFrame = [];    // need to be able to retrieve events' div id
+    let numEventsSharingStart = 0;
+    let day = 2;    //TODO: change this based on event's day
+    let eventsSharingStart = [];    // need to be able to retrieve events' div id
     // get events and number of events sharing time frame
-    addedEvents[day].forEach(e => {
-        const [eventHEnd, eventMEnd] = e.endTime.split(':').map(Number);
-        const [eventHStart, eventMStart] = e.startTime.split(':').map(Number);
-        const evtStartTotalMinutes = eventHStart*60 + eventMStart;
-        const evtEndTotalMinutes = eventHEnd*60 + eventMEnd;
-        
-        if (eventsOverlap(evtStartTotalMinutes, evtEndTotalMinutes, evtToAddStartTotalMinutes, evtToAddEndTotalMinutes)) {
-            numOfEventsInTimeFrame++;
-            eventsSharingTimeFrame.push(e);
+    addedEvents[day-1].forEach(e => {        
+        if (e.startInMinutes == eventToAdd.startInMinutes) {
+            numEventsSharingStart++;
+            eventsSharingStart.push(e);
         } 
     });
-*/
 
     // create div for new event
     const eventToAddDiv = createDefaultEventDiv(eventToAdd);
@@ -88,7 +80,7 @@ function addEvent(eventToAdd) {
     // set new left and width to the events that are in the same time frame as the event to add
     numEventsSharingStart++;    // including the event to add
     for (let i = 0; i<numEventsSharingStart-1; i++) {
-        const eventDiv = document.getElementById(eventsSharingTimeFrame[i].divId);
+        const eventDiv = document.getElementById(eventsSharingStart[i].divId);
         eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
         eventDiv.style.width = `${100/numEventsSharingStart}%`;
     }
@@ -117,10 +109,10 @@ function addEvent(eventToAdd) {
 document.addEventListener("DOMContentLoaded", () => {
     // test array
     const events = [
-        {title: "Event 1", startTime: "01:00", endTime: "03:00"},
+        {title: "Event 1", startTime: "02:30", endTime: "03:00"},
         {title: "Event 2", startTime: "02:30", endTime: "03:30"},
         {title: "Event 3", startTime: "00:30", endTime: "01:30"}, 
-        {title: "Event 4", startTime: "00:10", endTime: "02:30"}
+        {title: "Event 4", startTime: "00:10", endTime: "04:30"}
     ];
 
     addEvent(events[0]);
