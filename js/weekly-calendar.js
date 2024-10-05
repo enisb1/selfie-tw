@@ -1,7 +1,6 @@
 // Global variables
 let addedEvents = [[],[],[],[],[],[],[]];   // array with a list of added events for each day of the week
 let nEvents = 0;
-let timeslotHeight = 4.1;   // rem, including line (infact each timeslot has min-height of 4rem + 0.1rem line)
 let eventsBgColors = ["bg-cyan-500", "bg-cyan-700", "bg-sky-500", "bg-sky-700", "bg-sky-900", "bg-blue-500", "bg-blue-700", "bg-blue-900", "bg-violet-400", "bg-violet-700", "bg-violet-900"];
 let zIndexCount = 0; 
 
@@ -95,11 +94,16 @@ function addEvent(eventToAdd) {
     const eventsContainerDiv = document.getElementById("events_container");
     eventsContainerDiv.appendChild(eventToAddDiv);
 
-    // TODO: no need to call for this if eventToAdd shares start time with other events,
-    // just set the same zIndex
     // add id field and set zIndex to div
     eventToAdd.divId = `event${nEvents}Weekly`;
-    setZIndex(eventToAdd, day);
+
+    // if eventToAdd shares startTime with other events, then set the same zIndex (no need to increment)
+    if (numEventsSharingStart>1) {
+        const divElement = document.getElementById(eventsSharingStart[0].divId);
+        eventToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;
+    }
+    else
+        setZIndex(eventToAdd, day);
 
     // event added, push it to addedEvents
     addedEvents[day-1].push(eventToAdd);  //TODO: change addedEvents' index to actual day
@@ -109,14 +113,12 @@ function addEvent(eventToAdd) {
 document.addEventListener("DOMContentLoaded", () => {
     // test array
     const events = [
-        {title: "Event 1", startTime: "02:30", endTime: "03:00"},
-        {title: "Event 2", startTime: "02:30", endTime: "03:30"},
-        {title: "Event 3", startTime: "00:30", endTime: "01:30"}, 
-        {title: "Event 4", startTime: "00:10", endTime: "04:30"}
+        {title: "Event 3", startTime: "01:30", endTime: "04:30"},
+        {title: "Event 1", startTime: "01:00", endTime: "03:00"},
+        {title: "Event 2", startTime: "01:00", endTime: "03:30"}
     ];
 
     addEvent(events[0]);
     addEvent(events[1]);
     addEvent(events[2]);
-    addEvent(events[3]);
 });
