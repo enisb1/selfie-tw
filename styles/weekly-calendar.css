@@ -8,24 +8,15 @@
     margin-top: 1rem;
 }
 
-#week_days,
-#week_days_numbers {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  border-right: 1px solid black;
-}
-
-.week_day {
-    border-left: 1px solid black;
-    border-top: 1px solid black;
-}
-
-.week_number {
-    border-left: 1px solid black;
+.week_day_header {
+    border-left: 0.1rem solid black;
+    border-top: 0.1rem solid black;
 }
 
 #week_calendar_header {
     grid-area: header;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
 }
 
 #timeslots_container {
@@ -49,6 +40,7 @@
     grid-template-rows: repeat(288, 1fr);
     position: relative; /*devo settare una position perché i figli con position absolute si allacciano al
                         padre più prossimo che ha la position settata a qualcosa diverso da static(default)*/
+    /* vertical lines */
     background: repeating-linear-gradient(
     to right,
     transparent 0%,
