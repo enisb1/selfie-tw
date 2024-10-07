@@ -1,5 +1,5 @@
 #weekly_calendar_container {
-    display: grid;
+    /*display set using tailwind*/
     grid-template-columns: 4rem auto;
     grid-template-rows:auto;
     grid-template-areas:
