@@ -1,7 +1,8 @@
+//TODO: adapt this weekly calendar code to daily calendar 
+
 function createDefaultEventDiv(event) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("absolute", "bg-blue-700", "left-20", 
-        "h-20", "text-white", "p-1", "rounded-md", "shadow-md");
+    eventDiv.classList.add("absolute", "text-white", "p-1", "text-truncate", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
     title.innerText = event.title;
@@ -11,56 +12,105 @@ function createDefaultEventDiv(event) {
     return eventDiv;
 }
 
-// calculates distance between two lines in the calendar
-// this distance varies based on the device size
-function getDistanceBetweenTwoLines() {
-    const line1 = document.getElementById("daily-hour-00");
-    const line2 = document.getElementById("daily-hour-01");
+// updates event's div zIndex
+// what it does: set zIndex of event's div, search for events that have start time between event's
+// start and end time, sort them based on growing start time and call setZIndex on them
+function setZIndex(event, day) {
+    const eventDiv = document.getElementById(event.divId);
+    eventDiv.style.zIndex = zIndexCount;
+    zIndexCount++;
+    
+    eventsContained = [];
+    // fill eventsContained
+    for (index in addedEvents[day-1]) {
+        e = addedEvents[day-1][index];
+        if (event.startInMinutes<e.startInMinutes && e.startInMinutes<event.endInMinutes) {
+            eventsContained.push(e);
+        }
+    }
 
-    const line1Top = line1.getBoundingClientRect().top;
-    const line2Top = line2.getBoundingClientRect().top;
-
-    return line2Top-line1Top;
+    eventsContained.sort((e1,e2) => e1.startInMinutes - e2.startInMinutes);
+    eventsContained.forEach((e) => {
+        setZIndex(e, day);
+    });
 }
 
-function getTimeBetweenStartEnd(endTimeString, startTimeString) {
-    const [hours_end, minutes_end] = endTimeString.split(':').map(Number);
-    const [hours_start, minutes_start] = startTimeString.split(':').map(Number);
-    return (hours_end*60+minutes_end) - (hours_start*60+minutes_start);
+function addEvent(eventToAdd) {
+    const [eventToAddHEnd, eventToAddMEnd] = eventToAdd.endTime.split(':').map(Number);
+    const [eventToAddHStart, eventToAddMStart] = eventToAdd.startTime.split(':').map(Number);
+    // add startInMinutes and endInMinutes to event's prototype
+    eventToAdd.startInMinutes = eventToAddHStart*60 + eventToAddMStart;
+    eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd;
+
+    //TODO: change this for events with same start time
+    // add height based on duration and left based on number of events in same time frame
+    let numEventsSharingStart = 0;
+    let day = 2;    //TODO: change this based on event's day
+    let eventsSharingStart = [];    // need to be able to retrieve events' div id
+    // get events and number of events sharing time frame
+    addedEvents[day-1].forEach(e => {        
+        if (e.startInMinutes == eventToAdd.startInMinutes) {
+            numEventsSharingStart++;
+            eventsSharingStart.push(e);
+        } 
+    });
+
+    // create div for new event
+    const eventToAddDiv = createDefaultEventDiv(eventToAdd);
+
+    // grid positon
+    // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
+    eventToAddDiv.style.gridColumn = "2 / span 1";  //TODO: change 2 to actual day
+    eventToAddDiv.style.gridRow = `${eventToAddHStart*12+1 + (eventToAddMStart/5)} / ${eventToAddHEnd*12+1 + (eventToAddMEnd/5)}`;
+    eventToAddDiv.style.height = "100%";
+    eventToAddDiv.classList.add(eventsBgColors[Math.floor(Math.random() * eventsBgColors.length)]); // choose random bg color
+
+    // id
+    eventToAddDiv.id = `event${nEvents}Daily`;
+    
+    // set new left and width to the events that are in the same time frame as the event to add
+    numEventsSharingStart++;    // including the event to add
+    for (let i = 0; i<numEventsSharingStart-1; i++) {
+        const eventDiv = document.getElementById(eventsSharingStart[i].divId);
+        eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
+        eventDiv.style.width = `${100/numEventsSharingStart}%`;
+    }
+
+    // left
+    eventToAddDiv.style.left = `${100-100/numEventsSharingStart}%`;
+
+    // width
+    eventToAddDiv.style.width = `${100/numEventsSharingStart}%`;
+
+    // add to events container
+    const eventsContainerDiv = document.getElementById("daily_events_container");
+    eventsContainerDiv.appendChild(eventToAddDiv);
+
+    // add id field and set zIndex to div
+    eventToAdd.divId = `event${nEvents}Daily`;
+
+    // if eventToAdd shares startTime with other events, then set the same zIndex (no need to increment)
+    if (numEventsSharingStart>1) {
+        const divElement = document.getElementById(eventsSharingStart[0].divId);
+        eventToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;
+    }
+    else
+        setZIndex(eventToAdd, day);
+
+    // event added, push it to addedEvents
+    addedEvents[day-1].push(eventToAdd);  //TODO: change addedEvents' index to actual day
+    nEvents++;
 }
 
-/*
 document.addEventListener("DOMContentLoaded", () => {
+    // test array
     const events = [
-        { title: "Event 1", startTime: "00:30", endTime: "01:30" },
-        { title: "Event 2", startTime: "02:15", endTime: "03:00" },
-        { title: "Event 3", startTime: "04:45", endTime: "05:15" }
+        {title: "Event 3", startTime: "01:30", endTime: "04:30"},
+        {title: "Event 1", startTime: "01:00", endTime: "03:00"},
+        {title: "Event 2", startTime: "01:00", endTime: "03:30"}
     ];
 
-    const event = events[0];
-    const eventDiv = createDefaultEventDiv(event);
-    const startTime = event.startTime;
-    const endTime = event.endTime;
-    const distanceBetweenTwoLines = getDistanceBetweenTwoLines();
-
-    // Set top (position of that hour's line + fraction of distance between lines based on minutes)
-    const [start_hours_string, start_minutes_string] = startTime.split(':');
-    const lineElement = document.getElementById(`daily-line-${start_hours_string}`);
-    const linePosition = lineElement.getBoundingClientRect().top + (Number(start_minutes_string)/60)*distanceBetweenTwoLines;
-    eventDiv.style.top = `${linePosition}px`;
-
-    // Set height
-    const eventMinutes = getTimeBetweenStartEnd(endTime, startTime);
-    const hours = eventMinutes/60;
-    const minutes = eventMinutes%60;
-    eventDiv.style.height = `${hours*distanceBetweenTwoLines + (minutes/60)*distanceBetweenTwoLines}px`;
-
-    // TODO: Set left (check the number of events already placed that occupy the time
-    // period of the event to be placed, if no events are placed set left nonetheless to
-    // a certain distance that is the line's left margin + some more margin...
-    // add this margin for every event occupying same time period)
-
-    const daily_calendar = document.getElementById("daily_calendar");
-    daily_calendar.appendChild(eventDiv);
+    //addEvent(events[0]);
+    //addEvent(events[1]);
+    //addEvent(events[2]);
 });
-*/

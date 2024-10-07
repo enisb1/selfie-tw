@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="./styles/output.css" rel="stylesheet">
     <link href="./styles/weekly-calendar.css" rel="stylesheet">
+    <link href="./styles/daily-calendar.css" rel="stylesheet">
     <script src="./js/daily-calendar.js" defer></script>
     <script src="./js/weekly-calendar.js" defer></script>
     <script src="./js/monthly-calendar.js" defer></script>
@@ -15,7 +16,7 @@
      inline della visualizzazione, ma ha anche le proprietà di un block e quindi posso dargli
      dimensione padding margin etc... -->
     <!-- Div dei bottoni-->
-     <div class="flex mt-5 justify-center sm:justify-normal sm:ml-8">
+    <div class="flex mt-5 justify-center sm:justify-normal sm:ml-8">
         <div class="text-left">
             <div>
               <button type="button" class="flex w-full justify-center gap-x-1.5 rounded-md bg-secondary 
@@ -54,108 +55,38 @@
         </div>
     </div>
 
-    <!-- Daily calendar, hide and show based on buttons' selections-->
-    <div id="daily_calendar" class="w-screen hidden">
-        <div class="flex items-center mt-6 h-6" id="daily-hour-00">
-            00:00
-            <div class="w-full bg-black h-px" id="daily-line-00"></div>
+    <!-- Daily calendar, part of the style is in daily-calendar.css -->
+    <div id="daily_calendar" class="grid grid mt-4">
+        <div id="daily_calendar_timeslots_container">
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">02:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">03:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">04:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">05:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">06:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">07:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">08:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">09:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">10:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">11:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">12:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">13:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">14:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">15:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">16:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">17:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">18:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">19:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">20:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">21:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">22:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">23:00</div>
         </div>
-        <div class="flex items-center mt-6 h-6" id="daily-hour-01">
-            01:00
-            <div class="w-full bg-black h-px"></div>
+
+        <div id="daily_events_container">
         </div>
-        <div class="flex items-center mt-6 h-6">
-            02:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            03:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            04:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            05:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            06:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            07:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            08:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            09:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            10:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            11:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            12:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            13:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            14:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            15:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            16:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            17:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            18:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            19:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            20:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            21:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            22:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            23:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
-        <div class="flex items-center mt-6 h-6">
-            00:00
-            <div class="w-full bg-black h-px"></div>
-        </div>
+        
     </div>
 
     <!-- a big part of the style is in weekly_calendar.css (mostly grid's properties) -->
@@ -276,7 +207,7 @@
         </div>
     </div>
 
-    <div id="monthly_calendar_container" class="grid grid-cols-7 mt-4">
+    <div id="monthly_calendar_container" class="hidden grid-cols-7 mt-4">
         <!-- Header -->
         <div class="hidden sm:block text-center border-t">Monday</div>
         <div class="block sm:hidden text-center border-t">M</div>
