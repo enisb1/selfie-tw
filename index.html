@@ -7,6 +7,7 @@
     <link href="./styles/weekly-calendar.css" rel="stylesheet">
     <script src="./js/daily-calendar.js" defer></script>
     <script src="./js/weekly-calendar.js" defer></script>
+    <script src="./js/monthly-calendar.js" defer></script>
     <title>Document</title>
 </head>
 <body>
@@ -158,7 +159,7 @@
     </div>
 
     <!-- a big part of the style is in weekly_calendar.css (mostly grid's properties) -->
-    <div id="weekly_calendar_container" class="grid overflow-x-scroll">
+    <div id="weekly_calendar_container" class="hidden overflow-x-scroll">
         <div id="week_calendar_header">
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Monday</div>
@@ -275,6 +276,72 @@
         </div>
     </div>
 
+    <div id="monthly_calendar_container" class="grid grid-cols-7 divide-x mt-4">
+        <!-- Header -->
+        <div class="hidden sm:block text-center border-t">Monday</div>
+        <div class="block sm:hidden text-center border-t">M</div>
+        <div class="hidden sm:block text-center border-t">Tuesday</div>
+        <div class="block sm:hidden text-center border-t">T</div>
+        <div class="hidden sm:block text-center border-t">Wednesday</div>
+        <div class="block sm:hidden text-center border-t">W</div>
+        <div class="hidden sm:block text-center border-t">Thursday</div>
+        <div class="block sm:hidden text-center border-t">T</div>
+        <div class="hidden sm:block text-center border-t">Friday</div>
+        <div class="block sm:hidden text-center border-t">F</div>
+        <div class="hidden sm:block text-center border-t">Saturday</div>
+        <div class="block sm:hidden text-center border-t">S</div>
+        <div class="hidden sm:block text-center border-t">Sunday</div>
+        <div class="block sm:hidden text-center border-t">S</div>
+
+        <!-- Days -->
+        <div class="min-h-20 text-center border-t">30</div>
+        <div class="min-h-20 text-center border-t">
+            1ott
+            <div class="text-center h-28 bg-red-500">prova</div>
+        </div>
+        <div class="min-h-20 text-center border-t">2</div>
+        <div class="min-h-20 text-center border-t">3</div>
+        <div class="min-h-20 text-center border-t">4</div>
+        <div class="min-h-20 text-center border-t">
+            5
+            <div class="text-center h-28 bg-red-500">prova</div>
+        </div>
+        <div class="min-h-20 text-center border-t">6</div>
+        <div class="min-h-20 text-center border-t">7</div>
+        <div class="min-h-20 text-center border-t">8</div>
+        <div class="min-h-20 text-center border-t">
+            9
+            <div class="text-center h-28 bg-red-500">prova</div>
+        </div>
+        <div class="min-h-20 text-center border-t">10</div>
+        <div class="min-h-20 text-center border-t">11</div>
+        <div class="min-h-20 text-center border-t">12</div>
+        <div class="min-h-20 text-center border-t">13</div>
+        <div class="min-h-20 text-center border-t">14</div>
+        <div class="min-h-20 text-center border-t">15</div>
+        <div class="min-h-20 text-center border-t">16</div>
+        <div class="min-h-20 text-center border-t">17</div>
+        <div class="min-h-20 text-center border-t">18</div>
+        <div class="min-h-20 text-center border-t">19</div>
+        <div class="min-h-20 text-center border-t">20</div>
+        <div class="min-h-20 text-center border-t">21</div>
+        <div class="min-h-20 text-center border-t">22</div>
+        <div class="min-h-20 text-center border-t">23</div>
+        <div class="min-h-20 text-center border-t">24</div>
+        <div class="min-h-20 text-center border-t">25</div>
+        <div class="min-h-20 text-center border-t">26</div>
+        <div class="min-h-20 text-center border-t">27</div>
+        <div class="min-h-20 text-center border-t border-b">28</div>
+        <div class="min-h-20 text-center border-t border-b">29</div>
+        <div class="min-h-20 text-center border-t border-b">30</div>
+        <div class="min-h-20 text-center border-t border-b">31</div>
+        <div class="min-h-20 text-center border-t border-b">
+            1nov
+            <div class="text-center h-28 bg-red-500">prova</div>
+        </div>
+        <div class="min-h-20 text-center border-t border-b">2</div>
+        <div class="min-h-20 text-center border-t border-b">3</div>
+    </div>
     
     
 </body>
