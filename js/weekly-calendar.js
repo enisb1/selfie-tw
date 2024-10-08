@@ -1,5 +1,5 @@
 // Global variables
-let addedEvents = [[],[],[],[],[],[],[]];   // array with a list of added events for each day of the week
+let addedEvents = [[],[],[],[],[],[],[]];   // array of arrays of added events for each day of the week
 let nEvents = 0;
 let eventsBgColors = ["bg-cyan-500", "bg-cyan-700", "bg-sky-500", "bg-sky-700", "bg-sky-900", "bg-blue-500", "bg-blue-700", "bg-blue-900", "bg-violet-400", "bg-violet-700", "bg-violet-900"];
 let zIndexCount = 0; 
@@ -47,15 +47,14 @@ function addEvent(eventToAdd) {
     const [eventToAddHEnd, eventToAddMEnd] = eventToAdd.endTime.split(':').map(Number);
     const [eventToAddHStart, eventToAddMStart] = eventToAdd.startTime.split(':').map(Number);
     // add startInMinutes and endInMinutes to event's prototype
+    // TODO: save this directly in db, probably better than to calculate it in script
     eventToAdd.startInMinutes = eventToAddHStart*60 + eventToAddMStart;
     eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd;
 
-    //TODO: change this for events with same start time
-    // add height based on duration and left based on number of events in same time frame
+    // get array of events with same start time
     let numEventsSharingStart = 0;
     let day = 2;    //TODO: change this based on event's day
     let eventsSharingStart = [];    // need to be able to retrieve events' div id
-    // get events and number of events sharing time frame
     addedEvents[day-1].forEach(e => {        
         if (e.startInMinutes == eventToAdd.startInMinutes) {
             numEventsSharingStart++;
@@ -73,11 +72,12 @@ function addEvent(eventToAdd) {
     eventToAddDiv.style.height = "100%";
     eventToAddDiv.classList.add(eventsBgColors[Math.floor(Math.random() * eventsBgColors.length)]); // choose random bg color
 
-    // id
+    // set div's id
     eventToAddDiv.id = `event${nEvents}Weekly`;
     
-    // set new left and width to the events that are in the same time frame as the event to add
-    numEventsSharingStart++;    // including the event to add
+    // set new left and width to the events that share the start time of the event to add
+    // left and width are set based on the number of events with same start time
+    numEventsSharingStart++;    // include the event to add in the count
     for (let i = 0; i<numEventsSharingStart-1; i++) {
         const eventDiv = document.getElementById(eventsSharingStart[i].divId);
         eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
@@ -94,10 +94,10 @@ function addEvent(eventToAdd) {
     const eventsContainerDiv = document.getElementById("events_container");
     eventsContainerDiv.appendChild(eventToAddDiv);
 
-    // add id field and set zIndex to div
+    // add id field to the event
     eventToAdd.divId = `event${nEvents}Weekly`;
 
-    // if eventToAdd shares startTime with other events, then set the same zIndex (no need to increment)
+    // if eventToAdd has same startTime as other events then set the same zIndex (no need to increment)
     if (numEventsSharingStart>1) {
         const divElement = document.getElementById(eventsSharingStart[0].divId);
         eventToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;
