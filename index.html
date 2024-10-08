@@ -11,7 +11,7 @@
     <script src="./js/monthly-calendar.js" defer></script>
     <title>Document</title>
 </head>
-<body>
+<body class="bg-primary">
     <!-- l'intero div ha proprietà inline-block perché così sarà inline con l'altro bottone
      inline della visualizzazione, ma ha anche le proprietà di un block e quindi posso dargli
      dimensione padding margin etc... -->
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
-    <div id="daily_calendar" class="grid grid mt-4">
+    <div id="daily_calendar" class="hidden grid mt-4">
         <div id="daily_calendar_timeslots_container">
             <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
@@ -295,6 +295,25 @@
         </div>
     </div>
     
+    <div id="daily_list_container" class="w-4/5 mx-auto mt-4">
+        <div class="flex justify-center">
+            <div class="self-start bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 text-white">prova</div>
+            <div class="ml-14">
+                <div class="bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 min-w-40 text-white">giorno1</div>
+                <div class="bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 min-w-40 text-white">giorno2</div>
+            </div>
+        </div>
+
+        <div class="flex justify-center mt-4">
+            <div class="self-start bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 text-white">prova</div>
+            <div class="ml-14">
+                <div class="bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 min-w-40 text-white">giorno1</div>
+                <div class="bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 min-w-40 text-white">giorno2</div>
+            </div>
+        </div>
+    </div>
+
+    </div>
     
 </body>
 </html>
