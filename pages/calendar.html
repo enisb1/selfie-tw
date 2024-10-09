@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="./styles/output.css" rel="stylesheet">
-    <link href="./styles/weekly-calendar.css" rel="stylesheet">
-    <link href="./styles/daily-calendar.css" rel="stylesheet">
-    <script src="./js/daily-calendar.js" defer></script>
-    <script src="./js/weekly-calendar.js" defer></script>
-    <script src="./js/monthly-calendar.js" defer></script>
+    <link href="../styles/output.css" rel="stylesheet">
+    <link href="../styles/weekly-calendar.css" rel="stylesheet">
+    <link href="../styles/daily-calendar.css" rel="stylesheet">
+    <script src="../script/daily-calendar.js"></script>
+    <script src="../script/weekly-calendar.js"></script>
+    <script src="../script/monthly-calendar.js"></script>
     <title>Document</title>
 </head>
 <body class="bg-primary">
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
-    <div id="daily_calendar" class="hidden grid mt-4">
+    <div id="daily_calendar" class="grid grid mt-4">
         <div id="daily_calendar_timeslots_container">
             <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
@@ -295,7 +295,7 @@
         </div>
     </div>
     
-    <div id="daily_list_container" class="w-4/5 mx-auto mt-4">
+    <div id="daily_list_container" class="hidden w-4/5 mx-auto mt-4">
         <div class="flex justify-center">
             <div class="self-start bg-secondary rounded-md shadow-sm ring-1 ring-inset ring-gray-300 p-3 text-white">prova</div>
             <div class="ml-14">
