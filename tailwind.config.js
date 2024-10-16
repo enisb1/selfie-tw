@@ -2,7 +2,8 @@
 module.exports = {
   content: [
     "./pages/*.html",
-    "./script/*.js"
+    "./script/*.js",
+    "./src/App.vue"
   ],
   theme: {
     extend: {
