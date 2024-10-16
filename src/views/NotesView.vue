@@ -1,81 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Note</title>
-  <link rel="stylesheet" href="../styles/output.css">
-  <script src="../script/note-script.js" defer></script>
-
-</head>
-<body class="bg-lavender-500 h-[1900px]">
-
-    <div class="bg-charcoal-500 h-14 fixed top-0 left-0 right-0 shadow-2xl"></div>
-
+<template>
     <!--Blur effect-->
-    <div class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl
-                lg:hidden"></div>
+    <div class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl lg:hidden"></div>
 
-
-    <!--NavBar Note-->
+    <!--NavBar-->
     <div class="grid grid-flow-col auto-cols-auto gap-3 bg-charcoal-500 rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl
                 lg:bottom-auto lg:top-20 lg:translate-x-0 lg:left-4 max-w-lg">
-
-        <button id="button_note_page" class="p-2 text-white font-bold flex justify-center items-center">
-            Note
-        </button>
-
-        <button id="button_all_page" class="p-2 text-white font-bold">
-            All
-        </button>
-
-        <button id="button_task_page" class="p-2 text-white font-bold">
-            Task
-        </button>
-        
+        <button id="button_note_page" @click="showNotes" class="p-2 text-white font-bold flex justify-center items-center">Note</button>
+        <button id="button_all_page" @click="showAll" class="p-2 text-white font-bold">All</button>
+        <button id="button_task_page" @click="showTasks" class="p-2 text-white font-bold">Task</button>
     </div>
-    
-    <button id="button_add" class="bg-white h-11 w-11 fixed bottom-20 right-4 rounded-full border-2 border-ylblue-500
+
+    <!--Add button-->
+    <button @click="toggleAddMenu" class="bg-white h-11 w-11 fixed bottom-20 right-4 rounded-full border-2 border-ylblue-500
                                     lg:bottom-auto lg:top-20">
         <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
     </button>
 
-    <button id="button_filter_xl" class="bg-white h-11 w-11 right-4 fixed bottom-20 rounded-full border-2 border-ylblue-500 invisible
-                                       lg:visible lg:bottom-auto lg:top-20 lg:right-20">
+    <!--Filter button-->
+    <button @click="toggleFilterModal" class="bg-white h-11 w-11 right-4 fixed bottom-20 rounded-full border-2 border-ylblue-500 invisible
+                                    lg:visible lg:bottom-auto lg:top-20 lg:right-20">
         <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/filter.png" alt="Filter">
     </button>
 
 
-    <!--Add window-->
-    <div id="backdrop" class="fixed top-0 left-0 h-full w-full hidden"></div>
-    <div id="popup_add" class="fixed right-2 bottom-32 z-2 w-48 hidden
-                               lg:bottom-auto lg:top-32">
+    <!--Add menu-->
+    <div v-show="showAddMenu" class="fixed right-2 bottom-32 z-2 w-48
+                            lg:bottom-auto lg:top-32">
         <div class="bg-white p-2 grid grid-cols-1 rounded-xl border border-ylblue-500 shadow-xl divide-y">
-            <button id="add_notatask" class="p-2 font-semibold flex justify-between items-center">
+            <button @click="toggleAddModal" v-if="notesVisible && !tasksVisible" class="p-2 font-semibold flex justify-between items-center">
                 Add Note
                 <img class="w-4" src="../images/noteBlack.png" alt="add_nota">
             </button>
-            <button id="button_filter_sm" class="p-2 font-semibold flex justify-between items-center
-                                                 lg:hidden">
+            <button @click="toggleAddModal" v-if="tasksVisible && !notesVisible" class="p-2 font-semibold flex justify-between items-center">
+                Add Task
+                <img class="w-4" src="../images/noteBlack.png" alt="add_nota">
+            </button>
+            <button @click="toggleAddModal" v-if="notesVisible && tasksVisible" class="p-2 font-semibold flex justify-between items-center">
+                Add Note/Task
+                <img class="w-4" src="../images/noteBlack.png" alt="add_nota">
+            </button>
+            <button @click="toggleFilterModal" class="p-2 font-semibold flex justify-between items-center
+                                                lg:hidden">
                 Add Filter
                 <img class="w-4" src="../images/filterBlack.png" alt="add_filter">
             </button>
         </div>     
     </div>
-    
 
-    <!--AddNote window-->
-    <div id="popup_add_note" class="fixed top-0 left-0 bg-black/40 h-full w-full hidden">
+
+    <!--AddNoteTask modal-->
+    <div v-show="showAddModal" class="fixed top-0 left-0 bg-black/40 h-full w-full">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-ylblue-500">
             <div class="border border-ylblue-500 fixed top-[52px] left-0 w-full"></div>
             <div class="content bg-white p-2">
                 <header class=" flex justify-between items-center">
-                    <p class="p-2 text-ylblue-500 font-bold">Add Note</p>
-                    <button id="closeAdd"><img class="w-4 h-4 mr-2 hover:border-2 border-ylblue-500" src="../images/x.png" alt="Croce"></button>
+                    <button v-show="notesVisible" class="p-2 px-3 text-ylblue-500 font-bold rounded-xl 
+                                 hover:bg-ylblue-500 hover:text-white">Add Note</button>
+                    <button v-show="tasksVisible" class="p-2 px-3 mr-10 text-ylblue-500 font-bold rounded-xl
+                                   hover:bg-ylblue-500 hover:text-white">Add Task</button> 
+                    <button @click="toggleAddModal"><img class="w-4 h-4 mr-2 hover:border-2 border-ylblue-500" src="../images/x.png" alt="Croce"></button>
                 </header>
                 <form action="#">
-
                     <div class="row title p-2  grid grid-row-2">
                         <label class="font-semibold py-1">Title</label>
                         <input class="border border-ylblue-500 caret-ylblue-500" type="text" id="note_title" required>
@@ -93,26 +78,24 @@
                             <option value="limitedAccess">Selected</option>
                             <option value="privateAccess">Private</option>
                         </select>
-
                     </div>
 
                     <div class="flex justify-center mx-12 p-4">
                         <button id="SaveButton" class="px-4 py-1 shadow-xl hover:bg-ylblue-500 hover:text-white font-semibold">Save</button>
                     </div>
-
                 </form>
             </div>
         </div>
     </div>
 
-    <!--Filter window-->  
-    <div id="popup_add_filter" class="fixed top-0 left-0 bg-black/40 h-full w-full hidden">
+    <!--Filter modal-->  
+    <div v-show="showFilterModal" class="fixed top-0 left-0 bg-black/40 h-full w-full">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-ylblue-500">
             <div class="border border-ylblue-500 fixed top-[52px] left-0 w-full"></div>
             <div class="content bg-white p-2">
                 <header class=" flex justify-between items-center">
                     <p class="p-2 text-ylblue-500 font-bold">Add Filter</p>
-                    <button id="closeFilter"><img class="w-4 h-4 mr-2 hover:border-2 border-ylblue-500" src="../images/x.png" alt="Croce"></button>
+                    <button @click="toggleFilterModal"><img class="w-4 h-4 mr-2 hover:border-2 border-ylblue-500" src="../images/x.png" alt="Croce"></button>
                 </header>
                 <form action="#">
                     <div class="grid grid-rows-2 grid-cols-2 p-2 cursor-pointer">
@@ -122,7 +105,7 @@
                         </bottom>
                         <bottom class="flex flex-col items-center p-2 m-2 bg-lavender-500 rounded-lg hover:bg-ylblue-500 hover:text-white">
                             <img class="w-5" src="../images/filtrotitolo.png" alt="filtroTitolo">
-                             Title
+                            Title
                         </bottom>
                         <bottom class="flex flex-col items-center p-2 m-2 bg-lavender-500 rounded-lg hover:bg-ylblue-500 hover:text-white">
                             <img class="w-5" src="../images/filtrolunghezza.png" alt="filtroLunghezza"> 
@@ -138,25 +121,31 @@
         </div>
     </div>
 
-    <!--Cards-->
-    <div class="grid grid-cols-1 mx-10 my-20 gap-8
-                lg:grid-cols-3 lg:my-40">
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
+    <!--Tasks-->
+    <div class="grid grid-cols-1 mx-10 my-20 gap-8 lg:grid-cols-3 lg:my-40">
+        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
             <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaUnoooooooo</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                  consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                 numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>      
         </div>
 
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
+        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
             <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaDueeeeee</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                 consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
 
         </div>
+        <div v-show="tasksVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-charcoal-500 font-medium flex items-center text-white">TaskUnoooooooo</h5>
+            <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
+                consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
+               numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
 
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
+        </div>
+
+        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
             <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaQuattroo</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                 consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
@@ -164,40 +153,73 @@
 
         </div>
 
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaDueeeeee</h5>
+        <div v-show="tasksVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-charcoal-500 font-medium flex items-center text-white">TaskDueeeeeeee</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                 consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
 
         </div>
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaTreeeeee</h5>
-            <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
-                consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
-               numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
-
-        </div>
-
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaQuattroo</h5>
-            <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
-                consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
-               numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
-
-        </div>
-
-        <div class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaSeiiiiii</h5>
-            <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
-                consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
-               numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
-
-        </div>
-                    
     </div>
+</template>
 
-    <script src="script.js"></script>
+<script>
+import { ref } from 'vue';
 
-</body>
-</html>
+export default {
+    setup() {
+        // refs and methods to show only notes, only tasks, or both
+        const notesVisible = ref(true)
+        const tasksVisible = ref(true)
+        
+        const showNotes = () => {
+            notesVisible.value = true
+            tasksVisible.value = false
+        }
+
+        const showAll = () => {
+            tasksVisible.value = true
+            notesVisible.value = true
+        }
+
+        const showTasks = () => {
+            notesVisible.value = false
+            tasksVisible.value = true
+        }
+
+        // filter modal
+        const showFilterModal = ref(false)
+        const toggleFilterModal = () => {
+            showFilterModal.value = !showFilterModal.value
+        }
+
+        // add note/task menu and modal
+        const showAddMenu = ref(false)
+        const toggleAddMenu = () => {
+            showAddMenu.value = !showAddMenu.value
+        }
+        const showAddModal = ref(false)
+        const toggleAddModal = () => {
+            showAddModal.value = !showAddModal.value
+        }
+
+        return {
+            notesVisible,
+            tasksVisible,
+            showNotes,
+            showAll,
+            showTasks,
+            showFilterModal,
+            toggleFilterModal,
+            showAddMenu,
+            toggleAddMenu,
+            showAddModal,
+            toggleAddModal
+        }
+    }
+}
+</script>
+
+<style>
+
+</style>
