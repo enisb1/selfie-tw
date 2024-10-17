@@ -1,0 +1,73 @@
+<template>
+    <!-- Daily calendar, part of the style is in daily-calendar.css -->
+    <div id="daily_calendar" class="grid grid mt-4">
+        <div id="daily_calendar_timeslots_container">
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">02:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">03:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">04:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">05:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">06:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">07:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">08:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">09:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">10:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">11:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">12:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">13:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">14:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">15:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">16:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">17:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">18:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">19:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">20:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">21:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">22:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white">23:00</div>
+        </div>
+
+        <div id="daily_events_container">
+        </div>
+        
+    </div>
+</template>
+
+<script>
+export default {
+
+}
+//TODO: onmount fetch data from db
+</script>
+
+<style scoped>
+    #daily_calendar {
+        grid-template-columns: 4rem auto;
+        grid-template-rows: auto;
+        grid-template-areas: "timeslots_container main";
+    }
+
+    #daily_calendar_timeslots_container {
+        grid-area: timeslots_container;
+    }
+
+    #daily_events_container {
+        grid-area: main;
+        display: grid;
+        white-space: nowrap;
+        grid-template-rows: repeat(288, 1fr);
+        position: relative; /*devo settare una position perché i figli con position absolute si allacciano al
+                            padre più prossimo che ha la position settata a qualcosa diverso da static(default)*/
+    }
+
+    /* linee del calendario */
+    .daily_timeslot::after {
+        content: '';
+        position: absolute;
+        left: 0px;
+        width: 100%;
+        height: 0.1rem;
+        background: black;
+    }
+</style>

@@ -121,6 +121,7 @@
         </div>
     </div>
 
+    <!-- v-for tasks (probabilmente?) -->
     <!--Tasks-->
     <div class="grid grid-cols-1 mx-10 my-20 gap-8 lg:grid-cols-3 lg:my-40">
         <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">

@@ -17,12 +17,12 @@
         
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div class="hidden lg:flex space-x-6">
-          <a href="#" class="text-white hover:text-accent">Calendario</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <a href="#" class="text-white hover:text-accent">Centro Notifiche</a>
           <a href="#" class="text-white hover:text-accent">Chat</a>
           <a href="#" class="text-white hover:text-accent">Progetti</a>
           <a href="#" class="text-white hover:text-accent">Pomodoro</a>
-          <router-link class="text-white hover:text-accent" to="/notes">Note</router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
           <a href="#" class="text-white hover:text-accent">Impostazioni</a>
         </div>
       </div>

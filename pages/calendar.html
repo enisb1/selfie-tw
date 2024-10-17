@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../styles/output.css" rel="stylesheet">
-    <link href="../styles/weekly-calendar.css" rel="stylesheet">
-    <link href="../styles/daily-calendar.css" rel="stylesheet">
+    <link href="../src/styles/output.css" rel="stylesheet">
+    <link href="../src/styles/weekly-calendar.css" rel="stylesheet">
+    <link href="../src/styles/daily-calendar.css" rel="stylesheet">
     <script src="../script/daily-calendar.js"></script>
     <script src="../script/weekly-calendar.js"></script>
     <script src="../script/monthly-calendar.js"></script>
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
-    <div id="daily_calendar" class="grid grid mt-4">
+    <div id="daily_calendar" class="hidden grid mt-4">
         <div id="daily_calendar_timeslots_container">
             <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
@@ -90,7 +90,7 @@
     </div>
 
     <!-- a big part of the style is in weekly_calendar.css (mostly grid's properties) -->
-    <div id="weekly_calendar_container" class="hidden overflow-x-scroll">
+    <div id="weekly_calendar_container" class="grid overflow-x-scroll">
         <div id="week_calendar_header">
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Monday</div>
