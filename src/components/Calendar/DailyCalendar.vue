@@ -1,6 +1,6 @@
 <template>
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
-    <div id="daily_calendar" class="grid grid mt-4">
+    <div id="daily_calendar" class="grid mt-4">
         <div id="daily_calendar_timeslots_container">
             <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
