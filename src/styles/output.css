@@ -856,20 +856,12 @@ video {
   width: 100%;
 }
 
-.min-w-20 {
-  min-width: 5rem;
-}
-
 .min-w-24 {
   min-width: 6rem;
 }
 
 .min-w-40 {
   min-width: 10rem;
-}
-
-.min-w-80 {
-  min-width: 20rem;
 }
 
 .max-w-3xl {
@@ -1059,11 +1051,6 @@ video {
   border-color: rgb(56 63 81 / var(--tw-border-opacity));
 }
 
-.border-ylblue-500 {
-  --tw-border-opacity: 1;
-  border-color: rgb(60 79 118 / var(--tw-border-opacity));
-}
-
 .border-third {
   --tw-border-opacity: 1;
   border-color: rgb(60 79 118 / var(--tw-border-opacity));
@@ -1088,11 +1075,6 @@ video {
   background-color: rgb(30 58 138 / var(--tw-bg-opacity));
 }
 
-.bg-charcoal-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(56 63 81 / var(--tw-bg-opacity));
-}
-
 .bg-cyan-500 {
   --tw-bg-opacity: 1;
   background-color: rgb(6 182 212 / var(--tw-bg-opacity));
@@ -1103,7 +1085,7 @@ video {
   background-color: rgb(14 116 144 / var(--tw-bg-opacity));
 }
 
-.bg-lavender-500 {
+.bg-fourth {
   --tw-bg-opacity: 1;
   background-color: rgb(221 219 241 / var(--tw-bg-opacity));
 }
@@ -1112,12 +1094,6 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(221 219 241 / var(--tw-bg-opacity));
 }
-
-.bg-third {
-  --tw-bg-opacity: 1;
-  background-color: rgb(60 79 118 / var(--tw-bg-opacity));
-}
-
 
 .bg-red-500 {
   --tw-bg-opacity: 1;
@@ -1144,6 +1120,11 @@ video {
   background-color: rgb(12 74 110 / var(--tw-bg-opacity));
 }
 
+.bg-third {
+  --tw-bg-opacity: 1;
+  background-color: rgb(60 79 118 / var(--tw-bg-opacity));
+}
+
 .bg-violet-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(167 139 250 / var(--tw-bg-opacity));
@@ -1162,11 +1143,6 @@ video {
 .bg-white {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-}
-
-.bg-green-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(34 197 94 / var(--tw-bg-opacity));
 }
 
 .fill-current {
@@ -1301,12 +1277,7 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
-.text-ylblue-500 {
-  --tw-text-opacity: 1;
-  color: rgb(60 79 118 / var(--tw-text-opacity));
-}
-
-.caret-ylblue-500 {
+.caret-third {
   caret-color: #3C4F76;
 }
 
@@ -1403,7 +1374,7 @@ video {
   background-color: rgb(56 63 81 / var(--tw-bg-opacity));
 }
 
-.hover\:bg-ylblue-500:hover {
+.hover\:bg-third:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(60 79 118 / var(--tw-bg-opacity));
 }

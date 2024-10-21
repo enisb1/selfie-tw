@@ -4,7 +4,7 @@
                 lg:hidden"></div>
 
     <!--NavBar-->
-    <div class="grid grid-flow-col auto-cols-auto bg-charcoal-500 rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl
+    <div class="grid grid-flow-col auto-cols-auto bg-secondary rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl
                 lg:bottom-auto lg:top-20 lg:translate-x-0 lg:left-4 max-w-lg">
         <button id="button_note_page" :class="{'text-secondary bg-white rounded-3xl ':inNotePage, 'text-white':!inNotePage }" @click="showNotes" class="p-2 font-bold flex justify-center items-center">Note</button>
         <button id="button_all_page" :class="{'text-secondary bg-white rounded-3xl':inAllPage, 'text-white':!inAllPage}" @click="showAll" class="p-2 font-bold">All</button>
@@ -59,17 +59,17 @@
                 <header class=" flex justify-between items-center">
                     <button :class="{'bg-third text-white':inNoteAdd, 'text-third':!inNoteAdd}" v-show="notesVisible" @click="changeN" class="p-2 px-3 font-bold rounded-xl">Add Note</button>
                     <button :class="{'bg-third text-white':inTaskAdd, 'text-third':!inTaskAdd}" v-show="tasksVisible" @click="changeT" class="p-2 px-3 mr-10 font-bold rounded-xl">Add Task</button> 
-                    <button @click="toggleAddModal"><img class="w-4 h-4 mr-2 hover:border-2 border-ylblue-500" src="../images/x.png" alt="Croce"></button>
+                    <button @click="toggleAddModal"><img class="w-4 h-4 mr-2 hover:border-2 border-third" src="../images/x.png" alt="Croce"></button>
                 </header>
                 <form action="#">
                     <div class="row title p-2  grid grid-row-2">
                         <label class="font-semibold py-1">Title</label>
-                        <input class="border border-third caret-ylblue-500" type="text" id="note_title" required>
+                        <input class="border border-third caret-third" type="text" id="note_title" required>
                     </div>
 
                     <div class="row title p-2  grid grid-row-2">
                         <label class="font-semibold py-1">Category</label>
-                        <input class="border border-third caret-ylblue-500" type="text" id="note_category" required>
+                        <input class="border border-third caret-third" type="text" id="note_category" required>
                     </div>
 
                     <div class="row access list p-2  grid grid-row-2">
@@ -82,7 +82,7 @@
                     </div>
 
                     <div class="flex justify-center mx-12 p-4">
-                        <button id="SaveButton" class="px-4 py-1 shadow-xl hover:bg-ylblue-500 hover:text-white font-semibold">Save</button>
+                        <button id="SaveButton" class="px-4 py-1 shadow-xl hover:bg-third hover:text-white font-semibold">Save</button>
                     </div>
                 </form>
             </div>
@@ -91,28 +91,28 @@
 
     <!--Filter modal-->  
     <div v-show="showFilterModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-ylblue-500">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-third">
             <div class="border border-third fixed top-[52px] left-0 w-full"></div>
             <div class="content bg-white p-2 ">
                 <header class=" flex justify-between items-center">
                     <p class="p-2 text-third font-bold">Add Filter</p>
-                    <button @click="toggleFilterModal"><img class="w-4 h-4 mr-2 hover:border-2 border-ylblue-500" src="../images/x.png" alt="Croce"></button>
+                    <button @click="toggleFilterModal"><img class="w-4 h-4 mr-2 hover:border-2 border-third" src="../images/x.png" alt="Croce"></button>
                 </header>
                 <form action="#">
                     <div class="grid grid-rows-2 grid-cols-2 p-2 cursor-pointer">
-                        <button id="buttonDate" :class="{'bg-third text-white':inDate, 'bg-lavender-500':!inDate}" @mouseenter="inButtonDate" @mouseleave="inButtonDate" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
+                        <button id="buttonDate" :class="{'bg-third text-white':inDate, 'bg-fourth':!inDate}" @mouseenter="inButtonDate" @mouseleave="inButtonDate" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img id="buttonImage" class="w-5" :src="inDate ? hoverImgDate : defaultImgDate" alt="filtroData">
                             Date
                         </button>
-                        <button :class="{'bg-third text-white':inTitle, 'bg-lavender-500':!inTitle}" @mouseenter="inButtonTitle" @mouseleave="inButtonTitle" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
+                        <button :class="{'bg-third text-white':inTitle, 'bg-fourth':!inTitle}" @mouseenter="inButtonTitle" @mouseleave="inButtonTitle" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img class="w-5" :src="inTitle ? hoverImgTitle : defaultImgTitle" alt="filtroTitolo">
                             Title
                         </button>
-                        <button :class="{'bg-third text-white':inLength, 'bg-lavender-500':!inLength}" @mouseenter="inButtonLength" @mouseleave="inButtonLength" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
+                        <button :class="{'bg-third text-white':inLength, 'bg-fourth':!inLength}" @mouseenter="inButtonLength" @mouseleave="inButtonLength" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img class="w-5" :src="inLength ? hoverImgLength : defaultImgLength" alt="filtroLunghezza"> 
                             Length
                         </button>
-                        <button :class="{'bg-third text-white':inCategory, 'bg-lavender-500':!inCategory}" @mouseenter="inButtonCategory" @mouseleave="inButtonCategory" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
+                        <button :class="{'bg-third text-white':inCategory, 'bg-fourth':!inCategory}" @mouseenter="inButtonCategory" @mouseleave="inButtonCategory" class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img class="w-5" :src="inCategory ? hoverImgCategory : defaultImgCategory" alt="filtroCategoria"> 
                             Category
                         </button>
@@ -125,38 +125,38 @@
     <!-- v-for tasks (probabilmente?) -->
     <!--Tasks-->
     <div class="grid grid-cols-1 mx-10 my-20 gap-8 lg:grid-cols-3 lg:my-40">
-        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaUnoooooooo</h5>
+        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-third shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-fourth font-medium flex items-center text-third">NotaUnoooooooo</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                  consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                 numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>      
         </div>
 
-        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaDueeeeee</h5>
+        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-third shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-fourth font-medium flex items-center text-third">NotaDueeeeee</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                 consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
 
         </div>
-        <div v-show="tasksVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-charcoal-500 font-medium flex items-center text-white">TaskUnoooooooo</h5>
-            <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
-                consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
-               numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
-
-        </div>
-
-        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-lavender-500 font-medium flex items-center text-ylblue-500">NotaQuattroo</h5>
+        <div v-show="tasksVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-third shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-secondary font-medium flex items-center text-white">TaskUnoooooooo</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                 consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
 
         </div>
 
-        <div v-show="tasksVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-ylblue-500 shadow-2xl overflow-hidden">
-            <h5 class="p-1 h-1/4 m-1 bg-charcoal-500 font-medium flex items-center text-white">TaskDueeeeeeee</h5>
+        <div v-show="notesVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-third shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-fourth font-medium flex items-center text-third">NotaQuattroo</h5>
+            <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
+                consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
+               numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
+
+        </div>
+
+        <div v-show="tasksVisible" class="h-32 rounded-r-xl rounded-bl-xl bg-white border-4 border-third shadow-2xl overflow-hidden">
+            <h5 class="p-1 h-1/4 m-1 bg-secondary font-medium flex items-center text-white">TaskDueeeeeeee</h5>
             <p class="px-2 text-xs">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quia reprehenderit accusantium
                 consequatur ratione ullam, odio impedit vero provident corrupti et velit, 
                numquam perspiciatis natus mollitia deleniti, eligendi voluptatum vitae est?</p>
@@ -178,17 +178,12 @@ import hoverImgCategory from "../images/categoryFilterWhite.png"
 
 export default {
     setup() {
-        
         const inNotePage = ref(false)
         const inTaskPage = ref(false)
         const inAllPage = ref(true)
 
         const inNoteAdd = ref(false)
         const inTaskAdd = ref(false)
-
-        
-
-        
 
         // refs and methods to show only notes, only tasks, or both
         const notesVisible = ref(true)
@@ -246,10 +241,6 @@ export default {
             inCategory.value = !inCategory.value
         }
 
-    
-        
-        
-
         // add note/task menu and modal
         const showAddMenu = ref(false)
         const toggleAddMenu = () => {
@@ -278,19 +269,6 @@ export default {
             showFilterModal.value = false
         }
 
-        
-
-
-
-        
-
-        
-
-       
-
-
-
-    
         return {
             notesVisible,
             tasksVisible,
@@ -327,8 +305,6 @@ export default {
             hoverImgTitle,
             hoverImgLength,
             hoverImgCategory
-            
-        
         }
     }
 }
