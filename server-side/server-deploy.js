@@ -4,6 +4,7 @@ import notesRouter from './routes/notesRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import http from "node:http";
 
 const app = express();
 const PORT = 8000;
@@ -20,6 +21,8 @@ app.use(express.static(client_dist_path));  //middleware to serve static build d
 app.use("/", homeRouter);
 app.use("/notes", notesRouter);
 
-app.listen(PORT, () => {
-    console.log(`Server is running on localhost:${PORT}`);
-})
+// Create an HTTP server and attach the Express app
+const server = http.createServer(app);
+
+// start server
+server.listen(PORT);
