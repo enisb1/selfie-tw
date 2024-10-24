@@ -13,6 +13,13 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# server-side
+server-side/node_modules
+
+# client-side
+client-side/node_modules
+client-side/dist
+
 # Editor directories and files
 .idea
 .vscode
