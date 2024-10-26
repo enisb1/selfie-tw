@@ -132,7 +132,7 @@ export default {
     }
 
     // add event modal
-    const showAddEventModal = ref(true)
+    const showAddEventModal = ref(false)
     const toggleAddEventModal = () => {
       showAddEventModal.value = !showAddEventModal.value
     }
