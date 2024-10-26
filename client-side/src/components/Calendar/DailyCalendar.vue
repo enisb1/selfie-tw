@@ -41,8 +41,9 @@
 
 <script>
 import DatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css'
+import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
+import axios from 'axios';
 
 export default {
     components: {
@@ -60,6 +61,15 @@ export default {
             selectedDate,
             formatDate
         }
+    },
+    mounted() {
+        // get events
+        axios.get('http://localhost:8000/api/calendar/getEvents')
+        .then(response => {
+            console.log(response.data);
+        }, error => {
+            console.log('error');
+        });
     }
 }
 //TODO: onmount fetch data from db

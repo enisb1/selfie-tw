@@ -24,19 +24,19 @@ mongoose.connect(mongouri)
         console.error('Error connecting to MongoDB', err);
     });
 
+// routing
+app.use("/api/calendar", calendarRoutes)
+
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Serve static files from the client-side/dist directory
 const client_dist_path = __dirname + '/../client-side/dist';
-app.use(express.static(client_dist_path)); // serve static files (built directory)
+app.use(express.static(client_dist_path)); // serve static files to make those resources accessible to index.html
 // for any request received by the server, respond with the static file index.html 
 // (vue router will handle the front-end routing)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname + '/../client-side/dist' + '/index.html'));
 });
-
-// routing
-app.use("/api/calendar", calendarRoutes)
 
 // Create an HTTP server and attach the Express app
 const server = http.createServer(app);

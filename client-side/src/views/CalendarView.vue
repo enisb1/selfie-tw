@@ -55,7 +55,7 @@
   
   <!-- Add event modal -->
   <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
-    <form @submit.prevent="addEvent">
+    <form @submit.prevent="addEvent"> <!-- TODO: try to remove prevent and see if newly added event is visible-->
       <div class="flex items-center justify-between flex-row">
         <p class="font-bold text-lg">Add event</p>
         <button @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
