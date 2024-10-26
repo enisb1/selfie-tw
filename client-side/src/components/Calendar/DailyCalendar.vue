@@ -1,4 +1,7 @@
 <template>
+    <!-- Daily date picker -->
+    <DatePicker class="block mt-2 w-10" v-model="selectedDate" :enable-time-picker="false"></DatePicker>
+    
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
     <div id="daily_calendar" class="grid mt-4">
         <div id="daily_calendar_timeslots_container">
@@ -35,8 +38,20 @@
 </template>
 
 <script>
-export default {
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
+import { ref } from 'vue';
 
+export default {
+    components: {
+        DatePicker
+    },
+    setup() {
+        const selectedDate = ref();
+        return {
+            selectedDate
+        }
+    }
 }
 //TODO: onmount fetch data from db
 </script>
