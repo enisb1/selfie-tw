@@ -1,7 +1,10 @@
 <template>
     <!-- Daily date picker -->
-    <DatePicker class="block mt-2 w-10" v-model="selectedDate" :enable-time-picker="false"></DatePicker>
-    
+    <div class="text-center sm:text-left">
+        <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="selectedDate" :enable-time-picker="false"
+        :format="formatDate"></DatePicker>
+    </div>
+        
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
     <div id="daily_calendar" class="grid mt-4">
         <div id="daily_calendar_timeslots_container">
@@ -33,7 +36,6 @@
 
         <div id="daily_events_container">
         </div>
-        
     </div>
 </template>
 
@@ -48,8 +50,15 @@ export default {
     },
     setup() {
         const selectedDate = ref();
+        
+        // format date
+        const formatDate = (date) => {
+            return date ? date.toLocaleDateString('it-IT') : '';
+        }
+
         return {
-            selectedDate
+            selectedDate,
+            formatDate
         }
     }
 }

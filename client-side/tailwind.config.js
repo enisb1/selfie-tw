@@ -4,7 +4,9 @@ module.exports = {
     "./pages/*.html",
     "./script/*.js",
     "./src/views/*.vue",
-    "./src/App.vue"
+    "./src/App.vue",
+    "./src/components/*.vue",
+    "./src/components/Calendar/*.vue"
   ],
   theme: {
     extend: {
