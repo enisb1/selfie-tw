@@ -55,25 +55,29 @@
   
   <!-- Add event modal -->
   <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
-    <form>
-      <div class="flex items-center justify-between">
+    <form @submit.prevent="addEvent">
+      <div class="flex items-center justify-between flex-row">
         <p class="font-bold text-lg">Add event</p>
         <button @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
           src="../images/x.png" alt="Croce"></button>
       </div>
-
       <hr style="border-color: black"/>
 
-      <div class="mt-4">
-        <p class="font-semibold text-base">Starts</p>
-        <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
-          :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker>
-      </div>
+      <div class="flex flex-col items-center">
+        <div class="mt-4">
+          <p class="font-semibold text-base">Starts</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
+            :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker>
+        </div>
 
-      <div class="mt-4">
-        <p class="font-semibold text-base">Ends</p>
-        <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
-          :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker>
+        <div class="mt-4">
+          <p class="font-semibold text-base">Ends</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
+            :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker>
+        </div>
+
+        <button class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Aggiungi</button>
       </div>
     </form>
   </Modal>
@@ -97,7 +101,8 @@ import MonthlyCalendar from '@/components/Calendar/MonthlyCalendar.vue';
 import WeeklyCalendar from '@/components/Calendar/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css'
+import '@vuepic/vue-datepicker/dist/main.css';
+import axios from 'axios';
 
 import { ref } from 'vue';
 
@@ -153,6 +158,16 @@ export default {
       });
     }
     const startTime = ref({ hours: 12, minutes: 30 });
+    // add event method
+    const addEvent = () => {  
+      // post api
+      axios.post('http://localhost:8000/api/calendar/addEvent', {"startDate": eventToAddStartDate.value,
+        "endDate": eventToAddEndDate.value
+      })
+      .then(({data}) => {
+        console.log(data);
+      })
+    }
 
     return {
       calendarToShow,
@@ -166,7 +181,8 @@ export default {
       eventToAddStartDate,
       eventToAddEndDate,
       formatDate,
-      startTime
+      startTime,
+      addEvent
     }
   }
 }
