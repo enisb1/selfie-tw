@@ -1,6 +1,7 @@
 import express from 'express';
 import homeRouter from './routes/homeRoutes.js';
 import notesRouter from './routes/notesRoutes.js';
+import calendarRoutes from './routes/calendarRoutes.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
@@ -11,6 +12,7 @@ const app = express();
 const PORT = 8000;
 
 app.use(cors());
+app.use(express.json());
 
 //const mongouri = `mongodb+srv://bencio003:<db_password>@tecweb18.wgvir.mongodb.net/?retryWrites=true&w=majority&appName=Tecweb18`
 //TODO: set up env variables for mongo uri parameters
@@ -36,8 +38,7 @@ app.get('*', (req, res) => {
 });
 
 // routing
-//app.use("/", homeRouter);
-//app.use("/notes", notesRouter);
+app.use("/api/calendar", calendarRoutes)
 
 // Create an HTTP server and attach the Express app
 const server = http.createServer(app);
