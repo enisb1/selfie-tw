@@ -1,6 +1,4 @@
 import express from 'express';
-import homeRouter from './routes/homeRoutes.js';
-import notesRouter from './routes/notesRoutes.js';
 import calendarRoutes from './routes/calendarRoutes.js'
 import path from 'path';
 import { fileURLToPath } from 'url';
