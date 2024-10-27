@@ -16,6 +16,7 @@ router.post("/addEvent", async (req, res) => {
     }
 });
 
+// retrieve all events from db (//TODO: if not used delete this)
 router.get("/getEvents", async (req, res) => {
     try {
         const events = await Event.find(); // retrieve all events from the database

@@ -53,13 +53,23 @@ export default {
     },
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
+        watch(selectedDate, () => {
+            updateEvents();
+        })
         
+        // events
         const events = ref();
+        const updateEvents = async () => {
+            // fetch selected date's events and set them to events
+            const start = new Date(new Date(selectedDate.value).setHours(0, 0, 0, 0));
+            const end = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
+            events.value = await getEvents(start, end);
+        }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
             renderEvents(newEvents);
         });
-
+        
         // format date
         const formatDate = (date) => {
             return date ? date.toLocaleDateString('it-IT') : '';
@@ -68,14 +78,12 @@ export default {
         return {
             selectedDate,
             formatDate,
-            events
+            events,
+            updateEvents
         }
     },
-    async mounted() {
-        // get events
-        const start = new Date(new Date(this.selectedDate).setHours(0, 0, 0, 0));
-        const end = new Date(new Date(this.selectedDate).setHours(23, 59, 59, 999));
-        this.events = await getEvents(start, end);
+    mounted() {
+        this.updateEvents();
     }
 }
 </script>

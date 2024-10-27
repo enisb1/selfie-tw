@@ -233,11 +233,13 @@ function addEvent(eventToAdd) {
 }
 
 export function renderEvents(events) {
-    //console.log(new Date(events[0].startDate).getHours());
+    // reset all
+    document.getElementById("daily_events_container").innerHTML="";
     addedEvents = [];
     nEvents = 0;
     zIndexCount = 0;
     
+    // add new events to calendar
     for (const event of events) {
         addEvent(event);
     }
