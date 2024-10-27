@@ -85,13 +85,13 @@
         </div>
 
         <button type="submit" class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
-          text-white shadow-sm ring-1 ring-inset ring-gray-300">Aggiungi</button>
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
       </div>
     </form>
   </Modal>
 
   <div v-show="calendarToShow === 'daily'">
-    <DailyCalendar />
+    <DailyCalendar ref="dailyCalendarRef"/>
   </div>
 
   <div v-show="calendarToShow === 'weekly'">
@@ -111,6 +111,7 @@ import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { postEvent } from '@/apis/calendar';
+import { getCurrentInstance } from 'vue';
 
 import { ref } from 'vue';
 
@@ -147,10 +148,14 @@ export default {
     // add event modal
     const showAddEventModal = ref(false)
     const toggleAddEventModal = () => {
+      // reset form when closing it
+      eventToAddTitle.value = ''
+      eventToAddStartDate.value = null
+      eventToAddEndDate.value = null
       showAddEventModal.value = !showAddEventModal.value
     }
     // add event modal data
-    const eventToAddTitle = ref('');
+    const eventToAddTitle = ref('')
     const eventToAddStartDate = ref()
     const eventToAddEndDate = ref()
     // format date in add event modal
@@ -166,11 +171,13 @@ export default {
       });
     }
     const startTime = ref({ hours: 12, minutes: 30 })
-    // add event method
-    const addEvent = () => {
-      //TODO: check if endDate > startDate, if not -> error
-      // post api
-      postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
+    // current instance is needed to access refs
+    const { proxy } = getCurrentInstance();
+    const addEvent = async () => {
+      //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
+      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
+      proxy.$refs.dailyCalendarRef.updateEvents();
+      toggleAddEventModal();
     }
 
     return {

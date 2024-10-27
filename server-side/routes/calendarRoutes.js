@@ -20,8 +20,6 @@ router.post("/addEvent", async (req, res) => {
 router.get("/getEvents", async (req, res) => {
     try {
         const events = await Event.find(); // retrieve all events from the database
-        console.log('here');
-        console.log(events);
         res.status(200).json(events);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving events', error });

@@ -11,8 +11,8 @@ export async function getEvents(start, end) {
 }
 
 // post event to db
-export function postEvent(title, start, end) {
-    axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "startDate": start,
+export async function postEvent(title, start, end) {
+    await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "startDate": start,
         "endDate": end
     })
     .then(({data}) => {
