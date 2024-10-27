@@ -43,9 +43,9 @@
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
-import axios from 'axios';
 import { renderEvents } from './render-events-day.js';
 import { watch } from 'vue';
+import { getEvents } from '@/apis/calendar.js';
 
 export default {
     components: {
@@ -71,20 +71,13 @@ export default {
             events
         }
     },
-    mounted() {
+    async mounted() {
         // get events
         const start = new Date(new Date(this.selectedDate).setHours(0, 0, 0, 0));
         const end = new Date(new Date(this.selectedDate).setHours(23, 59, 59, 999));
-        // add checks to verify that startDate and endDate are indeed dates, if not log error
-        axios.get(`http://localhost:8000/api/calendar/events?start=${start}&end=${end}`)
-        .then(response => {
-            this.events = response.data;
-        }, error => {
-            console.log('error ',error);
-        });
+        this.events = await getEvents(start, end);
     }
 }
-//TODO: onmount fetch data from db
 </script>
 
 <style scoped>

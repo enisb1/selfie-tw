@@ -102,7 +102,7 @@ import WeeklyCalendar from '@/components/Calendar/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import axios from 'axios';
+import { postEvent } from '@/apis/calendar';
 
 import { ref } from 'vue';
 
@@ -158,14 +158,10 @@ export default {
     }
     const startTime = ref({ hours: 12, minutes: 30 });
     // add event method
-    const addEvent = () => {  
+    const addEvent = () => {
+      //TODO: check if endDate > startDate, if not -> error
       // post api
-      axios.post('http://localhost:8000/api/calendar/addEvent', {"startDate": eventToAddStartDate.value,
-        "endDate": eventToAddEndDate.value
-      })
-      .then(({data}) => {
-        console.log(data);
-      })
+      postEvent(eventToAddStartDate.value, eventToAddEndDate.value)
     }
 
     return {

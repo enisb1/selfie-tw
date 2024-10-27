@@ -6,7 +6,8 @@ module.exports = {
     "./src/views/*.vue",
     "./src/App.vue",
     "./src/components/*.vue",
-    "./src/components/Calendar/*.vue"
+    "./src/components/Calendar/*.vue",
+    "./src/components/Calendar/Daily*.vue"
   ],
   theme: {
     extend: {
