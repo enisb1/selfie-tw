@@ -55,7 +55,7 @@
   
   <!-- Add event modal -->
   <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
-    <form @submit.prevent="addEvent"> <!-- TODO: try to remove prevent and see if newly added event is visible-->
+    <form @submit.prevent="addEvent"> <!-- TODO: try to update events in calendar when submitting -->
       <div class="flex items-center justify-between flex-row">
         <p class="font-bold text-lg">Add event</p>
         <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
@@ -64,12 +64,20 @@
       <hr style="border-color: black"/>
 
       <div class="flex flex-col items-center">
+        <!-- title -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Title</p>
+          <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
+        </div>
+        
+        <!-- start date -->
         <div class="mt-4">
           <p class="font-semibold text-base">Starts</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
             :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
-
+        
+        <!-- end date -->
         <div class="mt-4">
           <p class="font-semibold text-base">Ends</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
@@ -142,6 +150,7 @@ export default {
       showAddEventModal.value = !showAddEventModal.value
     }
     // add event modal data
+    const eventToAddTitle = ref('');
     const eventToAddStartDate = ref()
     const eventToAddEndDate = ref()
     // format date in add event modal
@@ -156,12 +165,12 @@ export default {
           hour12: false // (12 hour format)
       });
     }
-    const startTime = ref({ hours: 12, minutes: 30 });
+    const startTime = ref({ hours: 12, minutes: 30 })
     // add event method
     const addEvent = () => {
       //TODO: check if endDate > startDate, if not -> error
       // post api
-      postEvent(eventToAddStartDate.value, eventToAddEndDate.value)
+      postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
     }
 
     return {
@@ -177,7 +186,8 @@ export default {
       eventToAddEndDate,
       formatDate,
       startTime,
-      addEvent
+      addEvent,
+      eventToAddTitle
     }
   }
 }

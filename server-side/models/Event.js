@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 // schema
 const eventSchema = new mongoose.Schema({
+    title: String,
     startDate: Date,
     endDate: Date
 });

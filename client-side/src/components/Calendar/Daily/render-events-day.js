@@ -132,8 +132,7 @@ function createDefaultEventDiv(event) {
     eventDiv.classList.add("absolute", "text-white", "p-1", "text-truncate", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
-    //title.innerText = event.title;
-    title.innerText = "prova";
+    title.innerText = event.title;
     
     eventDiv.appendChild(title);
 
