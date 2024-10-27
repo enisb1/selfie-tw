@@ -58,7 +58,7 @@
     <form @submit.prevent="addEvent"> <!-- TODO: try to remove prevent and see if newly added event is visible-->
       <div class="flex items-center justify-between flex-row">
         <p class="font-bold text-lg">Add event</p>
-        <button @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+        <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
           src="../images/x.png" alt="Croce"></button>
       </div>
       <hr style="border-color: black"/>
@@ -67,16 +67,16 @@
         <div class="mt-4">
           <p class="font-semibold text-base">Starts</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
-            :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker>
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
 
         <div class="mt-4">
           <p class="font-semibold text-base">Ends</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
-            :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker>
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
 
-        <button class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+        <button type="submit" class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
           text-white shadow-sm ring-1 ring-inset ring-gray-300">Aggiungi</button>
       </div>
     </form>
@@ -96,7 +96,7 @@
 </template>
 
 <script>
-import DailyCalendar from '@/components/Calendar/DailyCalendar.vue'
+import DailyCalendar from '@/components/Calendar/Daily/DailyCalendar.vue'
 import MonthlyCalendar from '@/components/Calendar/MonthlyCalendar.vue';
 import WeeklyCalendar from '@/components/Calendar/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
@@ -147,7 +147,6 @@ export default {
     // format date in add event modal
     const formatDate = (date) => {
       if (!date) return '';
-    
       return date.toLocaleString('it-IT', {
           year: 'numeric',
           month: '2-digit',

@@ -44,6 +44,8 @@ import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import axios from 'axios';
+import { renderEvents } from './render-events-day.js';
+import { watch } from 'vue';
 
 export default {
     components: {
@@ -52,6 +54,12 @@ export default {
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
         
+        const events = ref();
+        // watch for updates to events and render them
+        watch(events, (newEvents) => {
+            renderEvents(newEvents);
+        });
+
         // format date
         const formatDate = (date) => {
             return date ? date.toLocaleDateString('it-IT') : '';
@@ -59,7 +67,8 @@ export default {
 
         return {
             selectedDate,
-            formatDate
+            formatDate,
+            events
         }
     },
     mounted() {
@@ -69,7 +78,7 @@ export default {
         // add checks to verify that startDate and endDate are indeed dates, if not log error
         axios.get(`http://localhost:8000/api/calendar/events?start=${start}&end=${end}`)
         .then(response => {
-            console.log(response.data);
+            this.events = response.data;
         }, error => {
             console.log('error ',error);
         });
