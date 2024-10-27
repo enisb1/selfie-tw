@@ -50,7 +50,7 @@ export default {
         DatePicker
     },
     setup() {
-        const selectedDate = ref();
+        const selectedDate = ref(new Date());   // default date = current date
         
         // format date
         const formatDate = (date) => {
@@ -64,11 +64,14 @@ export default {
     },
     mounted() {
         // get events
-        axios.get('http://localhost:8000/api/calendar/getEvents')
+        const start = new Date(new Date(this.selectedDate).setHours(0, 0, 0, 0));
+        const end = new Date(new Date(this.selectedDate).setHours(23, 59, 59, 999));
+        // add checks to verify that startDate and endDate are indeed dates, if not log error
+        axios.get(`http://localhost:8000/api/calendar/events?start=${start}&end=${end}`)
         .then(response => {
             console.log(response.data);
         }, error => {
-            console.log('error');
+            console.log('error ',error);
         });
     }
 }
