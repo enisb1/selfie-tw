@@ -7,10 +7,10 @@ module.exports = {
     "./src/App.vue",
     "./src/components/*.vue",
     "./src/components/Calendar/*.vue",
-    "./src/components/Calendar/Daily*.vue"
+    "./src/components/Calendar/Daily/*.vue"
   ],
   theme: {
-    extend: {
+    extend: { 
       colors:{
         primary: '#dddbf1',
         secondary: '#383f51', //charcoal
