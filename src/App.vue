@@ -64,14 +64,4 @@ export default {
 }
 </script>
 
-<!--add styles defined in tailwind config and remove these ones-->
-<style>
-  .bg-main { background-color: #383f51; }
-  .bg-light { background-color: #dddbf1; }
-  .text-main { color: #383f51; }
-  .text-secondary { color: #3c4f76; }
-  .border-main { border-color: #383f51; }
-  .border-secondary { border-color: #3c4f76; }
-  .bg-accent { background-color: #d1beb0; }
-  .text-accent { color: #ab9f9d; }
-</style>
+<style></style>
