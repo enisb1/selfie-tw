@@ -1,5 +1,4 @@
 <template>
-    
     <div class="flex justify-between items-center p-4">
         <div class="font-extrabold text-2xl text-secondary">Chat</div>
         <button>
@@ -63,7 +62,6 @@
         </ul>
     </div>
 
-
     <!--writingbar-->
     <div class="fixed bottom-0 left-0 w-full bg-secondary p-4">
         <form action="#" class="flex justify-between items-center">
@@ -73,14 +71,7 @@
             </button>
         </form>
     </div>
-    
 
-
-
-   
-
-
-  
 </template>
 
 <script>
@@ -107,10 +98,6 @@ export default {
             
         }
 
-
-       
-
-
         onMounted(() => {
             checkScreen()
             window.addEventListener('resize', checkScreen)
@@ -119,12 +106,6 @@ export default {
         onBeforeMount(() => {
             window.removeEventListener('resize', checkScreen)
         })
-        
-
-        
-
-
-        
         
     return{
         inContact,
