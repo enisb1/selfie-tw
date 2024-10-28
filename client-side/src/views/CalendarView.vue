@@ -20,7 +20,7 @@
       </button>
 
       <!--Dropdown menu-->
-      <div v-show="showCalendarMenu" class="absolute mt-2 z-50 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+      <div v-show="showCalendarMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
         <div @click="showDailyCalendar"
           class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
         <div @click="showWeeklyCalendar"
@@ -42,17 +42,56 @@
       </button>
 
       <!--Dropdown menu, show/hide(with hidden, that is the property display:none) based on menu state-->
-      <div class="mt-2 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+      <div class="hidden absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
         <a href="#" class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white"
           tabindex="-1">Calendar</a>
         <a href="#" class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white"
           tabindex="-1">List</a>
       </div>
     </div>
+
+    <button @click="toggleAddEventModal" class="ml-8 text-white rounded-md bg-secondary shadow-lg ring-1 ring-black ring-opacity-5">ADD</button>
   </div>
+  
+  <!-- Add event modal -->
+  <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
+    <form @submit.prevent="addEvent"> <!-- TODO: try to update events in calendar when submitting -->
+      <div class="flex items-center justify-between flex-row">
+        <p class="font-bold text-lg">Add event</p>
+        <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+          src="../images/x.png" alt="Croce"></button>
+      </div>
+      <hr style="border-color: black"/>
+
+      <div class="flex flex-col items-center">
+        <!-- title -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Title</p>
+          <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
+        </div>
+        
+        <!-- start date -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Starts</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+        </div>
+        
+        <!-- end date -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Ends</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+        </div>
+
+        <button type="submit" class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
+      </div>
+    </form>
+  </Modal>
 
   <div v-show="calendarToShow === 'daily'">
-    <DailyCalendar />
+    <DailyCalendar ref="dailyCalendarRef"/>
   </div>
 
   <div v-show="calendarToShow === 'weekly'">
@@ -65,16 +104,24 @@
 </template>
 
 <script>
-import DailyCalendar from '@/components/Calendar/DailyCalendar.vue'
+import DailyCalendar from '@/components/Calendar/Daily/DailyCalendar.vue'
 import MonthlyCalendar from '@/components/Calendar/MonthlyCalendar.vue';
 import WeeklyCalendar from '@/components/Calendar/WeeklyCalendar.vue';
+import Modal from '@/components/Modal.vue';
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+import { postEvent } from '@/apis/calendar';
+import { getCurrentInstance } from 'vue';
+
 import { ref } from 'vue';
 
 export default {
   components: {
     DailyCalendar,
     WeeklyCalendar,
-    MonthlyCalendar
+    MonthlyCalendar,
+    Modal,
+    DatePicker
   },
   setup() {
     // show calendar menu
@@ -98,13 +145,58 @@ export default {
       toggleShowCalendarMenu()
     }
 
+    // add event modal
+    const showAddEventModal = ref(false)
+    const toggleAddEventModal = () => {
+      // reset form when closing it
+      eventToAddTitle.value = ''
+      eventToAddStartDate.value = null
+      eventToAddEndDate.value = null
+      showAddEventModal.value = !showAddEventModal.value
+    }
+    // add event modal data
+    const eventToAddTitle = ref('')
+    const eventToAddStartDate = ref()
+    const eventToAddEndDate = ref()
+    // format date in add event modal
+    const formatDate = (date) => {
+      if (!date) return '';
+      return date.toLocaleString('it-IT', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false // (12 hour format)
+      });
+    }
+    const startTime = ref({ hours: 12, minutes: 30 })
+    // current instance is needed to access refs
+    const { proxy } = getCurrentInstance();
+    const addEvent = async () => {
+      //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
+      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
+      //TODO: only updateEvents based on which calendar type is currently selected (mandatory) 
+      //TODO: updateEvents only if it has to be seen immediately (based on selected date in calendar) (optional) 
+      proxy.$refs.dailyCalendarRef.updateEvents();
+      toggleAddEventModal();
+    }
+
     return {
       calendarToShow,
       showDailyCalendar,
       showWeeklyCalendar,
       showMonthlyCalendar,
       showCalendarMenu,
-      toggleShowCalendarMenu
+      toggleShowCalendarMenu,
+      showAddEventModal,
+      toggleAddEventModal,
+      eventToAddStartDate,
+      eventToAddEndDate,
+      formatDate,
+      startTime,
+      addEvent,
+      eventToAddTitle
     }
   }
 }
