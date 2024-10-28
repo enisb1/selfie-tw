@@ -18,7 +18,7 @@
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div class="hidden lg:flex space-x-6">
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
-          <a href="#" class="text-white hover:text-accent">Centro Notifiche</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche </router-link>
           <a href="#" class="text-white hover:text-accent">Chat</a>
           <a href="#" class="text-white hover:text-accent">Progetti</a>
           <a href="#" class="text-white hover:text-accent">Pomodoro</a>
