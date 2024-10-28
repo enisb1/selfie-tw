@@ -45,7 +45,7 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { renderEvents } from './render-events-day.js';
 import { watch } from 'vue';
-import { getEvents } from '@/apis/calendar.js';
+import { getEventsInRange } from '@/apis/calendar.js';
 
 export default {
     components: {
@@ -61,9 +61,9 @@ export default {
         const events = ref();
         const updateEvents = async () => {
             // fetch selected date's events and set them to events
-            const startString = new Date(new Date(selectedDate.value).setHours(0, 0, 0, 0)).toISOString();
-            const endString = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999)).toISOString();
-            events.value = await getEvents(startString, endString);
+            const startString = new Date(selectedDate.value);
+            const endString = new Date(selectedDate.value);
+            events.value = await getEventsInRange(startString, endString);
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
