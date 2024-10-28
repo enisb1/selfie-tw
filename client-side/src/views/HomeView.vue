@@ -1,32 +1,32 @@
 <template>
   <!-- Heading -->
   <div class="flex items-center justify-center mt-10 mb-10">
-    <h1 class="text-4xl font-bold text-main">Dashboard</h1>
+    <h1 class="text-4xl font-bold text-secondary">Dashboard</h1>
   </div>
 
   <!-- Buttons Section -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-11/12 max-w-3xl mx-auto">
-    <a href="#" class="bg-main text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
       Calendario
     </a>
-    <a href="#" class="bg-main text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
       Centro Notifiche
     </a>
-    <a href="#" class="bg-main text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
       Chat
     </a>
-    <a href="#" class="bg-main text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
       Progetti
     </a>
-    <a href="../Pomodoro/pomodoro.html" class="bg-main text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+    <a href="../Pomodoro/pomodoro.html" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
       Pomodoro
     </a>
-    <a href="#" class="bg-main text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
       Note
     </a>
   </div>
 
-  <a href="#" class="text-main hover:text-secondary transition-all duration-300 mt-10 block text-center">
+  <a href="#" class="text-secondary hover:text-secondary transition-all duration-300 mt-10 block text-center">
     <!-- Icona rotellina dentata SVG -->
     <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,256,256" width="48px" height="48px" fill-rule="nonzero">
       <g fill="#383f51" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">

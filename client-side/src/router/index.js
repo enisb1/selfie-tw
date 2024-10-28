@@ -2,6 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView'
 import NotesView from '@/views/NotesView.vue'
 import CalendarView from '@/views/CalendarView.vue'
+import LoginView from '@/views/LoginView.vue'
+import SignupView from '@/views/SignupView.vue'
+import NotificationView from '@/views/NotificationView.vue'
 import ChatView from '@/views/ChatView.vue'
 
 const routes = [
@@ -21,23 +24,25 @@ const routes = [
     component: CalendarView
   },
   {
+    path: '/login',
+    name: 'login',
+    component: LoginView
+  },
+  {
+    path: '/signup',
+    name: 'signup',
+    component: SignupView
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView
+  },
+  {
     path: '/chat',
     name: 'chat',
     component: ChatView
   }
-
-  /* rimuovi poi questo sotto
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
-  },
-  {
-    path: '/about',
-    name: 'about',
-  }
-
-  */
 ]
 
 const router = createRouter({
