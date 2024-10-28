@@ -4,10 +4,14 @@ module.exports = {
     "./pages/*.html",
     "./script/*.js",
     "./src/views/*.vue",
-    "./src/App.vue"
+    "./src/App.vue",
+    "./src/components/*.vue",
+    "./src/components/Calendar/*.vue",
+    "./src/components/Calendar/Daily/*.vue",
+    "./src/components/Notifications/*.vue"
   ],
   theme: {
-    extend: {
+    extend: { 
       colors:{
         primary: '#dddbf1',
         secondary: '#383f51', //charcoal

@@ -18,8 +18,8 @@
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div class="hidden lg:flex space-x-6">
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
-          <a href="#" class="text-white hover:text-accent">Centro Notifiche</a>
-          <a href="#" class="text-white hover:text-accent">Chat</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche </router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
           <a href="#" class="text-white hover:text-accent">Progetti</a>
           <a href="#" class="text-white hover:text-accent">Pomodoro</a>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
@@ -64,14 +64,4 @@ export default {
 }
 </script>
 
-<!--add styles defined in tailwind config and remove these ones-->
-<style>
-  .bg-main { background-color: #383f51; }
-  .bg-light { background-color: #dddbf1; }
-  .text-main { color: #383f51; }
-  .text-secondary { color: #3c4f76; }
-  .border-main { border-color: #383f51; }
-  .border-secondary { border-color: #3c4f76; }
-  .bg-accent { background-color: #d1beb0; }
-  .text-accent { color: #ab9f9d; }
-</style>
+<style></style>
