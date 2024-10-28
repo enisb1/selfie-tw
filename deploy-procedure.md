@@ -15,5 +15,5 @@ npm install to install node_modules\
 cd ..
 
 ssh gocker to connect to docker\
-start mongo site232418 selfie-tw/server-side/server-deploy.js to start server on 'site232418.tw.cs.unibo.it'\
+start node-20 site232418 selfie-tw/server-side/server-deploy.js to start server on 'site232418.tw.cs.unibo.it'\
 wait 2 minutes and then check website
