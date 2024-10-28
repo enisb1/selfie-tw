@@ -18,7 +18,7 @@
 
     <!--Add button-->
     <button @click="toggleAddMenu" class="bg-white h-11 w-11 fixed bottom-20 right-4 rounded-full border-2 border-third
-                                    lg:bottom-auto lg:top-20">
+                                    lg:bottom-auto lg:top-20 lg:absolute">
         <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
     </button>
 
@@ -317,14 +317,14 @@ import hoverImgCategory from "../images/categoryFilterWhite.png"
 
 export default {
     setup() {
+
+        // refs and methods to show only notes, only tasks, or both
         const inNotePage = ref(false)
         const inTaskPage = ref(false)
         const inAllPage = ref(true)
-
         const inNoteAdd = ref(false)
         const inTaskAdd = ref(false)
 
-        // refs and methods to show only notes, only tasks, or both
         const notesVisible = ref(true)
         const tasksVisible = ref(true)
 
@@ -363,22 +363,19 @@ export default {
         const inTitle = ref(false)
         const inLength = ref(false)
         const inCategory = ref(false)
-
         const inButtonDate = () => {
             inDate.value = !inDate.value
         }
-
         const inButtonTitle = () => {
             inTitle.value = !inTitle.value
         }
-
         const inButtonLength = () => {
             inLength.value = !inLength.value
         }
-
         const inButtonCategory = () => {
             inCategory.value = !inCategory.value
         }
+
 
         // add note/task menu and modal
         const showAddMenu = ref(false)
@@ -391,22 +388,20 @@ export default {
             inNoteAdd.value = false
             inTaskAdd.value = false
         }
-
         const changeN = () => {
             inNoteAdd.value = true
             inTaskAdd.value = false
         }
-
         const changeT = () => {
             inNoteAdd.value = false
             inTaskAdd.value = true
         }
-
         const closeAddMenu = () => {
             showAddMenu.value = false
             showAddModal.value = false
             showFilterModal.value = false
         }
+
 
         return {
             notesVisible,
@@ -444,9 +439,9 @@ export default {
             hoverImgTitle,
             hoverImgLength,
             hoverImgCategory
-        }
+            
     }
-}
+}}
 </script>
 
 <style></style>

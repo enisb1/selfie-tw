@@ -5,6 +5,7 @@ import CalendarView from '@/views/CalendarView.vue'
 import LoginView from '@/views/LoginView.vue'
 import SignupView from '@/views/SignupView.vue'
 import NotificationView from '@/views/NotificationView.vue'
+import ChatView from '@/views/ChatView.vue'
 
 const routes = [
   {
@@ -36,19 +37,12 @@ const routes = [
     path: '/notifications',
     name: 'notifications',
     component: NotificationView
-  }
-  /* rimuovi poi questo sotto
-  {
-    path: '/',
-    name: 'home',
-    component: HomeView
   },
   {
-    path: '/about',
-    name: 'about',
+    path: '/chat',
+    name: 'chat',
+    component: ChatView
   }
-
-  */
 ]
 
 const router = createRouter({

@@ -1,4 +1,10 @@
 <template>
+    <!-- Daily date picker -->
+    <div class="text-center sm:text-left">
+        <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="selectedDate" :enable-time-picker="false"
+        :format="formatDate"></DatePicker>
+    </div>
+        
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
     <div id="daily_calendar" class="grid mt-4">
         <div id="daily_calendar_timeslots_container">
@@ -30,15 +36,57 @@
 
         <div id="daily_events_container">
         </div>
-        
     </div>
 </template>
 
 <script>
-export default {
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+import { ref } from 'vue';
+import { renderEvents } from './render-events-day.js';
+import { watch } from 'vue';
+import { getEventsInRange } from '@/apis/calendar.js';
 
+export default {
+    components: {
+        DatePicker
+    },
+    setup() {
+        const selectedDate = ref(new Date());   // default date = current date
+        watch(selectedDate, () => {
+            updateEvents();
+        })
+        
+        // events
+        const events = ref();
+        const updateEvents = async () => {
+            // fetch selected date's events and set them to events
+            const startString = new Date(selectedDate.value);
+            const endString = new Date(selectedDate.value);
+            events.value = await getEventsInRange(startString, endString);
+        }
+        // watch for updates to events and render them
+        watch(events, (newEvents) => {
+            renderEvents(newEvents);
+        });
+        
+        // format date
+        const formatDate = (date) => {
+            // format date to dd/mm/yyyy
+            return date ? date.toLocaleDateString('it-IT') : '';
+        }
+
+        return {
+            selectedDate,
+            formatDate,
+            events,
+            updateEvents
+        }
+    },
+    mounted() {
+        this.updateEvents();
+    }
 }
-//TODO: onmount fetch data from db
 </script>
 
 <style scoped>
