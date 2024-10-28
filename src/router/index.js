@@ -4,6 +4,7 @@ import NotesView from '@/views/NotesView.vue'
 import CalendarView from '@/views/CalendarView.vue'
 import LoginView from '@/views/LoginView.vue'
 import SignupView from '@/views/SignupView.vue'
+import NotificationView from '@/views/NotificationView.vue'
 
 const routes = [
   {
@@ -30,6 +31,11 @@ const routes = [
     path: '/signup',
     name: 'signup',
     component: SignupView
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView
   }
   /* rimuovi poi questo sotto
   {
