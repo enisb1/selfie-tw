@@ -19,7 +19,7 @@
         <div class="hidden lg:flex space-x-6">
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <a href="#" class="text-white hover:text-accent">Centro Notifiche</a>
-          <a href="#" class="text-white hover:text-accent">Chat</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
           <a href="#" class="text-white hover:text-accent">Progetti</a>
           <a href="#" class="text-white hover:text-accent">Pomodoro</a>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
