@@ -1,5 +1,6 @@
 import axios from 'axios'
 
+// params: start : Date, end : Date
 // get events array contained in time period between start and end
 export async function getEvents(start, end) {
     try {

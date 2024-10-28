@@ -61,9 +61,9 @@ export default {
         const events = ref();
         const updateEvents = async () => {
             // fetch selected date's events and set them to events
-            const start = new Date(new Date(selectedDate.value).setHours(0, 0, 0, 0));
-            const end = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
-            events.value = await getEvents(start, end);
+            const startString = new Date(new Date(selectedDate.value).setHours(0, 0, 0, 0)).toISOString();
+            const endString = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999)).toISOString();
+            events.value = await getEvents(startString, endString);
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
@@ -72,6 +72,7 @@ export default {
         
         // format date
         const formatDate = (date) => {
+            // format date to dd/mm/yyyy
             return date ? date.toLocaleDateString('it-IT') : '';
         }
 

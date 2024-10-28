@@ -176,6 +176,8 @@ export default {
     const addEvent = async () => {
       //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
       await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
+      //TODO: only updateEvents based on which calendar type is currently selected (mandatory) 
+      //TODO: updateEvents only if it has to be seen immediately (based on selected date in calendar) (optional) 
       proxy.$refs.dailyCalendarRef.updateEvents();
       toggleAddEventModal();
     }

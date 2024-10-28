@@ -28,8 +28,10 @@ router.get("/getEvents", async (req, res) => {
 
 // '/api/calendar/events?start=(..)&end=(..)'
 router.get("/events", async (req,res) => {
+    // start: start date string in UTC TIME!
+    // end: end date string in UTC TIME!
+    // dates are stored in UTC time on mongodb, and sent back to client in local time
     const { start, end } = req.query;
-    // convert received string dates to Dates
     const sDate = new Date(start);
     const eDate = new Date(end);
     try {
