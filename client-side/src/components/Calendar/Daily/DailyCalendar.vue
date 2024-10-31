@@ -46,6 +46,7 @@ import { ref } from 'vue';
 import { renderEvents } from './render-events-day.js';
 import { watch } from 'vue';
 import { getEventsInRange } from '@/apis/calendar.js';
+import { onMounted } from 'vue';
 
 export default {
     components: {
@@ -61,13 +62,13 @@ export default {
         const events = ref();
         const updateEvents = async () => {
             // fetch selected date's events and set them to events
-            const startString = new Date(selectedDate.value);
-            const endString = new Date(selectedDate.value);
-            events.value = await getEventsInRange(startString, endString);
+            const startDate = new Date(selectedDate.value);
+            const endDate = new Date(selectedDate.value);
+            events.value = await getEventsInRange(startDate, endDate);
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
-            renderEvents(newEvents);
+            renderEvents(newEvents, selectedDate.value);
         });
         
         // format date
@@ -75,6 +76,11 @@ export default {
             // format date to dd/mm/yyyy
             return date ? date.toLocaleDateString('it-IT') : '';
         }
+        
+        // lifecycle hooks
+        onMounted(() => {
+            updateEvents();
+        })
 
         return {
             selectedDate,
@@ -82,9 +88,6 @@ export default {
             events,
             updateEvents
         }
-    },
-    mounted() {
-        this.updateEvents();
     }
 }
 </script>

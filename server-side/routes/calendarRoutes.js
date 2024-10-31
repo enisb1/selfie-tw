@@ -35,9 +35,14 @@ router.get("/events", async (req,res) => {
     const sDate = new Date(start);
     const eDate = new Date(end);
     try {
+        // get events that start in the range, or finish in range, or start before and finish after range
+        // the render function for the calendar is going to truncate the dates accordingly
         const events = await Event.find({
-        startDate: { $gte: sDate },
-        endDate: {$lte: eDate }
+            $or: [
+                { endDate: { $gte: sDate, $lte: eDate } },  // end in range
+                { startDate: { $gte: sDate, $lte: eDate } }, // start in range
+                { startDate: { $lte: sDate }, endDate: { $gte: eDate } } // (spanning the entire range)
+            ]
         });
         
         res.json(events);
