@@ -1,4 +1,10 @@
 <template>
+    <!-- Weekly date picker -->
+    <div class="text-center sm:text-left">
+        <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="weekSelected" week-picker :enable-time-picker="false"
+        :format="formatWeek"></DatePicker>
+    </div>
+
     <div id="weekly_calendar_container" class="grid overflow-x-scroll">
         <div id="week_calendar_header">
             <div class="week_header_day bg-secondary text-white min-w-24">
@@ -118,7 +124,42 @@
 </template>
 
 <script>
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+import { ref } from 'vue';
+import { watch } from 'vue';
+
 export default {
+    components: {
+        DatePicker
+    },
+    setup() {
+        const weekSelected = ref(); // going to be an array with startString and endString
+        
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+        // format week (input = date selected within the week)
+        const formatWeek = (date) => {
+            if (!date) return '';
+      
+            // Calculate the start of the week (Monday)
+            const startOfWeek = new Date(date);
+            const dayOfWeek = startOfWeek.getDay();
+            const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            startOfWeek.setDate(startOfWeek.getDate() - daysFromMonday);
+
+            // Calculate the end of the week (Sunday)
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+            // Format weekly as "day month - day month"
+            return `${startOfWeek.getDate()} ${months[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${months[endOfWeek.getMonth()]}`;
+        }
+
+        return {
+            weekSelected,
+            formatWeek
+        }
+    }
 
 }
 </script>

@@ -127,10 +127,6 @@ export function renderEvents(events, day) {
             event.startDate = sDate;
         if (evtEndTime > eDate.getTime())
             event.endDate = eDate;
-        if (event.title === 'test_cross_day') {
-            console.log(event.startDate);
-            console.log(event.endDate)
-        }
         addEvent(event);
     }
 }
