@@ -127,6 +127,7 @@
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
+import { onMounted } from 'vue';
 import { watch } from 'vue';
 
 export default {
@@ -134,26 +135,57 @@ export default {
         DatePicker
     },
     setup() {
-        const weekSelected = ref(); // going to be an array with startString and endString
+        const getStartOfWeek = (date) => {
+            const startOfWeek = new Date(date);
+            const dayOfWeek = startOfWeek.getDay();
+            const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+            startOfWeek.setDate(startOfWeek.getDate() - daysFromMonday);
+            return startOfWeek
+        }
+
+        const getEndOfWeek = (date) => {
+            const startOfWeek = getStartOfWeek(date)
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            return endOfWeek
+        }
+
+        // initialize weekSelected with an array containing 1st and 2nd day of the week
+        const weekSelected = ref([getStartOfWeek(new Date()), getEndOfWeek(new Date())]);
+        watch(weekSelected, (newWeek) => {
+            updateEvents();
+        })
+
+        // events
+        const events = ref();
+        const updateEvents = async () => {
+            console.log(weekSelected.value);
+            // fetch selected date's events and set them to events
+            //const startDate = new Date(selectedDate.value);
+            //const endDate = new Date(selectedDate.value);
+            //events.value = await getEventsInRange(startDate, endDate);
+        }
+        // watch for updates to events and render them
+        watch(events, (newEvents) => {
+            //renderEvents(newEvents, selectedDate.value);
+        });
         
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
         // format week (input = date selected within the week)
         const formatWeek = (date) => {
             if (!date) return '';
       
-            // Calculate the start of the week (Monday)
-            const startOfWeek = new Date(date);
-            const dayOfWeek = startOfWeek.getDay();
-            const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-            startOfWeek.setDate(startOfWeek.getDate() - daysFromMonday);
+            const startOfWeek = getStartOfWeek(date);
+            const endOfWeek = getEndOfWeek(date);
 
-            // Calculate the end of the week (Sunday)
-            const endOfWeek = new Date(startOfWeek);
-            endOfWeek.setDate(startOfWeek.getDate() + 6);
-
-            // Format weekly as "day month - day month"
+            // format weekly as "day month - day month"
             return `${startOfWeek.getDate()} ${months[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${months[endOfWeek.getMonth()]}`;
         }
+
+        // lifecycle hooks
+        onMounted(() => {
+            console.log(weekSelected.value);
+        })
 
         return {
             weekSelected,
