@@ -95,7 +95,7 @@
   </div>
 
   <div v-show="calendarToShow === 'weekly'">
-    <WeeklyCalendar />
+    <WeeklyCalendar ref="weeklyCalendarRef"/>
   </div>
 
   <div v-show="calendarToShow === 'monthly'">
@@ -175,10 +175,12 @@ export default {
     const { proxy } = getCurrentInstance();
     const addEvent = async () => {
       //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
-      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
-      //TODO: only updateEvents based on which calendar type is currently selected (mandatory) 
-      //TODO: updateEvents only if it has to be seen immediately (based on selected date in calendar) (optional) 
-      proxy.$refs.dailyCalendarRef.updateEvents();
+      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value) 
+      //TODO: add call for monthly
+      if (calendarToShow.value === 'daily')
+        proxy.$refs.dailyCalendarRef.updateEvents();
+      else if (calendarToShow.value === 'weekly')
+        proxy.$refs.weeklyCalendarRef.updateEvents();
       toggleAddEventModal();
     }
 

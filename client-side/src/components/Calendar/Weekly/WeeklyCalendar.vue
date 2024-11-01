@@ -156,16 +156,18 @@ export default {
         const weekSelected = ref([getStartOfWeek(new Date()), getEndOfWeek(new Date())])
         watch(weekSelected, () => {
             updateEvents()
-            console.log(events.value)
         })
 
         // events
         const events = ref();
         const updateEvents = async () => {
             // fetch selected date's events and set them to events
-            const startDate = weekSelected.value[0]
-            const endDate = weekSelected.value[1]
-            events.value = await getEventsInRange(startDate, endDate);
+            if (weekSelected.value) {
+                const startDate = weekSelected.value[0]
+                const endDate = weekSelected.value[1]
+                events.value = await getEventsInRange(startDate, endDate);
+            }
+            
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
@@ -191,7 +193,8 @@ export default {
 
         return {
             weekSelected,
-            formatWeek
+            formatWeek,
+            updateEvents
         }
     }
 
