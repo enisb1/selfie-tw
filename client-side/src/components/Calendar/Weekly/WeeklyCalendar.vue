@@ -118,7 +118,7 @@
             </div>
         </div>
 
-        <div id="events_container">
+        <div id="weekly_events_container">
         </div>
     </div>
 </template>
@@ -129,6 +129,8 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import { watch } from 'vue';
+import { getEventsInRange } from '@/apis/calendar.js';
+import { renderEvents } from './render-events-week';
 
 export default {
     components: {
@@ -151,23 +153,23 @@ export default {
         }
 
         // initialize weekSelected with an array containing 1st and 2nd day of the week
-        const weekSelected = ref([getStartOfWeek(new Date()), getEndOfWeek(new Date())]);
-        watch(weekSelected, (newWeek) => {
-            updateEvents();
+        const weekSelected = ref([getStartOfWeek(new Date()), getEndOfWeek(new Date())])
+        watch(weekSelected, () => {
+            updateEvents()
+            console.log(events.value)
         })
 
         // events
         const events = ref();
         const updateEvents = async () => {
-            console.log(weekSelected.value);
             // fetch selected date's events and set them to events
-            //const startDate = new Date(selectedDate.value);
-            //const endDate = new Date(selectedDate.value);
-            //events.value = await getEventsInRange(startDate, endDate);
+            const startDate = weekSelected.value[0]
+            const endDate = weekSelected.value[1]
+            events.value = await getEventsInRange(startDate, endDate);
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
-            //renderEvents(newEvents, selectedDate.value);
+            renderEvents(newEvents);
         });
         
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
@@ -184,7 +186,7 @@ export default {
 
         // lifecycle hooks
         onMounted(() => {
-            console.log(weekSelected.value);
+            updateEvents();
         })
 
         return {
@@ -230,7 +232,7 @@ export default {
         background: black;
     }
 
-    #events_container {
+    #weekly_events_container {
         grid-area: main;
         display: grid;
         white-space: nowrap;
@@ -245,14 +247,5 @@ export default {
         transparent 14.2%,
         gray 14.3%
     );
-    }
-
-    .event_box1 {
-        grid-column: 2 / span 1;
-        grid-row: 37;
-        width: 100%;
-        left: 0%;
-        background-color: blue;
-        position: absolute;
     }
 </style>

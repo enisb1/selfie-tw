@@ -39,6 +39,7 @@ function setZIndex(event) {
 }
 
 function addEvent(eventToAdd) {
+    // events from db have string and not Date objects in startDate and endDate
     const startDate = new Date(eventToAdd.startDate);
     const endDate = new Date(eventToAdd.endDate);
     const eventToAddHStart = startDate.getHours();
@@ -53,7 +54,7 @@ function addEvent(eventToAdd) {
 
     // get array of events with same start time
     let numEventsSharingStart = 0;
-    let eventsSharingStart = [];
+    let eventsSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
     addedEvents.forEach(e => {        
         if (e.startInMinutes == eventToAdd.startInMinutes) {
             numEventsSharingStart++;
@@ -76,7 +77,7 @@ function addEvent(eventToAdd) {
     
     // set new left and width to the events that share the start time of the event to add
     // left and width are set based on the number of events with same start time
-    numEventsSharingStart++;    // include the event to add in the count
+    numEventsSharingStart++;    // include current event in the count
     for (let i = 0; i<numEventsSharingStart-1; i++) {
         const eventDiv = document.getElementById(eventsSharingStart[i].divId);
         eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
