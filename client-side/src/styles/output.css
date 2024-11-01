@@ -864,12 +864,24 @@ video {
   height: 100%;
 }
 
+.h-10 {
+  height: 2.5rem;
+}
+
+.h-8 {
+  height: 2rem;
+}
+
 .max-h-4 {
   max-height: 1rem;
 }
 
 .max-h-8 {
   max-height: 2rem;
+}
+
+.max-h-10 {
+  max-height: 2.5rem;
 }
 
 .min-h-16 {

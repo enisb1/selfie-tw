@@ -3,30 +3,34 @@
     <div class="text-center sm:text-left">
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="monthSelected" month-picker :enable-time-picker="false"></DatePicker>
     </div>
+    
+    <!-- Header -->
+    <div class="grid grid-cols-7 mt-4">
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">M</div>
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Wednesday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">W</div>
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Thursday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Friday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">F</div>
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Saturday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Sunday</div>
+        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+    </div>
 
-    <div id="monthly_calendar_container" class="grid grid-cols-7 mt-4">
-        <!-- Header -->
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">M</div>
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">T</div>
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Wednesday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">W</div>
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Thursday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">T</div>
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Friday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">F</div>
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Saturday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">S</div>
-        <div class="hidden sm:block text-center bg-secondary text-white font-semibold border-t border-black">Sunday</div>
-        <div class="block sm:hidden text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+    <div id="monthly_calendar_container" class="grid grid-cols-7">
+        
 
         <!--
         <div class="min-h-20 text-center border-t border-r border-black col-start-4">prova</div>
         <div class="min-h-20 text-center border-t border-r border-black">test</div>
     -->
 
-        <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="min-h-20 text-white border-b border-black border-r text-center border-r">
+        <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
             <div class="bg-secondary"> {{ date.getDate() }}</div>
         </div>
         
@@ -162,7 +166,8 @@ export default {
             // set monthly calendar grid to take up the remaining vertical space of the viewport
             calendarContainer.style.minHeight = `${remainingHeight}px`
 
-            renderEvents();
+            updateDays()
+            updateEvents()
         })
         
         return {
