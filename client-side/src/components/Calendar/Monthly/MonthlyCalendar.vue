@@ -23,15 +23,13 @@
     </div>
 
     <div id="monthly_calendar_container" class="grid grid-cols-7">
-        
-
-        <!--
-        <div class="min-h-20 text-center border-t border-r border-black col-start-4">prova</div>
-        <div class="min-h-20 text-center border-t border-r border-black">test</div>
-    -->
 
         <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
             <div class="bg-secondary"> {{ date.getDate() }}</div>
+
+            <div v-for="event in eventsForDay[index+1]" class="mt-2 bg-third opacity-75 hover:opacity-100">
+                <p> {{ event.title }}</p>
+            </div>
         </div>
         
         <!-- TODO: v-for giorni del mese probabilmente? -->
@@ -115,7 +113,8 @@ import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
 import { watch } from 'vue'
-import { renderEvents } from './render-events-month.js'
+import { updateEventsObject } from './update-events-month.js'
+import { getEventsInRange } from '@/apis/calendar.js'
 
 export default {
     components : {
@@ -148,14 +147,17 @@ export default {
                 // Push a new Date object for each day into the array
                 daysArray.value.push(new Date(monthSelected.value.year, monthSelected.value.month, day));
             }
-            console.log(daysArray.value);
         }
 
-        const events = ref()
-        const updateEvents = () => {
+        // events object has day of month as key and array of events as value
+        const eventsForDay = ref({})
+        const updateEvents = async () => {
             // first and last days of the month, use this for event find
-            // console.log(new Date(monthSelected.value.year, monthSelected.value.month, 1))   
-            // console.log(new Date(monthSelected.value.year, monthSelected.value.month+1, 0))
+            const startDate = new Date(firstDayOfMonth.value)
+            const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
+            const events = await getEventsInRange(startDate, endDate)
+            eventsForDay.value = updateEventsObject(events, startDate, endDate)
+            console.log(eventsForDay.value)
         }
         // lifecycle hooks
         //set calendar to occupy at least the size of the viewport
@@ -173,7 +175,8 @@ export default {
         return {
             monthSelected,
             daysArray,
-            getDynamicDayClass
+            getDynamicDayClass,
+            eventsForDay
         }
     }
 }
