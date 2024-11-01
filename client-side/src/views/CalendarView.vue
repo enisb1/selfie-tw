@@ -105,7 +105,7 @@
 
 <script>
 import DailyCalendar from '@/components/Calendar/Daily/DailyCalendar.vue'
-import MonthlyCalendar from '@/components/Calendar/MonthlyCalendar.vue';
+import MonthlyCalendar from '@/components/Calendar/Monthly/MonthlyCalendar.vue';
 import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
