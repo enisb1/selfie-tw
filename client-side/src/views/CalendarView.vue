@@ -131,7 +131,7 @@ export default {
     }
 
     // calendar to show
-    const calendarToShow = ref('weekly')
+    const calendarToShow = ref('monthly')
     const showDailyCalendar = () => {
       calendarToShow.value = 'daily'
       toggleShowCalendarMenu()

@@ -1,4 +1,9 @@
 <template>
+    <!-- Monthly date picker -->
+    <div class="text-center sm:text-left">
+        <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="monthSelected" month-picker :enable-time-picker="false"></DatePicker>
+    </div>
+
     <div id="monthly_calendar_container" class="grid grid-cols-7 mt-4">
         <!-- Header -->
         <div class="hidden sm:block text-center border-t">Monday</div>
@@ -90,22 +95,35 @@
 </template>
 
 <script>
-import { onMounted } from 'vue';
+import { onMounted } from 'vue'
+import DatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+import { ref } from 'vue'
+import { watch } from 'vue'
 
 export default {
-    //set calendar to occupy at least the size of the viewport
+    components : {
+        DatePicker
+    },
     setup() {
+        //
+        const monthSelected = ref();
+        watch(monthSelected, () => {
+            console.log(monthSelected.value);
+        })
+
         // lifecycle hooks
+        //set calendar to occupy at least the size of the viewport
         onMounted(() => {
-            const calendarContainer = document.getElementById("monthly_calendar_container");
-            const top = calendarContainer.getBoundingClientRect().top;
-            const remainingHeight = window.innerHeight - top;   // window.innerHeight is the height of the viewport
+            const calendarContainer = document.getElementById("monthly_calendar_container")
+            const top = calendarContainer.getBoundingClientRect().top
+            const remainingHeight = window.innerHeight - top    // window.innerHeight is the height of the viewport
             // set monthly calendar grid to take up the remaining vertical space of the viewport
-            calendarContainer.style.minHeight = `${remainingHeight}px`;
+            calendarContainer.style.minHeight = `${remainingHeight}px`
         })
         
         return {
-
+            monthSelected
         }
     }
 }

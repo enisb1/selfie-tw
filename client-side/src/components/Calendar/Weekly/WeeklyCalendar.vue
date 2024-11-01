@@ -9,37 +9,37 @@
         <div id="week_calendar_header">
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Monday</div>
-                <div>01</div>
+                <div>{{ weekSelected[0].getDate() }}</div>
             </div>
             
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Tuesday</div>
-                <div>02</div>
+                <div>{{ new Date(weekSelected[0].getTime()+ 24 * 60 * 60 * 1000).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Wednesday</div>
-                <div>03</div>
+                <div>{{ new Date(weekSelected[0].getTime()+ 2 * 24 * 60 * 60 * 1000).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Thursday</div>
-                <div>04</div>
+                <div>{{ new Date(weekSelected[0].getTime()+ 3 * 24 * 60 * 60 * 1000).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Friday</div>
-                <div>05</div>
+                <div>{{ new Date(weekSelected[0].getTime()+ 4 * 24 * 60 * 60 * 1000).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Saturday</div>
-                <div>06</div>
+                <div>{{ new Date(weekSelected[0].getTime()+ 5 * 24 * 60 * 60 * 1000).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Sunday</div>
-                <div>07</div>
+                <div>{{ new Date(weekSelected[0].getTime()+ 6 * 24 * 60 * 60 * 1000).getDate() }}</div>
             </div>
         </div>
 
