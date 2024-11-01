@@ -6,7 +6,7 @@ let zIndexCount = 0;
 
 function createDefaultEventDiv(event) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("absolute", "text-white", "p-1", "text-truncate", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
+    eventDiv.classList.add("truncate","absolute", "text-white", "p-1", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
     title.innerText = event.title;
