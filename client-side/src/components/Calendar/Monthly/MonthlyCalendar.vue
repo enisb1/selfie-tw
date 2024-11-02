@@ -27,7 +27,7 @@
             <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
                 <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-                <div v-for="event in eventsForDay[index+1]" class="mt-2 bg-third opacity-75 hover:opacity-100 truncate">
+                <div v-for="event in eventsForDay[index+1]" :style="{backgroundColor: event.color}" class="mt-2 opacity-75 hover:opacity-100 truncate">
                     <p> {{ event.title }}</p>
                 </div>
             </div>

@@ -50,25 +50,33 @@
       </div>
       <hr style="border-color: black"/>
 
-      <div class="flex flex-col items-center">
+      <div class="flex flex-col">
         <!-- title -->
         <div class="mt-4">
           <p class="font-semibold text-base">Title</p>
           <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
         </div>
         
-        <!-- start date -->
-        <div class="mt-4">
-          <p class="font-semibold text-base">Starts</p>
-          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
-            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+        <div class="flex flex-col sm:flex-row">
+          <!-- start date -->
+          <div class="mt-4">
+            <p class="font-semibold text-base">Starts</p>
+            <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
+              :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+          </div>
+          
+          <!-- end date -->
+          <div class="mt-4 sm:ml-4">
+            <p class="font-semibold text-base">Ends</p>
+            <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
+              :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+          </div>
         </div>
-        
-        <!-- end date -->
+
+        <!-- color picker -->
         <div class="mt-4">
-          <p class="font-semibold text-base">Ends</p>
-          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
-            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+          <p class="font-semibold text-base">Event color</p>
+          <input type="color" value="#3C4F76" v-model="selectedColor">
         </div>
 
         <button type="submit" class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
@@ -171,16 +179,19 @@ export default {
     const { proxy } = getCurrentInstance();
     const addEvent = async () => {
       //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
-      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value) 
-      //TODO: add call for monthly
+      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, selectedColor.value) 
       if (calendarToShow.value === 'daily')
-        proxy.$refs.dailyCalendarRef.updateEvents();
+        proxy.$refs.dailyCalendarRef.updateEvents()
       else if (calendarToShow.value === 'weekly')
-        proxy.$refs.weeklyCalendarRef.updateEvents();
+        proxy.$refs.weeklyCalendarRef.updateEvents()
       else if (calendarToShow.value === 'monthly')
-        proxy.$refs.monthlyCalendarRef.updateEvents();
+        proxy.$refs.monthlyCalendarRef.updateEvents()
       toggleAddEventModal();
+      selectedColor.value = '#3c4f76'
     }
+
+    // event to add color
+    const selectedColor = ref('#3c4f76')
 
     return {
       calendarToShow,
@@ -198,7 +209,8 @@ export default {
       addEvent,
       eventToAddTitle,
       view,
-      toggleView
+      toggleView,
+      selectedColor
     }
   }
 }

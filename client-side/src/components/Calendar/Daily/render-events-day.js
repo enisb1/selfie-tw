@@ -68,7 +68,7 @@ function addEvent(eventToAdd, startDate, endDate) {
     // setting gridRow to gridRow = startRow / endRow
     eventToAddDiv.style.gridRow = `${eventToAddHStart*12+1 + (eventToAddMStart/5)} / ${eventToAddHEnd*12+1 + (eventToAddMEnd/5)}`;
     eventToAddDiv.style.height = "100%";
-    eventToAddDiv.classList.add(eventsBgColors[Math.floor(Math.random() * eventsBgColors.length)]); // choose random bg color
+    eventToAddDiv.style.backgroundColor = eventToAdd.color;
 
     // set div's id
     eventToAddDiv.id = `event${nEvents}Daily`;

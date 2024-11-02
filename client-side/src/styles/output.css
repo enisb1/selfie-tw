@@ -1636,12 +1636,20 @@ video {
     margin-left: 2rem;
   }
 
+  .sm\:ml-4 {
+    margin-left: 1rem;
+  }
+
   .sm\:block {
     display: block;
   }
 
   .sm\:hidden {
     display: none;
+  }
+
+  .sm\:flex-row {
+    flex-direction: row;
   }
 
   .sm\:justify-normal {

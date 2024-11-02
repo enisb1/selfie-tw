@@ -13,9 +13,9 @@ export async function getEventsInRange(startDate, endDate) {
 }
 
 // post event to db
-export async function postEvent(title, start, end) {
+export async function postEvent(title, start, end, color) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "startDate": start,
-        "endDate": end
+        "endDate": end, "color": color
     })
     .then(({data}) => {
         console.log(data);

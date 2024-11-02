@@ -70,7 +70,8 @@ function addEvent(eventToAdd, startDate, endDate) {
     eventToAddDiv.style.gridRow = `${eventToAddHStart*12+1 + (eventToAddMStart/5)} / ${eventToAddHEnd*12+1 + (eventToAddMEnd/5)}`;
     eventToAddDiv.style.height = "100%";
     //eventToAddDiv.classList.add(eventsBgColors[Math.floor(Math.random() * eventsBgColors.length)]); // choose random bg color
-    eventToAddDiv.classList.add("bg-third")
+    //eventToAddDiv.classList.add("bg-third")
+    eventToAddDiv.style.backgroundColor = eventToAdd.color;
 
     // set div's id
     eventToAddDiv.id = `event${nEvents}Weekly`;
