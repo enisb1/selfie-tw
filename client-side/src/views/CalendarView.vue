@@ -30,27 +30,12 @@
       </div>
     </div>
 
-    <div class="text-left ml-8">
-      <button type="button" class="flex w-full justify-center gap-x-1.5 rounded-md 
-      bg-secondary px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
-        Calendar
-        <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-            clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!--Dropdown menu, show/hide(with hidden, that is the property display:none) based on menu state-->
-      <div class="hidden absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-        <a href="#" class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white"
-          tabindex="-1">Calendar</a>
-        <a href="#" class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white"
-          tabindex="-1">List</a>
-      </div>
-    </div>
-
-    <button @click="toggleAddEventModal" class="relative bg-white w-11 rounded-full border-2 border-third ml-2">
+    <button @click="toggleView" :class="{'bg-white': view==='calendar', 'bg-secondary': view==='list'}" class="relative ml-8 w-11 border border-third ml-2">
+      <img v-show="view === 'calendar'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_black.png" alt="calendar is shown">
+      <img v-show="view === 'list'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_white.png" alt="list is shown">
+    </button>
+    
+    <button @click="toggleAddEventModal" class="relative ml-8 bg-white w-11 rounded-full border border-third">
             <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
     </button>
   </div>
@@ -147,6 +132,15 @@ export default {
       toggleShowCalendarMenu()
     }
 
+    // view to show (calendar or list)
+    const view = ref('calendar')
+    const toggleView = () => {
+      if (view.value === 'calendar')
+        view.value = 'list'
+      else
+        view.value = 'calendar'
+    }
+
     // add event modal
     const showAddEventModal = ref(false)
     const toggleAddEventModal = () => {
@@ -202,7 +196,9 @@ export default {
       formatDate,
       startTime,
       addEvent,
-      eventToAddTitle
+      eventToAddTitle,
+      view,
+      toggleView
     }
   }
 }
