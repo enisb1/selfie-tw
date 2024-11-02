@@ -30,12 +30,12 @@
       </div>
     </div>
 
-    <button @click="toggleView" :class="{'bg-white': view==='calendar', 'bg-secondary': view==='list'}" class="relative ml-8 w-11 border border-third ml-2">
+    <button @click="toggleView" :class="{'bg-white': view==='calendar', 'bg-secondary': view==='list'}" class="relative ml-6 w-11 rounded-full border border-third">
       <img v-show="view === 'calendar'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_black.png" alt="calendar is shown">
       <img v-show="view === 'list'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_white.png" alt="list is shown">
     </button>
     
-    <button @click="toggleAddEventModal" class="relative ml-8 bg-white w-11 rounded-full border border-third">
+    <button @click="toggleAddEventModal" class="relative ml-6 bg-white w-11 rounded-full border border-third">
             <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
     </button>
   </div>
