@@ -50,7 +50,9 @@
       </div>
     </div>
 
-    <button @click="toggleAddEventModal" class="ml-8 text-white rounded-md bg-secondary shadow-lg ring-1 ring-black ring-opacity-5">ADD</button>
+    <button @click="toggleAddEventModal" class="relative bg-white w-11 rounded-full border-2 border-third ml-2">
+            <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
+    </button>
   </div>
   
   <!-- Add event modal -->
