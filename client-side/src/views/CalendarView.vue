@@ -86,7 +86,7 @@
   </div>
 
   <div v-show="calendarToShow === 'monthly'">
-    <MonthlyCalendar ref="monthlyCalendarRef"/>
+    <MonthlyCalendar ref="monthlyCalendarRef" :view="view"/>
   </div>
 </template>
 

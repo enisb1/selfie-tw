@@ -4,33 +4,46 @@
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="monthSelected" month-picker :enable-time-picker="false"></DatePicker>
     </div>
     
-    <!-- Header -->
-    <div class="grid grid-cols-7 mt-4">
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">M</div>
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Wednesday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">W</div>
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Thursday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Friday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">F</div>
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Saturday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
-        <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Sunday</div>
-        <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
-    </div>
+    <div v-show="view==='calendar'">
+        <!-- Header -->
+        <div class="grid grid-cols-7 mt-4">
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">M</div>
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Wednesday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">W</div>
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Thursday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Friday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">F</div>
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Saturday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Sunday</div>
+            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+        </div>
 
-    <div id="monthly_calendar_container" class="grid grid-cols-7">
-        <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
-            <div class="bg-secondary"> {{ date.getDate() }}</div>
+        <div id="monthly_calendar_container" class="grid grid-cols-7">
+            <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
+                <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-            <div v-for="event in eventsForDay[index+1]" class="mt-2 bg-third opacity-75 hover:opacity-100 truncate">
-                <p> {{ event.title }}</p>
+                <div v-for="event in eventsForDay[index+1]" class="mt-2 bg-third opacity-75 hover:opacity-100 truncate">
+                    <p> {{ event.title }}</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <div v-show="view==='list'" class="flex flex-col items-center absolute left-1/2 -translate-x-1/2 w-3/4 text-white overflow-y-scroll py-5">
+        <div v-for="events in filteredEvents" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="bg-secondary px-4 rounded-xl py-2"> {{ new Date(events[0].startDate).getDate()}} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
+            <div class="flew flex-col">
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" class="bg-secondary px-4 rounded-xl py-2"> {{ event.title }} </div>
+            </div>
+        </div>
+    </div>
+
+
 </template>
 
 <script>
@@ -41,8 +54,12 @@ import { ref } from 'vue'
 import { watch } from 'vue'
 import { updateEventsObject } from './update-events-month.js'
 import { getEventsInRange } from '@/apis/calendar.js'
+import { computed } from 'vue'
 
 export default {
+    props : {
+        view: String
+    },
     components : {
         DatePicker
     },
@@ -54,10 +71,12 @@ export default {
             updateEvents()
         })
 
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
         const getDynamicDayClass = (date, index) => {
             return {
-                [`grid-col-start-${date.getDay()===0 ? 7 : date.getDay()}`]: index===0, // set starting grid col
-                'border-left': index===0
+                [`grid-col-start-${date.getDay()===0 ? 7 : date.getDay()}`]: index===0, // set starting grid col for first day
+                'border-left': index===0    // set left border for first day
             };
         };
 
@@ -87,6 +106,13 @@ export default {
             console.log(eventsForDay.value)
         }
 
+        // filtered events is a computed property from events, that doens't contain empty events arrays
+        // needed for list view
+        const filteredEvents = computed(() => {
+            console.log(Object.fromEntries(Object.entries(eventsForDay.value).filter(([day, events]) => events && events.length > 0)))
+            return Object.fromEntries(Object.entries(eventsForDay.value).filter(([day, events]) => events && events.length > 0))
+        })
+
         // lifecycle hooks
         onMounted(() => {
             // set calendar to occupy at least the size of the viewport
@@ -105,7 +131,9 @@ export default {
             daysArray,
             getDynamicDayClass,
             eventsForDay,
-            updateEvents
+            updateEvents,
+            months,
+            filteredEvents
         }
     }
 }
