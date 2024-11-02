@@ -1,12 +1,12 @@
 <template>
     <!-- Daily date picker -->
-    <div class="text-center sm:text-left">
+    <div>
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="selectedDate" :enable-time-picker="false"
         :format="formatDate"></DatePicker>
     </div>
         
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
-    <div id="daily_calendar" class="grid mt-4" v-show="view==='calendar'">
+    <div id="daily_calendar" class="grid mt-6" v-show="view==='calendar'">
         <div id="daily_calendar_timeslots_container">
             <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
@@ -32,6 +32,10 @@
             <div class="daily_timeslot bg-secondary min-h-16 text-white">21:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">22:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">23:00</div>
+        </div>
+
+        <div id="daily_header" class="bg-secondary text-white text-center font-semibold py-1">
+            {{ new Date(selectedDate).toLocaleDateString("en-BR", headerFormatOptions) }}
         </div>
 
         <div id="daily_events_container">
@@ -143,6 +147,12 @@ export default {
             // format date to dd/mm/yyyy
             return date ? date.toLocaleDateString('it-IT') : '';
         }
+
+        const headerFormatOptions = {
+            weekday: 'long',  // Full name of the day (e.g., "Monday")
+            day: 'numeric',    // Day of the month (e.g., 1, 2, ..., 31)
+            month: 'long'      // Full name of the month (e.g., "January")
+        }
         
         // lifecycle hooks
         onMounted(() => {
@@ -155,7 +165,8 @@ export default {
             events,
             updateEvents,
             eventsBeforeMidnight,
-            eventsAfterMidnight
+            eventsAfterMidnight,
+            headerFormatOptions
         }
     }
 }
@@ -165,7 +176,13 @@ export default {
     #daily_calendar {
         grid-template-columns: 4rem auto;
         grid-template-rows: auto;
-        grid-template-areas: "timeslots_container main";
+        grid-template-areas: 
+        ". header"
+        "timeslots_container main";
+    }
+
+    #daily_header {
+        grid-area: header;
     }
 
     #daily_calendar_timeslots_container {

@@ -1,12 +1,12 @@
 <template>
     <!-- Weekly date picker -->
-    <div class="text-center sm:text-left">
+    <div>
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="weekSelected" week-picker :enable-time-picker="false"
         :format="formatWeek"></DatePicker>
     </div>
 
     <div id="weekly_calendar_container" class="grid overflow-x-scroll">
-        <div id="week_calendar_header">
+        <div id="week_calendar_header" class="mt-6">
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Monday</div>
                 <div>{{ weekSelected[0].getDate() }}</div>
@@ -208,7 +208,6 @@ export default {
         grid-template-areas:
         ". header"
         "timeslots-container main";
-        margin-top: 1rem;
     }
 
     .week_header_day {

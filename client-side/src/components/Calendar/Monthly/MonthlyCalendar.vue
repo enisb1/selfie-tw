@@ -1,12 +1,12 @@
 <template>
     <!-- Monthly date picker -->
-    <div class="text-center sm:text-left">
+    <div>
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="monthSelected" month-picker :enable-time-picker="false"></DatePicker>
     </div>
     
-    <div v-show="view==='calendar'">
+    <div v-show="view==='calendar'" class="mt-6">
         <!-- Header -->
-        <div class="grid grid-cols-7 mt-4">
+        <div class="grid grid-cols-7">
             <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
             <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">M</div>
             <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
