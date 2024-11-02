@@ -1,6 +1,6 @@
 <template>
     <!-- Monthly date picker -->
-    <div>
+    <div class="text-center sm:text-left">
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="monthSelected" month-picker :enable-time-picker="false"></DatePicker>
     </div>
     
