@@ -34,15 +34,16 @@
         </div>
     </div>
 
-    <div v-show="view==='list'" class="flex flex-col items-center absolute left-1/2 -translate-x-1/2 w-3/4 text-white overflow-y-scroll py-5">
+    <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
         <div v-for="events in filteredEvents" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
-            <div class="bg-secondary px-4 rounded-xl py-2"> {{ new Date(events[0].startDate).getDate()}} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
-            <div class="flew flex-col">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" class="bg-secondary px-4 rounded-xl py-2"> {{ event.title }} </div>
+            <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ new Date(events[0].startDate).getDate()}} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" class="w-full truncate bg-secondary px-4 rounded-xl py-2">
+                        {{ event.title }} 
+                </div>
             </div>
         </div>
     </div>
-
 
 </template>
 
@@ -67,8 +68,11 @@ export default {
         // object containing field month and field year
         const monthSelected = ref({"month": new Date().getMonth(), "year": new Date().getFullYear()});
         watch(monthSelected, () => {
-            updateDays()
-            updateEvents()
+            if (monthSelected.value) {
+               updateDays()
+               updateEvents() 
+            }
+            
         })
 
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
