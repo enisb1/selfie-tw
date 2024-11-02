@@ -4,16 +4,12 @@ let nEvents = 0;
 let eventsBgColors = ["bg-cyan-500", "bg-cyan-700", "bg-sky-500", "bg-sky-700", "bg-sky-900", "bg-blue-500", "bg-blue-700", "bg-blue-900", "bg-violet-400", "bg-violet-700", "bg-violet-900"];
 let zIndexCount = 0; 
 
-function eventsOverlap(event1StartMinutes, event1EndMinutes, event2StartMinutes, event2EndMinutes) {
-    return (event1StartMinutes<event2EndMinutes && event1EndMinutes>event2StartMinutes);
-}
-
 function createDefaultEventDiv(event) {
     const eventDiv = document.createElement("div");
     eventDiv.classList.add("absolute", "text-white", "p-1", "truncate", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
-    title.innerText = event.title;
+    title.innerText = `${event.title}`;
     
     eventDiv.appendChild(title);
 
@@ -43,11 +39,11 @@ function setZIndex(event, day) {
     });
 }
 
-function addEvent(eventToAdd) {
-    const eventToAddHStart = eventToAdd.startDate.getHours();
-    const eventToAddMStart = eventToAdd.startDate.getMinutes();
-    const eventToAddHEnd = eventToAdd.endDate.getHours();
-    let eventToAddMEnd = eventToAdd.endDate.getMinutes();
+function addEvent(eventToAdd, startDate, endDate) {
+    const eventToAddHStart = startDate.getHours();
+    const eventToAddMStart = startDate.getMinutes();
+    const eventToAddHEnd = endDate.getHours();
+    let eventToAddMEnd = endDate.getMinutes();
     if (eventToAddMEnd == 59)   // this only happens when event endDate is truncated to 23.59
         eventToAddMEnd = 60;    // 59 is not valid for the calculations since minutes are displayed in hops of 5
     // add startInMinutes and endInMinutes to event's prototype (will be used in calculations)
@@ -56,7 +52,7 @@ function addEvent(eventToAdd) {
 
     // get array of events with same start time
     let numEventsSharingStart = 0;
-    let day = eventToAdd.startDate.getDay()==0 ? 7 : eventToAdd.startDate.getDay();
+    let day = startDate.getDay()==0 ? 7 : startDate.getDay();
     let eventsSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
     addedEvents[day-1].forEach(e => {        
         if (e.startInMinutes == eventToAdd.startInMinutes) {
@@ -116,11 +112,8 @@ function addEvent(eventToAdd) {
 
 // objects in js are passed by reference.. since I need distint instances in order to
 // correctly work with them (setting startInMinutes and endInMinutes), I need to clone them in a separate object
-// what this function does is cloning the object and setting new startDate and endDate
-function cloneEvent(event, startDate, endDate) {
+function cloneEvent(event) {
     const clonedEvent = structuredClone(event);
-    clonedEvent.startDate = startDate;
-    clonedEvent.endDate = endDate;
     return clonedEvent;
 }
 
@@ -150,25 +143,23 @@ export function renderEvents(events) {
                 if (i==0) {
                     const start = new Date(eventStart);
                     const end = new Date(start.setHours(23,59, 59, 999));
-                    addEvent(cloneEvent(event, eventStart, end))
+                    addEvent(cloneEvent(event), eventStart, end)
                 }
                 else if (i<daysBetween) {
                     const start = new Date(iteratedDayStart);
                     const end = new Date(iteratedDayStart.setHours(23, 59, 59, 999));
-                    addEvent(cloneEvent(event, start, end));
+                    addEvent(cloneEvent(event), start, end);
                 }
                 else if (i==daysBetween) {
                     const end = new Date(eventEnd);
                     const start = new Date(end.setHours(0,0,0,0));
-                    addEvent(cloneEvent(event, start, eventEnd));
+                    addEvent(cloneEvent(event), start, eventEnd);
                 }
             }
         }
         else {
             // no need to clone since the event is not getting divided in smaller parts
-            event.startDate = eventStart;
-            event.endDate = eventEnd;
-            addEvent(event);
+            addEvent(event, eventStart, eventEnd);
         }
     }
 }

@@ -38,10 +38,8 @@ function setZIndex(event) {
     });
 }
 
-function addEvent(eventToAdd) {
+function addEvent(eventToAdd, startDate, endDate) {
     // events from db have string and not Date objects in startDate and endDate
-    const startDate = new Date(eventToAdd.startDate);
-    const endDate = new Date(eventToAdd.endDate);
     const eventToAddHStart = startDate.getHours();
     const eventToAddMStart = startDate.getMinutes();
     const eventToAddHEnd = endDate.getHours();
@@ -124,10 +122,13 @@ export function renderEvents(events, day) {
         // trunc events starting before the current day or finishing after the current day
         const evtStartTime = new Date(event.startDate).getTime();
         const evtEndTime = new Date(event.endDate).getTime();
+        // create clone in order to not modify event's dates
+        let start = new Date(event.startDate);
+        let end = new Date(event.endDate);
         if (evtStartTime < sDate.getTime())
-            event.startDate = sDate;
+            start = sDate;
         if (evtEndTime > eDate.getTime())
-            event.endDate = eDate;
-        addEvent(event);
+            end = eDate;
+        addEvent(event, start, end);
     }
 }

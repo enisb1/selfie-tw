@@ -23,7 +23,6 @@
     </div>
 
     <div id="monthly_calendar_container" class="grid grid-cols-7">
-
         <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
             <div class="bg-secondary"> {{ date.getDate() }}</div>
 
@@ -31,79 +30,6 @@
                 <p> {{ event.title }}</p>
             </div>
         </div>
-        
-        <!-- TODO: v-for giorni del mese probabilmente? -->
-        <!-- Days -->
-         <!--
-        <div class="min-h-20 text-center border-t border-r border-black">30</div>
-        <div class="min-h-20 text-center border-t border-r border-black">
-            1ott
-            <div class="text-center bg-red-500 mt-px">prova</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-        </div>
-        <div class="min-h-20 text-center border-t border-r border-black">2</div>
-        <div class="min-h-20 text-center border-t border-r border-black">3</div>
-        <div class="min-h-20 text-center border-t border-r border-black">4</div>
-        <div class="min-h-20 text-center border-t border-r border-black">
-            5
-            <div class="text-center bg-red-500">prova</div>
-        </div>
-        <div class="min-h-20 text-center border-t border-r border-black">6</div>
-        <div class="min-h-20 text-center border-t border-r border-black">7</div>
-        <div class="min-h-20 text-center border-t border-r border-black">8</div>
-        <div class="min-h-20 text-center border-t border-r border-black">
-            9
-            <div class="text-center bg-red-500">prova</div>
-        </div>
-        <div class="min-h-20 text-center border-t border-r border-black">10</div>
-        <div class="min-h-20 text-center border-t border-r border-black">11</div>
-        <div class="min-h-20 text-center border-t border-r border-black">12</div>
-        <div class="min-h-20 text-center border-t border-r border-black">13</div>
-        <div class="min-h-20 text-center border-t border-r border-black">14</div>
-        <div class="min-h-20 text-center border-t border-r border-black">15</div>
-        <div class="min-h-20 text-center border-t border-r border-black">16</div>
-        <div class="min-h-20 text-center border-t border-r border-black">17</div>
-        <div class="min-h-20 text-center border-t border-r border-black">18</div>
-        <div class="min-h-20 text-center border-t border-r border-black">19</div>
-        <div class="min-h-20 text-center border-t border-r border-black">20</div>
-        <div class="min-h-20 text-center border-t border-r border-black">21</div>
-        <div class="min-h-20 text-center border-t border-r border-black">22</div>
-        <div class="min-h-20 text-center border-t border-r border-black">23</div>
-        <div class="min-h-20 text-center border-t border-r border-black">24</div>
-        <div class="min-h-20 text-center border-t border-r border-black">25</div>
-        <div class="min-h-20 text-center border-t border-r border-black">26</div>
-        <div class="min-h-20 text-center border-t border-r border-black">27
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-        </div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">28</div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">29</div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">30</div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">31</div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">
-            1nov
-            <div class="text-center bg-red-500">prova</div>
-        </div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">2</div>
-        <div class="min-h-20 text-center border-t border-b border-r border-black">
-            3
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-            <div class="text-center bg-red-500 mt-px">prova2</div>
-        </div>
-    -->
     </div>
 </template>
 
@@ -135,6 +61,7 @@ export default {
             };
         };
 
+        // gets filled with the month's days and shown in template
         const daysArray = ref([])
         const firstDayOfMonth = ref()
         const lastDayOfMonth = ref()
@@ -149,7 +76,7 @@ export default {
             }
         }
 
-        // events object has day of month as key and array of events as value
+        // events object has day of month as key and array of events for that day as value
         const eventsForDay = ref({})
         const updateEvents = async () => {
             // first and last days of the month, use this for event find
@@ -159,9 +86,10 @@ export default {
             eventsForDay.value = updateEventsObject(events, startDate, endDate)
             console.log(eventsForDay.value)
         }
+
         // lifecycle hooks
-        //set calendar to occupy at least the size of the viewport
         onMounted(() => {
+            // set calendar to occupy at least the size of the viewport
             const calendarContainer = document.getElementById("monthly_calendar_container")
             const top = calendarContainer.getBoundingClientRect().top
             const remainingHeight = window.innerHeight - top    // window.innerHeight is the height of the viewport
@@ -176,7 +104,8 @@ export default {
             monthSelected,
             daysArray,
             getDynamicDayClass,
-            eventsForDay
+            eventsForDay,
+            updateEvents
         }
     }
 }

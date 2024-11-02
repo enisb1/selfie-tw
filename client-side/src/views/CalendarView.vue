@@ -99,7 +99,7 @@
   </div>
 
   <div v-show="calendarToShow === 'monthly'">
-    <MonthlyCalendar />
+    <MonthlyCalendar ref="monthlyCalendarRef"/>
   </div>
 </template>
 
@@ -181,6 +181,8 @@ export default {
         proxy.$refs.dailyCalendarRef.updateEvents();
       else if (calendarToShow.value === 'weekly')
         proxy.$refs.weeklyCalendarRef.updateEvents();
+      else if (calendarToShow.value === 'monthly')
+        proxy.$refs.monthlyCalendarRef.updateEvents();
       toggleAddEventModal();
     }
 
