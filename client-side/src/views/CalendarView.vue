@@ -78,11 +78,11 @@
   </Modal>
 
   <div v-show="calendarToShow === 'daily'">
-    <DailyCalendar ref="dailyCalendarRef"/>
+    <DailyCalendar ref="dailyCalendarRef" :view="view"/>
   </div>
 
   <div v-show="calendarToShow === 'weekly'">
-    <WeeklyCalendar ref="weeklyCalendarRef"/>
+    <WeeklyCalendar ref="weeklyCalendarRef"/> <!-- TODO: add view prop-->
   </div>
 
   <div v-show="calendarToShow === 'monthly'">
@@ -118,7 +118,7 @@ export default {
     }
 
     // calendar to show
-    const calendarToShow = ref('monthly')
+    const calendarToShow = ref('daily')
     const showDailyCalendar = () => {
       calendarToShow.value = 'daily'
       toggleShowCalendarMenu()

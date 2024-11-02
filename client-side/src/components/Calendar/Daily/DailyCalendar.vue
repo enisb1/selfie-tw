@@ -6,7 +6,7 @@
     </div>
         
     <!-- Daily calendar, part of the style is in daily-calendar.css -->
-    <div id="daily_calendar" class="grid mt-4">
+    <div id="daily_calendar" class="grid mt-4" v-show="view==='calendar'">
         <div id="daily_calendar_timeslots_container">
             <div class="daily_timeslot bg-secondary min-h-16 text-white">00:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">01:00</div>
@@ -37,6 +37,28 @@
         <div id="daily_events_container">
         </div>
     </div>
+
+    <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+        <div v-show="eventsBeforeMidnight.length>0" class="flex flex-row 
+            mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">00:00</div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(event, indexEvent) in eventsBeforeMidnight" :class="{'mt-4': indexEvent>0}" class="w-full truncate bg-secondary px-4 rounded-xl py-2">
+                    {{ event.title }} 
+                </div>
+            </div>
+        </div>
+
+        <div v-for="[startTime, events] in Object.entries(eventsAfterMidnight)" class="flex flex-row 
+        mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">{{ startTime }}</div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" class="w-full truncate bg-secondary px-4 rounded-xl py-2">
+                    {{ event.title }}
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -47,19 +69,25 @@ import { renderEvents } from './render-events-day.js';
 import { watch } from 'vue';
 import { getEventsInRange } from '@/apis/calendar.js';
 import { onMounted } from 'vue';
+import { computed } from 'vue';
 
 export default {
+    props : {
+        view: String
+    },
     components: {
         DatePicker
     },
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
         watch(selectedDate, () => {
-            updateEvents();
+            events.value = []   // needed for changing day smoothly in list view
+                                // debugging I've seen that computed properties run before updateEvents
+            updateEvents()
         })
         
         // events
-        const events = ref();
+        const events = ref([]);
         const updateEvents = async () => {
             // fetch selected date's events and set them to events
             const startDate = new Date(selectedDate.value);
@@ -70,6 +98,45 @@ export default {
         watch(events, (newEvents) => {
             renderEvents(newEvents, selectedDate.value);
         });
+
+        const eventsBeforeMidnight = computed(() => {
+            if (events.value) {
+                const todayStart = new Date(new Date(selectedDate.value).setHours(0,0,0,0))
+                return events.value.filter((e) => {
+                    return new Date(e.startDate).getTime() <= todayStart.getTime()
+                })
+            }
+            else
+                return []
+            
+        })
+
+        const eventsAfterMidnight = computed(() => {
+            if (events.value) {
+                const eventsAfterMidnightArray = events.value.filter(e => 
+                    !eventsBeforeMidnight.value.some(eventBeforeMidnight => eventBeforeMidnight._id === e._id))
+                .sort((e1,e2) => e1.startInMinutes - e2.startInMinutes);
+                
+                const groupedEvents = {};
+                eventsAfterMidnightArray.forEach(event => {
+                    const startDate = new Date(event.startDate);
+
+                    // format time key as hh:mm
+                    const timeKey = startDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+                    // initialize array for this time key if it doesn't exist
+                    if (!groupedEvents[timeKey]) {
+                        groupedEvents[timeKey] = [];
+                    }
+
+                    // add event to the array for this time key
+                    groupedEvents[timeKey].push(event);
+                });
+                return groupedEvents;
+            }
+            else
+                return {};
+        })
         
         // format date
         const formatDate = (date) => {
@@ -86,7 +153,9 @@ export default {
             selectedDate,
             formatDate,
             events,
-            updateEvents
+            updateEvents,
+            eventsBeforeMidnight,
+            eventsAfterMidnight
         }
     }
 }

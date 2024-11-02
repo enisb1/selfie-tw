@@ -107,13 +107,11 @@ export default {
             const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
             const events = await getEventsInRange(startDate, endDate)
             eventsForDay.value = updateEventsObject(events, startDate, endDate)
-            console.log(eventsForDay.value)
         }
 
-        // filtered events is a computed property from events, that doens't contain empty events arrays
+        // filtered events is a computed property from events that doens't contain empty events arrays
         // needed for list view
         const filteredEvents = computed(() => {
-            console.log(Object.fromEntries(Object.entries(eventsForDay.value).filter(([day, events]) => events && events.length > 0)))
             return Object.fromEntries(Object.entries(eventsForDay.value).filter(([day, events]) => events && events.length > 0))
         })
 
@@ -125,7 +123,8 @@ export default {
             const remainingHeight = window.innerHeight - top    // window.innerHeight is the height of the viewport
             // set monthly calendar grid to take up the remaining vertical space of the viewport
             calendarContainer.style.minHeight = `${remainingHeight}px`
-
+            
+            // TODO: call only if in monthly calendar mode, then test
             updateDays()
             updateEvents()
         })
