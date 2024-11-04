@@ -118,7 +118,6 @@ export default {
         })
 
         const addHoverOnEventBoxes = () => {
-            console.log("here");
             const eventBoxes = document.querySelectorAll('.event');
 
             eventBoxes.forEach(eventBox => {

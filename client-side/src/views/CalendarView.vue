@@ -73,6 +73,49 @@
           </div>
         </div>
 
+        <!-- frequency of event -->
+        <div class="mt-4">
+          <!-- title -->
+          <p class="font-semibold text-base">Frequency of event</p>
+
+          <!-- button-->
+          <button @click="toggleFrequencyMenu" type="button" class="flex justify-center gap-x-1.5 rounded-md bg-secondary 
+          px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
+            <span v-show="frequencySelected === 'none'">None</span>
+            <span v-show="frequencySelected === 'daily'">Daily</span>
+            <span v-show="frequencySelected === 'weekly'">Weekly</span>
+            <span v-show="frequencySelected === 'monthly'">Monthly</span>
+            <span v-show="frequencySelected === 'yearly'">Yearly</span>
+            <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd" />
+            </svg>
+          </button>
+
+          <!-- dropdown menu -->
+          <div v-show="showFrequencyMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+            <div @click="selectNoneFrequency()"
+              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">None</div>
+            <div @click="selectDailyFrequency()"
+              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
+            <div @click="selectWeeklyFrequency()"
+              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Weekly</div>
+            <div @click="selectMonthlyFrequency()"
+              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Monthly</div>
+            <div @click="selectYearlyFrequency()"
+              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Yearly</div>
+          </div>
+        </div>
+
+        <!-- Event repetition -->
+        <div class="mt-4">
+          <!-- Title -->
+          <p class="font-semibold text-base">Select number of repetitions or date</p>
+          <input id="repetition_number" type="number" v-model="frequencyNumber" :disabled="isFrequencyNumberDisabled" @input="toggleInputs('number')">
+          <input id="repetition_date" type="date" class="block mt-2" v-model="frequencyDate" :disabled="isFrequencyDateDisabled" @input="toggleInputs('date')">
+        </div>
+
         <!-- color picker -->
         <div class="mt-4">
           <p class="font-semibold text-base">Event color</p>
@@ -156,6 +199,10 @@ export default {
       eventToAddTitle.value = ''
       eventToAddStartDate.value = null
       eventToAddEndDate.value = null
+      eventToAddFrequencyDate.value = null
+      eventToAddFrequencyNumber.value = null
+      isFrequencyDateDisabled.value = false;
+      isFrequencyNumberDisabled.value = false;
       showAddEventModal.value = !showAddEventModal.value
     }
     // add event modal data
@@ -193,6 +240,48 @@ export default {
     // event to add color
     const selectedColor = ref('#3c4f76')
 
+    // event frequency
+    const frequencySelected = ref('none')
+    const showFrequencyMenu = ref(false)
+    const toggleFrequencyMenu = () => {
+      showFrequencyMenu.value = !showFrequencyMenu.value
+    }
+    const selectNoneFrequency = () => {
+      frequencySelected.value = 'none'
+      toggleFrequencyMenu()
+    }
+    const selectDailyFrequency = () => {
+      frequencySelected.value = 'daily'
+      toggleFrequencyMenu()
+    }
+    const selectWeeklyFrequency = () => {
+      frequencySelected.value = 'weekly'
+      toggleFrequencyMenu()
+    }
+    const selectMonthlyFrequency = () => {
+      frequencySelected.value = 'monthly'
+      toggleFrequencyMenu()
+    }
+    const selectYearlyFrequency = () => {
+      frequencySelected.value = 'yearly'
+      toggleFrequencyMenu()
+    }
+    // disable number frequency when date is used and viceversa
+    const eventToAddFrequencyNumber = ref('');
+    const eventToAddFrequencyDate = ref('');
+    const isFrequencyDateDisabled = ref(false);
+    const isFrequencyNumberDisabled = ref(false);
+
+    const toggleInputs = (activeField) => {
+      if (activeField === 'number') {
+        isFrequencyDateDisabled.value = !!eventToAddFrequencyNumber.value; // Disable date input if number input has a value
+        if (!eventToAddFrequencyNumber.value) eventToAddFrequencyDate.value = ''; // Clear date input if number input is cleared
+      } else if (activeField === 'date') {
+        isFrequencyNumberDisabled.value = !!eventToAddFrequencyDate.value; // Disable number input if date input has a value
+        if (!eventToAddFrequencyDate.value) eventToAddFrequencyNumber.value = ''; // Clear number input if date input is cleared
+      }
+    };
+
     return {
       calendarToShow,
       showDailyCalendar,
@@ -210,7 +299,20 @@ export default {
       eventToAddTitle,
       view,
       toggleView,
-      selectedColor
+      selectedColor,
+      showFrequencyMenu,
+      toggleFrequencyMenu,
+      frequencySelected,
+      selectNoneFrequency,
+      selectDailyFrequency,
+      selectWeeklyFrequency,
+      selectMonthlyFrequency,
+      selectYearlyFrequency,
+      frequencyNumber: eventToAddFrequencyNumber,
+      frequencyDate: eventToAddFrequencyDate,
+      isFrequencyDateDisabled,
+      isFrequencyNumberDisabled,
+      toggleInputs
     }
   }
 }
