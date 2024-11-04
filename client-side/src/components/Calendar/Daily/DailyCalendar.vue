@@ -47,7 +47,7 @@
             mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">00:00</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in eventsBeforeMidnight" :class="{'mt-4': indexEvent>0}" class="w-full truncate bg-secondary px-4 rounded-xl py-2">
+                <div v-for="(event, indexEvent) in eventsBeforeMidnight" :class="{'mt-4': indexEvent>0}" class="opacity-75 hover:opacity-100 hover:font-bold w-full truncate bg-secondary px-4 rounded-xl py-2">
                     {{ event.title }} 
                 </div>
             </div>
@@ -57,7 +57,7 @@
         mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">{{ startTime }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :style="{backgroundColor: event.color}" class="opacity-75 hover:opacity-100 w-full truncate px-4 rounded-xl py-2">
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :style="{backgroundColor: event.color}" class="opacity-75 hover:opacity-100 hover:font-bold w-full truncate px-4 rounded-xl py-2">
                     {{ event.title }}
                 </div>
             </div>

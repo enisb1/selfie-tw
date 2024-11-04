@@ -28,7 +28,7 @@
             <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
                 <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-                <div v-for="event in eventsForDay[index+1]" :style="{backgroundColor: event.color}" class="mt-2 opacity-75 hover:opacity-100 truncate">
+                <div v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}" class="event mt-2 opacity-75 truncate">
                     <p> {{ event.title }}</p>
                 </div>
             </div>
@@ -40,7 +40,7 @@
         <div v-for="[day, events] in Object.entries(filteredEvents)" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ day }} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :style="{backgroundColor: event.color}" class="opacity-75 hover:opacity-100 w-full truncate px-4 rounded-xl py-2">
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :style="{backgroundColor: event.color}" :data-event-id="event._id" class="event opacity-75 w-full truncate px-4 rounded-xl py-2">
                         {{ event.title }} 
                 </div>
             </div>
@@ -117,6 +117,29 @@ export default {
             return Object.fromEntries(Object.entries(eventsForDay.value).filter(([day, events]) => events && events.length > 0))
         })
 
+        const addHoverOnEventBoxes = () => {
+            console.log("here");
+            const eventBoxes = document.querySelectorAll('.event');
+
+            eventBoxes.forEach(eventBox => {
+                eventBox.addEventListener('mouseover', () => {
+                    const eventId = eventBox.getAttribute('data-event-id');
+                    console.log(eventId);
+                    document.querySelectorAll(`.event[data-event-id="${eventId}"]`).forEach(e => {
+                        e.classList.remove('opacity-75');
+                        e.classList.add('font-bold')
+                    });
+                });
+
+                eventBox.addEventListener('mouseout', () => {
+                    const eventId = eventBox.getAttribute('data-event-id');
+                    document.querySelectorAll(`.event[data-event-id="${eventId}"]`).forEach(e => {
+                        e.classList.add('opacity-75');
+                    });
+                });
+            });
+        }
+
         // lifecycle hooks
         onMounted(() => {
             // set calendar to occupy at least the size of the viewport
@@ -129,6 +152,13 @@ export default {
             // TODO: call only if in monthly calendar mode, then test
             updateDays()
             updateEvents()
+
+            // initialize MutationObserver to detect changes in the DOM
+            const observer = new MutationObserver(() => {
+                addHoverOnEventBoxes(); // reapply hover listener on event boxes whenever DOM changes
+            });
+            // observe the body (where event boxes are added)
+            observer.observe(document.body, { childList: true, subtree: true });
         })
         
         return {
