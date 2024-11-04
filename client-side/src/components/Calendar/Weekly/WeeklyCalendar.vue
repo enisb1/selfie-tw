@@ -5,7 +5,8 @@
         :format="formatWeek"></DatePicker>
     </div>
 
-    <div id="weekly_calendar_container" class="grid overflow-x-scroll">
+    <!-- Calendar view -->
+    <div id="weekly_calendar_container" class="grid overflow-x-scroll" v-show="view === 'calendar'">
         <div id="week_calendar_header" class="mt-6">
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Monday</div>
@@ -121,6 +122,19 @@
         <div id="weekly_events_container">
         </div>
     </div>
+
+    <!-- List view -->
+    <div v-show="view === 'list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+        <div v-for="[day, events] in eventsForDay" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}</div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" class="w-full truncate bg-secondary px-4 rounded-xl py-2">
+                        {{ event.title }} 
+                </div>
+            </div>
+        </div>
+    </div>
+
 </template>
 
 <script>
@@ -131,8 +145,12 @@ import { onMounted } from 'vue';
 import { watch } from 'vue';
 import { getEventsInRange } from '@/apis/calendar.js';
 import { renderEvents } from './render-events-week';
+import { updateEventsObject } from './update-events-weekly';
 
 export default {
+    props : {
+        view: String
+    },
     components: {
         DatePicker
     },
@@ -160,6 +178,9 @@ export default {
 
         // events
         const events = ref();
+        // eventsForDay is an array containing [date, events] (in which events is an array of events
+        // for the paired day)
+        const eventsForDay = ref([])
         const updateEvents = async () => {
             // fetch selected date's events and set them to events
             if (weekSelected.value) {
@@ -167,14 +188,19 @@ export default {
                 const endDate = weekSelected.value[1]
                 events.value = await getEventsInRange(startDate, endDate);
             }
-            
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {
-            renderEvents(newEvents);
+            // render events in calendar view
+            renderEvents(newEvents)
+            // updates eventsForDay for list view
+            const startDate = new Date(new Date(weekSelected.value[0]).setHours(0,0,0,0))
+            const endDate = new Date(new Date(weekSelected.value[1]).setHours(23,59,59,999))
+            eventsForDay.value = updateEventsObject(newEvents, startDate, endDate)
         });
         
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+        
         // format week (input = date selected within the week)
         const formatWeek = (date) => {
             if (!date) return '';
@@ -194,7 +220,9 @@ export default {
         return {
             weekSelected,
             formatWeek,
-            updateEvents
+            updateEvents,
+            eventsForDay,
+            months
         }
     }
 

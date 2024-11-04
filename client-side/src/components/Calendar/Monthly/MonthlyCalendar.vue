@@ -4,6 +4,7 @@
         <DatePicker class="inline-block mt-3 sm:ml-8 w-auto" v-model="monthSelected" month-picker :enable-time-picker="false"></DatePicker>
     </div>
     
+    <!-- Calendar view -->
     <div v-show="view==='calendar'" class="mt-6">
         <!-- Header -->
         <div class="grid grid-cols-7">
@@ -34,6 +35,7 @@
         </div>
     </div>
 
+    <!-- List view -->
     <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
         <div v-for="[day, events] in Object.entries(filteredEvents)" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ day }} {{ months[new Date(events[0].startDate).getMonth()] }}</div>

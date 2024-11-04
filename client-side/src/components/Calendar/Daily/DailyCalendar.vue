@@ -162,7 +162,6 @@ export default {
         return {
             selectedDate,
             formatDate,
-            events,
             updateEvents,
             eventsBeforeMidnight,
             eventsAfterMidnight,

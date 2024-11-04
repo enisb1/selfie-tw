@@ -90,7 +90,7 @@
   </div>
 
   <div v-show="calendarToShow === 'weekly'">
-    <WeeklyCalendar ref="weeklyCalendarRef"/> <!-- TODO: add view prop-->
+    <WeeklyCalendar ref="weeklyCalendarRef" :view="view"/> <!-- TODO: add view prop-->
   </div>
 
   <div v-show="calendarToShow === 'monthly'">
