@@ -12,6 +12,18 @@ export async function getEventsInRange(startDate, endDate) {
     }
 }
 
+// convert startDate and endDate to UTC time string, and get events in that range
+export async function getActivitiesInRange(startDate, endDate) {
+    const startStringUTC = new Date(startDate.setHours(0, 0, 0, 0)).toISOString();
+    const endStringUTC = new Date(endDate.setHours(23, 59, 59, 999)).toISOString();
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/activities?start=${startStringUTC}&end=${endStringUTC}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching events: ", error);
+    }
+}
+
 export async function getEvents() {
     try {
         const response = await axios.get(`http://localhost:8000/api/calendar/getEvents`);

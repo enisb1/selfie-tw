@@ -17,6 +17,19 @@ function createDefaultEventDiv(event) {
     return eventDiv;
 }
 
+function createDefaultActivityDiv(activity) {
+    const activityDiv = document.createElement("div");
+    activityDiv.classList.add("absolute", "text-white", "truncate", "rounded-md", "shadow-md", "font-bold");
+
+    const title = document.createElement("p");
+    title.classList.add("pl-1")
+    title.innerText = `activity deadline: '${activity.title}'`;
+    
+    activityDiv.appendChild(title);
+
+    return activityDiv;
+}
+
 // updates event's div zIndex
 // what it does: set zIndex of event's div, search for events that have start time between event's
 // start and end time, sort them based on growing start time and call setZIndex on them
@@ -113,13 +126,15 @@ function addEvent(eventToAdd, startDate, endDate) {
 }
 
 function addActivity(activityToAdd) {
-    // TODO: check how much event end in minutes exactly is (based on how much space you want to give, 10 minutes maybe works)
-    // TODO: CONTROLLA CASO LIMITE 23:55 -> if deadline is at 23:55 then put grid row -1 to assure the activity has enough space
     const deadline = new Date(activityToAdd.deadline);
     const activityToAddH = deadline.getHours();
-    const activityToAddM = deadline.getMinutes();
+    let activityToAddM = deadline.getMinutes();
+    // edge case in which the activity has a deadline near the end of the grid are handled by
+    // anticipating deadline to a fake one... the activity will still officially have its normal deadline
+    if (activityToAddH == 23 && activityToAddM > 40)
+        activityToAddM = 40;
     activityToAdd.startInMinutes = activityToAddH*60 + activityToAddM;
-    activityToAdd.endInMinutes = activityToAdd.startInMinutes + 10; // la activity box avrà un'altezza di 10 minuti dall'inizio
+    activityToAdd.endInMinutes = activityToAdd.startInMinutes + 20; // spans 20 minutes to have enough space in the grid
 
     // get array of events with same start time
     let numEventsSharingStart = 0;
@@ -133,14 +148,14 @@ function addActivity(activityToAdd) {
     });
 
     // create div for new event
-    const activityToAddDiv = createDefaultEventDiv(activityToAdd);
+    const activityToAddDiv = createDefaultActivityDiv(activityToAdd);
 
     // grid positon
     // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
     activityToAddDiv.style.gridColumn = `${day} / span 1`;
-    activityToAddDiv.style.gridRow = `${activityToAddH*12+1 + (activityToAddH/5)} / span 2`; // spans 10 minutes
+    activityToAddDiv.style.gridRow = `${activityToAddH*12+1 + (activityToAddM/5)} / span 4`; // spans 20 minutes to have enough space
     activityToAddDiv.style.height = "100%";
-    activityToAddDiv.style.backgroundColor = '#e33922'; //TODO: select an activity color and set it here
+    activityToAddDiv.style.backgroundColor = 'crimson'; //TODO: select an activity color and set it here
 
     // set div's id
     activityToAddDiv.id = `event${nEvents}Weekly`;
@@ -189,13 +204,14 @@ function cloneEvent(event) {
 
 // TODO: refactor this whole file, change name to render-calendar-week
 // and change also all names to be more pertinent
-export function renderEvents(events) {
+export function renderEvents(events, activities) {
     // reset all
     document.getElementById("weekly_events_container").innerHTML="";
     addedEvents = [[],[],[],[],[],[],[]];   // array of arrays of added events for each day of the week
     nEvents = 0;
     zIndexCount = 0; 
 
+    // render events
     for (const event of events) {
         const eventStart = new Date(event.startDate);
         const eventEnd = new Date(event.endDate);
@@ -234,4 +250,8 @@ export function renderEvents(events) {
             addEvent(event, eventStart, eventEnd);
         }
     }
+
+    // render activities
+    for (const activity of activities) 
+        addActivity(activity)
 }

@@ -146,7 +146,7 @@ import { onMounted } from 'vue';
 import { watch } from 'vue';
 import { renderEvents } from './render-events-week';
 import { updateEventsObject } from './update-events-weekly';
-import { getEvents } from '@/apis/calendar.js';
+import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
 
 export default {
@@ -191,7 +191,8 @@ export default {
         }
 
         // events
-        const events = ref();
+        const events = ref()
+        const activities = ref()
         // eventsForDay is an array containing [date, events] (in which events is an array of events
         // for the paired day)
         const eventsForDay = ref([])
@@ -209,16 +210,16 @@ export default {
                 || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
                 || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
             })
+
+            // fetch activities
+            activities.value = await getActivitiesInRange(startDate, endDate)
+            console.log(activities.value)
+
+            // render calendar view
+            renderEvents(events.value, activities.value)
+            // update eventsForDay object for list view
+            eventsForDay.value = updateEventsObject(events.value, startDate, endDate)
         }
-        // watch for updates to events and render them
-        watch(events, (newEvents) => {
-            // render events in calendar view
-            renderEvents(newEvents)
-            // updates eventsForDay for list view
-            const startDate = new Date(new Date(weekSelected.value[0]).setHours(0,0,0,0))
-            const endDate = new Date(new Date(weekSelected.value[1]).setHours(23,59,59,999))
-            eventsForDay.value = updateEventsObject(newEvents, startDate, endDate)
-        });
         
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
