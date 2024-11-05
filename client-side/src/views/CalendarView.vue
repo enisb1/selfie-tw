@@ -136,18 +136,18 @@
     </form>
 
     <!-- ADD ACTIVITY FORM -->
-    <form @submit.prevent="addEvent" v-show="inAddActivity">
+    <form @submit.prevent="addActivity" v-show="inAddActivity">
       <div class="flex flex-col">
         <!-- title -->
         <div class="mt-4">
           <p class="font-semibold text-base">Title</p>
-          <input class="border border-third" type="text" maxlength="30" required v-model="activityToAddTitle">
+          <input class="border border-third" type="text" maxlength="50" required v-model="activityToAddTitle">
         </div>
 
         <!-- deadline -->
         <div class="mt-4">
           <p class="font-semibold text-base">Deadline</p>
-          <DatePicker class="mt-px inline-block w-auto" v-model="activityDeadline"
+          <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
             :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
       </div>
@@ -179,7 +179,7 @@ import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { postEvent } from '@/apis/calendar';
 import { getCurrentInstance } from 'vue';
-
+import { postActivity } from '@/apis/calendar';
 import { ref } from 'vue';
 
 export default {
@@ -222,8 +222,8 @@ export default {
     }
 
     // add event modal
-    const showAddEventModal = ref(false)
-    const toggleAddEventModal = () => {
+    const showAddModal = ref(false)
+    const toggleAddModal = () => {
       // reset form when closing it
       eventToAddTitle.value = ''
       eventToAddStartDate.value = null
@@ -234,7 +234,11 @@ export default {
       isRepetitionDateDisabled.value = false
       isRepetitionNumberDisabled.value = false
       selectedColor.value = '#3c4f76'
-      showAddEventModal.value = !showAddEventModal.value
+      showAddModal.value = !showAddModal.value
+      activityToAddTitle.value = ''
+      activityToAddDeadline.value = null
+      inAddActivity.value = false
+      inAddEvent.value = true
     }
     // add event modal data
     const eventToAddTitle = ref('')
@@ -266,7 +270,7 @@ export default {
         proxy.$refs.weeklyCalendarRef.updateEvents()
       else if (calendarToShow.value === 'monthly')
         proxy.$refs.monthlyCalendarRef.updateEvents()
-      toggleAddEventModal();
+      toggleAddModal();
     }
 
     // event to add color
@@ -326,6 +330,13 @@ export default {
       inAddEvent.value = false
     }
     const activityToAddTitle = ref('')
+    const activityToAddDeadline = ref()
+
+    const addActivity = async () => {
+      // TODO: check if await is necessary if you don't need anything back
+      await postActivity(activityToAddTitle.value, activityToAddDeadline.value)
+      toggleAddModal()
+    }
 
     return {
       calendarToShow,
@@ -334,8 +345,8 @@ export default {
       showMonthlyCalendar,
       showCalendarMenu,
       toggleShowCalendarMenu,
-      showAddEventModal,
-      toggleAddEventModal,
+      showAddEventModal: showAddModal,
+      toggleAddEventModal: toggleAddModal,
       eventToAddStartDate,
       eventToAddEndDate,
       formatDate,
@@ -362,7 +373,9 @@ export default {
       inAddEvent,
       selectAddActivity,
       selectAddEvent,
-      activityToAddTitle
+      activityToAddTitle,
+      activityToAddDeadline,
+      addActivity
     }
   }
 }

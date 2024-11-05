@@ -30,3 +30,11 @@ export async function postEvent(title, start, end, frequency, repetitionNumber, 
         console.log(data);
     })
 }
+
+// post event to db
+export async function postActivity(title, deadline) {
+    await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline})
+    .then(({data}) => {
+        console.log(data);
+    })
+}
