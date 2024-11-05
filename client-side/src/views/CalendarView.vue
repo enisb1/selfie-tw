@@ -42,14 +42,22 @@
   
   <!-- Add event modal -->
   <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
-    <form @submit.prevent="addEvent"> <!-- TODO: try to update events in calendar when submitting -->
+    <header>
       <div class="flex items-center justify-between flex-row">
-        <p class="font-bold text-lg">Add event</p>
+        <div class="flex items-center justify-between flex-row">
+          <button :class="{ 'bg-secondary text-white': inAddEvent, 'text-third': inAddActivity }"
+            @click="selectAddEvent()" class="p-2 px-3 font-bold rounded-xl">Add Event</button>
+          <button :class="{ 'bg-secondary text-white': inAddActivity, 'text-third': inAddEvent }"
+            @click="selectAddActivity()" class="p-2 px-3 mr-10 font-bold rounded-xl">Add Activity</button>
+        </div>
         <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
           src="../images/x.png" alt="Croce"></button>
       </div>
       <hr style="border-color: black"/>
+    </header>
 
+    <!-- ADD EVENT FORM -->
+    <form @submit.prevent="addEvent" v-show="inAddEvent">
       <div class="flex flex-col">
         <!-- title -->
         <div class="mt-4">
@@ -122,9 +130,30 @@
           <input type="color" value="#3C4F76" v-model="selectedColor">
         </div>
 
-        <button type="submit" class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+        <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
           text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
       </div>
+    </form>
+
+    <!-- ADD ACTIVITY FORM -->
+    <form @submit.prevent="addEvent" v-show="inAddActivity">
+      <div class="flex flex-col">
+        <!-- title -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Title</p>
+          <input class="border border-third" type="text" maxlength="30" required v-model="activityToAddTitle">
+        </div>
+
+        <!-- deadline -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Deadline</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="activityDeadline"
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
     </form>
   </Modal>
 
@@ -285,6 +314,19 @@ export default {
       }
     };
 
+    // add activity
+    const inAddActivity = ref(false)
+    const inAddEvent = ref(true)
+    const selectAddEvent = () => {
+      inAddActivity.value = false
+      inAddEvent.value = true
+    }
+    const selectAddActivity = () => {
+      inAddActivity.value = true
+      inAddEvent.value = false
+    }
+    const activityToAddTitle = ref('')
+
     return {
       calendarToShow,
       showDailyCalendar,
@@ -315,7 +357,12 @@ export default {
       frequencyDate: eventToAddRepetitionDate,
       isFrequencyDateDisabled: isRepetitionDateDisabled,
       isFrequencyNumberDisabled: isRepetitionNumberDisabled,
-      toggleInputs
+      toggleInputs,
+      inAddActivity,
+      inAddEvent,
+      selectAddActivity,
+      selectAddEvent,
+      activityToAddTitle
     }
   }
 }

@@ -228,7 +228,6 @@ export default {
             eventBoxes.forEach(eventBox => {
                 eventBox.addEventListener('mouseover', () => {
                     const eventId = eventBox.getAttribute('data-event-id');
-                    console.log(eventId);
                     document.querySelectorAll(`.event[data-event-id="${eventId}"]`).forEach(e => {
                         e.classList.remove('opacity-75');
                         e.classList.add('font-bold')

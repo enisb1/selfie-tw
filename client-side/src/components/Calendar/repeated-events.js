@@ -40,10 +40,6 @@ export function getAllEventsInstances(events) {
                     dtstart: new Date(new Date(e.startDate).toISOString())
                 })
             const recurringDates = rule.all() // get all dates given this recurrence
-            if (e.title == 'repeat at 8 by date') {
-                console.log('at 8')
-                console.log(recurringDates)
-            }
             for (const date of recurringDates) {
                 // create copies of the event modifying start date and end date
                 const eventDuration = new Date(e.endDate).getTime() - new Date(e.startDate).getTime()
