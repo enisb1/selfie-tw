@@ -5,6 +5,9 @@ const eventSchema = new mongoose.Schema({
     title: String,
     startDate: Date,
     endDate: Date,
+    frequency: String,
+    repetitionNumber: Number,
+    repetitionDate: Date,
     color: String
 });
 

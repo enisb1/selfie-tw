@@ -12,10 +12,19 @@ export async function getEventsInRange(startDate, endDate) {
     }
 }
 
+export async function getEvents() {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/getEvents`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching events: ", error);
+    }
+}
+
 // post event to db
-export async function postEvent(title, start, end, color) {
+export async function postEvent(title, start, end, frequency, repetitionNumber, repetitionDate, color) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "startDate": start,
-        "endDate": end, "color": color
+        "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, "repetitionDate": repetitionDate, "color": color
     })
     .then(({data}) => {
         console.log(data);

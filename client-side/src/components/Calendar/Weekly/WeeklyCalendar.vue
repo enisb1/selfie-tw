@@ -203,7 +203,6 @@ export default {
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
 
         const addHoverOnEventBoxes = () => {
-            console.log("here");
             const eventBoxes = document.querySelectorAll('.event');
 
             eventBoxes.forEach(eventBox => {

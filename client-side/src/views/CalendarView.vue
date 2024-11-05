@@ -76,7 +76,7 @@
         <!-- frequency of event -->
         <div class="mt-4">
           <!-- title -->
-          <p class="font-semibold text-base">Frequency of event</p>
+          <p class="font-semibold text-base">Event frequency</p>
 
           <!-- button-->
           <button @click="toggleFrequencyMenu" type="button" class="flex justify-center gap-x-1.5 rounded-md bg-secondary 
@@ -111,7 +111,7 @@
         <!-- Event repetition -->
         <div class="mt-4">
           <!-- Title -->
-          <p class="font-semibold text-base">Select number of repetitions or date</p>
+          <p class="font-semibold text-base">Select number of repetitions or date until repetition (excluded)</p>
           <input id="repetition_number" type="number" v-model="frequencyNumber" :disabled="isFrequencyNumberDisabled" @input="toggleInputs('number')">
           <input id="repetition_date" type="date" class="block mt-2" v-model="frequencyDate" :disabled="isFrequencyDateDisabled" @input="toggleInputs('date')">
         </div>
@@ -199,10 +199,12 @@ export default {
       eventToAddTitle.value = ''
       eventToAddStartDate.value = null
       eventToAddEndDate.value = null
-      eventToAddFrequencyDate.value = null
-      eventToAddFrequencyNumber.value = null
-      isFrequencyDateDisabled.value = false;
-      isFrequencyNumberDisabled.value = false;
+      eventToAddFrequency.value = 'none'
+      eventToAddRepetitionDate.value = null
+      eventToAddRepetitionNumber.value = null
+      isRepetitionDateDisabled.value = false
+      isRepetitionNumberDisabled.value = false
+      selectedColor.value = '#3c4f76'
       showAddEventModal.value = !showAddEventModal.value
     }
     // add event modal data
@@ -226,7 +228,9 @@ export default {
     const { proxy } = getCurrentInstance();
     const addEvent = async () => {
       //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
-      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, selectedColor.value) 
+      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
+      eventToAddFrequency.value, eventToAddRepetitionNumber.value,
+      eventToAddRepetitionDate.value, selectedColor.value) 
       if (calendarToShow.value === 'daily')
         proxy.$refs.dailyCalendarRef.updateEvents()
       else if (calendarToShow.value === 'weekly')
@@ -234,51 +238,50 @@ export default {
       else if (calendarToShow.value === 'monthly')
         proxy.$refs.monthlyCalendarRef.updateEvents()
       toggleAddEventModal();
-      selectedColor.value = '#3c4f76'
     }
 
     // event to add color
     const selectedColor = ref('#3c4f76')
 
     // event frequency
-    const frequencySelected = ref('none')
+    const eventToAddFrequency = ref('none')
     const showFrequencyMenu = ref(false)
     const toggleFrequencyMenu = () => {
       showFrequencyMenu.value = !showFrequencyMenu.value
     }
     const selectNoneFrequency = () => {
-      frequencySelected.value = 'none'
+      eventToAddFrequency.value = 'none'
       toggleFrequencyMenu()
     }
     const selectDailyFrequency = () => {
-      frequencySelected.value = 'daily'
+      eventToAddFrequency.value = 'daily'
       toggleFrequencyMenu()
     }
     const selectWeeklyFrequency = () => {
-      frequencySelected.value = 'weekly'
+      eventToAddFrequency.value = 'weekly'
       toggleFrequencyMenu()
     }
     const selectMonthlyFrequency = () => {
-      frequencySelected.value = 'monthly'
+      eventToAddFrequency.value = 'monthly'
       toggleFrequencyMenu()
     }
     const selectYearlyFrequency = () => {
-      frequencySelected.value = 'yearly'
+      eventToAddFrequency.value = 'yearly'
       toggleFrequencyMenu()
     }
     // disable number frequency when date is used and viceversa
-    const eventToAddFrequencyNumber = ref('');
-    const eventToAddFrequencyDate = ref('');
-    const isFrequencyDateDisabled = ref(false);
-    const isFrequencyNumberDisabled = ref(false);
+    const eventToAddRepetitionNumber = ref();
+    const eventToAddRepetitionDate = ref();
+    const isRepetitionDateDisabled = ref(false);
+    const isRepetitionNumberDisabled = ref(false);
 
     const toggleInputs = (activeField) => {
       if (activeField === 'number') {
-        isFrequencyDateDisabled.value = !!eventToAddFrequencyNumber.value; // Disable date input if number input has a value
-        if (!eventToAddFrequencyNumber.value) eventToAddFrequencyDate.value = ''; // Clear date input if number input is cleared
+        isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value; // Disable date input if number input has a value
+        if (!eventToAddRepetitionNumber.value) eventToAddRepetitionDate.value = ''; // Clear date input if number input is cleared
       } else if (activeField === 'date') {
-        isFrequencyNumberDisabled.value = !!eventToAddFrequencyDate.value; // Disable number input if date input has a value
-        if (!eventToAddFrequencyDate.value) eventToAddFrequencyNumber.value = ''; // Clear number input if date input is cleared
+        isRepetitionNumberDisabled.value = !!eventToAddRepetitionDate.value; // Disable number input if date input has a value
+        if (!eventToAddRepetitionDate.value) eventToAddRepetitionNumber.value = ''; // Clear number input if date input is cleared
       }
     };
 
@@ -302,16 +305,16 @@ export default {
       selectedColor,
       showFrequencyMenu,
       toggleFrequencyMenu,
-      frequencySelected,
+      frequencySelected: eventToAddFrequency,
       selectNoneFrequency,
       selectDailyFrequency,
       selectWeeklyFrequency,
       selectMonthlyFrequency,
       selectYearlyFrequency,
-      frequencyNumber: eventToAddFrequencyNumber,
-      frequencyDate: eventToAddFrequencyDate,
-      isFrequencyDateDisabled,
-      isFrequencyNumberDisabled,
+      frequencyNumber: eventToAddRepetitionNumber,
+      frequencyDate: eventToAddRepetitionDate,
+      isFrequencyDateDisabled: isRepetitionDateDisabled,
+      isFrequencyNumberDisabled: isRepetitionNumberDisabled,
       toggleInputs
     }
   }

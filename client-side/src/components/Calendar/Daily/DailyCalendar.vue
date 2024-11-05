@@ -74,6 +74,8 @@ import { watch } from 'vue';
 import { getEventsInRange } from '@/apis/calendar.js';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
+import { RRule } from 'rrule';
+import { getEvents } from '@/apis/calendar.js';
 
 export default {
     props : {
@@ -85,28 +87,99 @@ export default {
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
         watch(selectedDate, () => {
-            events.value = []   // needed for changing day smoothly in list view
+            eventsSelectedDay.value = []   // needed for changing day smoothly in list view
                                 // debugging I've seen that computed properties run before updateEvents
             updateEvents()
         })
         
         // events
-        const events = ref([]);
+        const eventsSelectedDay = ref([]);
         const updateEvents = async () => {
-            // fetch selected date's events and set them to events
-            const startDate = new Date(selectedDate.value);
-            const endDate = new Date(selectedDate.value);
-            events.value = await getEventsInRange(startDate, endDate);
+            // fetch events from db and calculate all the events instances, including the one
+            // that repeat themselves, filter for selected day and render
+            const eventsFromDB = await getEvents()
+            const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+            console.log(allEventsInstances)
+            const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
+            const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
+            // filter all events instances getting only those that concern the selected day
+            eventsSelectedDay.value = allEventsInstances.filter(e => {
+                const eventEndDate = new Date(e.endDate)
+                const eventStartDate = new Date(e.startDate)
+                return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+            })
+            console.log(eventsSelectedDay.value)
         }
         // watch for updates to events and render them
-        watch(events, (newEvents) => {
+        watch(eventsSelectedDay, (newEvents) => {
             renderEvents(newEvents, selectedDate.value);
         });
 
+        // using RRULE library to add all repeating events instances to events param
+        const getAllEventsInstances = (events) => {
+            const allEventsInstances = []
+            for (const e of events) {
+                if (e.frequency != 'none') {
+                    let frequency = null;
+                    switch (e.frequency) {
+                        case 'daily':
+                            frequency = RRule.DAILY
+                            break
+                        case 'weekly':
+                            frequency = RRule.WEEKLY
+                            break
+                        case 'monthly':
+                            frequency = RRule.MONTHLY
+                            break
+                        case 'yearly':
+                            frequency = RRule.YEARLY
+                            break
+                    }
+                    
+                    // one between count and until will be null and the other one will be
+                    // meaningful to calculate all the recurring events
+                    let rule = null
+                    if (e.repetitionNumber) 
+                        rule = new RRule({
+                            freq: frequency,
+                            interval: 1,
+                            count: e.repetitionNumber,
+                            dtstart: new Date(new Date(e.startDate).toISOString())
+                        })
+                    else
+                        rule = new RRule({
+                            freq: frequency,
+                            interval: 1,
+                            until: new Date(new Date(e.repetitionDate).toISOString()),
+                            dtstart: new Date(new Date(e.startDate).toISOString())
+                        })
+                    const recurringDates = rule.all() // get all dates given this recurrence
+                    if (e.title == 'repeat at 8 by date') {
+                        console.log('at 8')
+                        console.log(recurringDates)
+                    }
+                    for (const date of recurringDates) {
+                        // create copies of the event modifying start date and end date
+                        const eventDuration = new Date(e.endDate).getTime() - new Date(e.startDate).getTime()
+                        const eventRepeated = structuredClone(e);
+                        eventRepeated.startDate = date
+                        eventRepeated.endDate = new Date(date.getTime() + eventDuration)
+                        allEventsInstances.push(eventRepeated)
+                    }
+                }
+                else {
+                    allEventsInstances.push(e)
+                }
+            }
+            return allEventsInstances;
+        }
+
         const eventsBeforeMidnight = computed(() => {
-            if (events.value) {
+            if (eventsSelectedDay.value) {
                 const todayStart = new Date(new Date(selectedDate.value).setHours(0,0,0,0))
-                return events.value.filter((e) => {
+                return eventsSelectedDay.value.filter((e) => {
                     return new Date(e.startDate).getTime() <= todayStart.getTime()
                 })
             }
@@ -116,8 +189,8 @@ export default {
         })
 
         const eventsAfterMidnight = computed(() => {
-            if (events.value) {
-                const eventsAfterMidnightArray = events.value.filter(e => 
+            if (eventsSelectedDay.value) {
+                const eventsAfterMidnightArray = eventsSelectedDay.value.filter(e => 
                     !eventsBeforeMidnight.value.some(eventBeforeMidnight => eventBeforeMidnight._id === e._id))
                 .sort((e1,e2) => e1.startInMinutes - e2.startInMinutes);
                 
