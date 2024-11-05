@@ -74,7 +74,7 @@ import { watch } from 'vue';
 import { getEventsInRange } from '@/apis/calendar.js';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
-import { RRule } from 'rrule';
+import { getAllEventsInstances } from '../repeated-events.js';
 import { getEvents } from '@/apis/calendar.js';
 
 export default {
@@ -128,65 +128,6 @@ export default {
             weekday: 'long',  // Full name of the day (e.g., "Monday")
             day: 'numeric',    // Day of the month (e.g., 1, 2, ..., 31)
             month: 'long'      // Full name of the month (e.g., "January")
-        }
-
-        // using RRULE library to add all repeating events instances to events param
-        const getAllEventsInstances = (events) => {
-            const allEventsInstances = []
-            for (const e of events) {
-                if (e.frequency != 'none') {
-                    let frequency = null;
-                    switch (e.frequency) {
-                        case 'daily':
-                            frequency = RRule.DAILY
-                            break
-                        case 'weekly':
-                            frequency = RRule.WEEKLY
-                            break
-                        case 'monthly':
-                            frequency = RRule.MONTHLY
-                            break
-                        case 'yearly':
-                            frequency = RRule.YEARLY
-                            break
-                    }
-                    
-                    // one between count and until will be null and the other one will be
-                    // meaningful to calculate all the recurring events
-                    let rule = null
-                    if (e.repetitionNumber) 
-                        rule = new RRule({
-                            freq: frequency,
-                            interval: 1,
-                            count: e.repetitionNumber,
-                            dtstart: new Date(new Date(e.startDate).toISOString())
-                        })
-                    else
-                        rule = new RRule({
-                            freq: frequency,
-                            interval: 1,
-                            until: new Date(new Date(e.repetitionDate).toISOString()),
-                            dtstart: new Date(new Date(e.startDate).toISOString())
-                        })
-                    const recurringDates = rule.all() // get all dates given this recurrence
-                    if (e.title == 'repeat at 8 by date') {
-                        console.log('at 8')
-                        console.log(recurringDates)
-                    }
-                    for (const date of recurringDates) {
-                        // create copies of the event modifying start date and end date
-                        const eventDuration = new Date(e.endDate).getTime() - new Date(e.startDate).getTime()
-                        const eventRepeated = structuredClone(e);
-                        eventRepeated.startDate = date
-                        eventRepeated.endDate = new Date(date.getTime() + eventDuration)
-                        allEventsInstances.push(eventRepeated)
-                    }
-                }
-                else {
-                    allEventsInstances.push(e)
-                }
-            }
-            return allEventsInstances;
         }
 
         const eventsBeforeMidnight = computed(() => {

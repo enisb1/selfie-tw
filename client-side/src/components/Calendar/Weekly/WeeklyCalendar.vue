@@ -147,6 +147,8 @@ import { watch } from 'vue';
 import { getEventsInRange } from '@/apis/calendar.js';
 import { renderEvents } from './render-events-week';
 import { updateEventsObject } from './update-events-weekly';
+import { getEvents } from '@/apis/calendar.js';
+import { getAllEventsInstances } from '../repeated-events';
 
 export default {
     props : {
@@ -195,12 +197,19 @@ export default {
         // for the paired day)
         const eventsForDay = ref([])
         const updateEvents = async () => {
-            // fetch selected date's events and set them to events
-            if (weekSelected.value) {
-                const startDate = weekSelected.value[0]
-                const endDate = weekSelected.value[1]
-                events.value = await getEventsInRange(startDate, endDate);
-            }
+            // fetch events from db and calculate all the events instances, including the one
+            // that repeat themselves, filter for selected week and render
+            const eventsFromDB = await getEvents()
+            const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+            const startDate = new Date(new Date(weekSelected.value[0]).setHours(0,0,0,0))
+            const endDate = new Date(new Date(weekSelected.value[1]).setHours(23, 59, 59, 999))
+            events.value = allEventsInstances.filter(e => {
+                const eventEndDate = new Date(e.endDate)
+                const eventStartDate = new Date(e.startDate)
+                return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+            })
         }
         // watch for updates to events and render them
         watch(events, (newEvents) => {

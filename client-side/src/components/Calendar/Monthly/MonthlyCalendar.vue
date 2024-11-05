@@ -58,6 +58,8 @@ import { watch } from 'vue'
 import { updateEventsObject } from './update-events-month.js'
 import { getEventsInRange } from '@/apis/calendar.js'
 import { computed } from 'vue'
+import { getEvents } from '@/apis/calendar.js'
+import { getAllEventsInstances } from '../repeated-events.js'
 
 export default {
     props : {
@@ -105,10 +107,19 @@ export default {
         // events object has day of month as key and array of events for that day as value
         const eventsForDay = ref({})
         const updateEvents = async () => {
-            // first and last days of the month, use this for event find
+            // fetch events from db and calculate all the events instances, including the one
+            // that repeat themselves, filter for selected week and render
+            const eventsFromDB = await getEvents()
+            const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
             const startDate = new Date(firstDayOfMonth.value)
             const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
-            const events = await getEventsInRange(startDate, endDate)
+            const events = allEventsInstances.filter(e => {
+                const eventEndDate = new Date(e.endDate)
+                const eventStartDate = new Date(e.startDate)
+                return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+            })
             eventsForDay.value = updateEventsObject(events, startDate, endDate)
         }
 
