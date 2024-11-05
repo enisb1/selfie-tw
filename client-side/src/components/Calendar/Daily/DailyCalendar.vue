@@ -71,7 +71,6 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { renderEvents } from './render-events-day.js';
 import { watch } from 'vue';
-import { getEventsInRange } from '@/apis/calendar.js';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';

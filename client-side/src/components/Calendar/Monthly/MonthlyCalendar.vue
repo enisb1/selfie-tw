@@ -28,7 +28,7 @@
             <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
                 <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-                <div v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}" class="event mt-2 opacity-75 truncate">
+                <div v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}" class="px-1 event mt-2 opacity-75 truncate">
                     <p> {{ event.title }}</p>
                 </div>
             </div>
@@ -56,7 +56,6 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
 import { watch } from 'vue'
 import { updateEventsObject } from './update-events-month.js'
-import { getEventsInRange } from '@/apis/calendar.js'
 import { computed } from 'vue'
 import { getEvents } from '@/apis/calendar.js'
 import { getAllEventsInstances } from '../repeated-events.js'

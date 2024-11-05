@@ -1274,10 +1274,6 @@ video {
   --tw-bg-opacity: 0.5;
 }
 
-.bg-opacity-75 {
-  --tw-bg-opacity: 0.75;
-}
-
 .fill-current {
   fill: currentColor;
 }
@@ -1300,6 +1296,11 @@ video {
 
 .p-8 {
   padding: 2rem;
+}
+
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
 }
 
 .px-2 {
@@ -1474,10 +1475,6 @@ video {
   opacity: 0.75;
 }
 
-.opacity-100 {
-  opacity: 1;
-}
-
 .shadow {
   --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color), 0 1px 2px -1px var(--tw-shadow-color);
@@ -1593,10 +1590,6 @@ video {
 .hover\:bg-third:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(60 79 118 / var(--tw-bg-opacity));
-}
-
-.hover\:bg-opacity-100:hover {
-  --tw-bg-opacity: 1;
 }
 
 .hover\:font-bold:hover {

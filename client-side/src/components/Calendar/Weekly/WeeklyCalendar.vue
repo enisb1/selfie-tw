@@ -144,7 +144,6 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import { watch } from 'vue';
-import { getEventsInRange } from '@/apis/calendar.js';
 import { renderEvents } from './render-events-week';
 import { updateEventsObject } from './update-events-weekly';
 import { getEvents } from '@/apis/calendar.js';
