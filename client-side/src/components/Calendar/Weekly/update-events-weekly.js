@@ -29,6 +29,13 @@ export function updateEventsObject(events, rangeStartDate, rangeEndDate) {
         }
     })
 
+    // sort events array based on start date
+    Object.keys(eventsForDay).forEach(day => {
+        eventsForDay[day].sort((e1,e2) => {
+            return new Date(e1.startDate).getTime() - new Date(e2.startDate).getTime();
+        });
+    });
+
     // return sorted array from object containing [date, events] (events is an array of events for that day)
     return Object.entries(eventsForDay)
     .sort(([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime());
