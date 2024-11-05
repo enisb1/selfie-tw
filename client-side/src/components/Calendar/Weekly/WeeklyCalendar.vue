@@ -10,37 +10,37 @@
         <div id="week_calendar_header" class="mt-6">
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Monday</div>
-                <div>{{ weekSelected[0].getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[0]).getDate() }}</div>
             </div>
             
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Tuesday</div>
-                <div>{{ new Date(weekSelected[0].getTime()+ 24 * 60 * 60 * 1000).getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[1]).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Wednesday</div>
-                <div>{{ new Date(weekSelected[0].getTime()+ 2 * 24 * 60 * 60 * 1000).getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[2]).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Thursday</div>
-                <div>{{ new Date(weekSelected[0].getTime()+ 3 * 24 * 60 * 60 * 1000).getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[3]).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Friday</div>
-                <div>{{ new Date(weekSelected[0].getTime()+ 4 * 24 * 60 * 60 * 1000).getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[4]).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Saturday</div>
-                <div>{{ new Date(weekSelected[0].getTime()+ 5 * 24 * 60 * 60 * 1000).getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[5]).getDate() }}</div>
             </div>
 
             <div class="week_header_day bg-secondary text-white min-w-24">
                 <div>Sunday</div>
-                <div>{{ new Date(weekSelected[0].getTime()+ 6 * 24 * 60 * 60 * 1000).getDate() }}</div>
+                <div>{{ new Date(headerWeekDays[6]).getDate() }}</div>
             </div>
         </div>
 
@@ -174,8 +174,20 @@ export default {
         // initialize weekSelected with an array containing 1st and 2nd day of the week
         const weekSelected = ref([getStartOfWeek(new Date()), getEndOfWeek(new Date())])
         watch(weekSelected, () => {
-            updateEvents()
+            // update events to show and days header only if selected week is not null
+            if (weekSelected.value) {
+                updateEvents()
+                updateHeaderWeekDays()
+            }
         })
+
+        const headerWeekDays = ref([])
+        // updated only if selected week is not null
+        const updateHeaderWeekDays = () => {
+            for (let i = 0; i<7; i++) {
+                headerWeekDays.value[i] = new Date(weekSelected.value[0].getTime() + i* 24 * 60 * 60 * 1000)
+            }
+        }
 
         // events
         const events = ref();
@@ -237,7 +249,8 @@ export default {
 
         // lifecycle hooks
         onMounted(() => {
-            updateEvents();
+            updateEvents()
+            updateHeaderWeekDays()
 
             // initialize MutationObserver to detect changes in the DOM
             const observer = new MutationObserver(() => {
@@ -252,7 +265,8 @@ export default {
             formatWeek,
             updateEvents,
             eventsForDay,
-            months
+            months,
+            headerWeekDays
         }
     }
 

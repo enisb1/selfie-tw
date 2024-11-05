@@ -35,7 +35,7 @@
         </div>
 
         <div id="daily_header" class="bg-secondary text-white text-center font-semibold py-1">
-            {{ new Date(selectedDate).toLocaleDateString("en-BR", headerFormatOptions) }}
+            {{ headerDay }}
         </div>
 
         <div id="daily_events_container">
@@ -87,9 +87,13 @@ export default {
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
         watch(selectedDate, () => {
-            eventsSelectedDay.value = []   // needed for changing day smoothly in list view
+            // update events to show and day header only if selected month is not null
+            if (selectedDate.value) {
+                eventsSelectedDay.value = []   // needed for changing day smoothly in list view
                                 // debugging I've seen that computed properties run before updateEvents
-            updateEvents()
+                updateEvents()
+                updateHeaderDay()
+            }
         })
         
         // events
@@ -99,7 +103,6 @@ export default {
             // that repeat themselves, filter for selected day and render
             const eventsFromDB = await getEvents()
             const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
-            console.log(allEventsInstances)
             const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
             const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
             // filter all events instances getting only those that concern the selected day
@@ -110,12 +113,22 @@ export default {
                 || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
                 || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
             })
-            console.log(eventsSelectedDay.value)
         }
         // watch for updates to events and render them
         watch(eventsSelectedDay, (newEvents) => {
             renderEvents(newEvents, selectedDate.value);
         });
+
+        const headerDay = ref('')
+        // updated only if selectedDate is not null
+        const updateHeaderDay = () => {
+            headerDay.value = new Date(selectedDate.value).toLocaleDateString("en-BR", headerFormatOptions)
+        }
+        const headerFormatOptions = {
+            weekday: 'long',  // Full name of the day (e.g., "Monday")
+            day: 'numeric',    // Day of the month (e.g., 1, 2, ..., 31)
+            month: 'long'      // Full name of the month (e.g., "January")
+        }
 
         // using RRULE library to add all repeating events instances to events param
         const getAllEventsInstances = (events) => {
@@ -220,16 +233,11 @@ export default {
             // format date to dd/mm/yyyy
             return date ? date.toLocaleDateString('it-IT') : '';
         }
-
-        const headerFormatOptions = {
-            weekday: 'long',  // Full name of the day (e.g., "Monday")
-            day: 'numeric',    // Day of the month (e.g., 1, 2, ..., 31)
-            month: 'long'      // Full name of the month (e.g., "January")
-        }
         
         // lifecycle hooks
         onMounted(() => {
-            updateEvents();
+            updateEvents()
+            updateHeaderDay()
         })
 
         return {
@@ -238,7 +246,8 @@ export default {
             updateEvents,
             eventsBeforeMidnight,
             eventsAfterMidnight,
-            headerFormatOptions
+            headerFormatOptions,
+            headerDay
         }
     }
 }

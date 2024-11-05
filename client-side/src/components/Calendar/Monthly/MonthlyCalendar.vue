@@ -70,6 +70,7 @@ export default {
         // object containing field month and field year
         const monthSelected = ref({"month": new Date().getMonth(), "year": new Date().getFullYear()});
         watch(monthSelected, () => {
+            // update events to show and days header only if selected month is not null
             if (monthSelected.value) {
                updateDays()
                updateEvents() 
@@ -134,6 +135,7 @@ export default {
                     const eventId = eventBox.getAttribute('data-event-id');
                     document.querySelectorAll(`.event[data-event-id="${eventId}"]`).forEach(e => {
                         e.classList.add('opacity-75');
+                        e.classList.remove('font-bold')
                     });
                 });
             });
