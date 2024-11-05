@@ -112,6 +112,74 @@ function addEvent(eventToAdd, startDate, endDate) {
     nEvents++;
 }
 
+function addActivity(activityToAdd) {
+    // TODO: check how much event end in minutes exactly is (based on how much space you want to give, 10 minutes maybe works)
+    // TODO: CONTROLLA CASO LIMITE 23:55 -> if deadline is at 23:55 then put grid row -1 to assure the activity has enough space
+    const deadline = new Date(activityToAdd.deadline);
+    const activityToAddH = deadline.getHours();
+    const activityToAddM = deadline.getMinutes();
+    activityToAdd.startInMinutes = activityToAddH*60 + activityToAddM;
+    activityToAdd.endInMinutes = activityToAdd.startInMinutes + 10; // la activity box avrà un'altezza di 10 minuti dall'inizio
+
+    // get array of events with same start time
+    let numEventsSharingStart = 0;
+    let day = deadline.getDay()==0 ? 7 : deadline.getDay();
+    let eventsSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
+    addedEvents[day-1].forEach(e => {        
+        if (e.startInMinutes == activityToAdd.startInMinutes) {
+            numEventsSharingStart++;
+            eventsSharingStart.push(e);
+        } 
+    });
+
+    // create div for new event
+    const activityToAddDiv = createDefaultEventDiv(activityToAdd);
+
+    // grid positon
+    // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
+    activityToAddDiv.style.gridColumn = `${day} / span 1`;
+    activityToAddDiv.style.gridRow = `${activityToAddH*12+1 + (activityToAddH/5)} / span 2`; // spans 10 minutes
+    activityToAddDiv.style.height = "100%";
+    activityToAddDiv.style.backgroundColor = '#e33922'; //TODO: select an activity color and set it here
+
+    // set div's id
+    activityToAddDiv.id = `event${nEvents}Weekly`;
+    
+    // set new left and width to the events that share the start time of the event to add
+    // left and width are set based on the number of events with same start time
+    numEventsSharingStart++;    // include current event in the count
+    for (let i = 0; i<numEventsSharingStart-1; i++) {
+        const eventDiv = document.getElementById(eventsSharingStart[i].divId);
+        eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
+        eventDiv.style.width = `${100/numEventsSharingStart}%`;
+    }
+
+    // left
+    activityToAddDiv.style.left = `${100-100/numEventsSharingStart}%`;
+
+    // width
+    activityToAddDiv.style.width = `${100/numEventsSharingStart}%`;
+
+    // add to events container
+    const eventsContainerDiv = document.getElementById("weekly_events_container");
+    eventsContainerDiv.appendChild(activityToAddDiv);
+
+    // add id field to the event
+    activityToAdd.divId = `event${nEvents}Weekly`;
+
+    // if eventToAdd has same startTime as other events then set the same zIndex (no need to increment)
+    if (numEventsSharingStart>1) {
+        const divElement = document.getElementById(eventsSharingStart[0].divId);
+        activityToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;    // set same zIndex when sharing start
+    }
+    else
+        setZIndex(activityToAdd, day);
+
+    // event added, push it to addedEvents
+    addedEvents[day-1].push(activityToAdd);
+    nEvents++;
+}
+
 // objects in js are passed by reference.. since I need distint instances in order to
 // correctly work with them (setting startInMinutes and endInMinutes), I need to clone them in a separate object
 function cloneEvent(event) {
@@ -119,6 +187,8 @@ function cloneEvent(event) {
     return clonedEvent;
 }
 
+// TODO: refactor this whole file, change name to render-calendar-week
+// and change also all names to be more pertinent
 export function renderEvents(events) {
     // reset all
     document.getElementById("weekly_events_container").innerHTML="";
