@@ -80,13 +80,12 @@
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
-import { renderEvents } from './render-events-day.js';
+import { renderCalendar } from './render-calendar-day.js';
 import { watch } from 'vue';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
 import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
-import { updateActivitiesObject } from './update-activities-daily.js';
 
 export default {
     props : {
@@ -102,7 +101,7 @@ export default {
             if (selectedDate.value) {
                 eventsSelectedDay.value = []   // needed for changing day smoothly in list view
                                 // debugging I've seen that computed properties run before updateEvents
-                updateEvents()
+                updateCalendar()
                 updateHeaderDay()
             }
         })
@@ -110,7 +109,7 @@ export default {
         // events
         const eventsSelectedDay = ref([])
         const activities = ref()
-        const updateEvents = async () => {
+        const updateCalendar = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected day and render
             const eventsFromDB = await getEvents()
@@ -129,7 +128,7 @@ export default {
             // fetch activities
             activities.value = await getActivitiesInRange(startDate, endDate)
 
-            renderEvents(eventsSelectedDay.value, activities.value, selectedDate.value);
+            renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value);
         }
 
         const headerDay = ref('')
@@ -214,14 +213,14 @@ export default {
         
         // lifecycle hooks
         onMounted(() => {
-            updateEvents()
+            updateCalendar()
             updateHeaderDay()
         })
 
         return {
             selectedDate,
             formatDate,
-            updateEvents,
+            updateEvents: updateCalendar,
             eventsBeforeMidnight,
             eventsAfterMidnight,
             headerFormatOptions,

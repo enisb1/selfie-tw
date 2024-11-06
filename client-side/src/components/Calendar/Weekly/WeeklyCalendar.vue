@@ -155,11 +155,11 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { onMounted } from 'vue';
 import { watch } from 'vue';
-import { renderEvents } from './render-events-week';
-import { updateEventsObject } from './update-events-weekly';
+import { renderCalendar } from './render-calendar-week';
+import { updateEventsForDay } from './update-events-weekly';
 import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
-import { updateActivitiesObject } from './update-activities-weekly';
+import { updateActivitiesForDay } from './update-activities-weekly';
 
 export default {
     props : {
@@ -189,7 +189,7 @@ export default {
         watch(weekSelected, () => {
             // update events to show and days header only if selected week is not null
             if (weekSelected.value) {
-                updateEvents()
+                updateCalendar()
                 updateHeaderWeekDays()
             }
         })
@@ -209,7 +209,7 @@ export default {
         // eventsForDay is an array containing [date, events] (in which events is an array of events
         // for the paired day)
         const eventsForDay = ref([])
-        const updateEvents = async () => {
+        const updateCalendar = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
             const eventsFromDB = await getEvents()
@@ -228,11 +228,11 @@ export default {
             const activities = await getActivitiesInRange(startDate, endDate)
 
             // render calendar view
-            renderEvents(events.value, activities)
+            renderCalendar(events.value, activities)
             // update activitiesForDay object for list view
-            activitiesForDay.value = updateActivitiesObject(activities)
+            activitiesForDay.value = updateActivitiesForDay(activities)
             // update eventsForDay object for list view
-            eventsForDay.value = updateEventsObject(events.value, startDate, endDate)
+            eventsForDay.value = updateEventsForDay(events.value, startDate, endDate)
         }
         
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
@@ -270,7 +270,7 @@ export default {
 
         // lifecycle hooks
         onMounted(() => {
-            updateEvents()
+            updateCalendar()
             updateHeaderWeekDays()
 
             // initialize MutationObserver to detect changes in the DOM
@@ -284,7 +284,7 @@ export default {
         return {
             weekSelected,
             formatWeek,
-            updateEvents,
+            updateEvents: updateCalendar,
             eventsForDay,
             months,
             headerWeekDays,

@@ -1,4 +1,4 @@
-export function updateActivitiesObject(activities) {
+export function updateActivitiesForDay(activities) {
     let activitiesForDay = {};
 
     activities.forEach(a => {

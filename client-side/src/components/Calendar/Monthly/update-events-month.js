@@ -1,4 +1,4 @@
-export function updateEventsObject(events, activities, rangeStartDate, rangeEndDate) {
+export function updateSchedules(events, activities, rangeStartDate, rangeEndDate) {
     // per ogni evento capire in quali giorni del mese corrente spanna, poi
     // aggiungerlo all'array per quei giorni
     let eventsByDay = {};

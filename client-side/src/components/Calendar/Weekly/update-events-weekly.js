@@ -1,7 +1,7 @@
 // slightly modified from updateEventsObject in monthly calendar because here I need
 // date as key, not day of month, and also this doesn't contain empty entries (necessary
 // in monthly calendar for days of calendar with no events)
-export function updateEventsObject(events, rangeStartDate, rangeEndDate) {
+export function updateEventsForDay(events, rangeStartDate, rangeEndDate) {
     let eventsForDay = {};
 
     const oneDay = 24 * 60 * 60 * 1000; // Milliseconds in a day

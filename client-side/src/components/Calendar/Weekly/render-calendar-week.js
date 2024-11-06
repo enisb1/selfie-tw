@@ -1,7 +1,6 @@
 // Global variables
-let addedEvents = [[],[],[],[],[],[],[]];   // array of arrays of added events for each day of the week
-let nEvents = 0;
-let eventsBgColors = ["bg-cyan-500", "bg-cyan-700", "bg-sky-500", "bg-sky-700", "bg-sky-900", "bg-blue-500", "bg-blue-700", "bg-blue-900", "bg-violet-400", "bg-violet-700", "bg-violet-900"];
+let addedSchedules = [[],[],[],[],[],[],[]];   // array of arrays of added events for each day of the week
+let nSchedules = 0;
 let zIndexCount = 0; 
 
 function createDefaultEventDiv(event) {
@@ -33,23 +32,23 @@ function createDefaultActivityDiv(activity) {
 // updates event's div zIndex
 // what it does: set zIndex of event's div, search for events that have start time between event's
 // start and end time, sort them based on growing start time and call setZIndex on them
-function setZIndex(event, day) {
-    const eventDiv = document.getElementById(event.divId);
-    eventDiv.style.zIndex = zIndexCount;
+function setZIndex(schedule, day) {
+    const scheduleDiv = document.getElementById(schedule.divId);
+    scheduleDiv.style.zIndex = zIndexCount;
     zIndexCount++;
     
-    const eventsContained = [];
+    const schedulesContained = [];
     // fill eventsContained
-    for (const e of addedEvents[day-1]) {
-        if (event.startInMinutes<e.startInMinutes && e.startInMinutes<event.endInMinutes) {
-            eventsContained.push(e);
+    for (const s of addedSchedules[day-1]) {
+        if (schedule.startInMinutes<s.startInMinutes && s.startInMinutes<schedule.endInMinutes) {
+            schedulesContained.push(s);
         }
     }
 
     // increment zIndex of events contained in newly added event box
-    eventsContained.sort((e1,e2) => e1.startInMinutes - e2.startInMinutes);
-    eventsContained.forEach((e) => {
-        setZIndex(e, day);
+    schedulesContained.sort((s1,s2) => s1.startInMinutes - s2.startInMinutes);
+    schedulesContained.forEach((s) => {
+        setZIndex(s, day);
     });
 }
 
@@ -65,13 +64,13 @@ function addEvent(eventToAdd, startDate, endDate) {
     eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd;
 
     // get array of events with same start time
-    let numEventsSharingStart = 0;
+    let numSchedulesSharingStart = 0;
     let day = startDate.getDay()==0 ? 7 : startDate.getDay();
-    let eventsSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
-    addedEvents[day-1].forEach(e => {        
-        if (e.startInMinutes == eventToAdd.startInMinutes) {
-            numEventsSharingStart++;
-            eventsSharingStart.push(e);
+    let schedulesSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
+    addedSchedules[day-1].forEach(s => {        
+        if (s.startInMinutes == eventToAdd.startInMinutes) {
+            numSchedulesSharingStart++;
+            schedulesSharingStart.push(s);
         } 
     });
 
@@ -83,46 +82,44 @@ function addEvent(eventToAdd, startDate, endDate) {
     eventToAddDiv.style.gridColumn = `${day} / span 1`;
     eventToAddDiv.style.gridRow = `${eventToAddHStart*12+1 + (eventToAddMStart/5)} / ${eventToAddHEnd*12+1 + (eventToAddMEnd/5)}`;
     eventToAddDiv.style.height = "100%";
-    //eventToAddDiv.classList.add(eventsBgColors[Math.floor(Math.random() * eventsBgColors.length)]); // choose random bg color
-    //eventToAddDiv.classList.add("bg-third")
     eventToAddDiv.style.backgroundColor = eventToAdd.color;
 
     // set div's id
-    eventToAddDiv.id = `event${nEvents}Weekly`;
+    eventToAddDiv.id = `schedule${nSchedules}Weekly`;
     
     // set new left and width to the events that share the start time of the event to add
     // left and width are set based on the number of events with same start time
-    numEventsSharingStart++;    // include current event in the count
-    for (let i = 0; i<numEventsSharingStart-1; i++) {
-        const eventDiv = document.getElementById(eventsSharingStart[i].divId);
-        eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
-        eventDiv.style.width = `${100/numEventsSharingStart}%`;
+    numSchedulesSharingStart++;    // include current event in the count
+    for (let i = 0; i<numSchedulesSharingStart-1; i++) {
+        const scheduleDiv = document.getElementById(schedulesSharingStart[i].divId);
+        scheduleDiv.style.left = `${100/numSchedulesSharingStart*i}%`;
+        scheduleDiv.style.width = `${100/numSchedulesSharingStart}%`;
     }
 
     // left
-    eventToAddDiv.style.left = `${100-100/numEventsSharingStart}%`;
+    eventToAddDiv.style.left = `${100-100/numSchedulesSharingStart}%`;
 
     // width
-    eventToAddDiv.style.width = `${100/numEventsSharingStart}%`;
+    eventToAddDiv.style.width = `${100/numSchedulesSharingStart}%`;
 
     // add to events container
     const eventsContainerDiv = document.getElementById("weekly_events_container");
     eventsContainerDiv.appendChild(eventToAddDiv);
 
     // add id field to the event
-    eventToAdd.divId = `event${nEvents}Weekly`;
+    eventToAdd.divId = `schedule${nSchedules}Weekly`;
 
     // if eventToAdd has same startTime as other events then set the same zIndex (no need to increment)
-    if (numEventsSharingStart>1) {
-        const divElement = document.getElementById(eventsSharingStart[0].divId);
+    if (numSchedulesSharingStart>1) {
+        const divElement = document.getElementById(schedulesSharingStart[0].divId);
         eventToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;    // set same zIndex when sharing start
     }
     else
         setZIndex(eventToAdd, day);
 
     // event added, push it to addedEvents
-    addedEvents[day-1].push(eventToAdd);
-    nEvents++;
+    addedSchedules[day-1].push(eventToAdd);
+    nSchedules++;
 }
 
 function addActivity(activityToAdd) {
@@ -136,18 +133,18 @@ function addActivity(activityToAdd) {
     activityToAdd.startInMinutes = activityToAddH*60 + activityToAddM;
     activityToAdd.endInMinutes = activityToAdd.startInMinutes + 20; // spans 20 minutes to have enough space in the grid
 
-    // get array of events with same start time
-    let numEventsSharingStart = 0;
+    // get array of schedules with same start time
+    let numSchedulesSharingStart = 0;
     let day = deadline.getDay()==0 ? 7 : deadline.getDay();
-    let eventsSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
-    addedEvents[day-1].forEach(e => {        
-        if (e.startInMinutes == activityToAdd.startInMinutes) {
-            numEventsSharingStart++;
-            eventsSharingStart.push(e);
+    let schedulesSharingStart = [];    // need to be able to retrieve div id of schedules sharing start, this does not include current schedule
+    addedSchedules[day-1].forEach(s => {        
+        if (s.startInMinutes == activityToAdd.startInMinutes) {
+            numSchedulesSharingStart++;
+            schedulesSharingStart.push(s);
         } 
     });
 
-    // create div for new event
+    // create div for new activity
     const activityToAddDiv = createDefaultActivityDiv(activityToAdd);
 
     // grid positon
@@ -158,41 +155,41 @@ function addActivity(activityToAdd) {
     activityToAddDiv.style.backgroundColor = 'crimson'; //TODO: select an activity color and set it here
 
     // set div's id
-    activityToAddDiv.id = `event${nEvents}Weekly`;
+    activityToAddDiv.id = `schedule${nSchedules}Weekly`;
     
     // set new left and width to the events that share the start time of the event to add
     // left and width are set based on the number of events with same start time
-    numEventsSharingStart++;    // include current event in the count
-    for (let i = 0; i<numEventsSharingStart-1; i++) {
-        const eventDiv = document.getElementById(eventsSharingStart[i].divId);
-        eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
-        eventDiv.style.width = `${100/numEventsSharingStart}%`;
+    numSchedulesSharingStart++;    // include current event in the count
+    for (let i = 0; i<numSchedulesSharingStart-1; i++) {
+        const scheduleDiv = document.getElementById(schedulesSharingStart[i].divId);
+        scheduleDiv.style.left = `${100/numSchedulesSharingStart*i}%`;
+        scheduleDiv.style.width = `${100/numSchedulesSharingStart}%`;
     }
 
     // left
-    activityToAddDiv.style.left = `${100-100/numEventsSharingStart}%`;
+    activityToAddDiv.style.left = `${100-100/numSchedulesSharingStart}%`;
 
     // width
-    activityToAddDiv.style.width = `${100/numEventsSharingStart}%`;
+    activityToAddDiv.style.width = `${100/numSchedulesSharingStart}%`;
 
     // add to events container
     const eventsContainerDiv = document.getElementById("weekly_events_container");
     eventsContainerDiv.appendChild(activityToAddDiv);
 
     // add id field to the event
-    activityToAdd.divId = `event${nEvents}Weekly`;
+    activityToAdd.divId = `schedule${nSchedules}Weekly`;
 
     // if eventToAdd has same startTime as other events then set the same zIndex (no need to increment)
-    if (numEventsSharingStart>1) {
-        const divElement = document.getElementById(eventsSharingStart[0].divId);
+    if (numSchedulesSharingStart>1) {
+        const divElement = document.getElementById(schedulesSharingStart[0].divId);
         activityToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;    // set same zIndex when sharing start
     }
     else
         setZIndex(activityToAdd, day);
 
     // event added, push it to addedEvents
-    addedEvents[day-1].push(activityToAdd);
-    nEvents++;
+    addedSchedules[day-1].push(activityToAdd);
+    nSchedules++;
 }
 
 // objects in js are passed by reference.. since I need distint instances in order to
@@ -202,13 +199,11 @@ function cloneEvent(event) {
     return clonedEvent;
 }
 
-// TODO: refactor this whole file, change name to render-calendar-week
-// and change also all names to be more pertinent
-export function renderEvents(events, activities) {
+export function renderCalendar(events, activities) {
     // reset all
     document.getElementById("weekly_events_container").innerHTML="";
-    addedEvents = [[],[],[],[],[],[],[]];   // array of arrays of added events for each day of the week
-    nEvents = 0;
+    addedSchedules = [[],[],[],[],[],[],[]];   // array of arrays of added schedules for each day of the week
+    nSchedules = 0;
     zIndexCount = 0; 
 
     // render events

@@ -72,7 +72,7 @@ import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
 import { watch } from 'vue'
-import { updateEventsObject } from './update-events-month.js'
+import { updateSchedules } from './update-events-month.js'
 import { computed } from 'vue'
 import { getEvents, getActivitiesInRange } from '@/apis/calendar.js'
 import { getAllEventsInstances } from '../repeated-events.js'
@@ -91,7 +91,7 @@ export default {
             // update events to show and days header only if selected month is not null
             if (monthSelected.value) {
                updateDays()
-               updateEvents() 
+               updateCalendar() 
             }
             
         })
@@ -121,8 +121,8 @@ export default {
         }
 
         // events object has day of month as key and array of events for that day as value
-        const eventsForDay = ref({})
-        const updateEvents = async () => {
+        const schedulesForDay = ref({})
+        const updateCalendar = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
             const eventsFromDB = await getEvents()
@@ -139,12 +139,12 @@ export default {
             // fetch activities
             const activities = await getActivitiesInRange(startDate, endDate)
             // update calendar
-            eventsForDay.value = updateEventsObject(events, activities, startDate, endDate)
+            schedulesForDay.value = updateSchedules(events, activities, startDate, endDate)
         }
 
         // remove empty arrays and filter to only events
         const filteredEvents = computed(() => {
-            return Object.entries(eventsForDay.value)
+            return Object.entries(schedulesForDay.value)
             .filter(([day, events]) => events && events.length > 0)
             .map(([day, events]) => [
                 day,
@@ -155,7 +155,7 @@ export default {
 
         // remove empty arrays and filter to only activities
         const filteredActivities = computed(() => {
-            return Object.entries(eventsForDay.value)
+            return Object.entries(schedulesForDay.value)
             .filter(([day, events]) => events && events.length > 0)
             .map(([day, events]) => [
                 day,
@@ -197,7 +197,7 @@ export default {
             
             // TODO: call only if in monthly calendar mode, then test
             updateDays()
-            updateEvents()
+            updateCalendar()
 
             // initialize MutationObserver to detect changes in the DOM
             const observer = new MutationObserver(() => {
@@ -211,8 +211,8 @@ export default {
             monthSelected,
             daysArray,
             getDynamicDayClass,
-            eventsForDay,
-            updateEvents,
+            eventsForDay: schedulesForDay,
+            updateEvents: updateCalendar,
             months,
             filteredEvents,
             filteredActivities
