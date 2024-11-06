@@ -125,6 +125,17 @@
 
     <!-- List view -->
     <div v-show="view === 'list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+        <div v-for="[day, activities] in activitiesForDay" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="bg px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}"> 
+                {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}
+            </div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(activity, indexActivity) in activities" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" class="w-full 
+                    font-bold truncate px-4 rounded-xl py-2">
+                        {{ `DEADLINE: '${activity.title}'` }} 
+                </div>
+            </div>
+        </div>
         <div v-for="[day, events] in eventsForDay" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
@@ -148,6 +159,7 @@ import { renderEvents } from './render-events-week';
 import { updateEventsObject } from './update-events-weekly';
 import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
+import { updateActivitiesObject } from './update-activities-weekly';
 
 export default {
     props : {
@@ -193,7 +205,7 @@ export default {
         // events
         const events = ref()
         // TODO: remove this if not needed as reactive but only as variable in updateEvents
-        const activities = ref()
+        const activitiesForDay = ref()
         // eventsForDay is an array containing [date, events] (in which events is an array of events
         // for the paired day)
         const eventsForDay = ref([])
@@ -213,11 +225,12 @@ export default {
             })
 
             // fetch activities
-            activities.value = await getActivitiesInRange(startDate, endDate)
-            console.log(activities.value)
+            const activities = await getActivitiesInRange(startDate, endDate)
 
             // render calendar view
-            renderEvents(events.value, activities.value)
+            renderEvents(events.value, activities)
+            // update activitiesForDay object for list view
+            activitiesForDay.value = updateActivitiesObject(activities)
             // update eventsForDay object for list view
             eventsForDay.value = updateEventsObject(events.value, startDate, endDate)
         }
@@ -226,7 +239,6 @@ export default {
 
         const addHoverOnEventBoxes = () => {
             const eventBoxes = document.querySelectorAll('.event');
-
             eventBoxes.forEach(eventBox => {
                 eventBox.addEventListener('mouseover', () => {
                     const eventId = eventBox.getAttribute('data-event-id');
@@ -275,7 +287,8 @@ export default {
             updateEvents,
             eventsForDay,
             months,
-            headerWeekDays
+            headerWeekDays,
+            activitiesForDay
         }
     }
 
