@@ -1,4 +1,4 @@
-export function updateEventsObject(events, rangeStartDate, rangeEndDate) {
+export function updateEventsObject(events, activities, rangeStartDate, rangeEndDate) {
     // per ogni evento capire in quali giorni del mese corrente spanna, poi
     // aggiungerlo all'array per quei giorni
     let eventsByDay = {};
@@ -11,6 +11,7 @@ export function updateEventsObject(events, rangeStartDate, rangeEndDate) {
     const oneDay = 24 * 60 * 60 * 1000; // Milliseconds in a day
     let iteratedDayStart = null;
 
+    // ADD EVENTS
     events.forEach(e => {
         const eStartDate = new Date(e.startDate)
         const eEndDate = new Date(e.endDate);
@@ -31,11 +32,24 @@ export function updateEventsObject(events, rangeStartDate, rangeEndDate) {
         }
     })
 
-    // sort arrays of events by start date
+    // ADD ACTIVITIES
+    activities.forEach(a => {
+        const deadline = new Date(a.deadline)
+        if (eventsByDay[deadline.getDate()])
+            eventsByDay[deadline.getDate()].push(a)
+        else
+            eventsByDay[deadline.getDate()] = [a]
+    })
+
+    // sort arrays containing events and activities by start date
     Object.keys(eventsByDay).forEach(day => {
         eventsByDay[day].sort((e1,e2) => {
-            return new Date(e1.startDate).getTime() - new Date(e2.startDate).getTime();
+            // get correct field (could be event or activity)
+            const e1Start = e1.deadline ? e1.deadline : e1.startDate
+            const e2Start = e2.deadline ? e2.deadline : e2.startDate
+            return new Date(e1Start).getTime() - new Date(e2Start).getTime();
         });
     });
+    
     return eventsByDay
 }

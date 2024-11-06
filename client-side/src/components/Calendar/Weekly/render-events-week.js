@@ -19,11 +19,11 @@ function createDefaultEventDiv(event) {
 
 function createDefaultActivityDiv(activity) {
     const activityDiv = document.createElement("div");
-    activityDiv.classList.add("absolute", "text-white", "truncate", "rounded-md", "shadow-md", "font-bold");
+    activityDiv.classList.add("absolute", "text-white", "truncate", "shadow-md", "font-bold");
 
     const title = document.createElement("p");
     title.classList.add("pl-1")
-    title.innerText = `activity deadline: '${activity.title}'`;
+    title.innerText = `DEADLINE: '${activity.title}'`;
     
     activityDiv.appendChild(title);
 

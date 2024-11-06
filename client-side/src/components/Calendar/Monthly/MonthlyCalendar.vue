@@ -8,28 +8,29 @@
     <div v-show="view==='calendar'" class="mt-6">
         <!-- Header -->
         <div class="grid grid-cols-7">
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">M</div>
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Wednesday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">W</div>
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Thursday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Friday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">F</div>
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Saturday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
-            <div class="hidden sm:block max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Sunday</div>
-            <div class="block sm:hidden max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Monday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">M</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Tuesday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Wednesday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">W</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Thursday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">T</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Friday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">F</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Saturday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
+            <div class="hidden sm:block border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">Sunday</div>
+            <div class="block sm:hidden border-b max-h-8 text-center bg-secondary text-white font-semibold border-t border-black">S</div>
         </div>
 
         <div id="monthly_calendar_container" class="grid grid-cols-7">
             <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
                 <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-                <div v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}" class="px-1 event mt-2 opacity-75 truncate">
-                    <p> {{ event.title }}</p>
+                <div v-for="event in eventsForDay[index+1]" :data-event-id="event.startDate ? event._id : null" :style="{backgroundColor: event.deadline ? 'crimson' : event.color,
+                    fontWeight: event.deadline ? 'bold' : 'normal'}" :class="{'opacity-75': event.startDate, 'event': event.startDate}" class="px-1 mt-2 truncate">
+                    <p> {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }}</p>
                 </div>
             </div>
         </div>
@@ -37,11 +38,15 @@
 
     <!-- List view -->
     <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+        <!-- events -->
         <div v-for="[day, events] in Object.entries(filteredEvents)" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ day }} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :style="{backgroundColor: event.color}" :data-event-id="event._id" class="event opacity-75 w-full truncate px-4 rounded-xl py-2">
-                        {{ event.title }} 
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0, 'opacity-75': event.startDate, 'event': event.startDate}" 
+                    :style="{backgroundColor: event.deadline ? 'crimson' : event.color,
+                    fontWeight: event.deadline ? 'bold' : 'normal'}" :data-event-id="event.startDate ? event._id : null" 
+                    class="w-full truncate px-4 rounded-xl py-2">
+                        {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }} 
                 </div>
             </div>
         </div>
@@ -57,7 +62,7 @@ import { ref } from 'vue'
 import { watch } from 'vue'
 import { updateEventsObject } from './update-events-month.js'
 import { computed } from 'vue'
-import { getEvents } from '@/apis/calendar.js'
+import { getEvents, getActivitiesInRange } from '@/apis/calendar.js'
 import { getAllEventsInstances } from '../repeated-events.js'
 
 export default {
@@ -105,6 +110,7 @@ export default {
 
         // events object has day of month as key and array of events for that day as value
         const eventsForDay = ref({})
+        const activities = ref()
         const updateEvents = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
@@ -119,7 +125,10 @@ export default {
                 || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
                 || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
             })
-            eventsForDay.value = updateEventsObject(events, startDate, endDate)
+            // fetch activities
+            activities.value = await getActivitiesInRange(startDate, endDate)
+            // update calendar
+            eventsForDay.value = updateEventsObject(events, activities.value, startDate, endDate)
         }
 
         // filtered events is a computed property from events that doens't contain empty events arrays
