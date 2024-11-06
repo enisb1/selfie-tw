@@ -74,7 +74,7 @@ import { watch } from 'vue';
 import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
-import { getEvents } from '@/apis/calendar.js';
+import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
 
 export default {
     props : {
@@ -112,11 +112,12 @@ export default {
                 || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
                 || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
             })
+
+            // fetch activities
+            const activities = await getActivitiesInRange(startDate, endDate)
+
+            renderEvents(eventsSelectedDay.value, activities, selectedDate.value);
         }
-        // watch for updates to events and render them
-        watch(eventsSelectedDay, (newEvents) => {
-            renderEvents(newEvents, selectedDate.value);
-        });
 
         const headerDay = ref('')
         // updated only if selectedDate is not null

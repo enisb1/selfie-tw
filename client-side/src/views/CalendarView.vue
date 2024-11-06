@@ -335,6 +335,12 @@ export default {
     const addActivity = async () => {
       // TODO: check if await is necessary if you don't need anything back
       await postActivity(activityToAddTitle.value, activityToAddDeadline.value)
+      if (calendarToShow.value === 'daily')
+        proxy.$refs.dailyCalendarRef.updateEvents()
+      else if (calendarToShow.value === 'weekly')
+        proxy.$refs.weeklyCalendarRef.updateEvents()
+      else if (calendarToShow.value === 'monthly')
+        proxy.$refs.monthlyCalendarRef.updateEvents()
       toggleAddModal()
     }
 

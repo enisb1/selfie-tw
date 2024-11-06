@@ -16,6 +16,20 @@ function createDefaultEventDiv(event) {
     return eventDiv;
 }
 
+function createDefaultActivityDiv(activity) {
+    const activityDiv = document.createElement("div");
+    activityDiv.classList.add("absolute", "text-white", "truncate", "shadow-md", "font-bold");
+    activityDiv.style.backgroundColor = 'crimson';
+
+    const title = document.createElement("p");
+    title.classList.add("pl-1")
+    title.innerText = `DEADLINE: '${activity.title}'`;
+    
+    activityDiv.appendChild(title);
+
+    return activityDiv;
+}
+
 // updates event's div zIndex
 // what it does: set zIndex of event's div, search for events that have start time between event's
 // start and end time, sort them based on growing start time and call setZIndex on them
@@ -108,7 +122,74 @@ function addEvent(eventToAdd, startDate, endDate) {
     nEvents++;
 }
 
-export function renderEvents(events, day) {
+function addActivity(activityToAdd) {
+    const deadline = new Date(activityToAdd.deadline);
+    const activityToAddH = deadline.getHours();
+    let activityToAddM = deadline.getMinutes();
+    // edge case in which the activity has a deadline near the end of the grid are handled by
+    // anticipating deadline to a fake one... the activity will still officially have its normal deadline
+    if (activityToAddH == 23 && activityToAddM > 40)
+        activityToAddM = 40;
+    activityToAdd.startInMinutes = activityToAddH*60 + activityToAddM;
+    activityToAdd.endInMinutes = activityToAdd.startInMinutes + 20; // spans 20 minutes to have enough space in the grid
+
+    // get array of events with same start time
+    let numEventsSharingStart = 0;
+    let eventsSharingStart = [];    // need to be able to retrieve div id of events sharing start, this does not include current event
+    addedEvents.forEach(e => {        
+        if (e.startInMinutes == activityToAdd.startInMinutes) {
+            numEventsSharingStart++;
+            eventsSharingStart.push(e);
+        } 
+    });
+
+    // create div for new event
+    const activityToAddDiv = createDefaultActivityDiv(activityToAdd);
+
+    // grid positon
+    // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
+    activityToAddDiv.style.gridRow = `${activityToAddH*12+1 + (activityToAddM/5)} / span 4`; // spans 20 minutes to have enough space
+    activityToAddDiv.style.height = "100%";
+
+    // set div's id
+    activityToAddDiv.id = `event${nEvents}Daily`;
+    
+    // set new left and width to the events that share the start time of the event to add
+    // left and width are set based on the number of events with same start time
+    numEventsSharingStart++;    // include current event in the count
+    for (let i = 0; i<numEventsSharingStart-1; i++) {
+        const eventDiv = document.getElementById(eventsSharingStart[i].divId);
+        eventDiv.style.left = `${100/numEventsSharingStart*i}%`;
+        eventDiv.style.width = `${100/numEventsSharingStart}%`;
+    }
+
+    // left
+    activityToAddDiv.style.left = `${100-100/numEventsSharingStart}%`;
+
+    // width
+    activityToAddDiv.style.width = `${100/numEventsSharingStart}%`;
+
+    // add to events container
+    const eventsContainerDiv = document.getElementById("daily_events_container");
+    eventsContainerDiv.appendChild(activityToAddDiv);
+
+    // add id field to the event
+    activityToAdd.divId = `event${nEvents}Daily`;
+
+    // if eventToAdd has same startTime as other events then set the same zIndex (no need to increment)
+    if (numEventsSharingStart>1) {
+        const divElement = document.getElementById(eventsSharingStart[0].divId);
+        activityToAddDiv.style.zIndex = window.getComputedStyle(divElement).zIndex;    // set same zIndex when sharing start
+    }
+    else
+        setZIndex(activityToAdd);
+
+    // event added, push it to addedEvents
+    addedEvents.push(activityToAdd);
+    nEvents++;
+}
+
+export function renderEvents(events, activities, day) {
     // reset all
     document.getElementById("daily_events_container").innerHTML="";
     addedEvents = [];
@@ -117,7 +198,8 @@ export function renderEvents(events, day) {
     
     const sDate = new Date(new Date(day).setHours(0, 0, 0, 0));
     const eDate = new Date(new Date(day).setHours(23, 59, 59, 999));
-    // add new events to calendar
+
+    // render events
     for (const event of events) {
         // trunc events starting before the current day or finishing after the current day
         const evtStartTime = new Date(event.startDate).getTime();
@@ -131,4 +213,8 @@ export function renderEvents(events, day) {
             end = eDate;
         addEvent(event, start, end);
     }
+
+    // render activities
+    for (const activity of activities) 
+        addActivity(activity)
 }
