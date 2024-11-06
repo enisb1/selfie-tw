@@ -192,6 +192,7 @@ export default {
 
         // events
         const events = ref()
+        // TODO: remove this if not needed as reactive but only as variable in updateEvents
         const activities = ref()
         // eventsForDay is an array containing [date, events] (in which events is an array of events
         // for the paired day)

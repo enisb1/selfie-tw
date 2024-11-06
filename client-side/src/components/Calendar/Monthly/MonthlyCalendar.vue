@@ -28,8 +28,7 @@
             <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
                 <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-                <div v-for="event in eventsForDay[index+1]" :data-event-id="event.startDate ? event._id : null" :style="{backgroundColor: event.deadline ? 'crimson' : event.color,
-                    fontWeight: event.deadline ? 'bold' : 'normal'}" :class="{'opacity-75': event.startDate, 'event': event.startDate}" class="px-1 mt-2 truncate">
+                <div v-for="event in eventsForDay[index+1]" :data-event-id="event.startDate ? event._id : null" :style="{backgroundColor: event.deadline ? 'crimson' : event.color}" :class="{'font-bold': event.deadline,'opacity-75': event.startDate, 'event': event.startDate}" class="px-1 mt-2 truncate">
                     <p> {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }}</p>
                 </div>
             </div>
@@ -38,15 +37,28 @@
 
     <!-- List view -->
     <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+        <!-- activities-->
+        <div v-for="[day, activities] in filteredActivities" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}"> 
+                {{ day }} {{ months[new Date(activities[0].deadline).getMonth()] }}
+            </div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(activity, indexActivity) in activities" :class="{'mt-4': indexActivity>0}" 
+                    :style="{backgroundColor: 'crimson', fontStyle: 'bold'}"
+                    class="w-full truncate px-4 rounded-xl py-2 font-bold">
+                        {{ `DEADLINE: '${activity.title}'` }} 
+                </div>
+            </div>
+        </div>
         <!-- events -->
-        <div v-for="[day, events] in Object.entries(filteredEvents)" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+         <!-- TODO: remove activities style, only leave those of events -->
+        <div v-for="[day, events] in filteredEvents" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ day }} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0, 'opacity-75': event.startDate, 'event': event.startDate}" 
-                    :style="{backgroundColor: event.deadline ? 'crimson' : event.color,
-                    fontWeight: event.deadline ? 'bold' : 'normal'}" :data-event-id="event.startDate ? event._id : null" 
-                    class="w-full truncate px-4 rounded-xl py-2">
-                        {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }} 
+                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" 
+                    :style="{backgroundColor: event.color}" :data-event-id="event._id" 
+                    class="w-full truncate px-4 rounded-xl py-2 opacity-75 event">
+                        {{ event.title }} 
                 </div>
             </div>
         </div>
@@ -110,7 +122,6 @@ export default {
 
         // events object has day of month as key and array of events for that day as value
         const eventsForDay = ref({})
-        const activities = ref()
         const updateEvents = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
@@ -126,15 +137,31 @@ export default {
                 || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
             })
             // fetch activities
-            activities.value = await getActivitiesInRange(startDate, endDate)
+            const activities = await getActivitiesInRange(startDate, endDate)
             // update calendar
-            eventsForDay.value = updateEventsObject(events, activities.value, startDate, endDate)
+            eventsForDay.value = updateEventsObject(events, activities, startDate, endDate)
         }
 
-        // filtered events is a computed property from events that doens't contain empty events arrays
-        // needed for list view
+        // remove empty arrays and filter to only events
         const filteredEvents = computed(() => {
-            return Object.fromEntries(Object.entries(eventsForDay.value).filter(([day, events]) => events && events.length > 0))
+            return Object.entries(eventsForDay.value)
+            .filter(([day, events]) => events && events.length > 0)
+            .map(([day, events]) => [
+                day,
+                events.filter(event => !event.deadline)
+            ])
+            .filter(([day, events]) => events.length > 0)
+        })
+
+        // remove empty arrays and filter to only activities
+        const filteredActivities = computed(() => {
+            return Object.entries(eventsForDay.value)
+            .filter(([day, events]) => events && events.length > 0)
+            .map(([day, events]) => [
+                day,
+                events.filter(event => event.deadline)
+            ])
+            .filter(([day, events]) => events.length > 0)
         })
 
         const addHoverOnEventBoxes = () => {
@@ -187,7 +214,8 @@ export default {
             eventsForDay,
             updateEvents,
             months,
-            filteredEvents
+            filteredEvents,
+            filteredActivities
         }
     }
 }
