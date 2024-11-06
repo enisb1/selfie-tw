@@ -43,6 +43,17 @@
     </div>
 
     <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+        <div v-for="[startTime, activities] in Object.entries(activitiesSelectedDay)" class="flex flex-row 
+        mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            <div class="px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}">{{ startTime }}</div>
+            <div class="flew flex-col w-1/2">
+                <div v-for="(activity, indexActivity) in activities" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" 
+                    class="font-bold w-full truncate px-4 rounded-xl py-2">
+                    {{ `DEADLINE: '${activity.title}'` }}
+                </div>
+            </div>
+        </div>
+
         <div v-show="eventsBeforeMidnight.length>0" class="flex flex-row 
             mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">00:00</div>
@@ -75,6 +86,7 @@ import { onMounted } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
 import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
+import { updateActivitiesObject } from './update-activities-daily.js';
 
 export default {
     props : {
@@ -96,7 +108,8 @@ export default {
         })
         
         // events
-        const eventsSelectedDay = ref([]);
+        const eventsSelectedDay = ref([])
+        const activities = ref()
         const updateEvents = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected day and render
@@ -114,9 +127,9 @@ export default {
             })
 
             // fetch activities
-            const activities = await getActivitiesInRange(startDate, endDate)
+            activities.value = await getActivitiesInRange(startDate, endDate)
 
-            renderEvents(eventsSelectedDay.value, activities, selectedDate.value);
+            renderEvents(eventsSelectedDay.value, activities.value, selectedDate.value);
         }
 
         const headerDay = ref('')
@@ -129,6 +142,30 @@ export default {
             day: 'numeric',    // Day of the month (e.g., 1, 2, ..., 31)
             month: 'long'      // Full name of the month (e.g., "January")
         }
+
+        const activitiesSelectedDay = computed(() => {
+            if (eventsSelectedDay.value && activities.value) {
+                activities.value.sort((a1,a2) => {
+                return new Date(a1.deadline).getTime() - new Date(a2.deadline).getTime();
+                })
+                let activitiesForDay = {};
+
+                activities.value.forEach(a => {
+                    const startDate = new Date(a.deadline);
+                    const timeKey = startDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+                    if (activitiesForDay[timeKey])
+                        activitiesForDay[timeKey].push(a);
+                    else
+                        activitiesForDay[timeKey] = [a];
+                })
+
+                return activitiesForDay;
+            }
+            else {
+                return {}
+            }
+        })
 
         const eventsBeforeMidnight = computed(() => {
             if (eventsSelectedDay.value) {
@@ -188,7 +225,8 @@ export default {
             eventsBeforeMidnight,
             eventsAfterMidnight,
             headerFormatOptions,
-            headerDay
+            headerDay,
+            activitiesSelectedDay
         }
     }
 }
