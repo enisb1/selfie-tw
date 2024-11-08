@@ -335,7 +335,7 @@ export default {
 
         // schedule info modal
         const showScheduleInfoModal = ref(false)
-        const scheduleObject = ref({"title":"placeholder"})
+        const scheduleObject = ref()
         const toggleScheduleInfoOnFromEvent = (event) => {
             scheduleObject.value = event.detail
             showScheduleInfoModal.value = true
