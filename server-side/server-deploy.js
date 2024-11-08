@@ -1,10 +1,15 @@
 import express from 'express';
 import calendarRoutes from './routes/calendarRoutes.js'
+import loginRoutes from './routes/loginRoutes.js'
+import messageRoutes from './routes/messageRoutes.js'
+import passport from './auth/passportConfiguration.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import http from "node:http";
 import mongoose from 'mongoose';
+import session from 'express-session';
+import flash from 'express-flash';
 
 const app = express();
 const PORT = 8000;
@@ -12,7 +17,29 @@ const PORT = 8000;
 app.use(cors());
 app.use(express.json());
 
-//const mongouri = `mongodb+srv://bencio003:<db_password>@tecweb18.wgvir.mongodb.net/?retryWrites=true&w=majority&appName=Tecweb18`
+
+app.use(session({
+    secret: 'password', //TODO: set up env variable for session secret
+    resave: false,
+    saveUninitialized: false
+}));
+
+app.use(passport.initialize());
+app.use(passport.session({
+    secret: 'password', //TODO: set up env variable for session secret
+    resave: false,
+    saveUninitialized: false
+}));
+
+
+const checkAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    return res.status(401).send('User not authenticated')
+}
+
+
 //TODO: set up env variables for mongo uri parameters
 const mongouri = `mongodb+srv://bencio003:74TG73rgjIbrzp4Q@tecweb18.wgvir.mongodb.net/tw18_db?retryWrites=true&w=majority&appName=Tecweb18`
 
@@ -26,6 +53,8 @@ mongoose.connect(mongouri)
 
 // routing
 app.use("/api/calendar", calendarRoutes)
+app.use("/api/login", loginRoutes)
+app.use("/api/messages", messageRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

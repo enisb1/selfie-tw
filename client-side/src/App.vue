@@ -1,10 +1,10 @@
 <template>
 <!--TODO: add bg-light and check if min-h-screen is needed (were previously contained in body) -->
   <div class="min-h-screen bg-primary">
-    <nav class="bg-secondary w-full p-4">
+    <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full p-4">
       <div class="container mx-auto flex justify-between items-center">
         <!-- App name (TODO: find a logo and add it) -->
-        <a href="#" class="text-white text-2xl font-bold">Selfie</a>
+        <a href="#"  class="text-white text-2xl font-bold">Selfie</a>
         
         <!-- Hamburger Menu (for mobile) -->
         <div class="block lg:hidden">
@@ -16,7 +16,7 @@
         </div>
         
         <!-- Menu Links TODO: update remaining 'a' elements -->
-        <div class="hidden lg:flex space-x-6">
+        <div  class="hidden lg:flex space-x-6">
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche </router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
@@ -46,19 +46,28 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import {computed, onMounted, ref, triggerRef} from 'vue'
+import {useStore} from "vuex";
+import router from "@/router";
 
 export default {
-  setup() {
+  methods: {triggerRef},
+  setup: function () {
     // hamburger menu
     const hamburgerMenuOpened = ref(false)
     const toggleHamburgerMenu = () => {
       hamburgerMenuOpened.value = !hamburgerMenuOpened.value
     }
 
+    const store = useStore()
+    if (store.state.username === "") {
+      router.push("/login")
+    }
+
     return {
       hamburgerMenuOpened,
-      toggleHamburgerMenu
+      toggleHamburgerMenu,
+      store
     }
   }
 }

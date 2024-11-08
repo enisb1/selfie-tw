@@ -3,16 +3,16 @@
       <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
       <h2 class="text-2xl font-bold text-secondary mb-6 text-center">Selfie</h2>
 
-      <form action="homepage.html" method="POST">
+      <form method="POST" @submit.prevent="login">
          <div class="mb-4">
          <label for="username" class="block text-third text-sm font-bold mb-2">Username</label>
-         <input type="username" id="username" name="username" required
+         <input v-model="username" id="username" name="username" required
             class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-secondary leading-tight focus:outline-none focus:shadow-outline">
          </div>
          
          <div class="mb-6">
          <label for="password" class="block text-third text-sm font-bold mb-2">Password</label>
-         <input type="password" id="password" name="password" required
+         <input v-model="password" type="password" id="password" name="password" required
             class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-secondary mb-3 leading-tight focus:outline-none focus:shadow-outline">
          </div>
 
@@ -27,16 +27,61 @@
       </div>
   </div>
 
+  <modal v-if="showModal" @close="triggerModal">
+    <h3 class="text-red-700 text-center">Username o password errati</h3>
+  </modal>
+
 </template>
 
 <script>
+import {ref} from "vue";
+import Modal from "@/components/Modal.vue";
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex'
+import {checkUserPassword} from "@/apis/users";
+
 export default{
-   setup() {//runna prima di mount
-    // i valori qui non sono reattivi come in data
+  components: {Modal},
+   setup() {
+     let username = ref('');
+     let password = ref('');
+     const store = useStore()
+     store.commit('flushUser');
 
+     const router = useRouter();
 
+     const login = () => {
 
-    return{//nomi delle variabili che voglio ce il component veda
+       let resp = checkUserPassword(username.value, password.value);
+        if(resp){
+
+          console.log(resp);
+          resp.then((res) => {
+            if(res){
+
+              store.commit('setUser',res);
+              console.log(store)
+              router.push({name: 'home'});
+            }else{
+              triggerModal();
+            }
+          });
+        }
+
+     }
+
+     const showModal = ref(false);
+     const triggerModal = () => {
+        showModal.value = !showModal.value;
+     }
+
+     return{
+       username,
+       password,
+       login,
+       showModal,
+       triggerModal
+
     }
    },
    created() {
@@ -51,4 +96,5 @@ export default{
 <style>
    .bg-accent { background-color: #d1beb0; }
    .text-accent { color: #ab9f9d; }
+   .error { color: #f13535; }
 </style>
