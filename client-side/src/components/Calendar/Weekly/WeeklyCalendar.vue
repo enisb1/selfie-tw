@@ -154,7 +154,7 @@
         <header>
         <div class="flex items-center justify-between flex-row font-bold">
             <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
-            <button type="button" @click="toggleScheduleInfoModalOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+            <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
             src="../../../images/x.png" alt="Croce"></button>
         </div>
         <hr style="border-color: black"/>
@@ -361,12 +361,12 @@ export default {
             observer.observe(document.body, { childList: true, subtree: true });
 
             // listen to schedule boxes click event
-            window.addEventListener('showScheduleInfo', toggleScheduleInfoOnFromEvent);
+            window.addEventListener('showScheduleInfoWeekly', toggleScheduleInfoOnFromEvent);
         })
 
         onBeforeUnmount(() => {
             // remove event listener when component is destroyed to not make them stack
-            window.removeEventListener('showScheduleInfo', toggleScheduleInfoOnFromEvent);
+            window.removeEventListener('showScheduleInfoWeekly', toggleScheduleInfoOnFromEvent);
         })
 
         return {
@@ -378,7 +378,6 @@ export default {
             headerWeekDays,
             activitiesForDay,
             showScheduleInfoModal,
-            toggleScheduleInfoOnFromEvent,
             toggleScheduleInfoOff,
             scheduleObject,
             toggleScheduleInfoOn

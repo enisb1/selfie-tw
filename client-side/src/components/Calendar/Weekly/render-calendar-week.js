@@ -123,7 +123,7 @@ function addEvent(eventToAdd, startDate, endDate) {
 
     // add click listener to show event's info
     eventToAddDiv.addEventListener('click', function () {
-        const event = new CustomEvent('showScheduleInfo', {
+        const event = new CustomEvent('showScheduleInfoWeekly', {
             detail: eventToAdd
         });
         window.dispatchEvent(event); // Dispatch event to the global window
@@ -202,7 +202,7 @@ function addActivity(activityToAdd) {
 
     // add click listener to show activity's info
     activityToAddDiv.addEventListener('click', function () {
-        const event = new CustomEvent('showScheduleInfo', {
+        const event = new CustomEvent('showScheduleInfoWeekly', {
             detail: activityToAdd
         });
         window.dispatchEvent(event); // Dispatch event to the global window

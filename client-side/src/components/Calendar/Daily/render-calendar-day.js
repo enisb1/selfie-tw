@@ -119,6 +119,15 @@ function addEvent(eventToAdd, startDate, endDate) {
     // event added, push it to addedEvents
     addedSchedules.push(eventToAdd);
     nSchedules++;
+
+    // add click listener to show event's info
+    eventToAddDiv.addEventListener('click', function () {
+        const event = new CustomEvent('showScheduleInfoDaily', {
+            detail: eventToAdd
+        });
+        window.dispatchEvent(event); // Dispatch event to the global window
+    });
+    eventToAddDiv.style.cursor = 'pointer'
 }
 
 function addActivity(activityToAdd) {
@@ -186,6 +195,15 @@ function addActivity(activityToAdd) {
     // event added, push it to addedEvents
     addedSchedules.push(activityToAdd);
     nSchedules++;
+
+    // add click listener to show event's info
+    activityToAddDiv.addEventListener('click', function () {
+        const event = new CustomEvent('showScheduleInfoDaily', {
+            detail: activityToAdd
+        });
+        window.dispatchEvent(event); // Dispatch event to the global window
+    });
+    activityToAddDiv.style.cursor = 'pointer'
 }
 
 export function renderCalendar(events, activities, day) {

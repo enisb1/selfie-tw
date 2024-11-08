@@ -157,15 +157,13 @@
     </form>
   </Modal>
 
-  <div v-show="calendarToShow === 'daily'">
+  <div v-if="calendarToShow === 'daily'">
     <DailyCalendar ref="dailyCalendarRef" :view="view"/>
   </div>
-
-  <div v-show="calendarToShow === 'weekly'">
+  <div v-else-if="calendarToShow === 'weekly'">
     <WeeklyCalendar ref="weeklyCalendarRef" :view="view"/> <!-- TODO: add view prop-->
   </div>
-
-  <div v-show="calendarToShow === 'monthly'">
+  <div v-else="calendarToShow === 'monthly'">
     <MonthlyCalendar ref="monthlyCalendarRef" :view="view"/>
   </div>
 </template>

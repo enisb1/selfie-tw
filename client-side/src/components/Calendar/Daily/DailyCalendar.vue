@@ -42,13 +42,14 @@
         </div>
     </div>
 
+    <!-- List view -->
     <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
         <div v-for="[startTime, activities] in Object.entries(activitiesSelectedDay)" class="flex flex-row 
         mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}">{{ startTime }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(activity, indexActivity) in activities" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" 
-                    class="font-bold w-full truncate px-4 rounded-xl py-2">
+                <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" 
+                    class="font-bold w-full truncate px-4 rounded-xl py-2 cursor-pointer">
                     {{ `DEADLINE: '${activity.title}'` }}
                 </div>
             </div>
@@ -58,7 +59,9 @@
             mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">00:00</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in eventsBeforeMidnight" :class="{'mt-4': indexEvent>0}" class="opacity-75 hover:opacity-100 hover:font-bold w-full truncate bg-secondary px-4 rounded-xl py-2">
+                <div v-for="(event, indexEvent) in eventsBeforeMidnight" @click="toggleScheduleInfoOn(event)" 
+                :class="{'mt-4': indexEvent>0}" class="opacity-75 hover:opacity-100 hover:font-bold w-full 
+                truncate bg-secondary px-4 rounded-xl py-2 cursor-pointer">
                     {{ event.title }} 
                 </div>
             </div>
@@ -68,12 +71,76 @@
         mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">{{ startTime }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :style="{backgroundColor: event.color}" class="opacity-75 hover:opacity-100 hover:font-bold w-full truncate px-4 rounded-xl py-2">
+                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
+                    :style="{backgroundColor: event.color}" class="opacity-75 hover:opacity-100 
+                    hover:font-bold w-full truncate px-4 rounded-xl py-2 cursor-pointer">
                     {{ event.title }}
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Schedule info modal -->
+    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleInfoModal is true (would give error with v-show) -->
+    <Modal v-if="showScheduleInfoModal" @close="toggleScheduleInfoOff">
+        <header>
+        <div class="flex items-center justify-between flex-row font-bold">
+            <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+            <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+            src="../../../images/x.png" alt="Croce"></button>
+        </div>
+        <hr style="border-color: black"/>
+        </header>
+
+        <!-- event info -->
+        <div v-if="scheduleObject.startDate">
+            <div class="flex flex-col">
+                <!-- starts -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Starts</p>
+                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
+                    minute: '2-digit', }).format(new Date(scheduleObject.startDate)) }}</p>
+                </div>
+
+                <!-- ends -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Ends</p>
+                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
+                    minute: '2-digit', }).format(new Date(scheduleObject.endDate)) }}</p>
+                </div>
+
+                <!-- frequency -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Frequency </p>
+                    <p v-show="scheduleObject.frequency != 'none'"> {{ scheduleObject.frequency }} frequency {{ scheduleObject.repetitionNumber ? `repeating ${scheduleObject.repetitionNumber} times` :
+                        `until ${new Date(scheduleObject.repetitionDate).toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>
+                    <p v-show="scheduleObject.frequency == 'none'">none</p>    
+                </div>
+
+                <!-- delete button -->
+                <button @click="deleteScheduleObject" type="submit" class="w-full mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>    
+            </div>
+        </div>
+        <div v-if="scheduleObject.deadline">
+            <div class="flex flex-col">
+                <!-- deadline -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Deadline</p>
+                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
+                    minute: '2-digit', }).format(new Date(scheduleObject.deadline)) }}</p>
+                </div>
+                <!-- done button -->
+                <div class="flex flex-row justify-evenly">
+                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
+                    <!-- delete button -->
+                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+                </div>  
+            </div>
+        </div>
+    </Modal>
 </template>
 
 <script>
@@ -82,17 +149,19 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { renderCalendar } from './render-calendar-day.js';
 import { watch } from 'vue';
-import { onMounted } from 'vue';
+import { onMounted, onBeforeUnmount } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
 import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
+import Modal from '@/components/Modal.vue';
 
 export default {
     props : {
         view: String
     },
     components: {
-        DatePicker
+        DatePicker,
+        Modal
     },
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
@@ -211,10 +280,33 @@ export default {
             return date ? date.toLocaleDateString('it-IT') : '';
         }
         
+        // schedule info modal
+        const showScheduleInfoModal = ref(false)
+        const scheduleObject = ref()
+        const toggleScheduleInfoOnFromEvent = (event) => {
+            scheduleObject.value = event.detail
+            showScheduleInfoModal.value = true
+        }
+        const toggleScheduleInfoOn = (schedule) => {
+            scheduleObject.value = schedule
+            showScheduleInfoModal.value = true
+        }
+        const toggleScheduleInfoOff = () => {
+            showScheduleInfoModal.value = false
+        }
+
         // lifecycle hooks
         onMounted(() => {
             updateCalendar()
             updateHeaderDay()
+
+            // listen to schedule boxes click event
+            window.addEventListener('showScheduleInfoDaily', toggleScheduleInfoOnFromEvent);
+        })
+        
+        onBeforeUnmount(() => {
+            // remove event listener when component is destroyed to not make them stack
+            window.removeEventListener('showScheduleInfo', toggleScheduleInfoOnFromEvent);
         })
 
         return {
@@ -225,7 +317,11 @@ export default {
             eventsAfterMidnight,
             headerFormatOptions,
             headerDay,
-            activitiesSelectedDay
+            activitiesSelectedDay,
+            showScheduleInfoModal,
+            scheduleObject,
+            toggleScheduleInfoOn,
+            toggleScheduleInfoOff
         }
     }
 }
