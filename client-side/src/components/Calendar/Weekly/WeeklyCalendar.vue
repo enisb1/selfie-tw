@@ -130,8 +130,8 @@
                 {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}
             </div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(activity, indexActivity) in activities" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" class="w-full 
-                    font-bold truncate px-4 rounded-xl py-2">
+                <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" class="w-full 
+                    font-bold truncate px-4 rounded-xl py-2 cursor-pointer">
                         {{ `DEADLINE: '${activity.title}'` }} 
                 </div>
             </div>
@@ -139,20 +139,83 @@
         <div v-for="[day, events] in eventsForDay" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" :class="{'mt-4': indexEvent>0}" :data-event-id="event._id" :style="{backgroundColor: event.color}" class="event w-full 
-                    opacity-75 truncate px-4 rounded-xl py-2">
+                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
+                    :data-event-id="event._id" :style="{backgroundColor: event.color}" class="event w-full 
+                    opacity-75 truncate px-4 rounded-xl py-2 cursor-pointer">
                         {{ event.title }} 
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Schedule info modal -->
+    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleInfoModal is true (would give error with v-show) -->
+    <Modal v-if="showScheduleInfoModal" @close="toggleScheduleInfoOff">
+        <header>
+        <div class="flex items-center justify-between flex-row font-bold">
+            <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+            <button type="button" @click="toggleScheduleInfoModalOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+            src="../../../images/x.png" alt="Croce"></button>
+        </div>
+        <hr style="border-color: black"/>
+        </header>
+
+        <!-- event info -->
+        <div v-if="scheduleObject.startDate">
+            <div class="flex flex-col">
+                <!-- starts -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Starts</p>
+                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
+                    minute: '2-digit', }).format(new Date(scheduleObject.startDate)) }}</p>
+                </div>
+
+                <!-- ends -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Ends</p>
+                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
+                    minute: '2-digit', }).format(new Date(scheduleObject.endDate)) }}</p>
+                </div>
+
+                <!-- frequency -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Frequency </p>
+                    <p v-show="scheduleObject.frequency != 'none'"> {{ scheduleObject.frequency }} frequency {{ scheduleObject.repetitionNumber ? `repeating ${scheduleObject.repetitionNumber} times` :
+                        `until ${new Date(scheduleObject.repetitionDate).toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>
+                    <p v-show="scheduleObject.frequency == 'none'">none</p>    
+                </div>
+
+                <!-- delete button -->
+                <button @click="deleteScheduleObject" type="submit" class="w-full mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>    
+            </div>
+        </div>
+        <div v-if="scheduleObject.deadline">
+            <div class="flex flex-col">
+                <!-- deadline -->
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Deadline</p>
+                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
+                    minute: '2-digit', }).format(new Date(scheduleObject.deadline)) }}</p>
+                </div>
+                <!-- done button -->
+                <div class="flex flex-row justify-evenly">
+                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
+                    <!-- delete button -->
+                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+                </div>  
+            </div>
+        </div>
+    </Modal>
+
 </template>
 
 <script>
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { ref } from 'vue';
+import { onBeforeUnmount, ref } from 'vue';
 import { onMounted } from 'vue';
 import { watch } from 'vue';
 import { renderCalendar } from './render-calendar-week';
@@ -160,13 +223,15 @@ import { updateEventsForDay } from './update-events-weekly';
 import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
 import { updateActivitiesForDay } from './update-activities-weekly';
+import Modal from '@/components/Modal.vue';
 
 export default {
     props : {
         view: String
     },
     components: {
-        DatePicker
+        DatePicker,
+        Modal
     },
     setup() {
         const getStartOfWeek = (date) => {
@@ -268,6 +333,21 @@ export default {
             return `${startOfWeek.getDate()} ${months[startOfWeek.getMonth()]} - ${endOfWeek.getDate()} ${months[endOfWeek.getMonth()]}`;
         }
 
+        // schedule info modal
+        const showScheduleInfoModal = ref(false)
+        const scheduleObject = ref({"title":"placeholder"})
+        const toggleScheduleInfoOnFromEvent = (event) => {
+            scheduleObject.value = event.detail
+            showScheduleInfoModal.value = true
+        }
+        const toggleScheduleInfoOn = (schedule) => {
+            scheduleObject.value = schedule
+            showScheduleInfoModal.value = true
+        }
+        const toggleScheduleInfoOff = () => {
+            showScheduleInfoModal.value = false
+        }
+
         // lifecycle hooks
         onMounted(() => {
             updateCalendar()
@@ -279,6 +359,14 @@ export default {
             });
             // observe the body (where event boxes are added)
             observer.observe(document.body, { childList: true, subtree: true });
+
+            // listen to schedule boxes click event
+            window.addEventListener('showScheduleInfo', toggleScheduleInfoOnFromEvent);
+        })
+
+        onBeforeUnmount(() => {
+            // remove event listener when component is destroyed to not make them stack
+            window.removeEventListener('showScheduleInfo', toggleScheduleInfoOnFromEvent);
         })
 
         return {
@@ -288,7 +376,12 @@ export default {
             eventsForDay,
             months,
             headerWeekDays,
-            activitiesForDay
+            activitiesForDay,
+            showScheduleInfoModal,
+            toggleScheduleInfoOnFromEvent,
+            toggleScheduleInfoOff,
+            scheduleObject,
+            toggleScheduleInfoOn
         }
     }
 

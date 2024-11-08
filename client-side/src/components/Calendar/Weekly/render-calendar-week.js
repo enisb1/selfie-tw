@@ -120,6 +120,15 @@ function addEvent(eventToAdd, startDate, endDate) {
     // event added, push it to addedEvents
     addedSchedules[day-1].push(eventToAdd);
     nSchedules++;
+
+    // add click listener to show event's info
+    eventToAddDiv.addEventListener('click', function () {
+        const event = new CustomEvent('showScheduleInfo', {
+            detail: eventToAdd
+        });
+        window.dispatchEvent(event); // Dispatch event to the global window
+    });
+    eventToAddDiv.style.cursor = 'pointer'
 }
 
 function addActivity(activityToAdd) {
@@ -190,6 +199,15 @@ function addActivity(activityToAdd) {
     // event added, push it to addedEvents
     addedSchedules[day-1].push(activityToAdd);
     nSchedules++;
+
+    // add click listener to show activity's info
+    activityToAddDiv.addEventListener('click', function () {
+        const event = new CustomEvent('showScheduleInfo', {
+            detail: activityToAdd
+        });
+        window.dispatchEvent(event); // Dispatch event to the global window
+    });
+    activityToAddDiv.style.cursor = 'pointer'
 }
 
 // objects in js are passed by reference.. since I need distint instances in order to
