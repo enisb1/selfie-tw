@@ -290,7 +290,7 @@ export default {
             daysArray,
             getDynamicDayClass,
             eventsForDay: schedulesForDay,
-            updateEvents: updateCalendar,
+            updateCalendar,
             months,
             filteredEvents,
             filteredActivities,

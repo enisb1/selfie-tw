@@ -312,7 +312,7 @@ export default {
         return {
             selectedDate,
             formatDate,
-            updateEvents: updateCalendar,
+            updateCalendar,
             eventsBeforeMidnight,
             eventsAfterMidnight,
             headerFormatOptions,

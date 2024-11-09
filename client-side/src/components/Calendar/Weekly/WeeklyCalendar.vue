@@ -153,7 +153,7 @@
     <Modal v-if="showScheduleModal" @close="toggleScheduleInfoOff">
         <header>
         <div class="flex items-center justify-between flex-row font-bold">
-            <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+            <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity deadline: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
             <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
             src="../../../images/x.png" alt="Croce"></button>
         </div>
@@ -162,37 +162,7 @@
 
         <!-- Event Modal -->
         <div v-if="scheduleObject.startDate && showScheduleInfo">
-            <div class="flex flex-col">
-                <!-- Modify and go back button -->
-                <button type="button" class="mt-4"><img class="w-6 h-6" src="../../../images/edit.png" alt="edit"></button>
-                <!-- TODO: add go back button -->
-
-                <!-- starts -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Starts</p>
-                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
-                    minute: '2-digit', }).format(new Date(scheduleObject.startDate)) }}</p>
-                </div>
-
-                <!-- ends -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Ends</p>
-                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
-                    minute: '2-digit', }).format(new Date(scheduleObject.endDate)) }}</p>
-                </div>
-
-                <!-- frequency -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Frequency </p>
-                    <p v-show="scheduleObject.frequency != 'none'"> {{ scheduleObject.frequency }} frequency {{ scheduleObject.repetitionNumber ? `repeating ${scheduleObject.repetitionNumber} times` :
-                        `until ${new Date(scheduleObject.repetitionDate).toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>
-                    <p v-show="scheduleObject.frequency == 'none'">none</p>    
-                </div>
-
-                <!-- delete button -->
-                <button @click="deleteScheduleObject" type="submit" class="w-full mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>    
-            </div>
+            <EventInfoModal :eventObject="scheduleObject"></EventInfoModal>
         </div>
         <!-- Activity Modal-->
         <div v-else-if="scheduleObject.deadline && showScheduleInfo">
@@ -257,6 +227,7 @@ import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
 import { updateActivitiesForDay } from './update-activities-weekly';
 import Modal from '@/components/Modal.vue';
+import EventInfoModal from '../EventInfoEdit.vue';
 
 export default {
     props : {
@@ -264,7 +235,8 @@ export default {
     },
     components: {
         DatePicker,
-        Modal
+        Modal,
+        EventInfoModal
     },
     setup() {
         const getStartOfWeek = (date) => {
@@ -382,6 +354,7 @@ export default {
         }
         // show info or modify
         const showScheduleInfo = ref(true)
+        // edit activity
         const showEditActivity = ref(false)
         const toggleEditActivity = () => {
             showEditActivity.value = !showEditActivity.value
@@ -411,7 +384,7 @@ export default {
         return {
             weekSelected,
             formatWeek,
-            updateEvents: updateCalendar,
+            updateCalendar,
             eventsForDay,
             months,
             headerWeekDays,

@@ -89,11 +89,11 @@
           <!-- button-->
           <button @click="toggleFrequencyMenu" type="button" class="flex justify-center gap-x-1.5 rounded-md bg-secondary 
           px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
-            <span v-show="frequencySelected === 'none'">None</span>
-            <span v-show="frequencySelected === 'daily'">Daily</span>
-            <span v-show="frequencySelected === 'weekly'">Weekly</span>
-            <span v-show="frequencySelected === 'monthly'">Monthly</span>
-            <span v-show="frequencySelected === 'yearly'">Yearly</span>
+            <span v-show="eventToAddFrequency === 'none'">None</span>
+            <span v-show="eventToAddFrequency === 'daily'">Daily</span>
+            <span v-show="eventToAddFrequency === 'weekly'">Weekly</span>
+            <span v-show="eventToAddFrequency === 'monthly'">Monthly</span>
+            <span v-show="eventToAddFrequency === 'yearly'">Yearly</span>
             <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd"
                 d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
@@ -120,8 +120,8 @@
         <div class="mt-4">
           <!-- Title -->
           <p class="font-semibold text-base">Select number of repetitions or date until repetition (excluded)</p>
-          <input id="repetition_number" type="number" v-model="frequencyNumber" :disabled="isFrequencyNumberDisabled" @input="toggleInputs('number')">
-          <input id="repetition_date" type="date" class="block mt-2" v-model="frequencyDate" :disabled="isFrequencyDateDisabled" @input="toggleInputs('date')">
+          <input id="repetition_number" type="number" v-model="eventToAddRepetitionNumber" :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')">
+          <input id="repetition_date" type="date" class="block mt-2" v-model="eventToAddRepetitionDate" :disabled="isRepetitionDateDisabled" @input="toggleRepInputs('date')">
         </div>
 
         <!-- color picker -->
@@ -157,13 +157,13 @@
     </form>
   </Modal>
 
-  <div v-if="calendarToShow === 'daily'">
+  <div v-show="calendarToShow === 'daily'">
     <DailyCalendar ref="dailyCalendarRef" :view="view"/>
   </div>
-  <div v-else-if="calendarToShow === 'weekly'">
-    <WeeklyCalendar ref="weeklyCalendarRef" :view="view"/> <!-- TODO: add view prop-->
+  <div v-show="calendarToShow === 'weekly'">
+    <WeeklyCalendar ref="weeklyCalendarRef" :view="view"/>
   </div>
-  <div v-else="calendarToShow === 'monthly'">
+  <div v-show="calendarToShow === 'monthly'">
     <MonthlyCalendar ref="monthlyCalendarRef" :view="view"/>
   </div>
 </template>
@@ -262,9 +262,9 @@ export default {
       await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
       eventToAddFrequency.value, eventToAddRepetitionNumber.value,
       eventToAddRepetitionDate.value, selectedColor.value) 
-      proxy.$refs.dailyCalendarRef.updateEvents()
-      proxy.$refs.weeklyCalendarRef.updateEvents()
-      proxy.$refs.monthlyCalendarRef.updateEvents()
+      proxy.$refs.dailyCalendarRef.updateCalendar()
+      proxy.$refs.weeklyCalendarRef.updateCalendar()
+      proxy.$refs.monthlyCalendarRef.updateCalendar()
       toggleAddModal();
     }
 
@@ -303,7 +303,7 @@ export default {
     const isRepetitionDateDisabled = ref(false);
     const isRepetitionNumberDisabled = ref(false);
 
-    const toggleInputs = (activeField) => {
+    const toggleRepInputs = (activeField) => {
       if (activeField === 'number') {
         isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value; // Disable date input if number input has a value
         if (!eventToAddRepetitionNumber.value) eventToAddRepetitionDate.value = ''; // Clear date input if number input is cleared
@@ -356,17 +356,17 @@ export default {
       selectedColor,
       showFrequencyMenu,
       toggleFrequencyMenu,
-      frequencySelected: eventToAddFrequency,
+      eventToAddFrequency,
       selectNoneFrequency,
       selectDailyFrequency,
       selectWeeklyFrequency,
       selectMonthlyFrequency,
       selectYearlyFrequency,
-      frequencyNumber: eventToAddRepetitionNumber,
-      frequencyDate: eventToAddRepetitionDate,
-      isFrequencyDateDisabled: isRepetitionDateDisabled,
-      isFrequencyNumberDisabled: isRepetitionNumberDisabled,
-      toggleInputs,
+      eventToAddRepetitionNumber,
+      eventToAddRepetitionDate,
+      isRepetitionDateDisabled,
+      isRepetitionNumberDisabled,
+      toggleRepInputs,
       inAddActivity,
       inAddEvent,
       selectAddActivity,
