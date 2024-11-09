@@ -97,11 +97,12 @@
                 <!-- title -->
                 <p class="font-semibold text-base">Select number of repetitions or date until repetition (excluded)</p>
                 <!-- repetition number -->
-                <input id="repetition_number" type="number" v-model="editedEventRepNumber" 
+                <input id="repetition_number" class="mt-px" type="number" v-model="editedEventRepNumber" 
                     :disabled="isEditedRepNumberDisabled" @input="toggleRepInputs('number')">
                 <!-- repetition date -->
-                <input id="repetition_date" type="date" class="block mt-2" v-model="editedEventRepDate" 
-                    :disabled="isEditedRepDateDisabled" @input="toggleRepInputs('date')">
+                <DatePicker class="inline-block w-auto mt-2 sm:ml-4" v-model="editedEventRepDate" 
+                    :format="formateDateEditView" minutes-increment="5" required
+                    :disabled="isEditedRepDateDisabled" @input="toggleRepInputs('date')"></DatePicker>
             </div>
 
             <!-- color picker -->
@@ -145,10 +146,15 @@ export default {
         editedEventFrequency.value = props.eventObject.frequency
         // set repetition number or date
         if (editedEventFrequency.value != 'none') {
-            if (props.eventObject.repetitionNumber)
+            if (props.eventObject.repetitionNumber) {
                 editedEventRepNumber.value = props.eventObject.repetitionNumber
-            else
+                isEditedRepDateDisabled.value = true
+            }
+            else {
                 editedEventRepDate.value = props.eventObject.repetitionDate
+                isEditedRepNumberDisabled.value = true
+            }
+                
         }
         editedEventTitle.value = props.eventObject.title
         editedEventStart.value = new Date(props.eventObject.startDate)
@@ -210,6 +216,15 @@ export default {
           hour12: false // (12 hour format)
       });
     }
+
+    const formateDateEditView = (date) => {
+        if (!date) return '';
+        return date.toLocaleString('it-IT', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    }
     
         return {
             showEditEvent,
@@ -231,7 +246,8 @@ export default {
             isEditedRepNumberDisabled,
             isEditedRepDateDisabled,
             toggleRepInputs,
-            formatDate
+            formatDate,
+            formateDateEditView
         }
     }
 }

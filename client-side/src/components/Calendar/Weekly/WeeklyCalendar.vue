@@ -162,7 +162,7 @@
 
         <!-- Event Modal -->
         <div v-if="scheduleObject.startDate && showScheduleInfo">
-            <EventInfoModal :eventObject="scheduleObject"></EventInfoModal>
+            <EventInfoEdit :eventObject="scheduleObject"></EventInfoEdit>
         </div>
         <!-- Activity Modal-->
         <div v-else-if="scheduleObject.deadline && showScheduleInfo">
@@ -227,7 +227,7 @@ import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
 import { updateActivitiesForDay } from './update-activities-weekly';
 import Modal from '@/components/Modal.vue';
-import EventInfoModal from '../EventInfoEdit.vue';
+import EventInfoEdit from '../EventInfoEdit.vue';
 
 export default {
     props : {
@@ -236,7 +236,7 @@ export default {
     components: {
         DatePicker,
         Modal,
-        EventInfoModal
+        EventInfoEdit
     },
     setup() {
         const getStartOfWeek = (date) => {
