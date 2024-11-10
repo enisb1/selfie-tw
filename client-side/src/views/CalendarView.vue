@@ -164,7 +164,7 @@
     <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
   <div v-show="calendarToShow === 'monthly'">
-    <MonthlyCalendar ref="monthlyCalendarRef" :view="view"/>
+    <MonthlyCalendar ref="monthlyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
 </template>
 
