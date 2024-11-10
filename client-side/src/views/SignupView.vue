@@ -56,17 +56,32 @@
         <RouterLink to="/login" class="inline-block align-baseline font-bold text-sm text-accent hover:text-third">Hai già un account? Accedi</RouterLink>
         </div>
     </form>
+      <modal v-if="showModal" @close="triggerModal">
+
+      </modal>
     </div>
 
     </div>
+  <modal v-if="showModal" @close="triggerModal">
+    <h3 class="text-red-700 text-center">{{messageError}}</h3>
+  </modal>
 </template>
 
 <script>
   import {ref} from "vue";
-  import {newUser} from "@/apis/users";
+  import { useStore } from 'vuex'
+  import { useRouter } from 'vue-router';
+  import {checkUsername, checkUserPassword, newUser,} from "@/apis/users";
+  import Modal from "@/components/Modal.vue";
 
   export default{
+    components: {Modal},
     setup() {
+      const store = useStore()
+      const router = useRouter();
+
+      let messageError = ref('');
+
       let name = ref('');
       let surname = ref('');
       let username = ref('');
@@ -75,9 +90,30 @@
       let telegram = ref('');
 
       const register = async () => {
-        console.log("Registering user...");
-        let resp = await newUser(username.value, password.value, email.value, name.value, surname.value, telegram.value)
-        console.log(resp);
+
+        const data = await checkUsername(username.value);
+        if(data.message === "Username not available"){
+          messageError.value = 'Username già in uso';
+          triggerModal()
+          return;
+        }
+
+
+        try {
+          let data = await newUser(username.value, password.value, email.value, name.value, surname.value, telegram.value)
+          store.commit('setUser', data.user);
+          await router.push({name: 'home'})
+        } catch (error) {
+          messageError.value = error.message;
+          triggerModal()
+        }
+
+
+      }
+
+      let showModal = ref(false);
+      const triggerModal = () => {
+        showModal.value = !showModal.value;
       }
 
       return{
@@ -87,7 +123,10 @@
         password,
         email,
         telegram,
-        register
+        register,
+        messageError,
+        triggerModal,
+        showModal
       }
     }
   }

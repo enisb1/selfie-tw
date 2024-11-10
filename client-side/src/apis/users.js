@@ -13,7 +13,7 @@ export async function newUser(username,password,email,firstName,lastName,telegra
         });
         return response.data;
     } catch (error) {
-        console.error("Error fetching events: ", error);
+        throw error.response.data;
     }
 }
 
@@ -26,8 +26,8 @@ export async function checkUserPassword(username,password) {
         });
         return response.data;
     } catch (error) {
-        console.error("Error fetching events: ", error);
-    }    
+        throw error.response.data;
+    }
 }
 
 // check if username is available
@@ -38,6 +38,6 @@ export async function checkUsername(username) {
         });
         return response.data;
     } catch (error) {
-        console.error("Error fetching events: ", error);
+        throw error.response.data;
     }
 }

@@ -28,7 +28,7 @@
   </div>
 
   <modal v-if="showModal" @close="triggerModal">
-    <h3 class="text-red-700 text-center">Username o password errati</h3>
+    <h3 class="text-red-700 text-center">{{messageError}}</h3>
   </modal>
 
 </template>
@@ -45,29 +45,24 @@ export default{
    setup() {
      let username = ref('');
      let password = ref('');
+     let messageError = ref('');
      const store = useStore()
+     const router = useRouter();
      store.commit('flushUser');
 
-     const router = useRouter();
 
-     const login = () => {
 
-       let resp = checkUserPassword(username.value, password.value);
-        if(resp){
+     const login = async () => {
 
-          console.log(resp);
-          resp.then((res) => {
-            if(res){
 
-              store.commit('setUser',res);
-              console.log(store)
-              router.push({name: 'home'});
-            }else{
-              triggerModal();
-            }
-          });
-        }
-
+       try {
+         const data = await checkUserPassword(username.value, password.value);
+         store.commit('setUser', data.user);
+         await router.push({name: 'home'})
+       } catch (error) {
+         messageError.value = error.message;
+         triggerModal()
+       }
      }
 
      const showModal = ref(false);
@@ -80,8 +75,8 @@ export default{
        password,
        login,
        showModal,
-       triggerModal
-
+       triggerModal,
+       messageError
     }
    },
    created() {

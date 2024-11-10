@@ -656,6 +656,10 @@ video {
   right: 1rem;
 }
 
+.right-8 {
+  right: 2rem;
+}
+
 .top-0 {
   top: 0px;
 }
@@ -670,6 +674,10 @@ video {
 
 .top-1\/4 {
   top: 25%;
+}
+
+.top-8 {
+  top: 2rem;
 }
 
 .top-\[52px\] {
@@ -712,11 +720,6 @@ video {
   margin-bottom: 0.5rem;
 }
 
-.my-20 {
-  margin-top: 5rem;
-  margin-bottom: 5rem;
-}
-
 .-mr-1 {
   margin-right: -0.25rem;
 }
@@ -739,10 +742,6 @@ video {
 
 .mb-6 {
   margin-bottom: 1.5rem;
-}
-
-.ml-14 {
-  margin-left: 3.5rem;
 }
 
 .ml-2 {
@@ -777,6 +776,10 @@ video {
   margin-top: 0.5rem;
 }
 
+.mt-20 {
+  margin-top: 5rem;
+}
+
 .mt-3 {
   margin-top: 0.75rem;
 }
@@ -803,10 +806,6 @@ video {
 
 .inline-block {
   display: inline-block;
-}
-
-.inline {
-  display: inline;
 }
 
 .flex {
@@ -857,14 +856,6 @@ video {
   height: 1.5rem;
 }
 
-.h-\[1900px\] {
-  height: 1900px;
-}
-
-.h-\[2200px\] {
-  height: 2200px;
-}
-
 .h-full {
   height: 100%;
 }
@@ -905,10 +896,6 @@ video {
   width: 1rem;
 }
 
-.w-4\/5 {
-  width: 80%;
-}
-
 .w-48 {
   width: 12rem;
 }
@@ -941,10 +928,6 @@ video {
   min-width: 7rem;
 }
 
-.min-w-40 {
-  min-width: 10rem;
-}
-
 .max-w-3xl {
   max-width: 48rem;
 }
@@ -975,10 +958,6 @@ video {
 
 .origin-top-left {
   transform-origin: top left;
-}
-
-.origin-top-right {
-  transform-origin: top right;
 }
 
 .-translate-x-1\/2 {
@@ -1055,10 +1034,6 @@ video {
 
 .justify-between {
   justify-content: space-between;
-}
-
-.gap-3 {
-  gap: 0.75rem;
 }
 
 .gap-6 {
@@ -1305,10 +1280,6 @@ video {
   padding: 0.5rem;
 }
 
-.p-3 {
-  padding: 0.75rem;
-}
-
 .p-4 {
   padding: 1rem;
 }
@@ -1383,6 +1354,10 @@ video {
 
 .align-baseline {
   vertical-align: baseline;
+}
+
+.align-middle {
+  vertical-align: middle;
 }
 
 .text-2xl {
@@ -1463,6 +1438,16 @@ video {
 .text-gray-700 {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity));
+}
+
+.text-primary {
+  --tw-text-opacity: 1;
+  color: rgb(221 219 241 / var(--tw-text-opacity));
+}
+
+.text-red-700 {
+  --tw-text-opacity: 1;
+  color: rgb(185 28 28 / var(--tw-text-opacity));
 }
 
 .text-secondary {
@@ -1688,11 +1673,6 @@ video {
 
   .lg\:top-32 {
     top: 8rem;
-  }
-
-  .lg\:my-40 {
-    margin-top: 10rem;
-    margin-bottom: 10rem;
   }
 
   .lg\:flex {
