@@ -166,51 +166,8 @@
         </div>
         <!-- Activity Modal-->
         <div v-else-if="scheduleObject.deadline && showScheduleInfo">
-            <div class="flex flex-col">
-                <!-- Modify and go back button -->
-                <button @click="toggleEditActivity" v-show="!showEditActivity" type="button" class="mt-4 w-6 h-6"><img src="../../../images/edit.png" alt="edit"></button>
-                <!-- TODO: add go back button -->
-                <button @click="toggleEditActivity" v-show="showEditActivity" type="button" class="mt-4 w-6 h-6"><img src="../../../images/returnButton.png" alt="edit"></button>
-
-                <!-- Activity info-->
-                <div v-show="!showEditActivity" class="flex flex-col">
-                    <!-- deadline -->
-                    <div class="mt-4">
-                        <p class="font-semibold text-base">Deadline</p>
-                        <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
-                        minute: '2-digit', }).format(new Date(scheduleObject.deadline)) }}</p>
-                    </div>
-                </div>
-
-                <!-- Edit activity -->
-                <div v-show="showEditActivity" class="flex flex-col">
-                    <div class="mt-4">
-                        <p class="font-semibold text-base">Title</p>
-                        <input class="border border-third" type="text" maxlength="50" required v-model="activityToAddTitle">
-                    </div>
-
-                    <div class="mt-4">
-                        <p class="font-semibold text-base">Deadline</p>
-                        <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
-                            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
-                    </div>
-                </div>
-
-                <!-- buttons -->
-                <div class="flex flex-row justify-evenly">
-                    <button v-show="showEditActivity" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
-                    <!-- done button -->
-                    <button v-show="!showEditActivity" @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
-                    <!-- delete button -->
-                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
-                </div>
-            </div>
+            <ActivityInfoEdit :activityObject="scheduleObject"></ActivityInfoEdit>
         </div>
-
-
     </Modal>
 
 </template>
@@ -228,6 +185,7 @@ import { getAllEventsInstances } from '../repeated-events';
 import { updateActivitiesForDay } from './update-activities-weekly';
 import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
+import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 
 export default {
     props : {
@@ -236,7 +194,8 @@ export default {
     components: {
         DatePicker,
         Modal,
-        EventInfoEdit
+        EventInfoEdit,
+        ActivityInfoEdit
     },
     setup() {
         const getStartOfWeek = (date) => {

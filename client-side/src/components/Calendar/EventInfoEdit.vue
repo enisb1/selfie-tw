@@ -93,7 +93,7 @@
             </div>
 
             <!-- event repetition -->
-            <div class="mt-4">
+            <div class="mt-4" v-show="editedEventFrequency != 'none'">
                 <!-- title -->
                 <p class="font-semibold text-base">Select number of repetitions or date until repetition (excluded)</p>
                 <!-- repetition number -->
@@ -102,7 +102,7 @@
                 <!-- repetition date -->
                 <DatePicker class="inline-block w-auto mt-2 sm:ml-4" v-model="editedEventRepDate" 
                     :format="formateDateEditView" minutes-increment="5" required
-                    :disabled="isEditedRepDateDisabled" @input="toggleRepInputs('date')"></DatePicker>
+                    :disabled="isEditedRepDateDisabled" @update:model-value="toggleRepInputs('date')"></DatePicker>
             </div>
 
             <!-- color picker -->
@@ -143,23 +143,26 @@ export default {
     const editedEventStart = ref()
     const editedEventEnd = ref()
     const toggleEditEvent = () => {
-        editedEventFrequency.value = props.eventObject.frequency
-        // set repetition number or date
-        if (editedEventFrequency.value != 'none') {
-            if (props.eventObject.repetitionNumber) {
-                editedEventRepNumber.value = props.eventObject.repetitionNumber
-                isEditedRepDateDisabled.value = true
+        // if it's about to be toggled on update data inside
+        if (!showEditEvent.value) {
+            editedEventFrequency.value = props.eventObject.frequency
+            // set repetition number or date
+            if (editedEventFrequency.value != 'none') {
+                if (props.eventObject.repetitionNumber) {
+                    editedEventRepNumber.value = props.eventObject.repetitionNumber
+                    isEditedRepDateDisabled.value = true
+                }
+                else {
+                    editedEventRepDate.value = props.eventObject.repetitionDate
+                    isEditedRepNumberDisabled.value = true
+                }
+                    
             }
-            else {
-                editedEventRepDate.value = props.eventObject.repetitionDate
-                isEditedRepNumberDisabled.value = true
-            }
-                
+            editedEventTitle.value = props.eventObject.title
+            editedEventStart.value = new Date(props.eventObject.startDate)
+            editedEventEnd.value = new Date(props.eventObject.endDate)
+            editedEventColor.value = props.eventObject.color
         }
-        editedEventTitle.value = props.eventObject.title
-        editedEventStart.value = new Date(props.eventObject.startDate)
-        editedEventEnd.value = new Date(props.eventObject.endDate)
-        editedEventColor.value = props.eventObject.color
         showEditEvent.value = !showEditEvent.value
     }
 
