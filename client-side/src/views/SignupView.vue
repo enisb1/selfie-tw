@@ -63,7 +63,7 @@
 
     </div>
   <modal v-if="showModal" @close="triggerModal">
-    <h3 class="text-red-700 text-center">{{messageError}}</h3>
+    <h3 class="text-red-700 text-center">{{messageErrors}}</h3>
   </modal>
 </template>
 
@@ -90,25 +90,29 @@
       let telegram = ref('');
 
       const register = async () => {
-
+        console.log("1")
         const data = await checkUsername(username.value);
+        console.log("2")
+        console.log(data.message)
+        console.log("3")
+
         if(data.message === "Username not available"){
           messageError.value = 'Username già in uso';
           triggerModal()
-          return;
+          console.log("4")
+        }else {
+          try {
+            let resp = await newUser(username.value, password.value, email.value, name.value, surname.value, telegram.value)
+            if (resp.status === 200) {
+              store.commit('setUser', resp.data.user);
+              await router.push({name: 'home'})
+            }
+          } catch (error) {
+            messageError.value = 'Errore durante la registrazione';
+            console.log("5")
+            triggerModal()
+          }
         }
-
-
-        try {
-          let data = await newUser(username.value, password.value, email.value, name.value, surname.value, telegram.value)
-          store.commit('setUser', data.user);
-          await router.push({name: 'home'})
-        } catch (error) {
-          messageError.value = error.message;
-          triggerModal()
-        }
-
-
       }
 
       let showModal = ref(false);
@@ -124,7 +128,7 @@
         email,
         telegram,
         register,
-        messageError,
+        messageErrors: messageError,
         triggerModal,
         showModal
       }

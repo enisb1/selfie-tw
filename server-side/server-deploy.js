@@ -17,12 +17,13 @@ const PORT = 8000;
 app.use(cors());
 app.use(express.json());
 
-
+/*
 app.use(session({
     secret: 'password', //TODO: set up env variable for session secret
     resave: false,
     saveUninitialized: false
 }));
+
 
 app.use(passport.initialize());
 app.use(passport.session({
@@ -30,7 +31,7 @@ app.use(passport.session({
     resave: false,
     saveUninitialized: false
 }));
-
+*/
 
 const checkAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {

@@ -25,12 +25,14 @@ router.post("/addUser", async (req, res) => {
             telegram: req.body.telegram
         });
         await user.save();
-        res.status(201).json({ message: 'Data saved successfully' });
+        res.status(201).json({ message: 'Data saved successfully' ,
+            user: user});
     }catch (error) {
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
 /*
 router.post("/passwordCheck", passport.authenticate('local'),
     async (req, res) => {
