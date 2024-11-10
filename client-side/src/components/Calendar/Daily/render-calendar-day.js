@@ -19,6 +19,8 @@ function createDefaultActivityDiv(activity) {
     const activityDiv = document.createElement("div");
     activityDiv.classList.add("absolute", "text-white", "truncate", "shadow-md", "font-bold");
     activityDiv.style.backgroundColor = 'crimson';
+    if (activity.isDone)
+        activityDiv.classList.add("line-through")
 
     const title = document.createElement("p");
     title.classList.add("pl-1")

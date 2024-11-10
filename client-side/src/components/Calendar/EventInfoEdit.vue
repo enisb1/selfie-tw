@@ -95,7 +95,7 @@
             <!-- event repetition -->
             <div class="mt-4" v-show="editedEventFrequency != 'none'">
                 <!-- title -->
-                <p class="font-semibold text-base">Select number of repetitions or date until repetition (excluded)</p>
+                <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
                 <!-- repetition number -->
                 <input id="repetition_number" class="mt-px" type="number" v-model="editedEventRepNumber" 
                     :disabled="isEditedRepNumberDisabled" @input="toggleRepInputs('number')">

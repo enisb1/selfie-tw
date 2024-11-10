@@ -48,7 +48,8 @@
         mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}">{{ startTime }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" 
+                <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" 
+                    :class="{'line-through': activity.isDone, 'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" 
                     class="font-bold w-full truncate px-4 rounded-xl py-2 cursor-pointer">
                     {{ `DEADLINE: '${activity.title}'` }}
                 </div>
@@ -81,64 +82,26 @@
     </div>
 
     <!-- Schedule info modal -->
-    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleInfoModal is true (would give error with v-show) -->
-    <Modal v-if="showScheduleInfoModal" @close="toggleScheduleInfoOff">
+    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleModal is true (would give error with v-show) -->
+    <Modal v-if="showScheduleModal" @close="toggleScheduleInfoOff">
         <header>
-        <div class="flex items-center justify-between flex-row font-bold">
-            <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
-            <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
-            src="../../../images/x.png" alt="Croce"></button>
-        </div>
-        <hr style="border-color: black"/>
+            <div class="flex items-center justify-between flex-row font-bold">
+                <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity deadline: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+                <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                src="../../../images/x.png" alt="Croce"></button>
+            </div>
+            <hr style="border-color: black"/>
         </header>
 
-        <!-- event info -->
+        <!-- Event Modal -->
         <div v-if="scheduleObject.startDate">
-            <div class="flex flex-col">
-                <!-- starts -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Starts</p>
-                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
-                    minute: '2-digit', }).format(new Date(scheduleObject.startDate)) }}</p>
-                </div>
-
-                <!-- ends -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Ends</p>
-                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
-                    minute: '2-digit', }).format(new Date(scheduleObject.endDate)) }}</p>
-                </div>
-
-                <!-- frequency -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Frequency </p>
-                    <p v-show="scheduleObject.frequency != 'none'"> {{ scheduleObject.frequency }} frequency {{ scheduleObject.repetitionNumber ? `repeating ${scheduleObject.repetitionNumber} times` :
-                        `until ${new Date(scheduleObject.repetitionDate).toLocaleDateString('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>
-                    <p v-show="scheduleObject.frequency == 'none'">none</p>    
-                </div>
-
-                <!-- delete button -->
-                <button @click="deleteScheduleObject" type="submit" class="w-full mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>    
-            </div>
+            <EventInfoEdit :eventObject="scheduleObject" @updateAllCalendars="$emit('updateAllCalendars')" 
+                @close="toggleScheduleInfoOff"></EventInfoEdit>
         </div>
-        <div v-if="scheduleObject.deadline">
-            <div class="flex flex-col">
-                <!-- deadline -->
-                <div class="mt-4">
-                    <p class="font-semibold text-base">Deadline</p>
-                    <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
-                    minute: '2-digit', }).format(new Date(scheduleObject.deadline)) }}</p>
-                </div>
-                <!-- done button -->
-                <div class="flex flex-row justify-evenly">
-                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
-                    <!-- delete button -->
-                    <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
-                </div>  
-            </div>
+        <!-- Activity Modal-->
+        <div v-else-if="scheduleObject.deadline">
+            <ActivityInfoEdit :activityObject="scheduleObject" @updateAllCalendars="$emit('updateAllCalendars')" 
+                @close="toggleScheduleInfoOff"></ActivityInfoEdit>
         </div>
     </Modal>
 </template>
@@ -154,14 +117,19 @@ import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
 import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
 import Modal from '@/components/Modal.vue';
+import EventInfoEdit from '../EventInfoEdit.vue';
+import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 
 export default {
+    emits: ['updateAllCalendars'],
     props : {
         view: String
     },
     components: {
         DatePicker,
-        Modal
+        Modal,
+        EventInfoEdit,
+        ActivityInfoEdit
     },
     setup() {
         const selectedDate = ref(new Date());   // default date = current date
@@ -281,18 +249,18 @@ export default {
         }
         
         // schedule info modal
-        const showScheduleInfoModal = ref(false)
+        const showScheduleModal = ref(false)
         const scheduleObject = ref()
         const toggleScheduleInfoOnFromEvent = (event) => {
             scheduleObject.value = event.detail
-            showScheduleInfoModal.value = true
+            showScheduleModal.value = true
         }
         const toggleScheduleInfoOn = (schedule) => {
             scheduleObject.value = schedule
-            showScheduleInfoModal.value = true
+            showScheduleModal.value = true
         }
         const toggleScheduleInfoOff = () => {
-            showScheduleInfoModal.value = false
+            showScheduleModal.value = false
         }
 
         // lifecycle hooks
@@ -318,7 +286,7 @@ export default {
             headerFormatOptions,
             headerDay,
             activitiesSelectedDay,
-            showScheduleInfoModal,
+            showScheduleModal,
             scheduleObject,
             toggleScheduleInfoOn,
             toggleScheduleInfoOff
