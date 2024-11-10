@@ -94,15 +94,15 @@
 
             <!-- event repetition -->
             <div class="mt-4" v-show="editedEventFrequency != 'none'">
-                <!-- title -->
                 <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
                 <!-- repetition number -->
                 <input name="repNumber" id="repetition_number" min="0" class="mt-px" type="number" v-model="editedEventRepNumber" 
                     :disabled="isEditedRepNumberDisabled" :required="isRepNumberRequired" @input="toggleRepInputs('number')">
                 <!-- repetition date -->
                 <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" v-model="editedEventRepDate" 
-                    :format="formateDateEditView" minutes-increment="5" :disabled="isEditedRepDateDisabled" 
-                    :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')"></DatePicker>
+                    :enable-time-picker="false" :disabled="isEditedRepDateDisabled" 
+                    :format="formatDateNoTime" :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')">
+                </DatePicker>
             </div>
 
             <!-- color picker -->
@@ -229,6 +229,11 @@ export default {
         }
         
 
+        const formatDateNoTime = (date) => {
+            // format date to dd/mm/yyyy
+            return date ? date.toLocaleDateString('it-IT') : '';
+        }
+
         const formatDate = (date) => {
         if (!date) return '';
         return date.toLocaleString('it-IT', {
@@ -241,15 +246,6 @@ export default {
         });
         }
 
-        const formateDateEditView = (date) => {
-            if (!date) return '';
-            return date.toLocaleString('it-IT', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-        }
-
         const deleteEventObject = async () => {
             await deleteEvent(props.eventObject._id)
             emit('updateAllCalendars')
@@ -259,12 +255,13 @@ export default {
         const applyEdits = async () => {
             // create updatedEvent object
             const updatedEvent = structuredClone(props.eventObject)
+            if (updatedEvent.repetitionDate)
+                updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
             updatedEvent.title = editedEventTitle.value
             updatedEvent.startDate = editedEventStart.value
             updatedEvent.endDate = editedEventEnd.value
             updatedEvent.frequency = editedEventFrequency.value
             updatedEvent.repetitionNumber = editedEventRepNumber.value
-            updatedEvent.repetitionDate = editedEventRepDate.value
             updatedEvent.color = editedEventColor.value
             await editEvent(props.eventObject._id, updatedEvent)
             emit('updateAllCalendars')
@@ -292,7 +289,7 @@ export default {
             isEditedRepDateDisabled,
             toggleRepInputs,
             formatDate,
-            formateDateEditView,
+            formatDateNoTime,
             deleteEventObject,
             applyEdits,
             isRepNumberRequired,

@@ -117,12 +117,14 @@
 
       <!-- Event repetition -->
       <div class="mt-4" v-show="eventToAddFrequency != 'none'">
-        <!-- Title -->
         <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
         <input id="repetition_number" min="0" type="number" v-model="eventToAddRepetitionNumber" 
           :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')" :required="isRepNumberRequired">
-        <input id="repetition_date" type="date" class="block mt-2" v-model="eventToAddRepetitionDate" 
-          :disabled="isRepetitionDateDisabled" @input="toggleRepInputs('date')" :required="isRepDateRequired">
+        <!-- repetition date -->
+        <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" v-model="eventToAddRepetitionDate" 
+                    :format="formatDateNoTime" :enable-time-picker="false" :disabled="isRepetitionDateDisabled" 
+                    :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')">
+        </DatePicker>
       </div>
 
       <!-- color picker -->
@@ -258,7 +260,10 @@ export default {
     // current instance is needed to access refs
     const { proxy } = getCurrentInstance();
     const addEvent = async () => {
+      if (eventToAddRepetitionDate.value)
+        eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
       //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
+      // set repetition date to end of day (otherwise it would be current time)
       await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
       eventToAddFrequency.value, eventToAddRepetitionNumber.value,
       eventToAddRepetitionDate.value, selectedColor.value) 
@@ -318,6 +323,10 @@ export default {
         else
             return !(!!eventToAddRepetitionNumber.value)
     })
+    const formatDateNoTime = (date) => {
+        // format date to dd/mm/yyyy
+        return date ? date.toLocaleDateString('it-IT') : '';
+    }
 
     const toggleRepInputs = (activeField) => {
         if (activeField === 'number') {
@@ -390,7 +399,8 @@ export default {
       addActivity,
       updateAllCalendars,
       isRepNumberRequired,
-      isRepDateRequired
+      isRepDateRequired,
+      formatDateNoTime
     }
   }
 }
