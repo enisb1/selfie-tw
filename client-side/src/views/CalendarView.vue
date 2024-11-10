@@ -57,84 +57,82 @@
     </header>
 
     <!-- ADD EVENT FORM -->
-    <form @submit.prevent="addEvent" v-show="inAddEvent">
-      <div class="flex flex-col">
-        <!-- title -->
+    <form @submit.prevent="addEvent" v-show="inAddEvent" class="flex flex-col">
+      <!-- title -->
+      <div class="mt-4">
+        <p class="font-semibold text-base">Title</p>
+        <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
+      </div>
+      
+      <div class="flex flex-col sm:flex-row">
+        <!-- start date -->
         <div class="mt-4">
-          <p class="font-semibold text-base">Title</p>
-          <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
+          <p class="font-semibold text-base">Starts</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
         
-        <div class="flex flex-col sm:flex-row">
-          <!-- start date -->
-          <div class="mt-4">
-            <p class="font-semibold text-base">Starts</p>
-            <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
-              :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
-          </div>
-          
-          <!-- end date -->
-          <div class="mt-4 sm:ml-4">
-            <p class="font-semibold text-base">Ends</p>
-            <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
-              :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
-          </div>
+        <!-- end date -->
+        <div class="mt-4 sm:ml-4">
+          <p class="font-semibold text-base">Ends</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
-
-        <!-- frequency of event -->
-        <div class="mt-4">
-          <!-- title -->
-          <p class="font-semibold text-base">Event frequency</p>
-
-          <!-- button-->
-          <button @click="toggleFrequencyMenu" type="button" class="flex justify-center gap-x-1.5 rounded-md bg-secondary 
-          px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
-            <span v-show="eventToAddFrequency === 'none'">None</span>
-            <span v-show="eventToAddFrequency === 'daily'">Daily</span>
-            <span v-show="eventToAddFrequency === 'weekly'">Weekly</span>
-            <span v-show="eventToAddFrequency === 'monthly'">Monthly</span>
-            <span v-show="eventToAddFrequency === 'yearly'">Yearly</span>
-            <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd"
-                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-                clip-rule="evenodd" />
-            </svg>
-          </button>
-
-          <!-- dropdown menu -->
-          <div v-show="showFrequencyMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-            <div @click="selectNoneFrequency()"
-              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">None</div>
-            <div @click="selectDailyFrequency()"
-              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
-            <div @click="selectWeeklyFrequency()"
-              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Weekly</div>
-            <div @click="selectMonthlyFrequency()"
-              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Monthly</div>
-            <div @click="selectYearlyFrequency()"
-              class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Yearly</div>
-          </div>
-        </div>
-
-        <!-- Event repetition -->
-        <div class="mt-4">
-          <!-- Title -->
-          <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
-          <input id="repetition_number" min="0" type="number" v-model="eventToAddRepetitionNumber" 
-            :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')">
-          <input id="repetition_date" type="date" class="block mt-2" v-model="eventToAddRepetitionDate" 
-            :disabled="isRepetitionDateDisabled" @input="toggleRepInputs('date')">
-        </div>
-
-        <!-- color picker -->
-        <div class="mt-4">
-          <p class="font-semibold text-base">Event color</p>
-          <input type="color" value="#3C4F76" v-model="selectedColor">
-        </div>
-
-        <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
-          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
       </div>
+
+      <!-- frequency of event -->
+      <div class="mt-4">
+        <!-- title -->
+        <p class="font-semibold text-base">Event frequency</p>
+
+        <!-- button-->
+        <button @click="toggleFrequencyMenu" type="button" class="flex justify-center gap-x-1.5 rounded-md bg-secondary 
+        px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
+          <span v-show="eventToAddFrequency === 'none'">None</span>
+          <span v-show="eventToAddFrequency === 'daily'">Daily</span>
+          <span v-show="eventToAddFrequency === 'weekly'">Weekly</span>
+          <span v-show="eventToAddFrequency === 'monthly'">Monthly</span>
+          <span v-show="eventToAddFrequency === 'yearly'">Yearly</span>
+          <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <!-- dropdown menu -->
+        <div v-show="showFrequencyMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+          <div @click="selectNoneFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">None</div>
+          <div @click="selectDailyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
+          <div @click="selectWeeklyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Weekly</div>
+          <div @click="selectMonthlyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Monthly</div>
+          <div @click="selectYearlyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Yearly</div>
+        </div>
+      </div>
+
+      <!-- Event repetition -->
+      <div class="mt-4" v-show="eventToAddFrequency != 'none'">
+        <!-- Title -->
+        <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
+        <input id="repetition_number" min="0" type="number" v-model="eventToAddRepetitionNumber" 
+          :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')" :required="isRepNumberRequired">
+        <input id="repetition_date" type="date" class="block mt-2" v-model="eventToAddRepetitionDate" 
+          :disabled="isRepetitionDateDisabled" @input="toggleRepInputs('date')" :required="isRepDateRequired">
+      </div>
+
+      <!-- color picker -->
+      <div class="mt-4">
+        <p class="font-semibold text-base">Event color</p>
+        <input type="color" value="#3C4F76" v-model="selectedColor">
+      </div>
+
+      <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+        text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
     </form>
 
     <!-- ADD ACTIVITY FORM -->
@@ -180,7 +178,7 @@ import '@vuepic/vue-datepicker/dist/main.css';
 import { postEvent } from '@/apis/calendar';
 import { getCurrentInstance } from 'vue';
 import { postActivity } from '@/apis/calendar';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 export default {
   components: {
@@ -304,20 +302,32 @@ export default {
       toggleFrequencyMenu()
     }
     // disable number frequency when date is used and viceversa
-    const eventToAddRepetitionNumber = ref();
-    const eventToAddRepetitionDate = ref();
-    const isRepetitionDateDisabled = ref(false);
-    const isRepetitionNumberDisabled = ref(false);
+    const eventToAddRepetitionNumber = ref()
+    const eventToAddRepetitionDate = ref()
+    const isRepetitionDateDisabled = ref(false)
+    const isRepetitionNumberDisabled = ref(false)
+    const isRepNumberRequired = computed(() => {
+        if (eventToAddFrequency.value == 'none')
+            return false
+        else
+            return !(!!eventToAddRepetitionDate.value)
+    })
+    const isRepDateRequired = computed(() => {
+        if (eventToAddFrequency.value == 'none')
+            return false
+        else
+            return !(!!eventToAddRepetitionNumber.value)
+    })
 
     const toggleRepInputs = (activeField) => {
-      if (activeField === 'number') {
-        isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value; // Disable date input if number input has a value
-        if (!eventToAddRepetitionNumber.value) eventToAddRepetitionDate.value = ''; // Clear date input if number input is cleared
-      } else if (activeField === 'date') {
-        isRepetitionNumberDisabled.value = !!eventToAddRepetitionDate.value; // Disable number input if date input has a value
-        if (!eventToAddRepetitionDate.value) eventToAddRepetitionNumber.value = ''; // Clear number input if date input is cleared
-      }
-    };
+        if (activeField === 'number') {
+            isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value // Disable date input if number input has a value
+            //isRepDateRequired.value = !(!!editedEventRepNumber.value)
+        } else if (activeField === 'date') {
+            isRepetitionNumberDisabled.value = !!eventToAddRepetitionDate.value // Disable number input if date input has a value
+            //isRepNumberRequired.value = !(!!editedEventRepDate.value)
+        }
+    }
 
     // add activity
     const inAddActivity = ref(false)
@@ -378,7 +388,9 @@ export default {
       activityToAddTitle,
       activityToAddDeadline,
       addActivity,
-      updateAllCalendars
+      updateAllCalendars,
+      isRepNumberRequired,
+      isRepDateRequired
     }
   }
 }
