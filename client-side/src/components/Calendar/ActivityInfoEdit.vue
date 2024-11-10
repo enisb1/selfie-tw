@@ -22,30 +22,35 @@
             </div>
         </div>
 
-        <!-- Edit activity -->
-        <div v-show="showEditActivity" class="flex flex-col">
-            <div class="mt-4">
-                <p class="font-semibold text-base">Title</p>
-                <input class="border border-third" type="text" maxlength="50" required v-model="editedActivityTitle">
-            </div>
+        <!-- Edit activity form -->
+        <form @submit.prevent="applyEdits" v-show="showEditActivity">
+            <div class="flex flex-col">
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Title</p>
+                    <input class="border border-third" type="text" maxlength="50" required v-model="editedActivityTitle">
+                </div>
 
-            <div class="mt-4">
-                <p class="font-semibold text-base">Deadline</p>
-                <DatePicker class="mt-px inline-block w-auto" v-model="editedActivityDeadline"
-                    :format="formatDate" minutes-increment="5" required></DatePicker>
+                <div class="mt-4">
+                    <p class="font-semibold text-base">Deadline</p>
+                    <DatePicker class="mt-px inline-block w-auto" v-model="editedActivityDeadline"
+                        :format="formatDate" minutes-increment="5" required></DatePicker>
+                </div>
             </div>
-        </div>
+            
+            <div class="flex justify-evenly">
+                <button v-show="showEditActivity" type="submit" class="w-full mt-4 rounded-md bg-green-700 px-3 
+                    py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
+            </div>
+        </form>
 
         <!-- buttons -->
-        <div class="flex flex-row justify-evenly">
-            <button @click="applyEdits" v-show="showEditActivity" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-            text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
+        <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
             <!-- done button -->
-            <button v-show="!activityObject.isDone && !showEditActivity" @click="setActivityDone" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-            text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
+            <button v-show="!activityObject.isDone" @click="setActivityDone" type="button" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
             <!-- delete button -->
-            <button @click="deleteActivityObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-            text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+            <button @click="deleteActivityObject" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
         </div>
     </div>
 </template>

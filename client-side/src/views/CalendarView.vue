@@ -120,8 +120,10 @@
         <div class="mt-4">
           <!-- Title -->
           <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
-          <input id="repetition_number" type="number" v-model="eventToAddRepetitionNumber" :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')">
-          <input id="repetition_date" type="date" class="block mt-2" v-model="eventToAddRepetitionDate" :disabled="isRepetitionDateDisabled" @input="toggleRepInputs('date')">
+          <input id="repetition_number" min="0" type="number" v-model="eventToAddRepetitionNumber" 
+            :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')">
+          <input id="repetition_date" type="date" class="block mt-2" v-model="eventToAddRepetitionDate" 
+            :disabled="isRepetitionDateDisabled" @input="toggleRepInputs('date')">
         </div>
 
         <!-- color picker -->
