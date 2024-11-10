@@ -115,7 +115,7 @@
         <!-- buttons -->
         <div class="flex flex-row justify-evenly">
             <!-- apply button -->
-            <button v-show="showEditEvent" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+            <button @click="applyEdits" v-show="showEditEvent" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>  
             <!-- delete button -->
             <button @click="deleteEventObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
@@ -129,9 +129,10 @@ import { ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { deleteEvent } from '@/apis/calendar';
+import { editEvent } from '@/apis/calendar';
 
 export default {
-    emits: ['update', 'close'],
+    emits: ['updateAllCalendars', 'close'],
     components : {
         DatePicker
     },
@@ -236,6 +237,21 @@ export default {
         emit('update')
         emit('close')
     }
+
+    const applyEdits = async () => {
+        // create updatedEvent object
+        const updatedEvent = structuredClone(props.eventObject)
+        updatedEvent.title = editedEventTitle.value
+        updatedEvent.startDate = editedEventStart.value
+        updatedEvent.endDate = editedEventEnd.value
+        updatedEvent.frequency = editedEventFrequency.value
+        updatedEvent.repetitionNumber = editedEventRepNumber.value
+        updatedEvent.repetitionDate = editedEventRepDate.value
+        updatedEvent.color = editedEventColor.value
+        await editEvent(props.eventObject._id, updatedEvent)
+        emit('updateAllCalendars')
+        emit('close')
+    }
     
     return {
         showEditEvent,
@@ -259,7 +275,8 @@ export default {
         toggleRepInputs,
         formatDate,
         formateDateEditView,
-        deleteEventObject
+        deleteEventObject,
+        applyEdits
     }
 }
 }

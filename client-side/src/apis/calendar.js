@@ -66,3 +66,11 @@ export async function deleteActivity(activityId) {
         console.log(data);
     })
 }
+
+// edit event
+export async function editEvent(eventId, updatedData) {
+    await axios.put(`http://localhost:8000/api/calendar/events/${eventId}`, updatedData)
+    .then(({data}) => {
+        console.log(data);
+    })
+}

@@ -161,7 +161,7 @@
     <DailyCalendar ref="dailyCalendarRef" :view="view"/>
   </div>
   <div v-show="calendarToShow === 'weekly'">
-    <WeeklyCalendar ref="weeklyCalendarRef" :view="view"/>
+    <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
   <div v-show="calendarToShow === 'monthly'">
     <MonthlyCalendar ref="monthlyCalendarRef" :view="view"/>
@@ -262,10 +262,14 @@ export default {
       await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
       eventToAddFrequency.value, eventToAddRepetitionNumber.value,
       eventToAddRepetitionDate.value, selectedColor.value) 
+      updateAllCalendars()
+      toggleAddModal();
+    }
+
+    const updateAllCalendars = () => {
       proxy.$refs.dailyCalendarRef.updateCalendar()
       proxy.$refs.weeklyCalendarRef.updateCalendar()
       proxy.$refs.monthlyCalendarRef.updateCalendar()
-      toggleAddModal();
     }
 
     // event to add color
@@ -373,7 +377,8 @@ export default {
       selectAddEvent,
       activityToAddTitle,
       activityToAddDeadline,
-      addActivity
+      addActivity,
+      updateAllCalendars
     }
   }
 }

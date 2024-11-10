@@ -116,4 +116,24 @@ router.delete("/events/:id", async (req, res) => {
     }
 })
 
+router.put("/events/:id", async (req,res) => {
+    const eventId = req.params.id;
+    const updatedData = req.body;
+    
+    try {
+        const updatedEvent = await Event.findByIdAndUpdate(eventId, updatedData, {
+          new: true, // return updated event
+          runValidators: true, // ensure the data meets schema rules
+        });
+    
+        if (updatedEvent) {
+          res.status(200).json({ message: 'Event updated successfully', event: updatedEvent });
+        } else {
+          res.status(404).json({ message: 'Event not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating event', error: error.message });
+    }
+})
+
 export default router;

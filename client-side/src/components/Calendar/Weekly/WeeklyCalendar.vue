@@ -162,7 +162,7 @@
 
         <!-- Event Modal -->
         <div v-if="scheduleObject.startDate && showScheduleInfo">
-            <EventInfoEdit :eventObject="scheduleObject" @update="updateCalendar" 
+            <EventInfoEdit :eventObject="scheduleObject" @updateAllCalendars="$emit('updateAllCalendars')" 
                 @close="toggleScheduleInfoOff"></EventInfoEdit>
         </div>
         <!-- Activity Modal-->
@@ -190,6 +190,7 @@ import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 
 export default {
+    emits: ['updateAllCalendars'],
     props : {
         view: String
     },
