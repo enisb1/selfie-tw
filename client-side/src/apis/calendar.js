@@ -50,3 +50,11 @@ export async function postActivity(title, deadline) {
         console.log(data);
     })
 }
+
+// delete event
+export async function deleteEvent(eventId) {
+    await axios.delete(`http://localhost:8000/api/calendar/events/${eventId}`)
+    .then(({data}) => {
+        console.log(data);
+    })
+}

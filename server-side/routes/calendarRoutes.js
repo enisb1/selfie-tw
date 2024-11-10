@@ -84,4 +84,20 @@ router.get("/events", async (req,res) => {
     }
 })
 
+// delete event given id
+router.delete("/events/:id", async (req, res) => {
+    const eventId = req.params.id;
+    try {
+        const result = await Event.findByIdAndDelete(eventId);
+
+        if (result) {
+            res.status(200).json({ message: 'Event deleted successfully', event: result });
+        } else {
+            res.status(404).json({ message: 'Event not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting event', error: error.message });
+    }
+})
+
 export default router;

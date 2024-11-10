@@ -162,7 +162,8 @@
 
         <!-- Event Modal -->
         <div v-if="scheduleObject.startDate && showScheduleInfo">
-            <EventInfoEdit :eventObject="scheduleObject"></EventInfoEdit>
+            <EventInfoEdit :eventObject="scheduleObject" @update="updateCalendar" 
+                @close="toggleScheduleInfoOff"></EventInfoEdit>
         </div>
         <!-- Activity Modal-->
         <div v-else-if="scheduleObject.deadline && showScheduleInfo">

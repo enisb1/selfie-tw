@@ -118,7 +118,7 @@
             <button v-show="showEditEvent" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>  
             <!-- delete button -->
-            <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+            <button @click="deleteEventObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
             text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
         </div>   
     </div>
@@ -128,15 +128,17 @@
 import { ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { deleteEvent } from '@/apis/calendar';
 
 export default {
+    emits: ['update', 'close'],
     components : {
         DatePicker
     },
     props : {
         eventObject : Object
     },
-    setup(props) {
+    setup(props, { emit }) {
     const showEditEvent = ref(false)
     const editedEventTitle = ref()
     const editedEventColor = ref()
@@ -228,30 +230,37 @@ export default {
             day: '2-digit'
         });
     }
-    
-        return {
-            showEditEvent,
-            editedEventTitle,
-            editedEventColor,
-            editedEventStart,
-            editedEventEnd,
-            toggleEditEvent,
-            selectNoneFrequency,
-            selectDailyFrequency,
-            selectWeeklyFrequency,
-            selectMonthlyFrequency,
-            selectYearlyFrequency,
-            editedEventFrequency,
-            showFrequencyMenu,
-            toggleFrequencyMenu,
-            editedEventRepNumber,
-            editedEventRepDate,
-            isEditedRepNumberDisabled,
-            isEditedRepDateDisabled,
-            toggleRepInputs,
-            formatDate,
-            formateDateEditView
-        }
+
+    const deleteEventObject = async () => {
+        await deleteEvent(props.eventObject._id)
+        emit('update')
+        emit('close')
     }
+    
+    return {
+        showEditEvent,
+        editedEventTitle,
+        editedEventColor,
+        editedEventStart,
+        editedEventEnd,
+        toggleEditEvent,
+        selectNoneFrequency,
+        selectDailyFrequency,
+        selectWeeklyFrequency,
+        selectMonthlyFrequency,
+        selectYearlyFrequency,
+        editedEventFrequency,
+        showFrequencyMenu,
+        toggleFrequencyMenu,
+        editedEventRepNumber,
+        editedEventRepDate,
+        isEditedRepNumberDisabled,
+        isEditedRepDateDisabled,
+        toggleRepInputs,
+        formatDate,
+        formateDateEditView,
+        deleteEventObject
+    }
+}
 }
 </script>
