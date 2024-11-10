@@ -1,9 +1,10 @@
 <template>
     <div class="flex flex-col">
-        <!-- Modify and go back button -->
-        <button @click="toggleEditActivity" v-show="!showEditActivity" type="button" class="mt-4 w-6 h-6"><img src="../../images/edit.png" alt="edit"></button>
-        <!-- TODO: add go back button -->
-        <button @click="toggleEditActivity" v-show="showEditActivity" type="button" class="mt-4 w-6 h-6"><img src="../../images/returnButton.png" alt="edit"></button>
+        <!-- Modify and go back button (note: cannot edit activity if it's DONE)-->
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity" type="button" 
+            class="mt-4 w-6 h-6"><img src="../../images/edit.png" alt="edit"></button>
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity" type="button" 
+            class="mt-4 w-6 h-6"><img src="../../images/returnButton.png" alt="edit"></button>
 
         <!-- Activity info-->
         <div v-show="!showEditActivity" class="flex flex-col">
@@ -12,6 +13,12 @@
                 <p class="font-semibold text-base">Deadline</p>
                 <p> {{ new Intl.DateTimeFormat('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit',
                 minute: '2-digit', }).format(new Date(activityObject.deadline)) }}</p>
+            </div>
+
+            <!-- is done -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Done</p>
+                <p> {{ activityObject.isDone? 'yes' : 'no' }}</p>
             </div>
         </div>
 
@@ -34,7 +41,7 @@
             <button @click="applyEdits" v-show="showEditActivity" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
             text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
             <!-- done button -->
-            <button v-show="!showEditActivity" @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+            <button v-show="!activityObject.isDone && !showEditActivity" @click="setActivityDone" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
             text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
             <!-- delete button -->
             <button @click="deleteActivityObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
@@ -100,6 +107,14 @@ export default {
             emit('close')
         }
 
+        const setActivityDone = async () => {
+            const updatedActivity = structuredClone(props.activityObject)
+            updatedActivity.isDone = true
+            await editActivity(props.activityObject._id, updatedActivity)
+            emit('updateAllCalendars')
+            emit('close')
+        }
+
         return {
             showEditActivity,
             toggleEditActivity,
@@ -107,7 +122,8 @@ export default {
             editedActivityDeadline,
             formatDate,
             deleteActivityObject,
-            applyEdits
+            applyEdits,
+            setActivityDone
         }
     }
 }

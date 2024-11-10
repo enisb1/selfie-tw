@@ -3,10 +3,11 @@ import mongoose from 'mongoose';
 // schema
 const activitySchema = new mongoose.Schema({
     title: String,
-    deadline: Date
+    deadline: Date,
+    isDone: Boolean
 });
 
 // model created from schema
-const Event = mongoose.model('Activity', activitySchema);
+const Activity = mongoose.model('Activity', activitySchema);
 
-export default Event;
+export default Activity;

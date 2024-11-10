@@ -130,7 +130,9 @@
                 {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}
             </div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" :class="{'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" class="w-full 
+                <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" 
+                    :class="{'line-through': activity.isDone,'mt-4': indexActivity>0}" 
+                    :style="{backgroundColor: 'crimson'}" class="w-full 
                     font-bold truncate px-4 rounded-xl py-2 cursor-pointer">
                         {{ `DEADLINE: '${activity.title}'` }} 
                 </div>
