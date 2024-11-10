@@ -31,7 +31,7 @@
 
         <!-- buttons -->
         <div class="flex flex-row justify-evenly">
-            <button v-show="showEditActivity" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+            <button @click="applyEdits" v-show="showEditActivity" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
             text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
             <!-- done button -->
             <button v-show="!showEditActivity" @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
@@ -48,9 +48,10 @@ import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
 import { deleteActivity } from '@/apis/calendar';
+import { editActivity } from '@/apis/calendar';
 
 export default {
-    emits: ['update', 'close'],
+    emits: ['updateAllCalendars', 'close'],
     components : {
         DatePicker
     },
@@ -85,7 +86,17 @@ export default {
 
         const deleteActivityObject = async () => {
             await deleteActivity(props.activityObject._id)
-            emit('update')
+            emit('updateAllCalendars')
+            emit('close')
+        }
+
+        const applyEdits = async () => {
+            // create updatedActivity object
+            const updatedActivity = structuredClone(props.activityObject)
+            updatedActivity.title = editedActivityTitle.value
+            updatedActivity.deadline = editedActivityDeadline.value
+            await editActivity(props.activityObject._id, updatedActivity)
+            emit('updateAllCalendars')
             emit('close')
         }
 
@@ -95,7 +106,8 @@ export default {
             editedActivityTitle,
             editedActivityDeadline,
             formatDate,
-            deleteActivityObject
+            deleteActivityObject,
+            applyEdits
         }
     }
 }

@@ -75,6 +75,27 @@ router.delete("/activities/:id", async (req, res) => {
     }
 })
 
+// edit activity given id
+router.put("/activities/:id", async (req,res) => {
+    const activityId = req.params.id;
+    const updatedData = req.body;
+    
+    try {
+        const updatedActivity = await Activity.findByIdAndUpdate(activityId, updatedData, {
+          new: true, // return updated activity
+          runValidators: true, // ensure the data meets schema rules
+        });
+    
+        if (updatedActivity) {
+          res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
+        } else {
+          res.status(404).json({ message: 'Activity not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating activity', error: error.message });
+    }
+})
+
 // '/api/calendar/events?start=(..)&end=(..)'
 router.get("/events", async (req,res) => {
     // start: start date string in UTC TIME!

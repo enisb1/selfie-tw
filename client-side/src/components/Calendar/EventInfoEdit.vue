@@ -234,7 +234,7 @@ export default {
 
     const deleteEventObject = async () => {
         await deleteEvent(props.eventObject._id)
-        emit('update')
+        emit('updateAllCalendars')
         emit('close')
     }
 

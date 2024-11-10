@@ -167,7 +167,7 @@
         </div>
         <!-- Activity Modal-->
         <div v-else-if="scheduleObject.deadline && showScheduleInfo">
-            <ActivityInfoEdit :activityObject="scheduleObject" @update="updateCalendar" 
+            <ActivityInfoEdit :activityObject="scheduleObject" @updateAllCalendars="$emit('updateAllCalendars')" 
                 @close="toggleScheduleInfoOff"></ActivityInfoEdit>
         </div>
     </Modal>
