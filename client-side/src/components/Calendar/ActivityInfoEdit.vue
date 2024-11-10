@@ -37,7 +37,7 @@
             <button v-show="!showEditActivity" @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
             text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
             <!-- delete button -->
-            <button @click="deleteScheduleObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+            <button @click="deleteActivityObject" type="submit" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
             text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
         </div>
     </div>
@@ -47,15 +47,17 @@
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
+import { deleteActivity } from '@/apis/calendar';
 
 export default {
+    emits: ['update', 'close'],
     components : {
         DatePicker
     },
     props : {
         activityObject : Object
     },
-    setup(props) {
+    setup(props, {emit}) {
         // edit activity
         const showEditActivity = ref(false)
         const editedActivityTitle = ref()
@@ -81,12 +83,19 @@ export default {
             });
         }
 
+        const deleteActivityObject = async () => {
+            await deleteActivity(props.activityObject._id)
+            emit('update')
+            emit('close')
+        }
+
         return {
             showEditActivity,
             toggleEditActivity,
             editedActivityTitle,
             editedActivityDeadline,
-            formatDate
+            formatDate,
+            deleteActivityObject
         }
     }
 }

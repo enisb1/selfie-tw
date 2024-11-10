@@ -59,6 +59,22 @@ router.get("/activities", async (req,res) => {
     }
 })
 
+// delete activity given id
+router.delete("/activities/:id", async (req, res) => {
+    const activityId = req.params.id;
+    try {
+        const result = await Activity.findByIdAndDelete(activityId);
+
+        if (result) {
+            res.status(200).json({ message: 'Activity deleted successfully', activity: result });
+        } else {
+            res.status(404).json({ message: 'Activity not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting activity', error: error.message });
+    }
+})
+
 // '/api/calendar/events?start=(..)&end=(..)'
 router.get("/events", async (req,res) => {
     // start: start date string in UTC TIME!

@@ -58,3 +58,11 @@ export async function deleteEvent(eventId) {
         console.log(data);
     })
 }
+
+// delete event
+export async function deleteActivity(activityId) {
+    await axios.delete(`http://localhost:8000/api/calendar/activities/${activityId}`)
+    .then(({data}) => {
+        console.log(data);
+    })
+}

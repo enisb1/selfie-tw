@@ -139,12 +139,12 @@ export default {
         eventObject : Object
     },
     setup(props, { emit }) {
-    const showEditEvent = ref(false)
-    const editedEventTitle = ref()
-    const editedEventColor = ref()
-    const editedEventStart = ref()
-    const editedEventEnd = ref()
-    const toggleEditEvent = () => {
+        const showEditEvent = ref(false)
+        const editedEventTitle = ref()
+        const editedEventColor = ref()
+        const editedEventStart = ref()
+        const editedEventEnd = ref()
+        const toggleEditEvent = () => {
         // if it's about to be toggled on update data inside
         if (!showEditEvent.value) {
             editedEventFrequency.value = props.eventObject.frequency
