@@ -98,6 +98,17 @@ router.post("/logout", (req, res) => {
     res.status(200).json({message: 'Logout successful'});
 });
 
+//get all users
+router.get("/allUsers", async (req, res) => {
+    try {
+        const users = await User.find( {isAResource: false});
+        res.status(200).json({message: 'Users found', users: users});
+    } catch (error) {
+        console.error('Error getting users:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 
 
 

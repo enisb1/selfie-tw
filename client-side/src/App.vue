@@ -60,6 +60,7 @@ export default {
     }
 
     const store = useStore()
+
     if (store.state.username === "") {
       router.push("/login")
     }

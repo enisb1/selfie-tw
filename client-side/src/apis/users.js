@@ -42,3 +42,13 @@ export async function checkUsername(username) {
         throw error.response.data;
     }
 }
+
+// get all users
+export async function getAllUsers() {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/login/allUsers`);
+        return response.data.users;
+    } catch (error) {
+        throw error.response.data;
+    }
+}

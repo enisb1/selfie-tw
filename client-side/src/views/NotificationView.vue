@@ -33,8 +33,8 @@
         <h1 class="text-2xl font-semibold text-secondary border- mb-6">Invia un messaggio</h1>
         <select v-model="selectedRecipient" class="w-full p-2 border border-third rounded-lg mb-4">
         <option disabled value="">Seleziona il destinatario</option>
-        <option v-for="recipient in recipients" :key="recipient" :value="recipient">
-          {{ recipient }}
+        <option v-for="recipient in recipients" :key="recipient.username" :value="recipient.username">
+          {{ recipient.username }} [{{ recipient.firstName }} {{ recipient.lastName }}]
         </option>
       </select>
         <textarea class="w-full h-32 p-2 border border-third rounded-lg" placeholder="Scrivi il tuo messaggio..."></textarea>
@@ -49,42 +49,53 @@
 
   import Modal from '@/components/Modal.vue';
   import NotifyToggle from '@/components/Notifications/NotifyToggle.vue';
-  import { ref } from 'vue';
+  import {onMounted, ref} from 'vue';
+  import {getAllUsers} from "@/apis/users";
+  import user from "../../../server-side/models/User";
   
   export default {
     name: "NotificationPage",
+    computed: {
+      user() {
+        return user
+      }
+    },
     components: {
       NotifyToggle,
       Modal
     },
-    setup(){
+    setup() {
       const selectedNotification = ref(null);
       const showModal = ref(false);
       const notifications = ref([
-          {
-            icon: '🔔',
-            title: 'Nuovo Messaggio',
-            message: 'Hai ricevuto un nuovo messaggio!',
-            time: '2 minuti fa',
-            type: 'message'
-          },
-          {
-            icon: '📅',
-            title: 'Promemoria Evento',
-            message: 'Non dimenticare l’evento di oggi!',
-            time: '1 ora fa',
-            type: 'event'
-          },
-        ])
+        {
+          icon: '🔔',
+          title: 'Nuovo Messaggio',
+          message: 'Hai ricevuto un nuovo messaggio!',
+          time: '2 minuti fa',
+          type: 'message'
+        },
+        {
+          icon: '📅',
+          title: 'Promemoria Evento',
+          message: 'Non dimenticare l’evento di oggi!',
+          time: '1 ora fa',
+          type: 'event'
+        },
+      ])
+      const recipients = ref(); // Lista di destinatari
+      onMounted(async () => {
+        recipients.value = await getAllUsers();
+      })
 
-        const recipients = ref(['Mario Rossi', 'Luca Bianchi', 'Giulia Verdi']); // Lista di destinatari
-        const selectedRecipient = ref(''); // Destinatario selezionato per il messaggio
+      console.log(recipients.value);
+      const selectedRecipient = ref(''); // Destinatario selezionato per il messaggio
 
-      const removeNotification = (index) =>{
+      const removeNotification = (index) => {
         notifications.value.splice(index, 1)
-      }      
-      
-      const openModal = (index)=>{
+      }
+
+      const openModal = (index) => {
         showModal.value = true
         selectedNotification.value = notifications.value[index]
       }
@@ -104,7 +115,6 @@
       }
 
 
-
       const sendMessage = () => {
         if (selectedRecipient.value) {
           // Logica per inviare il messaggio
@@ -115,7 +125,7 @@
         }
       }
 
-      return{
+      return {
         removeNotification,
         openModal,
         closeModal,
