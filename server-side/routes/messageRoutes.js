@@ -13,7 +13,7 @@ router.post("/addMessage", async (req, res) => {
             text: req.body.text
         });
         await message.save();
-        res.status(201).json({ message: 'Data saved successfully' });
+        res.status(201).json({ message: 'Message sent' });
     } catch (error) {
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });

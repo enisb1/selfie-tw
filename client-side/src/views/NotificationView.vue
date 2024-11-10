@@ -1,6 +1,5 @@
 <template>
-    <!--<button class="fixed top-8 right-8 bg-fourth text-third border border-third p-2 rounded-lg" @click="openSendMessageModal">Nuovo Messaggio</button>
---><button class="bg-white fixed mt-20 right-4 border-2 border-third p-2 rounded-lg" @click="openSendMessageModal">Nuovo Messaggio</button>
+    <button class="bg-white fixed mt-20 right-4 border-2 border-third p-2 rounded-lg" @click="openSendMessageModal">Nuovo Messaggio</button>
  
     <div class="bg-primary min-h-screen p-8 flex flex-col items-center">
       <h1 class="text-3xl font-extrabold text-secondary mb-6">Notifiche</h1>
@@ -37,7 +36,7 @@
           {{ recipient.username }} [{{ recipient.firstName }} {{ recipient.lastName }}]
         </option>
       </select>
-        <textarea class="w-full h-32 p-2 border border-third rounded-lg" placeholder="Scrivi il tuo messaggio..."></textarea>
+        <textarea v-model="text" class="w-full h-32 p-2 border border-third rounded-lg" placeholder="Scrivi il tuo messaggio..."></textarea>
         <button class="bg-third text-primary p-2 m-2 rounded-lg" @click="sendMessage">Invia</button>
       </Modal>
 
@@ -52,6 +51,8 @@
   import {onMounted, ref} from 'vue';
   import {getAllUsers} from "@/apis/users";
   import user from "../../../server-side/models/User";
+  import {sendNotification} from "@/apis/notifications";
+  import {useStore} from "vuex";
   
   export default {
     name: "NotificationPage",
@@ -65,8 +66,10 @@
       Modal
     },
     setup() {
+      const store = useStore();
       const selectedNotification = ref(null);
       const showModal = ref(false);
+      const text = ref('');
       const notifications = ref([
         {
           icon: '🔔',
@@ -118,12 +121,14 @@
       const sendMessage = () => {
         if (selectedRecipient.value) {
           // Logica per inviare il messaggio
-          console.log(`Messaggio inviato a ${selectedRecipient.value}`);
+          sendNotification(store.state.username,selectedRecipient.value, text.value);
+          console.log(`Messaggio inviato da ${store.state.username} a ${selectedRecipient.value}`);
           closeSendMessageModal();
         } else {
           console.log("Seleziona un destinatario");
         }
       }
+
 
       return {
         removeNotification,
@@ -137,7 +142,8 @@
         closeSendMessageModal,
         recipients,
         selectedRecipient,
-        sendMessage
+        sendMessage,
+        text
       }
     }
   }

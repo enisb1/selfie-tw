@@ -2,8 +2,8 @@ import mongoose from 'mongoose';
 
 // schema
 const messageSchema = new mongoose.Schema({
-    sender: Number,
-    receiver: Number,
+    sender: String,
+    receiver: String,
     time: Date,
     read: Boolean,
     text: String
