@@ -2,6 +2,7 @@ import Router from "express";
 import Note from '../models/Note.js';
 
 
+
 const router = Router()
 
 router.post('/addNote', async (req, res) => {
@@ -16,7 +17,7 @@ router.post('/addNote', async (req, res) => {
     }
 });
 
-router.get("/getNote", async (req, res) => {
+router.get('/getNote', async (req, res) => {
     try {
         const notes = await Note.find();
         res.status(200).json(notes);

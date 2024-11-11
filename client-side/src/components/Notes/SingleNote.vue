@@ -1,5 +1,5 @@
 <template>
-   <div @click.self="noteViewDetails(note._id)" class="h-32 rounded-r-xl rounded-bl-xl border-4 bg-white border-third shadow-2xl overflow-hidden">
+   <div class="h-32 rounded-r-xl rounded-bl-xl border-4 bg-white border-third shadow-2xl overflow-hidden">
             <h5 :class="{'bg-fourth':note.format == 'normalNote'|| 'markdownNote', 'text-secondary':note.format == 'normalNote' || 'markdownNote', 'bg-secondary':note.format == 'Task', 'text-white':note.format == 'Task'}"  
                  class="p-1 h-1/4 m-1 font-medium flex items-center justify-between"> 
                  {{note.title}} 
@@ -16,7 +16,6 @@
 
 
 
-
 export default {
     props: ['note'],
     setup(props, {emit}){
@@ -26,16 +25,13 @@ export default {
         const duplicateNote = (id) => {
             emit('duplicate-note', id)
         }
-        const noteViewDetails = (id) => {
-            emit('details-note', id)
-        }
+        
 
         
 
         return{
             deleteNote,
-            duplicateNote,
-            noteViewDetails
+            duplicateNote
         }
         
         

@@ -213,29 +213,29 @@
                     <button @click="toggleFilterModal"><img class="w-4 h-4 mr-2 hover:border-2 border-third"
                             src="../images/x.png" alt="Croce"></button>
                 </header>
-                <form action="#">
+                <form>
                     <div class="grid grid-rows-2 grid-cols-2 p-2 cursor-pointer">
-                        <button id="buttonDate" :class="{ 'bg-third text-white': inDate, 'bg-fourth': !inDate }"
-                            @mouseenter="inButtonDate" @mouseleave="inButtonDate"
+                        <button type="button" :class="{ 'bg-third text-white': inDate, 'bg-fourth': !inDate }"
+                            @mouseenter="inButtonDate" @mouseleave="inButtonDate" @click="changeFilterDate"
                             class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
-                            <img id="buttonImage" class="w-5" :src="inDate ? hoverImgDate : defaultImgDate"
+                            <img class="w-5" :src="inDate ? hoverImgDate : defaultImgDate"
                                 alt="filtroData">
                             Date
                         </button>
-                        <button :class="{ 'bg-third text-white': inTitle, 'bg-fourth': !inTitle }"
-                            @mouseenter="inButtonTitle" @mouseleave="inButtonTitle"
+                        <button type="button" :class="{ 'bg-third text-white': inTitle, 'bg-fourth': !inTitle }"
+                            @mouseenter="inButtonTitle" @mouseleave="inButtonTitle" @click="changeFilterTitle"
                             class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img class="w-5" :src="inTitle ? hoverImgTitle : defaultImgTitle" alt="filtroTitolo">
                             Title
                         </button>
-                        <button :class="{ 'bg-third text-white': inLength, 'bg-fourth': !inLength }"
-                            @mouseenter="inButtonLength" @mouseleave="inButtonLength"
+                        <button type="button" :class="{ 'bg-third text-white': inLength, 'bg-fourth': !inLength }"
+                            @mouseenter="inButtonLength" @mouseleave="inButtonLength" @click="changeFilterLength"
                             class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img class="w-5" :src="inLength ? hoverImgLength : defaultImgLength" alt="filtroLunghezza">
                             Length
                         </button>
-                        <button :class="{ 'bg-third text-white': inCategory, 'bg-fourth': !inCategory }"
-                            @mouseenter="inButtonCategory" @mouseleave="inButtonCategory"
+                        <button type="button" :class="{ 'bg-third text-white': inCategory, 'bg-fourth': !inCategory }"
+                            @mouseenter="inButtonCategory" @mouseleave="inButtonCategory" @click="changeFilterCategory"
                             class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
                             <img class="w-5" :src="inCategory ? hoverImgCategory : defaultImgCategory"
                                 alt="filtroCategoria">
@@ -248,16 +248,30 @@
     </div>
 
     <!--NoteList-->
-    <div>
-        <NoteList :notes="notes" ref="notesref" @delete-note="deleteNote" @duplicate-note="duplicateNote" @details-note="viewNoteDetails"/>
+    <div class="grid grid-cols-1 gap-8 mx-10 pb-20 py-2 lg:grid-cols-3 lg:py-24">
+        <div v-for="note in toggleFilter" :key="note.id">
+            <SingleNote :note="note" @delete-note="deleteNote" @duplicate-note="duplicateNote" />
+        </div>
+    </div>   
+
+    <div v-if="categoryFilter" class="fixed top-0 left-0 bg-black/40 h-full w-full">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 m-4  border-4 border-third bg-white">
+            <div class="grid grid-cols-3 gap-2 p-2">
+                <div class="flex justify-center" v-for="(category,index) in categories" :key="index">
+                    <button class="p-2 px-4 bg-secondary rounded-2xl text-white font-semibold w-full">{{ category.title }}</button>
+                </div>
+            </div>
+            
+        </div>
     </div>
+    
 
     <!--NoteEditor-->
     <div v-if="editorVisible" class="fixed left-0 top-0 h-full w-full">
         <div class="fixed top-0 h-full w-full bg-white">
             <div v-if="noteFormat == 'normalNote'" class="p-4 z-10">
                 <button @click="toggleEditor" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-                <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">30 October 2024 16:27</span>
+                <!--<span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> {{ createDate(note.createdAt) }} </span>-->
                 <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
                 <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text here..." 
                           class="w-full"></textarea>
@@ -288,10 +302,13 @@
                 <button @click="addTask" class="p-4 w-full my-4 bg-secondary text-white rounded-xl font-bold">Add task</button>
                 <h1 class="font-bold text-2xl mt-6 mb-4 text-secondary"> {{ noteTitle }} </h1>
                 
-                <TaskList :tasks="tasks" ref="tasksref"/> 
+                <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
+                    <div v-for="task in tasks" :key="task.id">
+                        <SingleTask :task="task" />
+                    </div>
+                </div>
                 
             </div>
-
         </div>
     </div>
 
@@ -309,18 +326,20 @@ import defaultImgLength from "../images/filtrolunghezza.png"
 import hoverImgLength from "../images/lengthFilterWhite.png"
 import defaultImgCategory from "../images/filtrocategoria.png"
 import hoverImgCategory from "../images/categoryFilterWhite.png"
-import NoteList from '@/components/Notes/NoteList.vue';
-import TaskList from '@/components/Notes/TaskList.vue';
+import Modal from '@/components/Modal.vue';
+import SingleNote from '@/components/Notes/SingleNote.vue';
+import SingleTask from '@/components/Notes/SingleTask.vue';
 import { marked } from 'marked';
 import { postNote, getNotes, deleteNoteById, getNoteById, updateNoteById} from '@/apis/note'
+import { postCategory, getCategory, deleteCategoryById } from '@/apis/category'
 
 
 
 export default {
     
     components: {
-        NoteList,
-        TaskList
+        SingleNote,
+        SingleTask
     },
     setup() {
         
@@ -331,6 +350,11 @@ export default {
         const noteCategory = ref('')
         const noteSecurity = ref('')
         const noteFormat = ref('')
+        const noteType = ref("Note")
+
+        const categories = ref([])
+        const categoryFilter = ref(false)
+        
         
         //Add Note to NoteView
         const addNote = async () => {
@@ -341,24 +365,36 @@ export default {
                 bodyTask: taskBody.value,
                 category: noteCategory.value,
                 format: noteFormat.value,
-                access: noteSecurity.value
+                access: noteSecurity.value,
+                type: noteType.value
             })
 
-            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, noteSecurity.value);
+            categories.value.push({
+                title: noteCategory.value
+            })
+
+            await postCategory(noteCategory.value);
+
+            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, noteSecurity.value, noteType.value);
             noteTitle.value = "";  
             noteBody.value = "";
             taskBody.value = [];
             noteCategory.value = "";
             noteFormat.value = "";
             noteSecurity.value = "";
+            noteType.value = ""
+            
             
         };
+
 
         //Load note/task NoteView
         const loadNotes = async () => {
             try {
                 const fetchNotes = await getNotes();
                 notes.value = fetchNotes;
+                const fetchCategory = await getCategory();
+                categories.value = fetchCategory;
             } catch (error) {
                 console.error("Errore durante il caricamento delle note: ", error);
             }
@@ -397,11 +433,15 @@ export default {
         }
 
          //Delete Note to NoteView
-        const deleteNote = async (id) => {
+        const deleteNote = async (id,idc) => {
             try{
                 const result = await deleteNoteById(id)
                 console.log(result)
                 notes.value = notes.value.filter(note => note._id !== id)
+                /*const resultCat = await deleteCategoryById(id)
+                console.log(resultCat)
+                categories.value = categories.value.filter(category => category._id !== id)*/
+
             }catch (error){
                 console.error("Errore durante il cancellamento delle note: ", error);
             }
@@ -416,17 +456,18 @@ export default {
                     bodyTask: noteId.bodyTask,
                     category: noteId.category,
                     format: noteId.format,
-                    access: noteId.access
+                    access: noteId.access,
+                    type: noteId.type
                 })
 
-                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, noteId.access);
+                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, noteId.access, noteId.type);
     
             }catch (error){
                 console.error("Errore durante il duplicamento delle note: ", error);
             }
         }
 
-
+/*
         const viewNoteDetails = async (id) => {
 
             const result = await getNoteById(id)
@@ -454,18 +495,62 @@ export default {
         
             } catch (error) {
                 console.error('Errore durante il salvataggio delle modifiche:', error);
-        }}
+        }}*/
+        const filter = ref("")
+        const toggleFilter = computed(() => {
+            let filteredNotes = [...notes.value];
+            if(filter.value === "Note"){
+                return notes.value.filter(note => note.type === filter.value)
 
-        const filterNote = computed(() => {
-            if(noteFormat.value === "normalNote"){
-                return notes.value.filter(note => note.format === noteFormat.value)
+            }else if(filter.value === "Task"){
+                return notes.value.filter(note => note.type === filter.value)
+            
+            }else if(filter.value === "Date"){
+                console.log("Data Funziona")
+                return filteredNotes.sort((a, b) => new Date(formatDate(a.createdAt)) - new Date(formatDate(b.createdAt)))
+
+            }else if(filter.value === "Title"){
+                console.log("Titolo Funziona")
+                return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
+            
+            }else if(filter.value === "Length"){
+                console.log("Lunghezza Funziona")
+                return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
+
+            }else if(filter.value === "Category"){
+                console.log("Categoria")
+
             }
+
             return notes.value
         })
-        
+
+        const formatDate = (date) => {
+            if (!date) return '';
+            return date.toLocaleString('it-IT', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // (12 hour format)
+            });
+        }
 
 
-
+        const changeFilterDate = () => {
+             filter.value = "Date"
+        }
+        const changeFilterTitle = () => {
+            filter.value = "Title"  
+        }
+        const changeFilterLength = () => {
+            filter.value = "Length"
+        }
+        const changeFilterCategory = () => {
+            filter.value = "Category"
+            categoryFilter.value = !categoryFilter.value
+        }
     
         // refs and methods to show only notes, only tasks, or both
         const inNotePage = ref(false)
@@ -483,6 +568,7 @@ export default {
             inNotePage.value = true
             inTaskPage.value = false
             inAllPage.value = false
+            filter.value = "Note"
         }
 
         const showAll = () => {
@@ -491,6 +577,8 @@ export default {
             inNotePage.value = false
             inTaskPage.value = false
             inAllPage.value = true
+            filter.value = ""
+            
         }
 
         const showTasks = () => {
@@ -500,6 +588,7 @@ export default {
             inTaskPage.value = true
             inAllPage.value = false
             noteFormat.value = "Task"
+            filter.value = "Task"
         }
 
         // filter modal
@@ -560,12 +649,15 @@ export default {
        
        const changeN = () => {
             inNoteAdd.value = true
-            inTaskAdd.value = false   
+            inTaskAdd.value = false  
+            noteType.value = "Note"
         }
         const changeT = () => {
             inNoteAdd.value = false
             inTaskAdd.value = true 
             noteFormat.value = "Task"
+            noteType.value = "Task"
+
         }
 
         
@@ -678,9 +770,15 @@ export default {
             titles,
             deleteNote,
             duplicateNote,
-            viewNoteDetails,
-            saveChanges,
-            filterNote
+            toggleFilter,
+            changeFilterDate,
+            changeFilterTitle,
+            changeFilterLength,
+            changeFilterCategory,
+            filter,
+            formatDate,
+            categories,
+            categoryFilter
             
             
             

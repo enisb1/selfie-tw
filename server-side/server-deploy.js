@@ -6,6 +6,7 @@ import cors from 'cors';
 import http from "node:http";
 import mongoose from 'mongoose';
 import noteRoutes from './routes/noteRoutes.js'
+import categoryRoutes from './routes/categoryRoutes.js'
 
 
 const app = express();
@@ -29,6 +30,7 @@ mongoose.connect(mongouri)
 // routing
 app.use("/api/calendar", calendarRoutes)
 app.use("/api/note", noteRoutes)
+app.use("/api/category", categoryRoutes)
 
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
