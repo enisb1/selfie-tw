@@ -13,7 +13,7 @@ export async function getNotifications() {
 // send new message
 export async function sendNotification(sender,receiver,text) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/messages/addMessage`, {
+        const response = await axios.post(`http://localhost:8000/api/notifications/addNotification`, {
             sender: sender,
             receiver: receiver,
             time: new Date(),

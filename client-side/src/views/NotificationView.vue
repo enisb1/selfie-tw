@@ -89,9 +89,10 @@
       const recipients = ref(); // Lista di destinatari
       onMounted(async () => {
         recipients.value = await getAllUsers();
+        recipients.value = recipients.value.filter(recipient => recipient.username !== store.state.username)
       })
 
-      console.log(recipients.value);
+
       const selectedRecipient = ref(''); // Destinatario selezionato per il messaggio
 
       const removeNotification = (index) => {
@@ -120,9 +121,8 @@
 
       const sendMessage = () => {
         if (selectedRecipient.value) {
-          // Logica per inviare il messaggio
+
           sendNotification(store.state.username,selectedRecipient.value, text.value);
-          console.log(`Messaggio inviato da ${store.state.username} a ${selectedRecipient.value}`);
           closeSendMessageModal();
         } else {
           console.log("Seleziona un destinatario");

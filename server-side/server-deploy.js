@@ -1,7 +1,7 @@
 import express from 'express';
 import calendarRoutes from './routes/calendarRoutes.js'
 import loginRoutes from './routes/loginRoutes.js'
-import messageRoutes from './routes/messageRoutes.js'
+import notificationRoutes from './routes/notificationRoutes.js'
 import passport from './auth/passportConfiguration.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -55,7 +55,7 @@ mongoose.connect(mongouri)
 // routing
 app.use("/api/calendar", calendarRoutes)
 app.use("/api/login", loginRoutes)
-app.use("/api/messages", messageRoutes)
+app.use("/api/notifications", notificationRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

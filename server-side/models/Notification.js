@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 // schema
-const messageSchema = new mongoose.Schema({
+const notificationSchema = new mongoose.Schema({
     sender: String,
     receiver: String,
     time: Date,
@@ -10,6 +10,6 @@ const messageSchema = new mongoose.Schema({
 });
 
 // model created from schema
-const Message = mongoose.model('Message', messageSchema);
+const Notification = mongoose.model('Notification', notificationSchema);
 
-export default Message;
+export default Notification;
