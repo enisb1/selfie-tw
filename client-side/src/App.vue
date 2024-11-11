@@ -58,10 +58,13 @@ export default {
     const toggleHamburgerMenu = () => {
       hamburgerMenuOpened.value = !hamburgerMenuOpened.value
     }
-
     const store = useStore()
+    let stateString = sessionStorage.getItem('state')
+    if (stateString) {
+      store.replaceState(JSON.parse(stateString))
+    }
 
-    if (store.state.username === "") {
+    if (!store.state.isLoggedIn) {
       router.push("/login")
     }
 

@@ -63,7 +63,7 @@
 
     </div>
   <modal v-if="showModal" @close="triggerModal">
-    <h3 class="text-red-700 text-center">{{messageErrors}}</h3>
+    <h3 class="text-red-700 text-center">{{messageError}}</h3>
   </modal>
 </template>
 
@@ -71,7 +71,7 @@
   import {ref} from "vue";
   import { useStore } from 'vuex'
   import { useRouter } from 'vue-router';
-  import {checkUsername, checkUserPassword, newUser,} from "@/apis/users";
+  import {checkUsername, newUser,} from "@/apis/users";
   import Modal from "@/components/Modal.vue";
 
   export default{
@@ -90,31 +90,27 @@
       let telegram = ref('');
 
       const register = async () => {
-        console.log("1")
         const data = await checkUsername(username.value);
-        console.log("2")
-        console.log(data.message)
-        console.log("3")
 
         if(data.message === "Username not available"){
           messageError.value = 'Username già in uso';
           triggerModal()
-          console.log("4")
         }else {
           try {
             let resp = await newUser(username.value, password.value, email.value, name.value, surname.value, telegram.value)
-            if (resp.status === 200) {
-              store.commit('setUser', resp.data.user);
+
+            if (resp.message === "Data saved successfully") {
+              store.commit('setUser', resp.user);
+              sessionStorage.setItem('state', JSON.stringify(store.state));
               await router.push({name: 'home'})
             }
           } catch (error) {
             messageError.value = 'Errore durante la registrazione';
-            console.log("5")
             triggerModal()
           }
         }
       }
-
+      console.log("11")
       let showModal = ref(false);
       const triggerModal = () => {
         showModal.value = !showModal.value;
@@ -128,7 +124,7 @@
         email,
         telegram,
         register,
-        messageErrors: messageError,
+        messageError,
         triggerModal,
         showModal
       }
