@@ -22,6 +22,8 @@ module.exports = {
         secondary: '#383f51', //charcoal
         third: '#3C4F76', //ylblue
         fourth: '#dddbf1', //lavender
+        fifth: '#D1BEB0', //dune
+        sixth: '#AB9F9D', //rose quartz
       },
     },
   },
