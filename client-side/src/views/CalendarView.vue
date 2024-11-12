@@ -30,46 +30,41 @@
       </div>
     </div>
 
-    <div class="text-left ml-8">
-      <button type="button" class="flex w-full justify-center gap-x-1.5 rounded-md 
-      bg-secondary px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
-        Calendar
-        <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd"
-            d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
-            clip-rule="evenodd" />
-        </svg>
-      </button>
-
-      <!--Dropdown menu, show/hide(with hidden, that is the property display:none) based on menu state-->
-      <div class="hidden absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-        <a href="#" class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white"
-          tabindex="-1">Calendar</a>
-        <a href="#" class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white"
-          tabindex="-1">List</a>
-      </div>
-    </div>
-
-    <button @click="toggleAddEventModal" class="ml-8 text-white rounded-md bg-secondary shadow-lg ring-1 ring-black ring-opacity-5">ADD</button>
+    <button @click="toggleView" :class="{'bg-white': view==='calendar', 'bg-secondary': view==='list'}" class="relative ml-6 w-11 rounded-full border border-third">
+      <img v-show="view === 'calendar'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_black.png" alt="calendar is shown">
+      <img v-show="view === 'list'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_white.png" alt="list is shown">
+    </button>
+    
+    <button @click="toggleAddEventModal" class="relative ml-6 bg-white w-11 rounded-full border border-third">
+            <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
+    </button>
   </div>
   
   <!-- Add event modal -->
   <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
-    <form @submit.prevent="addEvent"> <!-- TODO: try to update events in calendar when submitting -->
+    <header>
       <div class="flex items-center justify-between flex-row">
-        <p class="font-bold text-lg">Add event</p>
+        <div class="flex items-center justify-between flex-row">
+          <button :class="{ 'bg-secondary text-white': inAddEvent, 'text-third': inAddActivity }"
+            @click="selectAddEvent()" class="p-2 px-3 font-bold rounded-xl">Add Event</button>
+          <button :class="{ 'bg-secondary text-white': inAddActivity, 'text-third': inAddEvent }"
+            @click="selectAddActivity()" class="p-2 px-3 mr-10 font-bold rounded-xl">Add Activity</button>
+        </div>
         <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
           src="../images/x.png" alt="Croce"></button>
       </div>
       <hr style="border-color: black"/>
+    </header>
 
-      <div class="flex flex-col items-center">
-        <!-- title -->
-        <div class="mt-4">
-          <p class="font-semibold text-base">Title</p>
-          <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
-        </div>
-        
+    <!-- ADD EVENT FORM -->
+    <form @submit.prevent="addEvent" v-show="inAddEvent" class="flex flex-col">
+      <!-- title -->
+      <div class="mt-4">
+        <p class="font-semibold text-base">Title</p>
+        <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
+      </div>
+      
+      <div class="flex flex-col sm:flex-row">
         <!-- start date -->
         <div class="mt-4">
           <p class="font-semibold text-base">Starts</p>
@@ -78,42 +73,114 @@
         </div>
         
         <!-- end date -->
-        <div class="mt-4">
+        <div class="mt-4 sm:ml-4">
           <p class="font-semibold text-base">Ends</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
             :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
-
-        <button type="submit" class="mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
-          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
       </div>
+
+      <!-- frequency of event -->
+      <div class="mt-4">
+        <!-- title -->
+        <p class="font-semibold text-base">Event frequency</p>
+
+        <!-- button-->
+        <button @click="toggleFrequencyMenu" type="button" class="flex justify-center gap-x-1.5 rounded-md bg-secondary 
+        px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
+          <span v-show="eventToAddFrequency === 'none'">None</span>
+          <span v-show="eventToAddFrequency === 'daily'">Daily</span>
+          <span v-show="eventToAddFrequency === 'weekly'">Weekly</span>
+          <span v-show="eventToAddFrequency === 'monthly'">Monthly</span>
+          <span v-show="eventToAddFrequency === 'yearly'">Yearly</span>
+          <svg class="-mr-1 h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd"
+              d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+              clip-rule="evenodd" />
+          </svg>
+        </button>
+
+        <!-- dropdown menu -->
+        <div v-show="showFrequencyMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+          <div @click="selectNoneFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">None</div>
+          <div @click="selectDailyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
+          <div @click="selectWeeklyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Weekly</div>
+          <div @click="selectMonthlyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Monthly</div>
+          <div @click="selectYearlyFrequency()"
+            class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Yearly</div>
+        </div>
+      </div>
+
+      <!-- Event repetition -->
+      <div class="mt-4" v-show="eventToAddFrequency != 'none'">
+        <p class="font-semibold text-base">Select number of repetitions or date until repetition</p>
+        <input id="repetition_number" min="0" type="number" v-model="eventToAddRepetitionNumber" 
+          :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')" :required="isRepNumberRequired">
+        <!-- repetition date -->
+        <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" v-model="eventToAddRepetitionDate" 
+                    :format="formatDateNoTime" :enable-time-picker="false" :disabled="isRepetitionDateDisabled" 
+                    :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')">
+        </DatePicker>
+      </div>
+
+      <!-- color picker -->
+      <div class="mt-4">
+        <p class="font-semibold text-base">Event color</p>
+        <input type="color" value="#3C4F76" v-model="selectedColor">
+      </div>
+
+      <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+        text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
+    </form>
+
+    <!-- ADD ACTIVITY FORM -->
+    <form @submit.prevent="addActivity" v-show="inAddActivity">
+      <div class="flex flex-col">
+        <!-- title -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Title</p>
+          <input class="border border-third" type="text" maxlength="50" required v-model="activityToAddTitle">
+        </div>
+
+        <!-- deadline -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Deadline</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+        </div>
+      </div>
+
+      <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
     </form>
   </Modal>
 
   <div v-show="calendarToShow === 'daily'">
-    <DailyCalendar ref="dailyCalendarRef"/>
+    <DailyCalendar ref="dailyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
-
   <div v-show="calendarToShow === 'weekly'">
-    <WeeklyCalendar />
+    <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
-
   <div v-show="calendarToShow === 'monthly'">
-    <MonthlyCalendar />
+    <MonthlyCalendar ref="monthlyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
 </template>
 
 <script>
 import DailyCalendar from '@/components/Calendar/Daily/DailyCalendar.vue'
-import MonthlyCalendar from '@/components/Calendar/MonthlyCalendar.vue';
-import WeeklyCalendar from '@/components/Calendar/WeeklyCalendar.vue';
+import MonthlyCalendar from '@/components/Calendar/Monthly/MonthlyCalendar.vue';
+import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { postEvent } from '@/apis/calendar';
 import { getCurrentInstance } from 'vue';
-
-import { ref } from 'vue';
+import { postActivity } from '@/apis/calendar';
+import { ref, computed } from 'vue';
 
 export default {
   components: {
@@ -145,14 +212,33 @@ export default {
       toggleShowCalendarMenu()
     }
 
+    // view to show (calendar or list)
+    const view = ref('calendar')
+    const toggleView = () => {
+      if (view.value === 'calendar')
+        view.value = 'list'
+      else
+        view.value = 'calendar'
+    }
+
     // add event modal
-    const showAddEventModal = ref(false)
-    const toggleAddEventModal = () => {
+    const showAddModal = ref(false)
+    const toggleAddModal = () => {
       // reset form when closing it
       eventToAddTitle.value = ''
       eventToAddStartDate.value = null
       eventToAddEndDate.value = null
-      showAddEventModal.value = !showAddEventModal.value
+      eventToAddFrequency.value = 'none'
+      eventToAddRepetitionDate.value = null
+      eventToAddRepetitionNumber.value = null
+      isRepetitionDateDisabled.value = false
+      isRepetitionNumberDisabled.value = false
+      selectedColor.value = '#3c4f76'
+      showAddModal.value = !showAddModal.value
+      activityToAddTitle.value = ''
+      activityToAddDeadline.value = null
+      inAddActivity.value = false
+      inAddEvent.value = true
     }
     // add event modal data
     const eventToAddTitle = ref('')
@@ -174,12 +260,103 @@ export default {
     // current instance is needed to access refs
     const { proxy } = getCurrentInstance();
     const addEvent = async () => {
+      if (eventToAddRepetitionDate.value)
+        eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
       //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
-      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value)
-      //TODO: only updateEvents based on which calendar type is currently selected (mandatory) 
-      //TODO: updateEvents only if it has to be seen immediately (based on selected date in calendar) (optional) 
-      proxy.$refs.dailyCalendarRef.updateEvents();
-      toggleAddEventModal();
+      // set repetition date to end of day (otherwise it would be current time)
+      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
+      eventToAddFrequency.value, eventToAddRepetitionNumber.value,
+      eventToAddRepetitionDate.value, selectedColor.value) 
+      updateAllCalendars()
+      toggleAddModal();
+    }
+
+    const updateAllCalendars = () => {
+      proxy.$refs.dailyCalendarRef.updateCalendar()
+      proxy.$refs.weeklyCalendarRef.updateCalendar()
+      proxy.$refs.monthlyCalendarRef.updateCalendar()
+    }
+
+    // event to add color
+    const selectedColor = ref('#3c4f76')
+
+    // event frequency
+    const eventToAddFrequency = ref('none')
+    const showFrequencyMenu = ref(false)
+    const toggleFrequencyMenu = () => {
+      showFrequencyMenu.value = !showFrequencyMenu.value
+    }
+    const selectNoneFrequency = () => {
+      eventToAddFrequency.value = 'none'
+      toggleFrequencyMenu()
+    }
+    const selectDailyFrequency = () => {
+      eventToAddFrequency.value = 'daily'
+      toggleFrequencyMenu()
+    }
+    const selectWeeklyFrequency = () => {
+      eventToAddFrequency.value = 'weekly'
+      toggleFrequencyMenu()
+    }
+    const selectMonthlyFrequency = () => {
+      eventToAddFrequency.value = 'monthly'
+      toggleFrequencyMenu()
+    }
+    const selectYearlyFrequency = () => {
+      eventToAddFrequency.value = 'yearly'
+      toggleFrequencyMenu()
+    }
+    // disable number frequency when date is used and viceversa
+    const eventToAddRepetitionNumber = ref()
+    const eventToAddRepetitionDate = ref()
+    const isRepetitionDateDisabled = ref(false)
+    const isRepetitionNumberDisabled = ref(false)
+    const isRepNumberRequired = computed(() => {
+        if (eventToAddFrequency.value == 'none')
+            return false
+        else
+            return !(!!eventToAddRepetitionDate.value)
+    })
+    const isRepDateRequired = computed(() => {
+        if (eventToAddFrequency.value == 'none')
+            return false
+        else
+            return !(!!eventToAddRepetitionNumber.value)
+    })
+    const formatDateNoTime = (date) => {
+        // format date to dd/mm/yyyy
+        return date ? date.toLocaleDateString('it-IT') : '';
+    }
+
+    const toggleRepInputs = (activeField) => {
+        if (activeField === 'number') {
+            isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value // Disable date input if number input has a value
+            //isRepDateRequired.value = !(!!editedEventRepNumber.value)
+        } else if (activeField === 'date') {
+            isRepetitionNumberDisabled.value = !!eventToAddRepetitionDate.value // Disable number input if date input has a value
+            //isRepNumberRequired.value = !(!!editedEventRepDate.value)
+        }
+    }
+
+    // add activity
+    const inAddActivity = ref(false)
+    const inAddEvent = ref(true)
+    const selectAddEvent = () => {
+      inAddActivity.value = false
+      inAddEvent.value = true
+    }
+    const selectAddActivity = () => {
+      inAddActivity.value = true
+      inAddEvent.value = false
+    }
+    const activityToAddTitle = ref('')
+    const activityToAddDeadline = ref()
+
+    const addActivity = async () => {
+      // TODO: check if await is necessary if you don't need anything back
+      await postActivity(activityToAddTitle.value, activityToAddDeadline.value)
+      updateAllCalendars()
+      toggleAddModal()
     }
 
     return {
@@ -189,14 +366,41 @@ export default {
       showMonthlyCalendar,
       showCalendarMenu,
       toggleShowCalendarMenu,
-      showAddEventModal,
-      toggleAddEventModal,
+      showAddEventModal: showAddModal,
+      toggleAddEventModal: toggleAddModal,
       eventToAddStartDate,
       eventToAddEndDate,
       formatDate,
       startTime,
       addEvent,
-      eventToAddTitle
+      eventToAddTitle,
+      view,
+      toggleView,
+      selectedColor,
+      showFrequencyMenu,
+      toggleFrequencyMenu,
+      eventToAddFrequency,
+      selectNoneFrequency,
+      selectDailyFrequency,
+      selectWeeklyFrequency,
+      selectMonthlyFrequency,
+      selectYearlyFrequency,
+      eventToAddRepetitionNumber,
+      eventToAddRepetitionDate,
+      isRepetitionDateDisabled,
+      isRepetitionNumberDisabled,
+      toggleRepInputs,
+      inAddActivity,
+      inAddEvent,
+      selectAddActivity,
+      selectAddEvent,
+      activityToAddTitle,
+      activityToAddDeadline,
+      addActivity,
+      updateAllCalendars,
+      isRepNumberRequired,
+      isRepDateRequired,
+      formatDateNoTime
     }
   }
 }

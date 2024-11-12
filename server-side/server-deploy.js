@@ -10,6 +10,8 @@ import http from "node:http";
 import mongoose from 'mongoose';
 import session from 'express-session';
 import flash from 'express-flash';
+import noteRoutes from './routes/noteRoutes.js'
+import categoryRoutes from './routes/categoryRoutes.js'
 
 const app = express();
 const PORT = 8000;
@@ -56,6 +58,8 @@ mongoose.connect(mongouri)
 app.use("/api/calendar", calendarRoutes)
 app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
+app.use("/api/note", noteRoutes)
+app.use("/api/category", categoryRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
