@@ -8,9 +8,12 @@ module.exports = {
     "./src/components/*.vue",
     "./src/components/Calendar/*.vue",
     "./src/components/Calendar/Daily/*.vue",
+    "./src/components/Calendar/Weekly/*.vue",
+    "./src/components/Calendar/Weekly/*.js",
+    "./src/components/Calendar/Monthly/*.vue",
+    "./src/components/Calendar/Monthly/*.js",
     "./src/components/Notifications/*.vue",
     "./src/components/Notes/*.vue"
-
   ],
   theme: {
     extend: { 
