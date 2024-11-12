@@ -705,14 +705,6 @@ export default {
             return marked(noteBody.value);
         });
 
-        
-
-        
-
-
-
-    
-
         return {
             notesVisible,
             tasksVisible,
