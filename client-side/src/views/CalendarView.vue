@@ -133,6 +133,9 @@
         <input type="color" value="#3C4F76" v-model="selectedColor">
       </div>
 
+      <div v-show="showAddError" class="bg-red-400 text-white font-bold mt-2 
+        inline px-2 text-center mx-auto" > {{ addErrorValue }}</div>
+        
       <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
         text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
     </form>
@@ -259,16 +262,26 @@ export default {
     const startTime = ref({ hours: 12, minutes: 30 })
     // current instance is needed to access refs
     const { proxy } = getCurrentInstance();
+    const addErrorValue = ref()
+    const showAddError = ref()
     const addEvent = async () => {
-      if (eventToAddRepetitionDate.value)
-        eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
-      //TODO: check if endDate > startDate, if not -> error -> signal error and do not submit
-      // set repetition date to end of day (otherwise it would be current time)
-      await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
-      eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-      eventToAddRepetitionDate.value, selectedColor.value) 
-      updateAllCalendars()
-      toggleAddModal();
+      // don't proceed if end date not > start date
+      if (eventToAddEndDate.value.getTime() <= eventToAddStartDate.value.getTime()) {
+        addErrorValue.value = "End date must be after start date"
+        showAddError.value = true
+      }
+      else { // proceed
+        // set repetition date to end of day (otherwise it would be current time)
+        if (eventToAddRepetitionDate.value)
+          eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
+        
+        await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
+        eventToAddFrequency.value, eventToAddRepetitionNumber.value,
+        eventToAddRepetitionDate.value, selectedColor.value) 
+        updateAllCalendars()
+        toggleAddModal();
+        showAddError.value = false
+      }
     }
 
     const updateAllCalendars = () => {
@@ -400,7 +413,9 @@ export default {
       updateAllCalendars,
       isRepNumberRequired,
       isRepDateRequired,
-      formatDateNoTime
+      formatDateNoTime,
+      showAddError,
+      addErrorValue
     }
   }
 }

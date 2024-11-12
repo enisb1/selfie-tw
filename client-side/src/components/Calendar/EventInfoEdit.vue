@@ -33,7 +33,7 @@
         </div>
 
         <!-- Edit event form -->
-        <form @submit.prevent="applyEdits" v-show="showEditEvent">
+        <form @submit.prevent="applyEdits" v-show="showEditEvent" class="flex flex-col">
             <!-- title -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Title</p>
@@ -110,6 +110,9 @@
             <p class="font-semibold text-base">Event color</p>
             <input type="color" value="#3C4F76" v-model="editedEventColor">
             </div>
+
+            <div v-show="showAddError" class="bg-red-400 text-white font-bold mt-2 
+                inline px-2 text-center mx-auto" > {{ addErrorValue }}</div>
 
             <!-- buttons -->
             <div class="flex justify-evenly">
@@ -252,20 +255,29 @@ export default {
             emit('close')
         }
 
+        const addErrorValue = ref()
+        const showAddError = ref()
         const applyEdits = async () => {
-            // create updatedEvent object
-            const updatedEvent = structuredClone(props.eventObject)
-            if (updatedEvent.repetitionDate)
-                updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
-            updatedEvent.title = editedEventTitle.value
-            updatedEvent.startDate = editedEventStart.value
-            updatedEvent.endDate = editedEventEnd.value
-            updatedEvent.frequency = editedEventFrequency.value
-            updatedEvent.repetitionNumber = editedEventRepNumber.value
-            updatedEvent.color = editedEventColor.value
-            await editEvent(props.eventObject._id, updatedEvent)
-            emit('updateAllCalendars')
-            emit('close')
+            if (editedEventEnd.value.getTime() <= editedEventStart.value.getTime()) {
+                addErrorValue.value = "End date must be after start date"
+                showAddError.value = true
+            }
+            else {
+                // create updatedEvent object
+                const updatedEvent = structuredClone(props.eventObject)
+                if (updatedEvent.repetitionDate)
+                    updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
+                updatedEvent.title = editedEventTitle.value
+                updatedEvent.startDate = editedEventStart.value
+                updatedEvent.endDate = editedEventEnd.value
+                updatedEvent.frequency = editedEventFrequency.value
+                updatedEvent.repetitionNumber = editedEventRepNumber.value
+                updatedEvent.color = editedEventColor.value
+                await editEvent(props.eventObject._id, updatedEvent)
+                emit('updateAllCalendars')
+                emit('close')
+                showAddError.value = false
+            }
         }
         
         return {
@@ -293,7 +305,9 @@ export default {
             deleteEventObject,
             applyEdits,
             isRepNumberRequired,
-            isRepDateRequired
+            isRepDateRequired,
+            showAddError,
+            addErrorValue
         }
     }
 }
