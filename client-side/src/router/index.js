@@ -7,6 +7,7 @@ import SignupView from '@/views/SignupView.vue'
 import NotificationView from '@/views/NotificationView.vue'
 import ChatView from '@/views/ChatView.vue'
 
+
 const routes = [
   {
     path: '/',
@@ -43,6 +44,8 @@ const routes = [
     name: 'chat',
     component: ChatView
   }
+ 
+  
 ]
 
 const router = createRouter({
