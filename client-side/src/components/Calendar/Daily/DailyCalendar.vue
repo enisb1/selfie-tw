@@ -43,7 +43,7 @@
     </div>
 
     <!-- List view -->
-    <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+    <div v-show="view==='list'" class="flex flex-col items-center mx-auto text-white py-5">
         <div v-for="[startTime, activities] in Object.entries(activitiesSelectedDay)" class="flex flex-row 
         mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}">{{ startTime }}</div>
@@ -57,13 +57,20 @@
         </div>
 
         <div v-show="eventsBeforeMidnight.length>0" class="flex flex-row 
-            mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            mt-4 justify-between items-start w-full sm:w-1/2 px-2">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">00:00</div>
-            <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in eventsBeforeMidnight" @click="toggleScheduleInfoOn(event)" 
-                :class="{'mt-4': indexEvent>0}" class="opacity-75 hover:opacity-100 hover:font-bold w-full 
-                truncate bg-secondary px-4 rounded-xl py-2 cursor-pointer">
-                    {{ event.title }} 
+            <div class="flew flex-col bg-white bg-opacity-50 rounded-lg py-4 px-2 w-3/4">
+                <div class="flex justify-between items-center" :class="{'mt-4': indexEvent>0}" 
+                    v-for="(event, indexEvent) in eventsBeforeMidnight">
+                    <div @click="toggleScheduleInfoOn(event)" :style="{backgroundColor: event.color}" class="px-4 opacity-75 hover:opacity-100 hover:font-bold 
+                    truncate bg-secondary rounded-xl py-2 cursor-pointer max_width_half">
+                        {{ event.title }}
+                    </div>
+                    <div class="bg-secondary px-4 rounded-xl py-2 font-semibold truncate">
+                        {{ new Date(event.endDate).getTime()>new Date(new Date(selectedDate).setHours(23,59,59,999)).getTime()? 
+                        `${new Date(event.endDate).getDate()} ${months[new Date(event.endDate).getMonth()]}` :
+                        new Date(event.endDate).toLocaleTimeString('it-IT', {hour:"2-digit", minute:"2-digit"})}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -263,6 +270,8 @@ export default {
             showScheduleModal.value = false
         }
 
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
         // lifecycle hooks
         onMounted(() => {
             updateCalendar()
@@ -289,7 +298,8 @@ export default {
             showScheduleModal,
             scheduleObject,
             toggleScheduleInfoOn,
-            toggleScheduleInfoOff
+            toggleScheduleInfoOff,
+            months
         }
     }
 }
@@ -329,5 +339,9 @@ export default {
         width: 100%;
         height: 0.1rem;
         background: black;
+    }
+
+    .max_width_half {
+        max-width: 55%;
     }
 </style>
