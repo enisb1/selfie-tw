@@ -101,7 +101,7 @@
     <Modal v-if="showScheduleModal" @close="toggleScheduleInfoOff">
         <header>
             <div class="flex items-center justify-between flex-row font-bold">
-                <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity deadline: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+                <p class="text-truncate text-lg"> '{{ scheduleObject.title }}'</p>
                 <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="../../../images/x.png" alt="Croce"></button>
             </div>

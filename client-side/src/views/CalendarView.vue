@@ -146,7 +146,7 @@
         <!-- title -->
         <div class="mt-4">
           <p class="font-semibold text-base">Title</p>
-          <input class="border border-third" type="text" maxlength="50" required v-model="activityToAddTitle">
+          <input class="border border-third" type="text" maxlength="20" required v-model="activityToAddTitle">
         </div>
 
         <!-- deadline -->

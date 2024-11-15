@@ -27,7 +27,7 @@
             <div class="flex flex-col">
                 <div class="mt-4">
                     <p class="font-semibold text-base">Title</p>
-                    <input class="border border-third" type="text" maxlength="50" required v-model="editedActivityTitle">
+                    <input class="border border-third" type="text" maxlength="20" required v-model="editedActivityTitle">
                 </div>
 
                 <div class="mt-4">
