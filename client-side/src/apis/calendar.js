@@ -46,7 +46,6 @@ export async function postEvent(title, location, start, end, frequency, repetiti
 
 // post event to db
 export async function postActivity(title, deadline, userId) {
-    console.log(userId)
     await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
         "isDone": false, "users": [userId]}
     )
@@ -82,6 +81,24 @@ export async function deleteActivity(activityId) {
 // edit event
 export async function editEvent(eventId, updatedData) {
     await axios.put(`http://localhost:8000/api/calendar/events/${eventId}`, updatedData)
+    .then(({data}) => {
+        console.log(data);
+    })
+}
+
+// get all resources
+export async function getResources() {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resources`);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+// post resource
+export async function postResource(name) {
+    await axios.post('http://localhost:8000/api/calendar/addResource', {"name": name})
     .then(({data}) => {
         console.log(data);
     })

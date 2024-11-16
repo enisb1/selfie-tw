@@ -237,7 +237,6 @@ export default {
     // add event modal
     const showAddModal = ref(false)
     const toggleAddModal = () => {
-      // reset form when closing it
       eventToAddTitle.value = ''
       eventToAddLocation.value = ''
       eventToAddStartDate.value = null

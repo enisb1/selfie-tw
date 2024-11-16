@@ -1,6 +1,7 @@
 import Router from 'express';
 import Event from '../models/Event.js'
 import Activity from '../models/Activity.js'
+import Resource from '../models/Resource.js';
 
 const router = Router();
 
@@ -159,5 +160,25 @@ router.put("/events/:id", async (req,res) => {
         res.status(500).json({ message: 'Error updating event', error: error.message });
     }
 })
+
+router.get("/resources", async (req, res) => {
+    try {
+        const resources = await Resource.find();
+        res.json(resources);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching events' });
+    }
+})
+
+router.post("/addResource", async (req, res) => {
+    try {
+        const resource = new Resource(req.body);
+        await resource.save();
+        res.status(201).json({ message: 'Data saved successfully' });
+    }catch (error) {
+        console.error('Error saving data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 export default router;
