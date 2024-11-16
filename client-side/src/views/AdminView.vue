@@ -5,7 +5,7 @@
         </button>
         <div v-for="resource in resources" class="w-3/4 sm:w-1/4 font-semibold text-lg mt-4 bg-white bg-opacity-50 py-2 px-4 rounded-lg">
             <div class="flex justify-between">
-                <p class="max_width_half truncate"> {{ resource.name }} </p>
+                <p class="max_width_half truncate"> {{ resource.username }} </p>
                 <img src="../images/delete-black.png">
             </div>
         </div>
@@ -24,7 +24,7 @@
 
             <div class="mt-4">
                 <p class="font-semibold text-base">Name</p>
-                <input class="border border-third" type="text" maxlength="30" required v-model="resourceToAddName">
+                <input class="border border-third" type="text" maxlength="30" required v-model="resourceToAddUsername">
             </div>
 
             <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
@@ -52,14 +52,14 @@ export default {
         
         const showAddResourceModal = ref(false)
         const toggleAddResourceModal = () => {
-            resourceToAddName.value = ''
+            resourceToAddUsername.value = ''
             showAddResourceModal.value = !showAddResourceModal.value
         }
 
-        const resourceToAddName = ref()
+        const resourceToAddUsername = ref()
 
         const addResource = async () => {
-            await postResource(resourceToAddName.value)
+            await postResource(resourceToAddUsername.value)
             toggleAddResourceModal()
             updateResources()
         }
@@ -73,7 +73,7 @@ export default {
             showAddResourceModal,
             toggleAddResourceModal,
             addResource,
-            resourceToAddName
+            resourceToAddUsername
         }
     }
 }

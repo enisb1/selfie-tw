@@ -133,6 +133,16 @@
         </DatePicker>
       </div>
 
+      <!-- invite users -->
+      <div class="mt-4">
+        <p class="font-semibold text-base">Invite users</p>
+        <Multiselect v-model="selectedUsers" :options="usersOptions" 
+          optionLabel="username" placeholder="Select users" label="username" :multiple="true"
+          :close-on-select="false" :clear-on-select="false"
+          :preserve-search="true" track-by="username" :preselect-first="true">
+        </Multiselect>
+      </div>
+
       <!-- color picker -->
       <div class="mt-4">
         <p class="font-semibold text-base">Event color</p>
@@ -186,11 +196,13 @@ import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { postEvent } from '@/apis/calendar';
-import { getCurrentInstance } from 'vue';
+import { getResources, postEvent } from '@/apis/calendar';
+import { getCurrentInstance, onMounted } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
+import Multiselect from 'vue-multiselect';
+import { getAllUsers } from '@/apis/users';
 
 export default {
   components: {
@@ -198,11 +210,24 @@ export default {
     WeeklyCalendar,
     MonthlyCalendar,
     Modal,
-    DatePicker
+    DatePicker,
+    Multiselect
   },
   setup() {
     // useStore
     const store = useStore()
+    
+    // fetch all users and all resources and put in usersOptions
+    const usersOptions = ref([])
+    const updateUsersOptions = async () => {
+      usersOptions.value = []
+      const users = await getAllUsers()
+      const resources = await getResources()
+      console.log(users)
+      console.log(resources)
+      usersOptions.value = usersOptions.value.concat(users).concat(resources)
+    }
+    const selectedUsers = ref()
 
     // show calendar menu
     const showCalendarMenu = ref(false)
@@ -246,6 +271,7 @@ export default {
       eventToAddRepetitionNumber.value = null
       isRepetitionDateDisabled.value = false
       isRepetitionNumberDisabled.value = false
+      selectedUsers.value = []
       selectedColor.value = '#3c4f76'
       showAddModal.value = !showAddModal.value
       activityToAddTitle.value = ''
@@ -383,6 +409,10 @@ export default {
       toggleAddModal()
     }
 
+    onMounted(() => {
+      updateUsersOptions()
+    })
+
     return {
       calendarToShow,
       showDailyCalendar,
@@ -427,8 +457,14 @@ export default {
       isRepDateRequired,
       formatDateNoTime,
       showAddError,
-      addErrorValue
+      addErrorValue,
+      selectedUsers,
+      usersOptions,
+      selectedUsers
     }
   }
 }
 </script>
+
+<!-- Multiselect CSS -->
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>

@@ -97,8 +97,8 @@ export async function getResources() {
 }
 
 // post resource
-export async function postResource(name) {
-    await axios.post('http://localhost:8000/api/calendar/addResource', {"name": name})
+export async function postResource(username) {
+    await axios.post('http://localhost:8000/api/calendar/addResource', {"username": username})
     .then(({data}) => {
         console.log(data);
     })

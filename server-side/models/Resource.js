@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 // schema
 const resourceSchema = new mongoose.Schema({
-    name: String
+    username: String
 });
 
 // model created from schema
