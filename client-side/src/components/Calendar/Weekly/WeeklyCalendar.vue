@@ -411,7 +411,7 @@ export default {
         background: repeating-linear-gradient(
         to right,
         transparent 0%,
-        transparent 14.2%,
+        transparent 14.1%,
         gray 14.3%
     );
     }
