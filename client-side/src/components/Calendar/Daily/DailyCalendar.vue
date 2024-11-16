@@ -134,6 +134,7 @@ import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
 import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
+import { useStore } from 'vuex';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -147,6 +148,8 @@ export default {
         ActivityInfoEdit
     },
     setup() {
+        const store = useStore()
+
         const selectedDate = ref(new Date());   // default date = current date
         watch(selectedDate, () => {
             // update events to show and day header only if selected month is not null
@@ -164,7 +167,7 @@ export default {
         const updateCalendar = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected day and render
-            const eventsFromDB = await getEvents()
+            const eventsFromDB = await getEvents(store.state._id)
             const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
             const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
             const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
@@ -178,7 +181,7 @@ export default {
             })
 
             // fetch activities
-            activities.value = await getActivitiesInRange(startDate, endDate)
+            activities.value = await getActivitiesInRange(startDate, endDate, store.state._id)
 
             renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value);
         }

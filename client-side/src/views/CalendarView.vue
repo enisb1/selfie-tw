@@ -184,6 +184,7 @@ import { postEvent } from '@/apis/calendar';
 import { getCurrentInstance } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
+import { useStore } from 'vuex';
 
 export default {
   components: {
@@ -194,6 +195,9 @@ export default {
     DatePicker
   },
   setup() {
+    // useStore
+    const store = useStore()
+
     // show calendar menu
     const showCalendarMenu = ref(false)
     const toggleShowCalendarMenu = () => {
@@ -277,7 +281,7 @@ export default {
         
         await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-        eventToAddRepetitionDate.value, selectedColor.value) 
+        eventToAddRepetitionDate.value, selectedColor.value, store.state._id) 
         updateAllCalendars()
         toggleAddModal();
         showAddError.value = false
@@ -367,7 +371,7 @@ export default {
 
     const addActivity = async () => {
       // TODO: check if await is necessary if you don't need anything back
-      await postActivity(activityToAddTitle.value, activityToAddDeadline.value)
+      await postActivity(activityToAddTitle.value, activityToAddDeadline.value, store.state._id)
       updateAllCalendars()
       toggleAddModal()
     }

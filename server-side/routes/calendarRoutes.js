@@ -29,28 +29,31 @@ router.post("/addActivity", async (req, res) => {
 });
 
 // retrieve all events from db (//TODO: if not used delete this)
-router.get("/getEvents", async (req, res) => {
+router.get("/events/:userId", async (req, res) => {
+    const userId = req.params.userId;
     try {
-        const events = await Event.find(); // retrieve all events from the database
+        const events = await Event.find({ users: userId }); // retrieve all events from the database
         res.status(200).json(events);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving events', error });
     }
 });
 
-// '/api/calendar/activities?start=(..)&end=(..)'
+// '/api/calendar/activities?start=(..)&end=(..)&userId=(..)'
 router.get("/activities", async (req,res) => {
     // start: start date string in UTC TIME!
     // end: end date string in UTC TIME!
     // dates are stored in UTC time on mongodb, and sent back to client in local time
-    const { start, end } = req.query;
+    const { start, end, userId } = req.query;
+    console.log(userId)
     const sDate = new Date(start);
     const eDate = new Date(end);
     try {
         // get events that start in the range, or finish in range, or start before and finish after range
         // the render function for the calendar is going to truncate the dates accordingly
         const activities = await Activity.find({
-            deadline: {$gte: sDate, $lte: eDate}
+            deadline: {$gte: sDate, $lte: eDate},
+            users: userId
         });
         
         res.json(activities);

@@ -107,6 +107,7 @@ import { getAllEventsInstances } from '../repeated-events.js'
 import Modal from '@/components/Modal.vue'
 import EventInfoEdit from '../EventInfoEdit.vue'
 import ActivityInfoEdit from '../ActivityInfoEdit.vue'
+import { useStore } from 'vuex'
 
 export default {
     emits: ['updateAllCalendars'],
@@ -120,6 +121,8 @@ export default {
         ActivityInfoEdit
     },
     setup() {
+        const store = useStore()
+
         // object containing field month and field year
         const monthSelected = ref({"month": new Date().getMonth(), "year": new Date().getFullYear()});
         watch(monthSelected, () => {
@@ -160,7 +163,7 @@ export default {
         const updateCalendar = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
-            const eventsFromDB = await getEvents()
+            const eventsFromDB = await getEvents(store.state._id)
             const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
             const startDate = new Date(firstDayOfMonth.value)
             const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
@@ -172,7 +175,8 @@ export default {
                 || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
             })
             // fetch activities
-            const activities = await getActivitiesInRange(startDate, endDate)
+            const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
+            console.log(activities)
             // update calendar
             schedulesForDay.value = updateSchedules(events, activities, startDate, endDate)
         }

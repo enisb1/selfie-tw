@@ -190,6 +190,7 @@ import { updateActivitiesForDay } from './update-activities-weekly';
 import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
+import { useStore } from 'vuex';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -203,6 +204,8 @@ export default {
         ActivityInfoEdit
     },
     setup() {
+        const store = useStore()
+
         const getStartOfWeek = (date) => {
             const startOfWeek = new Date(date);
             const dayOfWeek = startOfWeek.getDay();
@@ -246,7 +249,7 @@ export default {
         const updateCalendar = async () => {
             // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
-            const eventsFromDB = await getEvents()
+            const eventsFromDB = await getEvents(store.state._id)
             const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
             const startDate = new Date(new Date(weekSelected.value[0]).setHours(0,0,0,0))
             const endDate = new Date(new Date(weekSelected.value[1]).setHours(23, 59, 59, 999))
@@ -259,7 +262,7 @@ export default {
             })
 
             // fetch activities
-            const activities = await getActivitiesInRange(startDate, endDate)
+            const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
 
             // render calendar view
             renderCalendar(events.value, activities)
