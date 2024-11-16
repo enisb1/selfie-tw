@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 // schema
 const eventSchema = new mongoose.Schema({
     title: String,
+    location: String,
     startDate: Date,
     endDate: Date,
     frequency: String,

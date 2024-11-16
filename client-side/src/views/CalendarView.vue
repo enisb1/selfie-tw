@@ -63,6 +63,12 @@
         <p class="font-semibold text-base">Title</p>
         <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddTitle">
       </div>
+
+      <!-- location -->
+      <div class="mt-4">
+        <p class="font-semibold text-base">Location</p>
+        <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddLocation">
+      </div>
       
       <div class="flex flex-col sm:flex-row">
         <!-- start date -->
@@ -233,6 +239,7 @@ export default {
     const toggleAddModal = () => {
       // reset form when closing it
       eventToAddTitle.value = ''
+      eventToAddLocation.value = ''
       eventToAddStartDate.value = null
       eventToAddEndDate.value = null
       eventToAddFrequency.value = 'none'
@@ -249,6 +256,7 @@ export default {
     }
     // add event modal data
     const eventToAddTitle = ref('')
+    const eventToAddLocation = ref()
     const eventToAddStartDate = ref()
     const eventToAddEndDate = ref()
     // format date in add event modal
@@ -279,7 +287,7 @@ export default {
         if (eventToAddRepetitionDate.value)
           eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
         
-        await postEvent(eventToAddTitle.value, eventToAddStartDate.value, eventToAddEndDate.value, 
+        await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
         eventToAddRepetitionDate.value, selectedColor.value, store.state._id) 
         updateAllCalendars()
@@ -386,6 +394,7 @@ export default {
       showAddEventModal: showAddModal,
       toggleAddEventModal: toggleAddModal,
       eventToAddStartDate,
+      eventToAddLocation,
       eventToAddEndDate,
       formatDate,
       startTime,

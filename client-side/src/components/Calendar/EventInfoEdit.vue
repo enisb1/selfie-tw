@@ -8,6 +8,12 @@
 
         <!-- Event info -->
         <div v-show="!showEditEvent">
+            <!-- location -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Location</p>
+                <p> {{ eventObject.location }} </p>
+            </div>
+
             <!-- starts -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Starts</p>
@@ -38,6 +44,12 @@
             <div class="mt-4">
                 <p class="font-semibold text-base">Title</p>
                 <input class="border border-third" type="text" maxlength="30" required v-model="editedEventTitle">
+            </div>
+
+            <!-- location -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Location</p>
+                <input class="border border-third" type="text" maxlength="30" required v-model="editedEventLocation">
             </div>
             
             <div class="flex flex-col sm:flex-row">
@@ -149,6 +161,7 @@ export default {
     setup(props, { emit }) {
         const showEditEvent = ref(false)
         const editedEventTitle = ref()
+        const editedEventLocation = ref()
         const editedEventColor = ref()
         const editedEventStart = ref()
         const editedEventEnd = ref()
@@ -169,6 +182,7 @@ export default {
                         
                 }
                 editedEventTitle.value = props.eventObject.title
+                editedEventLocation.value = props.eventObject.location
                 editedEventStart.value = new Date(props.eventObject.startDate)
                 editedEventEnd.value = new Date(props.eventObject.endDate)
                 editedEventColor.value = props.eventObject.color
@@ -268,6 +282,7 @@ export default {
                 if (updatedEvent.repetitionDate)
                     updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
                 updatedEvent.title = editedEventTitle.value
+                updatedEvent.location = editedEventLocation.value
                 updatedEvent.startDate = editedEventStart.value
                 updatedEvent.endDate = editedEventEnd.value
                 updatedEvent.frequency = editedEventFrequency.value
@@ -297,6 +312,7 @@ export default {
             toggleFrequencyMenu,
             editedEventRepNumber,
             editedEventRepDate,
+            editedEventLocation,
             isEditedRepNumberDisabled,
             isEditedRepDateDisabled,
             toggleRepInputs,
