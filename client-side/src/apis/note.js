@@ -21,21 +21,17 @@ export async function getNotes() {
     }
 }
 
-export async function deleteNoteById(id) {
-    try{
-        const response = await axios.delete(`http://localhost:8000/api/note/${id}`, {
-            method: 'DELETE',
+export async function deleteNote(noteId) {
+    
+    await axios.delete(`http://localhost:8000/api/note/${noteId}`)
+    .then(({data}) => {
+        console.log(data);
     })
-        return response.data;
-    }catch (error){
-        console.error("Error deleting Note: ", error)
-
-    }
 }
 
 export async function getNoteById(id) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/singleNote/${id}`)
+        const response = await axios.get(`http://localhost:8000/api/note/${id}`)
         return response.data       
     } catch (error) {
         console.error("Error retrieving note: ", error)
@@ -43,12 +39,12 @@ export async function getNoteById(id) {
     }
 }
 
-export async function updateNoteById(id, updatedData) {
-    try {
-      const response = await axios.put(`http://localhost:8000/api/note/edit/${id}`, updatedData);
-      return response.data; 
-    } catch (error) {
-      console.error('Errore nell\'aggiornamento della nota:', error);
-      throw error;
-    }
-  }
+export async function editNote(noteId, updatedData) {
+
+    await axios.put(`http://localhost:8000/api/note/${noteId}`, updatedData)
+    .then(({data}) => {
+        console.log(data);
+    })
+}
+    
+  

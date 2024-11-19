@@ -27,18 +27,21 @@ router.get('/getNote', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
+    const noteId = req.params.id;
     try {
-        const noteId = req.params.id;
-        const note = await Note.findByIdAndDelete(noteId);
-        res.status(200).json({ message: 'Note deleted successfully' });
+        const result = await Note.findByIdAndDelete(noteId);
+        if(result){
+            res.status(200).json({ message: 'Note deleted successfully' });
+        } else{
+            res.status(404).json({ message: 'Note not found' });
+        }
     } catch (error) {
-        res.status(500).json({ message: 'Server error: ', error});
+        res.status(500).json({ message: 'Error deleting note', error: error.message});
     }
-    
 });
 
 
-router.get('/singleNote/:id', async(req,res) => {
+router.get('/:id', async(req,res) => {
     const noteId = req.params.id
     try {
         const noteFound = await Note.findById(noteId)
@@ -52,22 +55,24 @@ router.get('/singleNote/:id', async(req,res) => {
     }
 })
 
-router.put('/edit/:id', async(req,res) => {
+router.put('/:id', async(req,res) => {
     const noteId = req.params.id
-    const {title, bodyNote, bodyTask, category, format, access} = req.body
+    const updatedBody = req.body
     
     try {
-        const updateNote = await Note.findByIdAndUpdate(noteId, 
-            { title, bodyNote, bodyTask, category, format, access},
-        { new: true})
-        res.status(200).json(updateNote)
+        const updatedNote = await Note.findByIdAndUpdate(noteId, updatedBody,
+        { new: true, 
+          runValidators: true,
+        });
+        if(updatedNote){
+            res.status(200).json({ message: 'Note updated successfully', note: updatedNote });
+        } else {
+            res.status(404).json({ message: 'Note not found' });
+        }  
     } catch (error) {
-        console.error("Error updating note", error)
-        res.status(500).json({message: "Server error", error})
+        res.status(500).json({ message: 'Error updating note', error: error.message })
     }
 })
-
-
 
 
 export default router;

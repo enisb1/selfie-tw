@@ -13,7 +13,7 @@
       before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full 
       before:bg-secondary/40 before:opacity-0 before:transition-opacity checked:border-secondary/80 checked:bg-secondary
       checked:before:bg-secondary/40 hover:before:opacity-10"
-      v-model="task.done"
+      v-model="task.done"  
 
     />
     <span class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
@@ -36,7 +36,7 @@
   <label class="cursor-pointer text-slate-600 text-sm"
     for="ripple-on"
   >
-    <h3 class="font-semibold text-lg text-secondary"> {{task.title}} </h3>
+    <h3 class="font-semibold text-lg text-secondary"> {{ task.title }} </h3>
 
   </label>
 </div>
@@ -53,6 +53,9 @@
 
 export default {
     props: ['task'],
+
+    
+
     setup(){
 
 
