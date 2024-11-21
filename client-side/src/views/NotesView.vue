@@ -1,10 +1,10 @@
 <template>
     <!--Blur effect-->
-    <div class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl
+    <div v-if="!editorVisible" class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl z-10
                     lg:hidden"></div>
 
     <!--NavBar-->
-    <div class="grid grid-flow-col auto-cols-auto bg-secondary rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl max-w-lg
+    <div v-if="!editorVisible" class="grid grid-flow-col auto-cols-auto bg-secondary rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl max-w-lg z-20
                 lg:bottom-auto lg:top-20 lg:translate-x-0 lg:left-4 lg:absolute">
         <button id="button_note_page"
             :class="{ 'text-secondary bg-white rounded-3xl ': inNotePage, 'text-white': !inNotePage }" @click="showNotes"
@@ -59,7 +59,7 @@
     </div>
 
     <!--AddNoteTask modal-->
-    <div v-show="showAddModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full">
+    <div v-show="showAddModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full z-10">
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-third">
             <div class="border border-third fixed top-[52px] left-0 w-full"></div>
@@ -203,7 +203,7 @@
     </div>
 
     <!--Filter modal-->
-    <div v-show="showFilterModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full">
+    <div v-show="showFilterModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full z-10">
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-third">
             <div class="border border-third fixed top-[52px] left-0 w-full"></div>

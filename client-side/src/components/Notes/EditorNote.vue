@@ -3,7 +3,14 @@
     <div class="fixed top-0 h-full w-full bg-white">
         <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} </span>
+            <span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
+            </span> 
+            <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                Author: {{ note.user }} 
+                Access: {{ note.access }} 
+            </span>
+            
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
             <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text here..." 
                         class="w-full"></textarea>
@@ -11,7 +18,13 @@
         </div>
         <div v-else-if="note.format == 'markdownNote' || noteFormat == 'markdownNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">{{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }}</span>
+            <span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
+            </span> 
+            <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                Author: {{ note.user }} 
+                Access: {{ note.access }} 
+            </span>
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
             <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
                         class="w-full"></textarea>
@@ -20,7 +33,13 @@
 
         <div v-else class="p-4 z-10">
             <button @click="toggleEditorTask(note._id,taskBody)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">{{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }}</span>
+            <span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
+            </span> 
+            <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                Author: {{ note.user }} 
+                Access: {{ note.access }} 
+            </span>
             <div class="relative mt-3">
                 <input class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border
                                 border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none 

@@ -15,10 +15,10 @@
                     <li class="flex py-1" v-for="(task, index) in note.bodyTask" :key="index"> 
                          <label class="flex items-center cursor-pointer relative">
                                 <input defaultChecked type="checkbox" value="privateAccess" class="peer h-5 w-5 cursor-pointer transition-all 
-                                       appearance-none rounded bg-slate-100 shadow hover:shadow-md border 
+                                       appearance-none rounded bg-slate-100 shadow hover:shadow-md border
                                        border-slate-300 checked:bg-secondary checked:border-secondary" 
                                        id="check-custom-style" v-model="task.done" disabled/>
-                                <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 
+                                <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2
                                              transform -translate-x-1/2 -translate-y-1/2">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" 
                                      fill="currentColor" stroke="currentColor" stroke-width="1">
