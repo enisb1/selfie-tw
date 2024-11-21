@@ -10,7 +10,6 @@ router.post('/addNote', async (req, res) => {
         const note = new Note(req.body);
         await note.save();
         res.status(201).json({ message: 'Note saved successfully' });
-        console.log(req.body);
     }catch (error) {
         console.error('Error saving Note:', error);
         res.status(500).json({ message: 'Server error' });
@@ -74,5 +73,18 @@ router.put('/:id', async(req,res) => {
     }
 })
 
+router.get('/', async(req, res) => {
+    const {username} = req.query
+    console.log("arr")
+    try {
+        
+        const notes = await Note.find({user: username }) 
+        res.status(200).json(notes);
+        
+    } catch (error) {
+        console.error("Error retrieving notes: ", error)
+        res.status(500).json({message: 'Server error'})
+    }
+})
 
 export default router;

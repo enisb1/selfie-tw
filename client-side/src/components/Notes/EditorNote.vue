@@ -3,7 +3,7 @@
     <div class="fixed top-0 h-full w-full bg-white">
         <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <!--<span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> {{ createDate(note.createdAt) }} </span>-->
+            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} </span>
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
             <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text here..." 
                         class="w-full"></textarea>
@@ -11,16 +11,16 @@
         </div>
         <div v-else-if="note.format == 'markdownNote' || noteFormat == 'markdownNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">30 October 2024 16:27</span>
+            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">{{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }}</span>
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
             <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
                         class="w-full"></textarea>
-            <div v-html="marked(note.bodyNote)" class="fixed bottom-0 left-0 p-4 top-2/3 mt-4 overflow-y-scroll w-full overflow-auto whitespace-normal"></div>
+            <div v-html="convertedMarkdown" class="fixed bottom-0 left-0 p-4 top-2/3 mt-4 overflow-y-scroll w-full overflow-auto whitespace-normal"></div>
         </div>
 
         <div v-else class="p-4 z-10">
             <button @click="toggleEditorTask(note._id,taskBody)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">30 October 2024 16:27</span>
+            <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">{{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }}</span>
             <div class="relative mt-3">
                 <input class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border
                                 border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none 
@@ -50,6 +50,7 @@ import { ref, computed } from 'vue'
 import { marked } from 'marked'
 import SingleNote from '@/components/Notes/SingleNote.vue'
 import SingleTask from '@/components/Notes/SingleTask.vue';
+import { format } from 'date-fns'
 
 export default {
     props: ['note','noteFormat','noteTitle', 'noteBody', 'task','taskBody'],
@@ -63,6 +64,11 @@ export default {
         const {note, noteFormat, noteTitle, noteBody, tasks, taskBody, taskTitle} = props
 
         
+
+        
+        const convertedMarkdown = computed(() => {
+            return marked(noteBody)
+        })
 
 
         const toggleSave = (noteBody,id) => {
@@ -89,7 +95,9 @@ export default {
             toggleEditorTask,
             tasks,
             taskBody,
-            taskTitle
+            taskTitle,
+            convertedMarkdown,
+            format
         }
 
     },

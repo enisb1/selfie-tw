@@ -249,8 +249,10 @@
 
     <!--NoteList-->
     <div class="grid grid-cols-1 gap-8 mx-10 pb-20 py-2 lg:grid-cols-3 lg:py-24">
+        
         <div v-for="note in toggleFilter" :key="note.id">
-            <SingleNote :note="note" @delete-note="deleteNoteView" @duplicate-note="duplicateNote" @open-note="openNote"/>
+            <SingleNote :note="note" @delete-note="deleteNoteView" @duplicate-note="duplicateNote" @open-note="openNote"
+             :noteUser="noteUser"/>
         </div>
     </div>
 
@@ -281,7 +283,8 @@ import Modal from '@/components/Modal.vue';
 import SingleNote from '@/components/Notes/SingleNote.vue';
 import EditorNote from '@/components/Notes/EditorNote.vue';
 import SingleTask from '@/components/Notes/SingleTask.vue';
-import { postNote, getNotes, deleteNote, getNoteById, editNote} from '@/apis/note'
+import { postNote, getNotes, deleteNote, getNoteById, editNote, getNoteUser} from '@/apis/note'
+import { useStore } from 'vuex';
 
 
 
@@ -303,8 +306,9 @@ export default {
         const noteSecurity = ref('')
         const noteFormat = ref('')
         const noteType = ref("Note")
+        const noteUser = ref('')
+        const store = useStore()
 
-        
         //Add Note to NoteView
         const addNote = async () => {
 
@@ -315,19 +319,22 @@ export default {
                 category: noteCategory.value,
                 format: noteFormat.value,
                 access: noteSecurity.value,
-                type: noteType.value
+                type: noteType.value,
+                user: noteUser.value
             })
 
-            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, noteSecurity.value, noteType.value);
+            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, 
+                           noteSecurity.value, noteType.value, noteUser.value);
             noteTitle.value = "";  
             noteBody.value = "";
             taskBody.value = [];
             noteCategory.value = "";
             noteFormat.value = "";
             noteSecurity.value = "";
-            noteType.value = ""
+            noteType.value = "Note";
+           
 
-            loadNotes()
+            loadNotesUser()
         };
 
 
@@ -341,8 +348,21 @@ export default {
             }
         };
 
+        const loadNotesUser = async () => {
+            noteUser.value = store.state.username
+            try {
+                const fetchNotes = await getNoteUser(noteUser.value);
+                notes.value = fetchNotes;
+            } catch (error) {
+                console.error("Errore durante il caricamento delle noteUser: ", error);
+            }
+        };
+
+
+
         onMounted(() => {
-            loadNotes();  
+            noteUser.value = store.state.username
+            loadNotesUser();
         });
 
         
@@ -351,6 +371,7 @@ export default {
             console.log(taskBody.value)
             if(showAddModal.value === true){
             editorVisible.value = !editorVisible.value
+            showAddModal.value = false
             addNote()
             taskBody.value = []
             } else {
@@ -358,6 +379,7 @@ export default {
                 uploadTask(body, id)
                 taskBody.value = []
             }
+            resetValor()
         }
         
 
@@ -379,7 +401,7 @@ export default {
             try {
                 const noteId = await getNoteById(id)
                 await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, 
-                               noteId.access, noteId.type);
+                               noteId.access, noteId.type, noteId.user);
                 
                 notes.value.push({
                     title: noteId.title,
@@ -388,9 +410,10 @@ export default {
                     category: noteId.category,
                     format: noteId.format,
                     access: noteId.access,
-                    type: noteId.type
+                    type: noteId.type,
+                    user: noteId.user
                 })
-                loadNotes()
+                loadNotesUser()
                 
             } catch (error) {
                 console.error("Error duplicating note: ", error);
@@ -424,7 +447,7 @@ export default {
 
             await editNote(id, noteUp)
             
-            loadNotes()
+            loadNotesUser()
         }
 
         const uploadTask = async (body,id) => {
@@ -436,7 +459,7 @@ export default {
 
             await editNote(id, noteUp)
             
-            loadNotes()
+            loadNotesUser()
         }
 
 
@@ -657,11 +680,23 @@ export default {
             }
             showAddMenu.value = false
             showAddModal.value = false
+            resetValor()
 
         }
 
         const toggleEditor = () => {
             editorVisible.value = !editorVisible.value
+            noteBody.value = ""
+        }
+
+        const resetValor = () => {
+            noteTitle.value = "";  
+            noteBody.value = "";
+            taskBody.value = [];
+            noteCategory.value = "";
+            noteFormat.value = "";
+            noteSecurity.value = "";
+            noteType.value = "Note";
         }
 
 
@@ -727,7 +762,6 @@ export default {
             noteFormat,
             handleSubmit,
             addNote,
-            loadNotes,
             titles,
             deleteNoteView,
             duplicateNote,
@@ -748,7 +782,11 @@ export default {
             taskDone,
             taskTitle,
             uploadTask,
-            addTasknote
+            addTasknote,
+            noteUser,
+            loadNotesUser,
+            loadNotes,
+            resetValor
             
             
             

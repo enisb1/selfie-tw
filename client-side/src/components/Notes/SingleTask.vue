@@ -40,11 +40,6 @@
 
   </label>
 </div>
-
-    <!--<label class="relative flex cursor-pointer items-center rounded-full p-3">
-        <input type="checkbox" class="checkbox checkbox-secondary" v-model="task.done">
-        
-    </label>-->
 </template>
 
 <script>
