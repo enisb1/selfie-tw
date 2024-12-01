@@ -46,7 +46,6 @@ router.get("/activities", async (req,res) => {
     // end: end date string in UTC TIME!
     // dates are stored in UTC time on mongodb, and sent back to client in local time
     const { start, end, userId } = req.query;
-    console.log(userId)
     const sDate = new Date(start);
     const eDate = new Date(end);
     try {

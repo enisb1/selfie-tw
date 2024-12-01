@@ -134,9 +134,13 @@
       </div>
 
       <!-- invite users -->
+      <!--TODO: selectedUsers contains array of events and resources, when user
+      submits form, add this array to 'users' field in database, after that
+      for each resource, calculate its event by seeing if its id is contained
+      in the 'users' field of the event-->
       <div class="mt-4">
         <p class="font-semibold text-base">Invite users</p>
-        <Multiselect v-model="selectedUsers" :options="usersOptions" 
+        <Multiselect v-model="selectedUsers" :options="usersOptions"
           optionLabel="username" placeholder="Select users" label="username" :multiple="true"
           :close-on-select="false" :clear-on-select="false"
           :preserve-search="true" track-by="username" :preselect-first="true">
@@ -223,9 +227,8 @@ export default {
       usersOptions.value = []
       const users = await getAllUsers()
       const resources = await getResources()
-      console.log(users)
-      console.log(resources)
-      usersOptions.value = usersOptions.value.concat(users).concat(resources)
+      usersOptions.value = usersOptions.value.concat(users)
+      .concat(resources).filter(obj => obj._id != store.state._id)
     }
     const selectedUsers = ref()
 
@@ -278,6 +281,8 @@ export default {
       activityToAddDeadline.value = null
       inAddActivity.value = false
       inAddEvent.value = true
+
+      updateUsersOptions()
     }
     // add event modal data
     const eventToAddTitle = ref('')
@@ -311,10 +316,11 @@ export default {
         // set repetition date to end of day (otherwise it would be current time)
         if (eventToAddRepetitionDate.value)
           eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
-        
+        // get array of users
+        const users = [store.state._id].concat(selectedUsers.value.map(obj => obj._id))
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-        eventToAddRepetitionDate.value, selectedColor.value, store.state._id) 
+        eventToAddRepetitionDate.value, selectedColor.value, users) 
         updateAllCalendars()
         toggleAddModal();
         showAddError.value = false
@@ -468,3 +474,20 @@ export default {
 
 <!-- Multiselect CSS -->
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+
+<style lang="css">
+  .multiselect__tag {
+    color: white;
+    background-color: #383f51;
+  }
+  .multiselect__tag:hover {
+    background-color: black;
+  }
+
+  .multiselect__option--highlight {
+    background-color: #383f51;
+    color: rgb(255, 255, 255);
+    font-size: 0.9rem;
+    height: 1rem;
+  }
+</style>

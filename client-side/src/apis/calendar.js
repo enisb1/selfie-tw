@@ -34,10 +34,10 @@ export async function getEvents(userId) {
 }
 
 // post event to db
-export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, userId) {
+export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "location": location, "startDate": start,
         "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, 
-        "repetitionDate": repetitionDate, "color": color, "users": [userId]}
+        "repetitionDate": repetitionDate, "color": color, "users": users}
     )
     .then(({data}) => {
         console.log(data);
