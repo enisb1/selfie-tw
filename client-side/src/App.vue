@@ -18,12 +18,13 @@
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div  class="hidden lg:flex space-x-6">
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche </router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
           <a href="#" class="text-white hover:text-accent">Progetti</a>
           <a href="#" class="text-white hover:text-accent">Pomodoro</a>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
           <a href="#" class="text-white hover:text-accent">Impostazioni</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
         </div>
       </div>
 
@@ -37,6 +38,7 @@
           <li class="mb-2"><a href="#" class="text-white block">Pomodoro</a></li>
           <li class="mb-2"><a href="#" class="text-white block">Note</a></li>
           <li><a href="#" class="text-white block">Impostazioni</a></li>
+          <li class="mb-2"><router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link></li>
         </ul>
       </div>
     </nav>
@@ -46,19 +48,19 @@
 </template>
 
 <script>
-import {computed, onMounted, ref, triggerRef} from 'vue'
+import {ref} from 'vue'
 import {useStore} from "vuex";
-import router from "@/router";
+import {useRouter} from "vue-router";
 
 export default {
-  methods: {triggerRef},
-  setup: function () {
+  setup() {
     // hamburger menu
     const hamburgerMenuOpened = ref(false)
     const toggleHamburgerMenu = () => {
       hamburgerMenuOpened.value = !hamburgerMenuOpened.value
     }
     const store = useStore()
+    const router = useRouter();
     let stateString = sessionStorage.getItem('state')
     if (stateString) {
       store.replaceState(JSON.parse(stateString))
@@ -66,6 +68,8 @@ export default {
 
     if (!store.state.isLoggedIn) {
       router.push("/login")
+    }else{
+      store.commit('connect')
     }
 
     return {

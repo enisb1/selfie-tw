@@ -9,7 +9,7 @@
       
       <div class="flex-1 space-y-2">
         <h2 class="text-lg font-semibold text-secondary">{{ title }}</h2>
-        <p class="text-sm text-secondary">{{ message }}</p>
+        <p class="text-sm text-secondary">{{ text }}</p>
         <span class="text-xs text-fourth block">{{ time }}</span>
       </div>
 
@@ -25,25 +25,48 @@
   </template>
 
   <script>
-  export default {
-    setup(){
+  import {ref} from "vue";
 
+  export default {
+    setup(props){
+
+      const icon = ref('');
+
+      if (props.type === 'calendar') {
+        icon.value = '📅';
+      } else if (props.type === 'reminder') {
+        icon.value = '🔔';
+      } else if (props.type === 'message') {
+        icon.value = '📩';
+      }
+
+      return {
+        icon
+      }
     },
     name: "NotifyToggle",
     props: {
-      icon: {
-        type: String,
-        required: true
-      },
       title: {
         type: String,
         required: true
       },
-      message: {
+      type: {
+        type: String,
+        required: true
+      },
+      sender: {
+        type: String,
+        required: true
+      },
+      text: {
         type: String,
         required: true
       },
       time: {
+        type: String,
+        required: true
+      },
+      _id: {
         type: String,
         required: true
       }

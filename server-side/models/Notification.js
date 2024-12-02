@@ -6,7 +6,9 @@ const notificationSchema = new mongoose.Schema({
     receiver: String,
     time: Date,
     read: Boolean,
-    text: String
+    title: String,
+    text: String,
+    type: String
 });
 
 // model created from schema

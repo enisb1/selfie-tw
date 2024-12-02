@@ -6,18 +6,20 @@
 
       <div v-if="notifications.length" class="space-y-6 w-full max-w-xl">
         <NotifyToggle 
-          v-for="(notification, index) in notifications" 
-          :key="index" 
-          :icon="notification.icon" 
-          :title="notification.title" 
-          :message="notification.message" 
+          v-for="notification in notifications"
+          :_id="notification._id"
+          :sender="notification.sender"
+          :type="notification.type"
+          :title="notification.title"
+          :text="notification.text"
           :time="notification.time"
-          @remove="removeNotification(index)"
-          @open="openModal(index)"
+
+          @remove="removeNotification(notification._id)"
+          @open="openModal(notification._id)"
         />
       </div>
       <div v-else class="text-center text-secondary mt-8">
-        <p>Nessuna notifica al momento.</p>
+        <p>Nessuna nuova notifica al momento.</p>
       </div>
       
       <Modal v-if="showModal" @close="closeModal()">
@@ -48,10 +50,10 @@
 
   import Modal from '@/components/Modal.vue';
   import NotifyToggle from '@/components/Notifications/NotifyToggle.vue';
-  import {onMounted, ref} from 'vue';
+  import {onMounted, ref, watchEffect} from 'vue';
   import {getAllUsers} from "@/apis/users";
   import user from "../../../server-side/models/User";
-  import {sendNotification} from "@/apis/notifications";
+  import {getNewNotifications, readNotification, sendNotification} from "@/apis/notifications";
   import {useStore} from "vuex";
   
   export default {
@@ -69,39 +71,35 @@
       const store = useStore();
       const selectedNotification = ref(null);
       const showModal = ref(false);
+
       const text = ref('');
-      const notifications = ref([
-        {
-          icon: '🔔',
-          title: 'Nuovo Messaggio',
-          message: 'Hai ricevuto un nuovo messaggio!',
-          time: '2 minuti fa',
-          type: 'message'
-        },
-        {
-          icon: '📅',
-          title: 'Promemoria Evento',
-          message: 'Non dimenticare l’evento di oggi!',
-          time: '1 ora fa',
-          type: 'event'
-        },
-      ])
-      const recipients = ref(); // Lista di destinatari
+      const notifications = ref([])
+      const recipients = ref();
+
+
+
       onMounted(async () => {
         recipients.value = await getAllUsers();
         recipients.value = recipients.value.filter(recipient => recipient.username !== store.state.username)
+        const resp = await getNewNotifications(store.state.username);
+        if (resp.message === 'New notifications found'){
+          console.log("nuove notifiche trovate")
+          console.log(resp.data)
+          notifications.value = resp.data
+        }
       })
-
 
       const selectedRecipient = ref(''); // Destinatario selezionato per il messaggio
 
-      const removeNotification = (index) => {
-        notifications.value.splice(index, 1)
+      const removeNotification = (id) => {
+        notifications.value.find(notification => notification._id === id)
+        readNotification(id);
+        notifications.value = notifications.value.filter(notification => notification._id !== id)
       }
 
-      const openModal = (index) => {
+      const openModal = (id) => {
         showModal.value = true
-        selectedNotification.value = notifications.value[index]
+        selectedNotification.value = notifications.value.find(notification => notification._id === id)
       }
 
       const closeModal = () => {
@@ -110,6 +108,8 @@
 
       const closeSendMessageModal = () => {
         showSendMessageModal.value = false
+        selectedRecipient.value = ''
+        text.value = ''
       }
 
       const showSendMessageModal = ref(false)
@@ -129,6 +129,14 @@
         }
       }
 
+      watchEffect(() => {
+        if (store.state.pushNotification != null){
+          notifications.value.push(store.state.pushNotification)
+
+        }
+        store.state.pushNotification = null
+      })
+
 
       return {
         removeNotification,
@@ -145,6 +153,7 @@
         sendMessage,
         text
       }
+
     }
   }
   

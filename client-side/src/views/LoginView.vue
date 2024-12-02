@@ -48,6 +48,7 @@ export default{
      let messageError = ref('');
      const store = useStore()
      const router = useRouter();
+     store.commit('disconnect');
      store.commit('flushUser');
      sessionStorage.clear();
 
@@ -60,7 +61,8 @@ export default{
          const data = await checkUserPassword(username.value, password.value);
          store.commit('setUser', data.user);
          sessionStorage.setItem('state', JSON.stringify(store.state));
-         await router.push({name: 'home'})
+         store.commit('connect');
+         await router.push({name: 'home'});
        } catch (error) {
          messageError.value = error.message;
          triggerModal()
