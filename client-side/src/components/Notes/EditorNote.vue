@@ -3,9 +3,9 @@
     <div class="fixed top-0 h-full w-full bg-white">
         <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
-            </span> 
+            <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+                {{  }} 
+            </span> -->
             <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 Author: {{ note.user }} 
                 Access: {{ note.access }} 
@@ -18,9 +18,9 @@
         </div>
         <div v-else-if="note.format == 'markdownNote' || noteFormat == 'markdownNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+            <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
-            </span> 
+            </span> -->
             <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 Author: {{ note.user }} 
                 Access: {{ note.access }} 
@@ -33,9 +33,9 @@
 
         <div v-else class="p-4 z-10">
             <button @click="toggleEditorTask(note._id,taskBody)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+            <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
-            </span> 
+            </span> -->
             <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 Author: {{ note.user }} 
                 Access: {{ note.access }} 
@@ -65,7 +65,7 @@
 
 <script>
 
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { marked } from 'marked'
 import SingleNote from '@/components/Notes/SingleNote.vue'
 import SingleTask from '@/components/Notes/SingleTask.vue';
@@ -81,8 +81,6 @@ export default {
 
     setup(props, {emit}){
         const {note, noteFormat, noteTitle, noteBody, tasks, taskBody, taskTitle} = props
-
-        
 
         
         const convertedMarkdown = computed(() => {

@@ -10,17 +10,6 @@ export async function postNote(title, bodyNote, bodyTask, category, format, acce
     })
 }
 
-export async function getNotes() {
-    try {
-        const response = await axios.get('http://localhost:8000/api/note/getNote');
-        console.log(response.data)
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching notes: ', error);
-        throw error;
-    }
-}
-
 export async function deleteNote(noteId) {
     
     await axios.delete(`http://localhost:8000/api/note/${noteId}`)
@@ -47,10 +36,14 @@ export async function editNote(noteId, updatedData) {
     })
 }
 
-export async function getNoteUser(username){
+export async function getNoteUser(username, access){
+    console.log(username)
     try {
-        const response = await axios.get(`http://localhost:8000/api/note`, {
-            params: {username}
+        const response = await axios.get(`http://localhost:8000/api/note/${params}`, {
+            params: {
+                user:username, 
+                access:access
+            }
         })
         console.log(response.data)
         return response.data;

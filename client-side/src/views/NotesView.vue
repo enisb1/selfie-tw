@@ -308,10 +308,11 @@ export default {
         const noteType = ref("Note")
         const noteUser = ref('')
         const store = useStore()
+        const publicNotes = ref([])
 
         //Add Note to NoteView
         const addNote = async () => {
-
+            
             notes.value.push({
                 title: noteTitle.value,
                 bodyNote: noteBody.value,
@@ -325,6 +326,7 @@ export default {
 
             await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, 
                            noteSecurity.value, noteType.value, noteUser.value);
+            
             noteTitle.value = "";  
             noteBody.value = "";
             taskBody.value = [];
@@ -333,26 +335,23 @@ export default {
             noteSecurity.value = "";
             noteType.value = "Note";
            
-
             loadNotesUser()
+
         };
 
 
         //Load note/task NoteView
-        const loadNotes = async () => {
-            try {
-                const fetchNotes = await getNotes();
-                notes.value = fetchNotes;
-            } catch (error) {
-                console.error("Errore durante il caricamento delle note: ", error);
-            }
-        };
-
         const loadNotesUser = async () => {
             noteUser.value = store.state.username
             try {
-                const fetchNotes = await getNoteUser(noteUser.value);
+                const fetchNotes = await getNoteUser(noteUser.value, 'selectAccess');
                 notes.value = fetchNotes;
+
+                const fetchNotesPublicNotes = await getNoteUser('', 'Public');
+                publicNotes.value = fetchNotesPublicNotes;
+                
+                notes.value = [...fetchNotes, ...fetchNotesPublicNotes];
+                
             } catch (error) {
                 console.error("Errore durante il caricamento delle noteUser: ", error);
             }
@@ -678,15 +677,18 @@ export default {
                 uploadNote(body,id)
                 editorVisible.value = !editorVisible.value
             }
-            showAddMenu.value = false
-            showAddModal.value = false
             resetValor()
 
         }
 
+        const newNote = ref(true)
         const toggleEditor = () => {
             editorVisible.value = !editorVisible.value
+            newNote.value = showAddModal.value
+            console.log(newNote.value)
             noteBody.value = ""
+            showAddModal.value = false
+            showAddMenu.value = false
         }
 
         const resetValor = () => {
@@ -785,8 +787,8 @@ export default {
             addTasknote,
             noteUser,
             loadNotesUser,
-            loadNotes,
-            resetValor
+            resetValor,
+            newNote
             
             
             

@@ -16,14 +16,6 @@ router.post('/addNote', async (req, res) => {
     }
 });
 
-router.get('/getNote', async (req, res) => {
-    try {
-        const notes = await Note.find();
-        res.status(200).json(notes);
-    } catch (error) {
-        res.status(500).json({ message: 'Error retrieving notes', error });
-    }
-});
 
 router.delete('/:id', async (req, res) => {
     const noteId = req.params.id;
@@ -74,11 +66,18 @@ router.put('/:id', async(req,res) => {
 })
 
 router.get('/', async(req, res) => {
-    const {username} = req.query
-    console.log("arr")
+    const username = req.query.user
+    const access = req.query.access
+    console.log(req)
     try {
-        
-        const notes = await Note.find({user: username }) 
+        let query = {}
+        if(username){
+            query.user = username;
+        }
+        if(access){
+            query.access = access;
+        }
+        const notes = await Note.find(query) 
         res.status(200).json(notes);
         
     } catch (error) {
@@ -86,5 +85,6 @@ router.get('/', async(req, res) => {
         res.status(500).json({message: 'Server error'})
     }
 })
+
 
 export default router;
