@@ -136,17 +136,17 @@
             <!-- title -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Used resource</p>
-                <p>resource name placeholder</p>
+                <p>{{ resourceEvent.username }}</p>
             </div>
             <!-- start -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Start</p>
-                <p>placeholder start</p>
+                <p>{{ new Date(resourceEvent.startDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
             </div>
             <!-- end -->
             <div class="mt-4">
                 <p class="font-semibold text-base">End</p>
-                <p>placeholder end</p>
+                <p>{{ new Date(resourceEvent.endDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
             </div>
         </div>
     </Modal>
@@ -242,6 +242,14 @@ export default {
         }
         const toggleResourceEventInfoOff = () => {
             showResourceEventModal.value = false
+        }
+        const resourceDateFormat = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
         }
 
         const headerDay = ref('')
@@ -373,7 +381,8 @@ export default {
             toggleResourceEventInfoOnFromEvent,
             resourceEvent,
             showResourceEventModal,
-            toggleResourceEventInfoOff
+            toggleResourceEventInfoOff,
+            resourceDateFormat
         }
     }
 }
