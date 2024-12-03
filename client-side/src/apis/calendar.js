@@ -33,6 +33,15 @@ export async function getEvents(userId) {
     }
 }
 
+export async function getResourcesEvents() {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resourcesEvents`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching events: ", error);
+    }
+}
+
 // post event to db
 export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "location": location, "startDate": start,

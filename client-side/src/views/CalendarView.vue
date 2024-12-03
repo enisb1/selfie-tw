@@ -3,6 +3,14 @@
   <!-- sotto ai bottoni metti il component per il calendario, questo comprenderà sia il datepicker
     che il calendario sotto -->
 
+  <!--NavBar-->
+  <div class="grid grid-flow-col auto-cols-auto bg-secondary rounded-3xl w-10/12 shadow-xl max-w-lg sm:ml-8 mx-auto mt-5">
+      <button :class="{ 'text-secondary bg-white rounded-3xl ': inYoursCalendar, 'text-white': !inYoursCalendar }" 
+        @click="toggleInYoursCalendar" class="p-2 font-bold flex justify-center items-center">Yours</button>
+      <button :class="{ 'text-secondary bg-white rounded-3xl': inResourcesCalendar, 'text-white': !inResourcesCalendar }"
+          @click="toggleInResourcesCalendar" class="p-2 font-bold">Resources</button>
+  </div>
+
   <!-- Buttons div, TODO: use button component instead of this -->
   <div class="flex mt-5 justify-center sm:justify-normal sm:ml-8">
     <!-- Show calendar button and dropdown menu -->
@@ -30,12 +38,12 @@
       </div>
     </div>
 
-    <button @click="toggleView" :class="{'bg-white': view==='calendar', 'bg-secondary': view==='list'}" class="relative ml-6 w-11 rounded-full border border-third">
+    <button v-show="!inResourcesCalendar" @click="toggleView" :class="{'bg-white': view==='calendar', 'bg-secondary': view==='list'}" class="relative ml-6 w-11 rounded-full border border-third">
       <img v-show="view === 'calendar'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_black.png" alt="calendar is shown">
       <img v-show="view === 'list'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_white.png" alt="list is shown">
     </button>
     
-    <button @click="toggleAddEventModal" class="relative ml-6 bg-white w-11 rounded-full border border-third">
+    <button v-show="!inResourcesCalendar" @click="toggleAddEventModal" class="relative ml-6 bg-white w-11 rounded-full border border-third">
             <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
     </button>
   </div>
@@ -183,7 +191,8 @@
   </Modal>
 
   <div v-show="calendarToShow === 'daily'">
-    <DailyCalendar ref="dailyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
+    <DailyCalendar ref="dailyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"
+      :showResourcesCalendar="inResourcesCalendar"/>
   </div>
   <div v-show="calendarToShow === 'weekly'">
     <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
@@ -201,7 +210,7 @@ import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { getResources, postEvent } from '@/apis/calendar';
-import { getCurrentInstance, onMounted } from 'vue';
+import { getCurrentInstance, onMounted, nextTick } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
@@ -281,7 +290,6 @@ export default {
       activityToAddDeadline.value = null
       inAddActivity.value = false
       inAddEvent.value = true
-
       updateUsersOptions()
     }
     // add event modal data
@@ -328,9 +336,12 @@ export default {
     }
 
     const updateAllCalendars = () => {
-      proxy.$refs.dailyCalendarRef.updateCalendar()
-      proxy.$refs.weeklyCalendarRef.updateCalendar()
-      proxy.$refs.monthlyCalendarRef.updateCalendar()
+      // Wait for DOM and reactive updates to complete (prop for resources events needs to be set)
+      nextTick(() => {
+        proxy.$refs.dailyCalendarRef.updateCalendar()
+        proxy.$refs.weeklyCalendarRef.updateCalendar()
+        proxy.$refs.monthlyCalendarRef.updateCalendar()
+      });
     }
 
     // event to add color
@@ -415,6 +426,25 @@ export default {
       toggleAddModal()
     }
 
+    // resources
+    //TODO: capisci perché i boolean non corrispondono in updateAllCalendars
+    const inYoursCalendar = ref(true)
+    const inResourcesCalendar = ref(false)
+    const toggleInYoursCalendar = () => {
+      inResourcesCalendar.value = false
+      inYoursCalendar.value = true
+      console.log(inYoursCalendar.value)
+      console.log(inResourcesCalendar.value)
+      updateAllCalendars()
+    }
+    const toggleInResourcesCalendar = () => {
+      inYoursCalendar.value = false
+      inResourcesCalendar.value = true
+      console.log(inYoursCalendar.value)
+      console.log(inResourcesCalendar.value)
+      updateAllCalendars()
+    }
+
     onMounted(() => {
       updateUsersOptions()
     })
@@ -466,7 +496,11 @@ export default {
       addErrorValue,
       selectedUsers,
       usersOptions,
-      selectedUsers
+      selectedUsers,
+      inYoursCalendar,
+      inResourcesCalendar,
+      toggleInYoursCalendar,
+      toggleInResourcesCalendar
     }
   }
 }

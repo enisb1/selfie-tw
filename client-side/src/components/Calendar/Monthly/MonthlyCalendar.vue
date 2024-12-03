@@ -176,7 +176,6 @@ export default {
             })
             // fetch activities
             const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
-            console.log(activities)
             // update calendar
             schedulesForDay.value = updateSchedules(events, activities, startDate, endDate)
         }

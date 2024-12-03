@@ -124,6 +124,54 @@ router.get("/events", async (req,res) => {
     }
 })
 
+router.get("/resourcesEvents", async (req,res) => {
+    try {
+        const events = await Event.aggregate([
+            {
+              $addFields: {
+                users: {
+                  $map: {
+                    input: "$users",
+                    as: "user",
+                    in: { $toObjectId: "$$user" }, // Convert each user string to ObjectId
+                  },
+                },
+              },
+            },
+            {
+              $lookup: {
+                from: "resources", // The resources collection
+                localField: "users", // Converted users field
+                foreignField: "_id", // Match with the ObjectId in resources
+                as: "matchedResources",
+              },
+            },
+            {
+              $match: {
+                "matchedResources.0": { $exists: true }, // Ensure at least one match exists
+              },
+            },
+            {
+              $project: {
+                title: 1,
+                location: 1,
+                startDate: 1,
+                endDate: 1,
+                frequency: 1,
+                repetitionNumber: 1,
+                repetitionDate: 1,
+                color: 1,
+                users: 1,
+                matchedResources: 1, // return matched resources
+              },
+            },
+        ]);
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching events' });
+    }
+})
+
 // delete event given id
 router.delete("/events/:id", async (req, res) => {
     const eventId = req.params.id;

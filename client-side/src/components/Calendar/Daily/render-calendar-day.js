@@ -3,12 +3,12 @@ let addedSchedules = [];   // array of added events
 let nSchedules = 0;
 let zIndexCount = 0;
 
-function createDefaultEventDiv(event) {
+function createDefaultEventDiv(event, resource) {
     const eventDiv = document.createElement("div");
     eventDiv.classList.add("truncate","absolute", "text-white", "p-1", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
-    title.innerText = event.title;
+    title.innerText = resource? `${resource.username} used` : event.title;
     
     eventDiv.appendChild(title);
 
@@ -53,7 +53,7 @@ function setZIndex(schedule) {
     });
 }
 
-function addEvent(eventToAdd, startDate, endDate) {
+function addEvent(eventToAdd, startDate, endDate, resource) {
     // events from db have string and not Date objects in startDate and endDate
     const eventToAddHStart = startDate.getHours();
     const eventToAddMStart = startDate.getMinutes();
@@ -76,7 +76,7 @@ function addEvent(eventToAdd, startDate, endDate) {
     });
 
     // create div for new event
-    const eventToAddDiv = createDefaultEventDiv(eventToAdd);
+    const eventToAddDiv = createDefaultEventDiv(eventToAdd, resource);
 
     // grid positon
     // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
@@ -122,14 +122,27 @@ function addEvent(eventToAdd, startDate, endDate) {
     addedSchedules.push(eventToAdd);
     nSchedules++;
 
-    // add click listener to show event's info
-    eventToAddDiv.addEventListener('click', function () {
-        const event = new CustomEvent('showScheduleInfoDaily', {
-            detail: eventToAdd
+    if (!resource) {
+        // add click listener to show event's info
+        eventToAddDiv.addEventListener('click', function () {
+            const event = new CustomEvent('showScheduleInfoDaily', {
+                detail: eventToAdd
+            });
+            window.dispatchEvent(event); // Dispatch event to the global window
         });
-        window.dispatchEvent(event); // Dispatch event to the global window
-    });
-    eventToAddDiv.style.cursor = 'pointer'
+        eventToAddDiv.style.cursor = 'pointer'
+    }
+    else {
+        // add click listener to show resource event info
+        eventToAddDiv.addEventListener('click', function () {
+            const event = new CustomEvent('showResourceEventDaily', {
+                detail: eventToAdd
+            });
+            window.dispatchEvent(event); // Dispatch event to the global window
+        });
+        eventToAddDiv.style.cursor = 'pointer'
+    }
+    
 }
 
 function addActivity(activityToAdd) {
@@ -208,7 +221,7 @@ function addActivity(activityToAdd) {
     activityToAddDiv.style.cursor = 'pointer'
 }
 
-export function renderCalendar(events, activities, day) {
+export function renderCalendar(events, activities, day, isResource) {
     // reset all
     document.getElementById("daily_events_container").innerHTML="";
     addedSchedules = [];
@@ -230,10 +243,19 @@ export function renderCalendar(events, activities, day) {
             start = sDate;
         if (evtEndTime > eDate.getTime())
             end = eDate;
-        addEvent(event, start, end);
+        // add events
+        if (isResource) {
+            for (const resource of event.matchedResources)
+                addEvent(event, start, end, resource)
+        }
+        else
+            addEvent(event, start, end, null);
     }
 
-    // render activities
-    for (const activity of activities) 
-        addActivity(activity)
+    if (!isResource) {
+        // render activities
+        for (const activity of activities) 
+            addActivity(activity)
+    }
+    
 }

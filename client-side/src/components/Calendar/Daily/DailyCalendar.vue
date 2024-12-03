@@ -119,6 +119,37 @@
                 @close="toggleScheduleInfoOff"></ActivityInfoEdit>
         </div>
     </Modal>
+
+    <!-- Resource event info modal -->
+    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleModal is true (would give error with v-show) -->
+    <Modal v-if="showResourceEventModal" @close="toggleResourceEventInfoOff">
+        <header>
+            <div class="flex items-center justify-between flex-row font-bold">
+                <p class="text-truncate text-lg">Info on used resource</p>
+                <button type="button" @click="toggleResourceEventInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                src="../../../images/x.png" alt="Croce"></button>
+            </div>
+            <hr style="border-color: black"/>
+        </header>
+
+        <div class="flex flex-col">
+            <!-- title -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Used resource</p>
+                <p>resource name placeholder</p>
+            </div>
+            <!-- start -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Start</p>
+                <p>placeholder start</p>
+            </div>
+            <!-- end -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">End</p>
+                <p>placeholder end</p>
+            </div>
+        </div>
+    </Modal>
 </template>
 
 <script>
@@ -130,7 +161,7 @@ import { watch } from 'vue';
 import { onMounted, onBeforeUnmount } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
-import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
+import { getEvents, getActivitiesInRange, getResourcesEvents } from '@/apis/calendar.js';
 import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
@@ -139,7 +170,8 @@ import { useStore } from 'vuex';
 export default {
     emits: ['updateAllCalendars'],
     props : {
-        view: String
+        view: String,
+        showResourcesCalendar: Boolean
     },
     components: {
         DatePicker,
@@ -147,7 +179,7 @@ export default {
         EventInfoEdit,
         ActivityInfoEdit
     },
-    setup() {
+    setup(props) {
         const store = useStore()
 
         const selectedDate = ref(new Date());   // default date = current date
@@ -165,25 +197,51 @@ export default {
         const eventsSelectedDay = ref([])
         const activities = ref()
         const updateCalendar = async () => {
-            // fetch events from db and calculate all the events instances, including the one
-            // that repeat themselves, filter for selected day and render
-            const eventsFromDB = await getEvents(store.state._id)
-            const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
-            const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
-            const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
-            // filter all events instances getting only those that concern the selected day
-            eventsSelectedDay.value = allEventsInstances.filter(e => {
-                const eventEndDate = new Date(e.endDate)
-                const eventStartDate = new Date(e.startDate)
-                return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
-                || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
-                || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
-            })
+            if (!props.showResourcesCalendar) {
+                // fetch events from db and calculate all the events instances, including the one
+                // that repeat themselves, filter for selected day and render
+                const eventsFromDB = await getEvents(store.state._id)
+                const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+                const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
+                const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
+                // filter all events instances getting only those that concern the selected day
+                eventsSelectedDay.value = allEventsInstances.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
 
-            // fetch activities
-            activities.value = await getActivitiesInRange(startDate, endDate, store.state._id)
+                // fetch activities
+                activities.value = await getActivitiesInRange(startDate, endDate, store.state._id)
 
-            renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value);
+                renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value, false);
+            }
+            else {
+                const resourcesEvents = await getResourcesEvents()
+                const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
+                const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
+                // filter all events instances getting only those that concern the selected day
+                eventsSelectedDay.value = resourcesEvents.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
+                renderCalendar(eventsSelectedDay.value, null, selectedDate.value, true)
+            }
+        }
+
+        const resourceEvent = ref()
+        const showResourceEventModal = ref(false)
+        const toggleResourceEventInfoOnFromEvent = (event) => {
+            resourceEvent.value = event.detail
+            showResourceEventModal.value = true
+        }
+        const toggleResourceEventInfoOff = () => {
+            showResourceEventModal.value = false
         }
 
         const headerDay = ref('')
@@ -290,6 +348,7 @@ export default {
 
             // listen to schedule boxes click event
             window.addEventListener('showScheduleInfoDaily', toggleScheduleInfoOnFromEvent);
+            window.addEventListener('showResourceEventDaily', toggleResourceEventInfoOnFromEvent);
         })
         
         onBeforeUnmount(() => {
@@ -310,7 +369,11 @@ export default {
             scheduleObject,
             toggleScheduleInfoOn,
             toggleScheduleInfoOff,
-            months
+            months,
+            toggleResourceEventInfoOnFromEvent,
+            resourceEvent,
+            showResourceEventModal,
+            toggleResourceEventInfoOff
         }
     }
 }
