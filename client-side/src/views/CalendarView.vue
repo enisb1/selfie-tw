@@ -195,7 +195,8 @@
       :showResourcesCalendar="inResourcesCalendar"/>
   </div>
   <div v-show="calendarToShow === 'weekly'">
-    <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
+    <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"
+      :showResourcesCalendar="inResourcesCalendar"/>
   </div>
   <div v-show="calendarToShow === 'monthly'">
     <MonthlyCalendar ref="monthlyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"

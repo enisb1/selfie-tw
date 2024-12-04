@@ -174,6 +174,36 @@
         </div>
     </Modal>
 
+    <!-- Resource event info modal -->
+    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleModal is true (would give error with v-show) -->
+    <Modal v-if="showResourceEventModal" @close="toggleResourceEventInfoOff">
+        <header>
+            <div class="flex items-center justify-between flex-row font-bold">
+                <p class="text-truncate text-lg">Info on used resource</p>
+                <button type="button" @click="toggleResourceEventInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                src="../../../images/x.png" alt="Croce"></button>
+            </div>
+            <hr style="border-color: black"/>
+        </header>
+
+        <div class="flex flex-col">
+            <!-- title -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Used resource</p>
+                <p>{{ resourceEvent.resourceUsername }}</p>
+            </div>
+            <!-- start -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Start</p>
+                <p>{{ new Date(resourceEvent.startDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
+            </div>
+            <!-- end -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">End</p>
+                <p>{{ new Date(resourceEvent.endDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
+            </div>
+        </div>
+    </Modal>
 </template>
 
 <script>
@@ -184,7 +214,7 @@ import { onMounted } from 'vue';
 import { watch } from 'vue';
 import { renderCalendar } from './render-calendar-week';
 import { updateEventsForDay } from './update-events-weekly';
-import { getActivitiesInRange, getEvents } from '@/apis/calendar.js';
+import { getActivitiesInRange, getEvents, getResourcesEvents } from '@/apis/calendar.js';
 import { getAllEventsInstances } from '../repeated-events';
 import { updateActivitiesForDay } from './update-activities-weekly';
 import Modal from '@/components/Modal.vue';
@@ -195,7 +225,8 @@ import { useStore } from 'vuex';
 export default {
     emits: ['updateAllCalendars'],
     props : {
-        view: String
+        view: String,
+        showResourcesCalendar: Boolean
     },
     components: {
         DatePicker,
@@ -203,7 +234,7 @@ export default {
         EventInfoEdit,
         ActivityInfoEdit
     },
-    setup() {
+    setup(props) {
         const store = useStore()
 
         const getStartOfWeek = (date) => {
@@ -247,7 +278,8 @@ export default {
         // for the paired day)
         const eventsForDay = ref([])
         const updateCalendar = async () => {
-            // fetch events from db and calculate all the events instances, including the one
+            if (!props.showResourcesCalendar) {
+                // fetch events from db and calculate all the events instances, including the one
             // that repeat themselves, filter for selected week and render
             const eventsFromDB = await getEvents(store.state._id)
             const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
@@ -265,11 +297,42 @@ export default {
             const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
 
             // render calendar view
-            renderCalendar(events.value, activities)
+            renderCalendar(events.value, activities, false)
             // update activitiesForDay object for list view
             activitiesForDay.value = updateActivitiesForDay(activities)
             // update eventsForDay object for list view
             eventsForDay.value = updateEventsForDay(events.value, startDate, endDate)
+            }
+            else {
+                const resourcesEvents = await getResourcesEvents()
+                const startDate = new Date(new Date(weekSelected.value[0]).setHours(0,0,0,0))
+                const endDate = new Date(new Date(weekSelected.value[1]).setHours(23, 59, 59, 999))
+                events.value = resourcesEvents.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
+                renderCalendar(events.value, null, true)
+            }
+        }
+        const resourceEvent = ref()
+        const showResourceEventModal = ref(false)
+        const toggleResourceEventInfoOnFromEvent = (event) => {
+            resourceEvent.value = event.detail
+            showResourceEventModal.value = true
+        }
+        const toggleResourceEventInfoOff = () => {
+            showResourceEventModal.value = false
+        }
+        const resourceDateFormat = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
         }
         
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
@@ -341,6 +404,7 @@ export default {
 
             // listen to schedule boxes click event
             window.addEventListener('showScheduleInfoWeekly', toggleScheduleInfoOnFromEvent);
+            window.addEventListener('showResourceEventWeekly', toggleResourceEventInfoOnFromEvent);
         })
 
         onBeforeUnmount(() => {
@@ -362,10 +426,14 @@ export default {
             toggleScheduleInfoOn,
             showScheduleInfo,
             showEditActivity,
-            toggleEditActivity
+            toggleEditActivity,
+            resourceEvent,
+            showResourceEventModal,
+            toggleResourceEventInfoOnFromEvent,
+            toggleResourceEventInfoOff,
+            resourceDateFormat
         }
     }
-
 }
 </script>
 

@@ -3,13 +3,13 @@ let addedSchedules = [[],[],[],[],[],[],[]];   // array of arrays of added event
 let nSchedules = 0;
 let zIndexCount = 0; 
 
-function createDefaultEventDiv(event) {
+function createDefaultEventDiv(event, resource) {
     const eventDiv = document.createElement("div");
     eventDiv.classList.add("event","absolute", "text-white", "p-1", "truncate", "rounded-md", "shadow-md", "opacity-75", "hover:font-bold");
     eventDiv.setAttribute('data-event-id', `event${event._id}`); // this and event class is used to add hover listener on event boxes
 
     const title = document.createElement("p");
-    title.innerText = `${event.title}`;
+    title.innerText = resource? `${resource.username} used` : event.title;
     
     eventDiv.appendChild(title);
 
@@ -54,7 +54,7 @@ function setZIndex(schedule, day) {
     });
 }
 
-function addEvent(eventToAdd, startDate, endDate) {
+function addEvent(eventToAdd, startDate, endDate, resource) {
     const eventToAddHStart = startDate.getHours();
     const eventToAddMStart = startDate.getMinutes();
     const eventToAddHEnd = endDate.getHours();
@@ -77,7 +77,7 @@ function addEvent(eventToAdd, startDate, endDate) {
     });
 
     // create div for new event
-    const eventToAddDiv = createDefaultEventDiv(eventToAdd);
+    const eventToAddDiv = createDefaultEventDiv(eventToAdd, resource);
 
     // grid positon
     // each timeslot has 12 grid rows (minute 0 = gridrow1, minute55 = gridrow12)
@@ -123,14 +123,30 @@ function addEvent(eventToAdd, startDate, endDate) {
     addedSchedules[day-1].push(eventToAdd);
     nSchedules++;
 
-    // add click listener to show event's info
-    eventToAddDiv.addEventListener('click', function () {
-        const event = new CustomEvent('showScheduleInfoWeekly', {
-            detail: eventToAdd
+    if (!resource) {
+        // add click listener to show event's info
+        eventToAddDiv.addEventListener('click', function () {
+            const event = new CustomEvent('showScheduleInfoWeekly', {
+                detail: eventToAdd
+            });
+            window.dispatchEvent(event); // Dispatch event to the global window
         });
-        window.dispatchEvent(event); // Dispatch event to the global window
-    });
-    eventToAddDiv.style.cursor = 'pointer'
+        eventToAddDiv.style.cursor = 'pointer'
+    }
+    else {
+        // add click listener to show resource event info
+        const resourceEvent = {startDate: eventToAdd.startDate, endDate: eventToAdd.endDate,
+            resourceUsername: resource.username
+        }
+        
+        eventToAddDiv.addEventListener('click', function () {
+            const event = new CustomEvent('showResourceEventWeekly', {
+                detail: resourceEvent
+            });
+            window.dispatchEvent(event); // Dispatch event to the global window
+        });
+        eventToAddDiv.style.cursor = 'pointer'
+    }
 }
 
 function addActivity(activityToAdd) {
@@ -219,7 +235,7 @@ function cloneEvent(event) {
     return clonedEvent;
 }
 
-export function renderCalendar(events, activities) {
+export function renderCalendar(events, activities, isResource) {
     // reset all
     document.getElementById("weekly_events_container").innerHTML="";
     addedSchedules = [[],[],[],[],[],[],[]];   // array of arrays of added schedules for each day of the week
@@ -246,27 +262,50 @@ export function renderCalendar(events, activities) {
                 if (i==0) {
                     const start = new Date(eventStart);
                     const end = new Date(start.setHours(23,59, 59, 999));
-                    addEvent(cloneEvent(event), eventStart, end)
+                    if (isResource) {
+                        for (const resource of event.matchedResources)
+                            addEvent(cloneEvent(event), eventStart, end, resource)
+                    }
+                    else
+                        addEvent(cloneEvent(event), eventStart, end, null)
                 }
                 else if (i<daysBetween) {
                     const start = new Date(iteratedDayStart);
                     const end = new Date(iteratedDayStart.setHours(23, 59, 59, 999));
-                    addEvent(cloneEvent(event), start, end);
+                    if (isResource) {
+                        for (const resource of event.matchedResources)
+                            addEvent(cloneEvent(event), start, end, resource)
+                    }
+                    else
+                        addEvent(cloneEvent(event), start, end, null)
                 }
                 else if (i==daysBetween) {
                     const end = new Date(eventEnd);
                     const start = new Date(end.setHours(0,0,0,0));
-                    addEvent(cloneEvent(event), start, eventEnd);
+                    if (isResource) {
+                        for (const resource of event.matchedResources)
+                            addEvent(cloneEvent(event), start, eventEnd, resource)
+                    }
+                    else
+                        addEvent(cloneEvent(event), start, eventEnd, null);
                 }
             }
         }
         else {
             // no need to clone since the event is not getting divided in smaller parts
-            addEvent(event, eventStart, eventEnd);
+            if (isResource) {
+                for (const resource of event.matchedResources)
+                    addEvent(event, eventStart, eventEnd, resource);
+            }
+            else
+                addEvent(event, eventStart, eventEnd, null);
         }
     }
 
-    // render activities
-    for (const activity of activities) 
-        addActivity(activity)
+    if (!isResource) {
+       // render activities
+        for (const activity of activities) 
+            addActivity(activity) 
+    }
+    
 }
