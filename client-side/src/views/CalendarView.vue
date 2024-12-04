@@ -198,7 +198,8 @@
     <WeeklyCalendar ref="weeklyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
   </div>
   <div v-show="calendarToShow === 'monthly'">
-    <MonthlyCalendar ref="monthlyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"/>
+    <MonthlyCalendar ref="monthlyCalendarRef" :view="view" @updateAllCalendars="updateAllCalendars"
+      :showResourcesCalendar="inResourcesCalendar"/>
   </div>
 </template>
 
@@ -440,8 +441,7 @@ export default {
     const toggleInResourcesCalendar = () => {
       inYoursCalendar.value = false
       inResourcesCalendar.value = true
-      console.log(inYoursCalendar.value)
-      console.log(inResourcesCalendar.value)
+      view.value = 'calendar'
       updateAllCalendars()
     }
 

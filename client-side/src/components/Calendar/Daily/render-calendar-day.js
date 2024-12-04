@@ -134,13 +134,13 @@ function addEvent(eventToAdd, startDate, endDate, resource) {
     }
     else {
         // add click listener to show resource event info
-        const resourceObject = {startDate: eventToAdd.startDate, endDate: eventToAdd.endDate,
-            username: resource.username
+        const resourceEvent = {startDate: eventToAdd.startDate, endDate: eventToAdd.endDate,
+            resourceUsername: resource.username
         }
         
         eventToAddDiv.addEventListener('click', function () {
             const event = new CustomEvent('showResourceEventDaily', {
-                detail: resourceObject
+                detail: resourceEvent
             });
             window.dispatchEvent(event); // Dispatch event to the global window
         });

@@ -136,7 +136,7 @@
             <!-- title -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Used resource</p>
-                <p>{{ resourceEvent.username }}</p>
+                <p>{{ resourceEvent.resourceUsername }}</p>
             </div>
             <!-- start -->
             <div class="mt-4">
