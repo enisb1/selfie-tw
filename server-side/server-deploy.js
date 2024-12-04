@@ -7,10 +7,10 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import http from "node:http";
 import mongoose from 'mongoose';
-import WebSocket, {WebSocketServer} from 'ws';
 import {wsHandler} from "./ws/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
+import chatRoutes from './routes/chatRoutes.js'
 
 const app = express();
 const PORT = 8000;
@@ -38,6 +38,7 @@ app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
 app.use("/api/category", categoryRoutes)
+app.use("/api/chat", chatRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -53,21 +54,7 @@ app.get('*', (req, res) => {
 // Create an HTTP server and attach the Express app
 const server = http.createServer(app);
 
-
 export const wsConnectionHandler = new wsHandler({ server });
-
-/*
-const wss = new WebSocketServer({ server });
-
-wss.on('connection', (ws,req) => {
-    const params = new URLSearchParams(req.url.split('?')[1]);
-    const username = params.get('username');
-    console.log(username+" Connected to server");
-    handleConnection(ws,userConnections, username);
-
-});
-
- */
 
 // start server
 server.listen(PORT, () => {

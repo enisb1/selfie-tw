@@ -1,7 +1,7 @@
 <template>
 <!--TODO: add bg-light and check if min-h-screen is needed (were previously contained in body) -->
   <div class="min-h-screen bg-primary">
-    <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full p-4">
+    <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full p-4 z-50 relative">
       <div class="container mx-auto flex justify-between items-center">
         <!-- App name (TODO: find a logo and add it) -->
         <a href="#"  class="text-white text-2xl font-bold">Selfie</a>

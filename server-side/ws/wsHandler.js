@@ -57,6 +57,14 @@ export class wsHandler{
             connection.send(JSON.stringify(message));
         });
     }
+    broadcast(message){
+        this.userConnections.forEach((connections, username) => {
+            connections.forEach(connection => {
+                message.to = username;
+                connection.send(JSON.stringify(message));
+            });
+        });
+    }
 }
 
 

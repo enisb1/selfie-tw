@@ -20,7 +20,6 @@ export async function getNewNotifications(username) {
             {
                 receiver: username,
             });
-        console.log("notifications.js riga 17 ",response.data);
         return response.data;
     } catch (error) {
         throw error.response.data;
