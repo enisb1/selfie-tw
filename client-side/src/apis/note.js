@@ -12,7 +12,7 @@ export async function postNote(title, bodyNote, bodyTask, category, format, acce
 
 export async function deleteNote(noteId) {
     
-    await axios.delete(`http://localhost:8000/api/note/${noteId}`)
+    await axios.delete(`http://localhost:8000/api/note/deleteNote/${noteId}`)
     .then(({data}) => {
         console.log(data);
     })
@@ -20,7 +20,7 @@ export async function deleteNote(noteId) {
 
 export async function getNoteById(id) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/${id}`)
+        const response = await axios.get(`http://localhost:8000/api/note/getNoteId/${id}`)
         return response.data       
     } catch (error) {
         console.error("Error retrieving note: ", error)
@@ -30,7 +30,7 @@ export async function getNoteById(id) {
 
 export async function editNote(noteId, updatedData) {
 
-    await axios.put(`http://localhost:8000/api/note/${noteId}`, updatedData)
+    await axios.put(`http://localhost:8000/api/note/editNote/${noteId}`, updatedData)
     .then(({data}) => {
         console.log(data);
     })
@@ -39,7 +39,7 @@ export async function editNote(noteId, updatedData) {
 export async function getNoteUser(username, access){
     console.log(username)
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/${params}`, {
+        const response = await axios.get(`http://localhost:8000/api/note/getUserNote`, {
             params: {
                 user:username, 
                 access:access

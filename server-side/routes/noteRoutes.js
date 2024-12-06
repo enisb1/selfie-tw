@@ -17,7 +17,7 @@ router.post('/addNote', async (req, res) => {
 });
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/deleteNote/:id', async (req, res) => {
     const noteId = req.params.id;
     try {
         const result = await Note.findByIdAndDelete(noteId);
@@ -32,7 +32,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-router.get('/:id', async(req,res) => {
+router.get('/getNoteId/:id', async(req,res) => {
     const noteId = req.params.id
     try {
         const noteFound = await Note.findById(noteId)
@@ -46,7 +46,7 @@ router.get('/:id', async(req,res) => {
     }
 })
 
-router.put('/:id', async(req,res) => {
+router.put('/editNote/:id', async(req,res) => {
     const noteId = req.params.id
     const updatedBody = req.body
     
@@ -65,10 +65,10 @@ router.put('/:id', async(req,res) => {
     }
 })
 
-router.get('/', async(req, res) => {
+router.get('/getUserNote', async(req, res) => {
     const username = req.query.user
     const access = req.query.access
-    console.log(req)
+    console.log(access)
     try {
         let query = {}
         if(username){
@@ -78,6 +78,7 @@ router.get('/', async(req, res) => {
             query.access = access;
         }
         const notes = await Note.find(query) 
+        console.log(notes)
         res.status(200).json(notes);
         
     } catch (error) {

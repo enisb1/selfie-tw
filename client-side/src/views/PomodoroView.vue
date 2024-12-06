@@ -1,46 +1,51 @@
 <template>
 
-  <div class="fixed h-full w-full grid grid-rows-[1fr_2fr_2fr] gap-2 transition-colors duration-1000"
-      :class="{'bg-primary': timeStudy, 'bg-secondary': !timeStudy}">
+  <div class="fixed h-full w-full grid grid-rows-[1fr_2fr_2fr] gap-2 bg-prova bg-cover">
     <div class="relative">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl md:left-10 md:translate-x-0 transition-colors duration-1000"
-            :class="{'text-secondary': timeStudy, 'text-white': !timeStudy}">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl md:left-10 md:translate-x-0 text-white">
             <div class="font-bold flex items-end justify-center">
                 P
-                <img v-if="!timeStudy" class="w-6 h-6 mb-1" src="@/images/timer.png" alt="timer">
-                <img v-else class="w-6 h-6 mb-1" src="@/images/timersecondary.png" alt="timersecondary">
-                modoro
+                <img class="w-6 h-6 mb-1" src="@/images/timer.png" alt="timer">
+                modoro 
             </div>
             <div class="font-semibold flex justify-center">Timer</div>
         </div>
     </div>
     <div class="relative z-10">
-        <div class="absolute left-1/2 top-0 -translate-x-1/2 w-9/12 h-4/5 rounded-3xl flex justify-center max-w-96 max-h-60 bg-fifth">
+        <div class="absolute left-1/2 top-0 -translate-x-1/2 w-9/12 h-4/5 rounded-3xl flex justify-center max-w-96 max-h-60 transition-colors duration-1000"
+             :class="{'bg-eighth': timeStudy, 'bg-seventh': !timeStudy}">
+            <button @click="showCurrentSettings" class="absolute right-2 top-5 w-4"><img src="@/images/side.png" alt="side"></button>
             <div class="absolute w-10/12 h-3/6 top-5 rounded-t-3xl rounded-b-xl bg-white">
-            <div class="absolute w-1/2 h-2/5 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full max-h-12 bg-fifth">
+            <span class="absolute text-xl font-medium left-1/2 -translate-x-1/2 top-1 text-secondary"> {{cicleState}} #{{(numCicli+1)-nCicle}} </span>
+            <div class="absolute w-1/2 h-2/5 left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full max-h-12 transition-colors duration-1000"
+                 :class="{'bg-eighth': timeStudy, 'bg-seventh': !timeStudy}">
                 <div class="absolute h-4/6 left-4 right-4 top-1/2 -translate-y-1/2 rounded-full border-2 border-black md:h-5/6"></div>
                 <div class="absolute left-3 top-1/2 -translate-y-1/2">
                     <img class="h-9 sm:h-10" src="@/images/rotella.png" alt="wheel" :class="{'animate-spin':isPressed}">
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary h-5 w-5 sm:h-6 sm:w-6">
                         <img src="@/images/provap.png" alt="wheelWheel" :class="{'animate-spin':isPressed}">
-                        <span v-if="timeStudy" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-1 border-black h-9 w-9"
-                             :class="{'animate-tapesx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteStudy + 's', '--elapsed-time': minuteStudy-mStudy + 's', 'animation-play-state': isPressed ? 'paused':'running'}"></span>
-                        <span v-else class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-1 border-black h-9 w-9"
-                             :class="{'animate-tapesx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteRelax + 's', '--elapsed-time': minuteRelax-mRelax + 's', 'animation-play-state': isPressed ? 'paused':'running'}"></span>
+                        <span v-if="timeStudy" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black h-9 w-9"
+                             :class="{'animate-tapesx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteStudy + 's', '--elapsed-time': minuteStudy-mStudy + 's', 'animation-play-state': isPressed ? 'paused':'running',
+                                       'border-width': isPressed ? (8*(minuteStudy-mStudy)/minuteStudy)+'px' :(8*(minuteStudy-mStudy)/minuteStudy)+'px'}"></span>
+                        <span v-else class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black h-9 w-9"
+                             :class="{'animate-tapesx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteRelax + 's', '--elapsed-time': minuteRelax-mRelax + 's', 'animation-play-state': isPressed ? 'paused':'running',
+                                      'border-width': isPressed ? (8*(minuteRelax-mRelax)/minuteRelax)+'px' :(8*(minuteRelax-mRelax)/minuteRelax)+'px'}"></span>
                     </div>
                 </div>
                 <div class="absolute right-3 top-1/2 -translate-y-1/2">
                     <img class="h-9 sm:h-10" src="@/images/rotella.png" alt="wheel" :class="{'animate-spin':isPressed}">
                     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-secondary h-5 w-5 sm:h-6 sm:w-6">
                         <img src="@/images/provap.png" alt="wheelWheel" :class="{'animate-spin':isPressed}">
-                        <span v-if="timeStudy" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-8 border-black h-9 w-9"
-                             :class="{'animate-tapedx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteStudy + 's', '--elapsed-time': minuteStudy-mStudy + 's', 'animation-play-state': isPressed ? 'paused':'running'}"></span>
-                        <span v-else class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-8 border-black h-9 w-9"
-                             :class="{'animate-tapedx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteRelax + 's', '--elapsed-time': minuteRelax-mRelax + 's', 'animation-play-state': isPressed ? 'paused':'running'}"></span>
+                        <span v-if="timeStudy" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black h-9 w-9"
+                             :class="{'animate-tapedx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteStudy + 's', '--elapsed-time': minuteStudy-mStudy + 's', 'animation-play-state': isPressed ? 'paused':'running',
+                                      'border-width': isPressed ? (8-(8*(minuteStudy-mStudy)/minuteStudy))+'px' :(8-(8*(minuteStudy-mStudy)/minuteStudy))+'px'}"></span>
+                        <span v-else class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-black h-9 w-9"
+                             :class="{'animate-tapedx': isPressed, 'animate-stop':!isPressed}" :style="{'--animation-duration': minuteRelax + 's', '--elapsed-time': minuteRelax-mRelax + 's', 'animation-play-state': isPressed ? 'paused':'running',
+                                      'border-width': isPressed ? (8-(8*(minuteRelax-mRelax)/minuteRelax))+'px' :(8-(8*(minuteRelax-mRelax)/minuteRelax))+'px'}"></span>
                     </div>
                 </div>
             </div>
-            <span class="absolute text-2xl font-bold bottom-6 left-1/9 text-secondary">A</span>
+            <span class="absolute text-2xl font-bold bottom-6 left-1/9 text-secondary">{{ side }}</span>
             <span class="absolute text-xs bottom-4 left-1/11 text-secondary">SIDE</span>
             <span class="absolute text-xl font-medium left-1/2 -translate-x-1/2 bottom-1 text-secondary">STEREO</span>
             <button @click="showOptionsMenu" ><img class="absolute right-1/11 bottom-4 w-8" src="@/images/options.png" alt="opzion"></button>
@@ -59,25 +64,36 @@
                 </div>
             </div>
 
-            <div class="absolute left-1/2 -translate-x-1/2 -bottom-8 h-2 w-full">
-                <div v-if="timeStudy" class="h-full bg-secondary w-0" :class="{'animate-loading': isPressed, 'animate-stop': !isPressed}"
-                :style="{'--animation-duration': minuteStudy + 's', '--elapsed-time': minuteStudy-mStudy + 's', 'animation-play-state': isPressed ? 'paused':'running'}"></div>
-                <div v-else class="h-full bg-white w-0" :class="{'animate-loading': isPressed, 'animate-stop': !isPressed}"
-                :style="{'--animation-duration': minuteRelax + 's', '--elapsed-time': minuteRelax-mRelax + 's', 'animation-play-state': isPressed ? 'paused':'running'}"></div>
+            <div class="absolute left-1/2 -translate-x-1/2 -bottom-8 h-2 w-full border border-white">
+                <div v-if="timeStudy" class="h-full bg-eighth transition-[width]" :class="{'animate-loading': isPressed, 'animate-stop': !isPressed}"
+                :style="{'--animation-duration': minuteStudy + 's', '--elapsed-time': minuteStudy-mStudy + 's', 
+                         'animation-play-state': isPressed ? 'paused':'running', 'width': isPressed ? (100*(minuteStudy-mStudy)/minuteStudy)+'%':(100*(minuteStudy-mStudy)/minuteStudy)+'%'}"></div>
+                <div v-else class="h-full bg-fifth w-0" :class="{'animate-loading': isPressed, 'animate-stop': !isPressed}"
+                :style="{'--animation-duration': minuteRelax + 's', '--elapsed-time': minuteRelax-mRelax + 's', 'animation-play-state': isPressed ? 'paused':'running',
+                         'width': isPressed ? (100*(minuteRelax-mRelax)/minuteRelax)+'%':(100*(minuteRelax-mRelax)/minuteRelax)+'%'}"></div>
             </div>
 
             <button @click="startTimer" class="absolute left-1/2 -translate-x-1/2 -bottom-24 max-w-40 min-w-36 
-                                               py-1 rounded-2xl transition-all w-1/3 font-semibold text-2xl bg-fifth text-secondary" 
-                                       :class="{'transform translate-y-1': isPressed, 'border-b-4 border-white':!isPressed}">
+                                               py-1 rounded-2xl w-1/3 font-semibold text-2xl transition-all duration-500" 
+                                       :class="{'transform translate-y-1': isPressed, 'border-b-4 border-white':!isPressed, 'bg-eighth text-secondary': timeStudy, 'bg-seventh text-secondary': !timeStudy}">
                 {{ buttonText }}
             </button>
 
-        </div>    
+        </div>   
     </div>
+    <Modal v-show="currentSettings" @click.self="showCurrentSettings">
+        <p class="mb-4 text-center text-secondary font-semibold">Current Settings</p>
+        <div class="grid grid-cols-1 gap-2 font-semibold text-white md:grid-cols-3">
+            <div class="flex items-center justify-center rounded-xl bg-secondary px-2">TIME STUDY {{minuteStudy/60}}'</div>
+            <div class="flex items-center justify-center rounded-xl bg-secondary px-2">TIME RELAX {{minuteRelax/60}}'</div>
+            <div class="flex items-center justify-center rounded-xl bg-secondary px-2">NUMBER CYCLES {{numCicli}}</div>
+        </div>
+    </Modal>
 
     <div class="relative">
-        <div class="absolute top-1/2 left-1/2 -translate-y-2/3 -translate-x-1/2 h-1/3 w-1/4 max-w-80 rounded-2xl min-w-40 border-4 border-fifth
-                    md:right-10 md:left-auto md:translate-x-0">
+        <div class="absolute top-1/2 left-1/2 -translate-y-2/3 -translate-x-1/2 h-1/3 w-1/4 max-w-80 rounded-2xl min-w-40 border-4
+                    md:right-10 md:left-auto md:translate-x-0"
+                    :class="{'border-seventh':!timeStudy, 'border-eighth': timeStudy}">
             <iframe class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 h-full w-full rounded-xl" src="https://www.youtube.com/embed/jfKfPfyJRdk?si=GcaboFudiu7ISCG4" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
         </div>
 
@@ -86,21 +102,71 @@
     <!--Options Menu-->
     <Modal v-show="showMenu" @click.self="showOptionsMenu">
         <div class="overflow-scroll max-h-96">
-            <label for="">Total Time
-                <input type="number" class="w-full px-1 mt-1" placeholder="enter the minutes" v-model="minutesNumber">
-            </label>
-            <div class="flex justify-center">
-                <button class="bg-secondary mt-3 text-white font-semibold rounded-xl p-2" @click="validNumber">
-                    Possible cycles
-                </button>
-            </div>
-            <div class="mt-2" v-for="(cicle,index) in cicles" :key="index">
-                <div @click="saveCicle(index)" class="w-full text-white bg-secondary p-2 my-1 rounded-lg">
-                    Study: {{ cicle.study }} minutes <br>
-                    Relax: {{cicle.relax}} minutes <br>
-                    Cicle: {{cicle.ncicle}}
+            <div>Time (minutes)</div>
+            <div class="grid grid-cols-3 text-center py-4">
+                <div>
+                    Study
+                    <div class="flex justify-center items-center gap-2">
+                        <div>{{minSetStudy/60}}</div> 
+                        <div class="grid grid-cols-1">
+                            <button @click="increaseStudy">
+                                <img class="w-3" src="@/images/arrowup.png" alt="arrowUp">
+                            </button>
+                            <button @click="decreaseStudy">    
+                                <img class="w-3" src="@/images/arrowdown.png" alt="arrowDown">
+                            </button>
+                        </div>
+                    </div>
                 </div>
-
+                <div>
+                    Relax
+                    <div class="flex justify-center items-center gap-2">
+                        <div>{{minSetRelax/60}}</div> 
+                        <div class="grid grid-cols-1">
+                            <button @click="increaseRelax">
+                                <img class="w-3" src="@/images/arrowup.png" alt="arrowUp">
+                            </button>
+                            <button @click="decreaseRelax">    
+                                <img class="w-3" src="@/images/arrowdown.png" alt="arrowDown">
+                            </button>
+                        </div>
+                    </div>
+                </div>   
+                <div>
+                    Cycles 
+                    <div class="flex justify-center items-center gap-2">
+                        <div>{{numSetCycle}}</div> 
+                        <div class="grid grid-cols-1">
+                            <button @click="increaseCycle">
+                                <img class="w-3" src="@/images/arrowup.png" alt="arrowUp">
+                            </button>
+                            <button @click="decreaseCycle">    
+                                <img class="w-3" src="@/images/arrowdown.png" alt="arrowDown">
+                            </button>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            <div class="flex justify-center">
+                <button @click="saveCicleCustom" class="bg-secondary text-white font-semibold rounded-xl p-2 w-24">Save</button>
+            </div>
+            <div class="mt-4">
+                <label for="">Total Time
+                    <input type="number" class="w-full px-1 mt-1" placeholder="enter the minutes" v-model="minutesNumber">
+                </label>
+                <div class="flex justify-center">
+                    <button class="bg-secondary mt-3 text-white font-semibold rounded-xl p-2 my-4" @click="validNumber">
+                        Possible cycles
+                    </button>
+                </div>
+                <div class="mt-2" v-for="(cicle,index) in cicles" :key="index">
+                    <div @click="saveCicle(index)" class="w-full p-2 my-1 rounded-lg flex justify-center gap-8 text-center font-semibold"
+                                                  :class="{'bg-white text-secondary': index==0, 'bg-secondary text-white': index!==0}">
+                        <div class="w-1/3">Study: {{ cicle.study }} minutes </div>
+                        <div class="w-1/3">Relax: {{cicle.relax}} minutes </div>
+                        <div class="w-1/3">Cycles: {{cicle.ncicle}}</div>
+                    </div>
+                </div>
             </div>
         </div>
     </Modal>
@@ -109,7 +175,7 @@
 
 
 <script>
-import {ref, onMounted} from 'vue'
+import {ref, onMounted, watch} from 'vue'
 import Modal from "@/components/Modal.vue";
 
 
@@ -130,7 +196,10 @@ export default {
         ])
 
         const audio = new Audio("/soundbutton.mp3")
-        const buttonText = ref("START")
+        const audioReset = new Audio("/soundReset.mp3")
+        const audioFinish = new Audio("/finishsound.mp3")
+        const nextStage = new Audio("/nextstage.mp3")
+        const buttonText = ref("PLAY")
         const minutes = ref()
         const time = ref()
         let interval
@@ -138,14 +207,23 @@ export default {
         const minuteStudy = ref(1800)
         const minuteRelax = ref(300)
         const mstudy = ref()
+        const side = ref("A")
+        const cicleState = ref("STUDY")
 
         const mRelax = ref()
         const mStudy = ref()
         const nCicle = ref()
 
+        const minSetStudy = ref()
+        const minSetRelax = ref()
+        const numSetCycle = ref()
+
         onMounted(() => {
             nCicle.value = numCicli.value
             mStudy.value = minuteStudy.value
+            minSetRelax.value = minuteRelax.value
+            minSetStudy.value = minuteStudy.value
+            numSetCycle.value = numCicli.value
             time.value = formatTime(minuteStudy.value)
         })
 
@@ -156,11 +234,20 @@ export default {
             minuteStudy.value = (cicles.value[index].study)*60
             mRelax.value = (cicles.value[index].relax)*60
             mStudy.value = (cicles.value[index].study)*60
+            minSetRelax.value = (cicles.value[index].relax)*60
+            minSetStudy.value = (cicles.value[index].study)*60
+            numSetCycle.value = cicles.value[index].ncicle
             time.value = formatTime(minuteStudy.value)
             nCicle.value = cicles.value[index].ncicle
             timeStudy.value = true
-            console.log(minuteRelax.value)
-            console.log(minuteStudy.value)
+            minutesNumber.value = ""
+            cicles.value = [
+                    {
+                        relax: 5,
+                        ncicle: 5,
+                        study: 30
+                    }
+                ]
         }
 
 
@@ -186,7 +273,7 @@ export default {
                                 isPressed.value = false
                                 audio.play()
                                 clearInterval(interval)
-                                buttonText.value = "START"
+                                buttonText.value = "PLAY"
                                 timeStudy.value = false
                                 mRelax.value = minuteRelax.value
                                 time.value = formatTime(mRelax.value)
@@ -194,7 +281,7 @@ export default {
                         }, 1000)
                         console.log(nCicle.value)
                     }else{
-                        buttonText.value = "START"
+                        buttonText.value = "PLAY"
                         clearInterval(interval)
                     }       
                 }else{
@@ -204,18 +291,21 @@ export default {
                             mRelax.value--
                             time.value = formatTime(mRelax.value)
                             if(mRelax.value === 0 && nCicle.value === 1){
-                                isPressed.value = false
                                 audio.play()
-                                clearInterval(interval)
-                                buttonText.value = "START"
+                                nCicle.value = numCicli.value
+                                mStudy.value = minuteStudy.value
+                                mRelax.value = minuteRelax.value
                                 timeStudy.value = true
-                                time.value = 8888
+                                isPressed.value = false
+                                clearInterval(interval)
+                                time.value = formatTime(minuteStudy.value)
+                                audioFinish.play()
                             }
                             else if(mRelax.value === 0){
                                 isPressed.value = false
                                 audio.play()
                                 clearInterval(interval)
-                                buttonText.value = "START"
+                                buttonText.value = "PLAY"
                                 timeStudy.value = true
                                 mStudy.value = minuteStudy.value
                                 nCicle.value--
@@ -223,7 +313,7 @@ export default {
                             }
                         }, 1000)
                     }else{
-                        buttonText.value = "START"
+                        buttonText.value = "PLAY"
                         clearInterval(interval)
                     }
                 }   
@@ -275,7 +365,7 @@ export default {
         }
 
         const resetCicle = () => {
-            console.log(numCicli.value)
+            audioReset.play()
             nCicle.value = numCicli.value
             mStudy.value = minuteStudy.value
             mRelax.value = minuteRelax.value
@@ -286,12 +376,16 @@ export default {
         }
 
         const finishCicle = () => {
-            isPressed.value = false
             audio.play()
-            clearInterval(interval)
-            buttonText.value = "START"
+            nCicle.value = numCicli.value
+            mStudy.value = minuteStudy.value
+            mRelax.value = minuteRelax.value
             timeStudy.value = true
-            time.value = 8888    
+            isPressed.value = false
+            clearInterval(interval)
+            time.value = formatTime(minuteStudy.value)
+            buttonText.value = "PLAY"
+            audioFinish.play()    
         }
 
         const skipCicle = () => {
@@ -299,31 +393,98 @@ export default {
                 isPressed.value = false
                 audio.play()
                 clearInterval(interval)
-                buttonText.value = "START"
+                buttonText.value = "PLAY"
                 timeStudy.value = false
                 mRelax.value = minuteRelax.value
                 time.value = formatTime(mRelax.value)    
 
             }else if(timeStudy.value === false && nCicle.value === 1){
-                isPressed.value = false
                 audio.play()
-                clearInterval(interval)
-                buttonText.value = "START"
-                timeStudy.value = true
+                nCicle.value = numCicli.value
                 mStudy.value = minuteStudy.value
-                nCicle.value--
-                time.value = 8888
+                mRelax.value = minuteRelax.value
+                timeStudy.value = true
+                isPressed.value = false
+                clearInterval(interval)
+                time.value = formatTime(minuteStudy.value)
+                buttonText.value = "PLAY"
+                audioFinish.play()
 
             }else{
                 isPressed.value = false
                 audio.play()
                 clearInterval(interval)
-                buttonText.value = "START"
+                buttonText.value = "PLAY"
                 timeStudy.value = true
                 mStudy.value = minuteStudy.value
                 nCicle.value--
                 time.value = formatTime(mStudy.value)
             }
+        }
+
+        watch(timeStudy, (newValue) => {
+            side.value = newValue ? 'A' : 'B'
+            cicleState.value = newValue ? 'STUDY' : 'RELAX'
+            nextStage.play()
+            Notification.requestPermission().then(perm => {
+                if(perm === "granted"){
+                    new Notification("Congratulations", {
+                        body: "You have moved on to the next stage",
+                        icon: "favicon.ico", 
+                    })
+                }
+            })
+        })
+
+        
+
+        const currentSettings = ref(false)
+        const showCurrentSettings = () => {
+            currentSettings.value = !currentSettings.value
+        }
+
+    
+        const increaseStudy = () => {
+            minSetStudy.value = minSetStudy.value + 60
+        }
+        const increaseRelax = () => {
+            minSetRelax.value = minSetRelax.value + 60
+        }
+        const increaseCycle = () => {
+            numSetCycle.value++
+        }
+        const decreaseStudy = () => {
+            if(minSetStudy.value === 0){
+                return
+            }else{
+                minSetStudy.value = minSetStudy.value - 60
+            }
+        }
+        const decreaseRelax = () => {
+            if(minSetRelax.value === 0){
+                return
+            }else{
+                minSetRelax.value = minSetRelax.value - 60
+            }
+        }
+        const decreaseCycle = () => {
+            numSetCycle.value--
+        }
+
+        const saveCicleCustom = () => {
+            showMenu.value = false
+            numCicli.value = numSetCycle.value
+            minuteRelax.value = minSetRelax.value
+            minuteStudy.value = minSetStudy.value
+            mRelax.value = minSetRelax.value
+            mStudy.value = minSetStudy.value
+            if(timeStudy.value === true){
+                time.value = formatTime(minuteStudy.value)
+            }else{
+                time.value = formatTime(minuteRelax.value)
+            }
+            nCicle.value = numSetCycle.value
+            minutesNumber.value = ""
         }
 
 
@@ -354,7 +515,23 @@ export default {
             nCicle,
             resetCicle,
             finishCicle,
-            skipCicle
+            skipCicle,
+            audioReset,
+            side,
+            cicleState,
+            showCurrentSettings,
+            currentSettings,
+            increaseStudy,
+            increaseRelax,
+            increaseCycle,
+            decreaseStudy,
+            decreaseRelax,
+            decreaseCycle,
+            minSetRelax,
+            minSetStudy,
+            numSetCycle,
+            saveCicleCustom,
+            nextStage
     }
 
 }}
@@ -392,10 +569,10 @@ export default {
 
 
 @keyframes loading {
-    0% {
+    from {
         width: 0%;
     }
-    100% {
+    to {
         width: 100%;
     }
 }

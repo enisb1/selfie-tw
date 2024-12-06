@@ -242,7 +242,7 @@
                             Category
                         </button>
                     </div>
-                </form>
+                </form> 
             </div>
         </div>
     </div>
@@ -309,6 +309,7 @@ export default {
         const noteUser = ref('')
         const store = useStore()
         const publicNotes = ref([])
+        const selectNotes = ref([])
 
         //Add Note to NoteView
         const addNote = async () => {
@@ -344,13 +345,22 @@ export default {
         const loadNotesUser = async () => {
             noteUser.value = store.state.username
             try {
-                const fetchNotes = await getNoteUser(noteUser.value, 'selectAccess');
+                const fetchNotes = await getNoteUser(noteUser.value, 'privateAccess');
                 notes.value = fetchNotes;
-
-                const fetchNotesPublicNotes = await getNoteUser('', 'Public');
-                publicNotes.value = fetchNotesPublicNotes;
+                console.log(notes.value)
                 
-                notes.value = [...fetchNotes, ...fetchNotesPublicNotes];
+
+                const fetchNotesPublicNotes = await getNoteUser('', 'publicAccess');
+                publicNotes.value = fetchNotesPublicNotes;
+                console.log(publicNotes.value)
+
+                const fetchNotesSelectNotes = await getNoteUser(noteUser.value, 'selectAccess');
+                selectNotes.value = fetchNotesSelectNotes;
+                console.log(selectNotes)
+
+                notes.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
+
+                console.log(notes.value)
                 
             } catch (error) {
                 console.error("Errore durante il caricamento delle noteUser: ", error);
@@ -367,8 +377,7 @@ export default {
         
         const titles = ref(null)
         const addTasknote = (id, body) => {
-            console.log(taskBody.value)
-            if(showAddModal.value === true){
+            if(newNote.value === true){
             editorVisible.value = !editorVisible.value
             showAddModal.value = false
             addNote()
@@ -379,6 +388,7 @@ export default {
                 taskBody.value = []
             }
             resetValor()
+            newNote.value = false
         }
         
 
@@ -450,7 +460,7 @@ export default {
         }
 
         const uploadTask = async (body,id) => {
-            console.log("task salvata")
+            console.log(id)
             const noteUp = await getNoteById(id)
 
             taskBody.value = body
@@ -669,7 +679,7 @@ export default {
 
         const editorVisible = ref(false)
         const toggleSave = async (body,id) => {
-            if(showAddModal.value === true){
+            if(newNote.value === true){
             noteBody.value = body
             editorVisible.value = !editorVisible.value
             addNote()
@@ -678,15 +688,17 @@ export default {
                 editorVisible.value = !editorVisible.value
             }
             resetValor()
-
+            newNote.value = false
         }
+        
 
-        const newNote = ref(true)
+        const newNote = ref(false)
         const toggleEditor = () => {
             editorVisible.value = !editorVisible.value
             newNote.value = showAddModal.value
             console.log(newNote.value)
             noteBody.value = ""
+            newNote.value = showAddModal.value
             showAddModal.value = false
             showAddMenu.value = false
         }
@@ -788,7 +800,8 @@ export default {
             noteUser,
             loadNotesUser,
             resetValor,
-            newNote
+            newNote,
+            selectNotes
             
             
             

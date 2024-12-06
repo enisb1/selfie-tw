@@ -98,6 +98,7 @@ export default {
 
         
         const toggleEditorTask = (id, body) => {
+            console.log(id)
             emit('add-tasknote', id, body)
         }
 
