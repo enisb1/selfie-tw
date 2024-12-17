@@ -130,11 +130,11 @@ router.get("/resourcesEvents", async (req,res) => {
         const events = await Event.aggregate([
             {
               $addFields: {
-                users: {
+                resources: {
                   $map: {
-                    input: "$users",
-                    as: "user",
-                    in: { $toObjectId: "$$user" }, // Convert each user string to ObjectId
+                    input: "$resources",
+                    as: "resource",
+                    in: { $toObjectId: "$$resource" }, // Convert each user string to ObjectId
                   },
                 },
               },
@@ -142,7 +142,7 @@ router.get("/resourcesEvents", async (req,res) => {
             {
               $lookup: {
                 from: "resources", // The resources collection
-                localField: "users", // Converted users field
+                localField: "resources", // Converted users field
                 foreignField: "_id", // Match with the ObjectId in resources
                 as: "matchedResources",
               },
@@ -167,6 +167,7 @@ router.get("/resourcesEvents", async (req,res) => {
               },
             },
         ]);
+        console.log(events)
         res.json(events);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching events' });
@@ -223,8 +224,6 @@ router.get("/availableResources", async (req,res) => {
     const userIds = users.split(',');
     const startDate = new Date(start);
     const endDate = new Date(end);
-    console.log(startDate);
-    console.log(endDate);
     try {
       const availableResources = await Resource.aggregate([
         // 1. Convert _id in resources to string
@@ -244,7 +243,7 @@ router.get("/availableResources", async (req,res) => {
           $lookup: {
             from: "events",
             localField: "_idString", // Use the string version of _id
-            foreignField: "users",   // users in events are strings
+            foreignField: "resources",   // users in events are strings
             as: "userEvents",
           },
         },
@@ -298,23 +297,19 @@ router.get("/availableResources", async (req,res) => {
     }
 })
 
-router.get("/resourcesInUsers", async (req,res) => {
-    const users = req.params.users
-    const userIds = users.split(',');
-    try {
-        const matchingResources = await Resource.find(
-            { _id: { $in: userIds } }, // match user IDs in the resources collection
-            { username: 1, _id: 0 } // project only the username field
-        );
-    
-        // extract usernames
-        const usernames = matchingResources.map(resource => resource.username);
-        res.json(usernames);
-    }
-    catch (err) {
-        console.error("Error fetching users without events:", err);
-        throw err;
-    }
+router.get("/resourcesFromIds", async (req, res) => {
+  const {resources} = req.query;
+  const objectIds = resources.map(r => mongoose.Types.ObjectId(r))
+  try {
+    // Query Mongoose to find matching resources
+    const matchingResources = await Resource.find({ 
+      _id: { $in: objectIds } 
+    });
+    res.json(matchingResources);
+  }catch (err) {
+    console.error("Error fetching resources from ids:", err);
+    throw err;
+  }
 })
 
 router.post("/addResource", async (req, res) => {

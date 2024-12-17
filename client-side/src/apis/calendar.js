@@ -105,16 +105,6 @@ export async function getResources() {
     }
 }
 
-// get all resources
-export async function getResourcesInUsers(users) {
-    try {
-        const response = await axios.get(`http://localhost:8000/api/calendar/resourcesInUsers?users=${users}`);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-}
-
 // get list of available resources given, list of users, startDate and endDate
 export async function getAvailableResources(users, startDate, endDate) {
     const startStringUTC = new Date(startDate).toISOString();

@@ -211,7 +211,7 @@ import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { getResources, getResourcesInUsers, postEvent, getAvailableResources } from '@/apis/calendar';
+import { getResources, postEvent, getAvailableResources } from '@/apis/calendar';
 import { getCurrentInstance, onMounted, nextTick } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
@@ -327,7 +327,7 @@ export default {
         if (eventToAddRepetitionDate.value)
           eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
         // process selectedUsers to get users and resources
-        const users = selectedUsers.value.filter(obj => obj.firstName)
+        const users = selectedUsers.value.filter(obj => obj.firstName) // TODO: will have to send invite to these users
         const resources = selectedUsers.value.filter(obj => !obj.firstName)
         const availableResources = await getAvailableResources(resources.map(obj => obj._id), new Date(eventToAddStartDate.value), new Date(eventToAddEndDate.value))
         //const eventToAddUsers = availableResources.map(r => r._id).concat([store.state._id])
@@ -337,10 +337,10 @@ export default {
         updateAllCalendars()
         toggleAddModal();
         showAddError.value = false
-        // TODO: signal the user which resources have not been added
+        // signal the user which resources have not been added
         if (resources.length > availableResources.length) {
-          const difference = resources.filter(r => !availableResources.includes(r))
-          alert(difference.toString())
+          const difference = resources.filter(r => availableResources.every(obj => obj._id!=r._id)).map(r => r.username)
+          alert("The following resources are taken: "+ difference.join(", ")) // TODO: can try to system notify instead
         }
       }
     }
