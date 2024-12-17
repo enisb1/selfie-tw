@@ -299,7 +299,7 @@ router.get("/availableResources", async (req,res) => {
 
 router.get("/resourcesFromIds", async (req, res) => {
   const {resources} = req.query;
-  const objectIds = resources.map(r => mongoose.Types.ObjectId(r))
+  const objectIds = resources.split(",").map(r => new mongoose.Types.ObjectId(r))
   try {
     // Query Mongoose to find matching resources
     const matchingResources = await Resource.find({ 

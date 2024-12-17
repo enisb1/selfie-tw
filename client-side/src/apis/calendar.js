@@ -117,6 +117,15 @@ export async function getAvailableResources(users, startDate, endDate) {
     }
 }
 
+export async function getResourcesFromIds(resources) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resourcesFromIds?resources=${resources}`)
+        return response.data;
+    }catch (error) {
+        throw error.response.data;
+    }
+}
+
 // post resource
 export async function postResource(username) {
     await axios.post('http://localhost:8000/api/calendar/addResource', {"username": username})

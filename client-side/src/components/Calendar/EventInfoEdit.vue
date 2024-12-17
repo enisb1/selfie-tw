@@ -30,11 +30,17 @@
 
             <!-- frequency -->
             <div class="mt-4">
-                <p class="font-semibold text-base">Frequency </p>
+                <p class="font-semibold text-base">Frequency</p>
                 <p v-show="eventObject.frequency != 'none'"> {{ eventObject.frequency }} frequency {{ eventObject.repetitionNumber ? `repeating ${eventObject.repetitionNumber} times` :
                     `until ${new Date(eventObject.repetitionDate).toLocaleDateString
                     ('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>
                 <p v-show="eventObject.frequency == 'none'">none</p>    
+            </div>
+
+            <!-- resources -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Resources</p>
+                <p>{{ resourcesUsernames }}</p>
             </div>
         </div>
 
@@ -143,11 +149,10 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { deleteEvent } from '@/apis/calendar';
-import { editEvent } from '@/apis/calendar';
+import { editEvent, deleteEvent, getResourcesFromIds } from '@/apis/calendar';
 import { computed } from 'vue';
 
 export default {
@@ -234,7 +239,6 @@ export default {
                 return !(!!editedEventRepNumber.value)
         })
 
-
         const toggleRepInputs = (activeField) => {
             if (activeField === 'number') {
                 isEditedRepDateDisabled.value = !!editedEventRepNumber.value // Disable date input if number input has a value
@@ -294,6 +298,18 @@ export default {
                 showAddError.value = false
             }
         }
+
+        // resources usernames
+        const resourcesUsernames = ref()
+
+        onMounted(async () => {
+            const resourcesObjects = await getResourcesFromIds(props.eventObject.resources)
+            if (resourcesObjects.length > 0) {
+                resourcesUsernames.value = resourcesObjects.map(r => r.username).join(", ")
+            }
+            else 
+            resourcesUsernames.value = 'none'
+        })
         
         return {
             showEditEvent,
@@ -323,7 +339,8 @@ export default {
             isRepNumberRequired,
             isRepDateRequired,
             showAddError,
-            addErrorValue
+            addErrorValue,
+            resourcesUsernames
         }
     }
 }
