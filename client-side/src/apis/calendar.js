@@ -43,10 +43,10 @@ export async function getResourcesEvents() {
 }
 
 // post event to db
-export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users) {
+export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users, resources) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "location": location, "startDate": start,
         "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, 
-        "repetitionDate": repetitionDate, "color": color, "users": users}
+        "repetitionDate": repetitionDate, "color": color, "users": users, "resources": resources}
     )
     .then(({data}) => {
         console.log(data);
@@ -101,6 +101,28 @@ export async function getResources() {
         const response = await axios.get(`http://localhost:8000/api/calendar/resources`);
         return response.data;
     } catch (error) {
+        throw error.response.data;
+    }
+}
+
+// get all resources
+export async function getResourcesInUsers(users) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resourcesInUsers?users=${users}`);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+// get list of available resources given, list of users, startDate and endDate
+export async function getAvailableResources(users, startDate, endDate) {
+    const startStringUTC = new Date(startDate).toISOString();
+    const endStringUTC = new Date(endDate).toISOString();
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/availableResources?users=${users}&start=${startStringUTC}&end=${endStringUTC}`)
+        return response.data;
+    }catch (error) {
         throw error.response.data;
     }
 }

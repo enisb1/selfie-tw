@@ -2,6 +2,7 @@ import Router from 'express';
 import Event from '../models/Event.js'
 import Activity from '../models/Activity.js'
 import Resource from '../models/Resource.js';
+import mongoose, { mongo } from 'mongoose';
 
 const router = Router();
 
@@ -214,6 +215,105 @@ router.get("/resources", async (req, res) => {
         res.json(resources);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching events' });
+    }
+})
+
+router.get("/availableResources", async (req,res) => {
+    const {users, start, end} = req.query;
+    const userIds = users.split(',');
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    console.log(startDate);
+    console.log(endDate);
+    try {
+      const availableResources = await Resource.aggregate([
+        // 1. Convert _id in resources to string
+        {
+          $addFields: {
+            _idString: { $toString: "$_id" },
+          },
+        },
+        // 2. Match resources where _idString is in the userIds
+        {
+          $match: {
+            _idString: { $in: userIds },
+          },
+        },
+        // 3. Lookup events and match users in the event
+        {
+          $lookup: {
+            from: "events",
+            localField: "_idString", // Use the string version of _id
+            foreignField: "users",   // users in events are strings
+            as: "userEvents",
+          },
+        },
+        // 4. Add fields to check if the resource has events within the date range
+        {
+          $addFields: {
+            hasEventsInRange: {
+              $anyElementTrue: {
+                $map: {
+                  input: "$userEvents",
+                  as: "event",
+                  in: {
+                    $or: [
+                      {
+                        $and: [
+                          { $lte: ["$$event.startDate", endDate] },
+                          { $gte: ["$$event.endDate", startDate] },
+                        ],
+                      },
+                      {
+                        $and: [
+                          { $lte: [startDate, "$$event.endDate"] },
+                          { $gte: [endDate, "$$event.startDate"] },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        // 5. Filter out resources with events within the specified date range
+        {
+          $match: {
+            hasEventsInRange: false,
+          },
+        },
+        // 6. Project the necessary fields
+        {
+          $project: {
+            _id: 1,
+            username: 1, // Include other fields you need
+          },
+        },
+      ]);
+      res.json(availableResources);
+    } catch (err) {
+      console.error("Error fetching users without events:", err);
+      throw err;
+    }
+})
+
+router.get("/resourcesInUsers", async (req,res) => {
+    const users = req.params.users
+    const userIds = users.split(',');
+    try {
+        const matchingResources = await Resource.find(
+            { _id: { $in: userIds } }, // match user IDs in the resources collection
+            { username: 1, _id: 0 } // project only the username field
+        );
+    
+        // extract usernames
+        const usernames = matchingResources.map(resource => resource.username);
+        res.json(usernames);
+    }
+    catch (err) {
+        console.error("Error fetching users without events:", err);
+        throw err;
     }
 })
 

@@ -10,7 +10,8 @@ const eventSchema = new mongoose.Schema({
     repetitionNumber: Number,
     repetitionDate: Date,
     color: String,
-    users: [String]
+    users: [String],
+    resources: [String]
 });
 
 // model created from schema

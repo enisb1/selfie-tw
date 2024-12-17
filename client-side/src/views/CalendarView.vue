@@ -211,7 +211,7 @@ import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { getResources, postEvent } from '@/apis/calendar';
+import { getResources, getResourcesInUsers, postEvent, getAvailableResources } from '@/apis/calendar';
 import { getCurrentInstance, onMounted, nextTick } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
@@ -326,14 +326,22 @@ export default {
         // set repetition date to end of day (otherwise it would be current time)
         if (eventToAddRepetitionDate.value)
           eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
-        // get array of users
-        const users = [store.state._id].concat(selectedUsers.value.map(obj => obj._id))
+        // process selectedUsers to get users and resources
+        const users = selectedUsers.value.filter(obj => obj.firstName)
+        const resources = selectedUsers.value.filter(obj => !obj.firstName)
+        const availableResources = await getAvailableResources(resources.map(obj => obj._id), new Date(eventToAddStartDate.value), new Date(eventToAddEndDate.value))
+        //const eventToAddUsers = availableResources.map(r => r._id).concat([store.state._id])
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-        eventToAddRepetitionDate.value, selectedColor.value, users) 
+        eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id)) 
         updateAllCalendars()
         toggleAddModal();
         showAddError.value = false
+        // TODO: signal the user which resources have not been added
+        if (resources.length > availableResources.length) {
+          const difference = resources.filter(r => !availableResources.includes(r))
+          alert(difference.toString())
+        }
       }
     }
 
@@ -429,14 +437,11 @@ export default {
     }
 
     // resources
-    //TODO: capisci perché i boolean non corrispondono in updateAllCalendars
     const inYoursCalendar = ref(true)
     const inResourcesCalendar = ref(false)
     const toggleInYoursCalendar = () => {
       inResourcesCalendar.value = false
       inYoursCalendar.value = true
-      console.log(inYoursCalendar.value)
-      console.log(inResourcesCalendar.value)
       updateAllCalendars()
     }
     const toggleInResourcesCalendar = () => {
