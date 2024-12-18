@@ -97,7 +97,8 @@
           triggerModal()
         }else {
           try {
-            let resp = await newUser(username.value, password.value, email.value, name.value, surname.value, telegram.value)
+            let resp = await newUser(username.value, password.value, email.value, 
+              name.value, surname.value, telegram.value, null, null, "none", null, null)
 
             if (resp.message === "Data saved successfully") {
               store.commit('setUser', resp.user);

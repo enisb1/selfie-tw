@@ -13,7 +13,6 @@ router.post("/addUser", async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(req.body.password, salt);
 
-
         const user = new User({
             username: req.body.username,
             passwordHash: passwordHash,
@@ -22,7 +21,12 @@ router.post("/addUser", async (req, res) => {
             lastName: req.body.lastName,
             isAResource: false,
             isAdmin: false,
-            telegram: req.body.telegram
+            telegram: req.body.telegram,
+            unavailableStart: req.body.unavailableStart,
+            unavailableEnd: req.body.unavailableEnd,
+            unavailableFrequency: req.body.unavailableFrequency,
+            unavailableRepNumber: req.body.unavailableRepNumber,
+            unavailableRepDate: req.body.unavailableRepDate
         });
         await user.save();
         res.status(201).json({ message: 'Data saved successfully' ,

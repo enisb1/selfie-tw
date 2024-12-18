@@ -24,7 +24,7 @@
           <a href="#" class="text-white hover:text-accent">Progetti</a>
           <a href="#" class="text-white hover:text-accent">Pomodoro</a>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
-          <a href="#" class="text-white hover:text-accent">Impostazioni</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Impostazioni</router-link>
         </div>
       </div>
 
