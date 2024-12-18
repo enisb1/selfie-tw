@@ -34,6 +34,10 @@ const noteSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
+    userListAccess: {
+        type: Array,
+        required: false,
+    },
 }, {
     timestamps: true
 }

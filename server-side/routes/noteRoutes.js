@@ -87,5 +87,16 @@ router.get('/getUserNote', async(req, res) => {
     }
 })
 
+router.get('/getUserSelectNote', async(req, res) => {
+    const username = req.query.user
+    try{
+        const notes = await Note.find({userListAccess: username})
+        res.json(notes)
+    }catch(error){
+        console.error("Error retrieving notes: ", error)
+        res.status(500).json({message: 'Server error'})
+    }
+})
+
 
 export default router;

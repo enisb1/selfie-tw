@@ -1,5 +1,6 @@
 <template>
-<div class="inline-flex items-center">
+<div class="flex justify-between items-center">
+  <div class="inline-flex items-center">
   <label
     class="relative flex cursor-pointer items-center rounded-full p-3"
     for="ripple-on"
@@ -33,29 +34,57 @@
       </svg>
     </span>
   </label>
-  <label class="cursor-pointer text-slate-600 text-sm"
-    for="ripple-on"
-  >
-    <h3 class="font-semibold text-lg text-secondary"> {{ task.title }} </h3>
-
+  <label class="cursor-pointer text-slate-600 text-sm" for="ripple-on">
+      <h3 class="font-semibold text-lg text-secondary"> {{ task.title }} </h3>
   </label>
+  </div>
+<img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3 mr-4">
+<Modal @click.self="openExiparation" v-show="exiparationVisible">
+            <div class="h-full w-full flex justify-between items-center">
+                <div class="font-bold text-secondary">Select expiration date:</div>
+                <div><DatePicker class="mt-px inline-block w-auto"  v-model="task.expiration"></DatePicker></div>
+                <div><button @click="saveExpiration(task.expiration)" class="p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
+            </div>
+        </Modal>
 </div>
 </template>
 
 <script>
 
-
+import {ref} from 'vue';
+import Modal from '@/components/Modal.vue';
+import DatePicker from '@vuepic/vue-datepicker';
 
 export default {
     props: ['task'],
 
+    components: {
+      Modal,
+      DatePicker
+    },
+
     
 
-    setup(){
+    setup(props, {emit}){
+      
+      const exiparationVisible = ref(false)
+        const openExiparation = () => {
+            exiparationVisible.value = !exiparationVisible.value
+        }
 
+      const saveExpiration = (taskExpiration) => {
+        emit('save-expiration', taskExpiration)
+        exiparationVisible.value = false
+      }
+
+      
 
         
-        
+      return{
+        openExiparation,
+        exiparationVisible,
+        saveExpiration
+      }
     }
 
 };

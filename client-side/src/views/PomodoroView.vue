@@ -162,9 +162,9 @@
                 <div class="mt-2" v-for="(cicle,index) in cicles" :key="index">
                     <div @click="saveCicle(index)" class="w-full p-2 my-1 rounded-lg flex justify-center gap-8 text-center font-semibold"
                                                   :class="{'bg-white text-secondary': index==0, 'bg-secondary text-white': index!==0}">
-                        <div class="w-1/3">Study: {{ cicle.study }} minutes </div>
-                        <div class="w-1/3">Relax: {{cicle.relax}} minutes </div>
-                        <div class="w-1/3">Cycles: {{cicle.ncicle}}</div>
+                        <div class="w-1/3">Study:<br> {{ cicle.study }}" </div>
+                        <div class="w-1/3">Relax:<br> {{cicle.relax}}" </div>
+                        <div class="w-1/3">Cycles:<br> {{cicle.ncicle}}</div>
                     </div>
                 </div>
             </div>

@@ -59,7 +59,7 @@
     </div>
 
     <!--AddNoteTask modal-->
-    <div v-show="showAddModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full z-10">
+    <div v-show="showAddModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full z-20">
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-third">
             <div class="border border-third fixed top-[52px] left-0 w-full"></div>
@@ -192,6 +192,14 @@
                             <div class="ml-2">Private</div>   
                         </div>
                     </div>
+                    <div v-if="noteSecurity==='selectAccess'" class="max-h-40 overflow-auto scrollbar-hidden">
+                        <div v-for="user in users" :key="user._id">
+                            <div @click="userSelected(user.username)" class="w-full rounded-xl border border-secondary text-center font-semibold my-2"
+                                                                    :class="{'bg-secondary text-white': currentSelect.includes(user.username), 'bg-white text-secondary': !currentSelect.includes(user.username)}">
+                                {{user.username}}
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="flex justify-center mx-12 p-4">
                         <button id="SaveButton" type="submit"
@@ -259,7 +267,7 @@
     <div v-if="editorVisible" class="fixed left-0 top-0 h-full w-full">
         <div v-for="note in notes">
             <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
-            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote"/>
+            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @add-expiration-task="saveExpiration"/>
         </div>
     </div>
 
@@ -283,7 +291,8 @@ import Modal from '@/components/Modal.vue';
 import SingleNote from '@/components/Notes/SingleNote.vue';
 import EditorNote from '@/components/Notes/EditorNote.vue';
 import SingleTask from '@/components/Notes/SingleTask.vue';
-import { postNote, getNotes, deleteNote, getNoteById, editNote, getNoteUser} from '@/apis/note'
+import {postNote, getNotes, deleteNote, getNoteById, editNote, getNoteUser, getUserSelectNote} from '@/apis/note'
+import {getAllUsers} from '@/apis/users'
 import { useStore } from 'vuex';
 
 
@@ -302,14 +311,17 @@ export default {
         const noteTitle = ref('')
         const noteBody = ref('')
         const taskBody = ref([])
+        const taskExpiration = ref()
         const noteCategory = ref('')
         const noteSecurity = ref('')
         const noteFormat = ref('')
         const noteType = ref("Note")
         const noteUser = ref('')
+        const currentSelect = ref([])
         const store = useStore()
         const publicNotes = ref([])
         const selectNotes = ref([])
+        const users = ref([])
 
         //Add Note to NoteView
         const addNote = async () => {
@@ -322,11 +334,12 @@ export default {
                 format: noteFormat.value,
                 access: noteSecurity.value,
                 type: noteType.value,
-                user: noteUser.value
+                user: noteUser.value,
+                userListAccess: currentSelect.value
             })
 
             await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, 
-                           noteSecurity.value, noteType.value, noteUser.value);
+                           noteSecurity.value, noteType.value, noteUser.value, currentSelect.value);
             
             noteTitle.value = "";  
             noteBody.value = "";
@@ -335,6 +348,7 @@ export default {
             noteFormat.value = "";
             noteSecurity.value = "";
             noteType.value = "Note";
+            currentSelect.value = [];
            
             loadNotesUser()
 
@@ -347,32 +361,21 @@ export default {
             try {
                 const fetchNotes = await getNoteUser(noteUser.value, 'privateAccess');
                 notes.value = fetchNotes;
-                console.log(notes.value)
                 
-
                 const fetchNotesPublicNotes = await getNoteUser('', 'publicAccess');
                 publicNotes.value = fetchNotesPublicNotes;
-                console.log(publicNotes.value)
-
-                const fetchNotesSelectNotes = await getNoteUser(noteUser.value, 'selectAccess');
+                
+                const fetchNotesSelectNotes = await getUserSelectNote(noteUser.value, 'selectAccess');
                 selectNotes.value = fetchNotesSelectNotes;
-                console.log(selectNotes)
-
+                
                 notes.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
 
-                console.log(notes.value)
                 
+                console.log(notes.value)
             } catch (error) {
                 console.error("Errore durante il caricamento delle noteUser: ", error);
             }
         };
-
-
-
-        onMounted(() => {
-            noteUser.value = store.state.username
-            loadNotesUser();
-        });
 
         
         const titles = ref(null)
@@ -410,7 +413,7 @@ export default {
             try {
                 const noteId = await getNoteById(id)
                 await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, 
-                               noteId.access, noteId.type, noteId.user);
+                               noteId.access, noteId.type, noteId.user, noteId.userListAccess);
                 
                 notes.value.push({
                     title: noteId.title,
@@ -420,7 +423,8 @@ export default {
                     format: noteId.format,
                     access: noteId.access,
                     type: noteId.type,
-                    user: noteId.user
+                    user: noteId.user,
+                    userListAccess: noteId.userListAccess
                 })
                 loadNotesUser()
                 
@@ -475,16 +479,21 @@ export default {
 
 
         const tasks = ref([])
-        const taskTitle = ref("")
+        
         const taskDone = ref(false)
         
         //Add Task to single TaskNote
         const addTask = (tasktitle,taskdone,id) => {
-
             taskBody.value.push({
                 title: tasktitle
             })
-            console.log(taskBody.value)
+        }
+
+        const saveExpiration = (taskExpiration) => {
+            taskBody.value.push({
+                expiration : taskExpiration
+            })
+            
         }
 
 
@@ -498,15 +507,51 @@ export default {
             }else if(filter.value === "Task"){
                 return notes.value.filter(note => note.type === filter.value)
             
+            }else if(filter.value === "Date" && inNotePage.value === true){
+                console.log("data note funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Note")
+                return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+
+            }else if(filter.value === "Date" && inTaskPage.value === true){
+                console.log("data task funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Task")
+                return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+            
             }else if(filter.value === "Date"){
                 console.log("Data Funziona")
                 showFilterModal.value = false
-                return filteredNotes.sort((a, b) => new Date(formatDate(a.createdAt)) - new Date(formatDate(b.createdAt)))
+                return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+
+            }else if(filter.value === "Title" && inNotePage.value === true){
+                console.log("title note funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Note")
+                return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
+
+            }else if(filter.value === "Title" && inTaskPage.value === true){
+                console.log("title task funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Task")
+                return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
 
             }else if(filter.value === "Title"){
                 console.log("Titolo Funziona")
                 showFilterModal.value = false
                 return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
+
+            }else if(filter.value === "Length" && inNotePage.value === true){
+                console.log("length note funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Note")
+                return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
+
+            }else if(filter.value === "Length" && inTaskPage.value === true){
+                console.log("length task funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Task")
+                return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
             
             }else if(filter.value === "Length"){
                 console.log("Lunghezza Funziona")
@@ -711,20 +756,36 @@ export default {
             noteFormat.value = "";
             noteSecurity.value = "";
             noteType.value = "Note";
+            currentSelect.value = [];
         }
-
-
         
-          /*  if(noteTitle.value.trim() === '' || noteCategory.value.trim() === ''){
-                console.log("errore")
-                return*/
-           
-            
 
         const handleSubmit = (event) => {
             event.preventDefault()
             console.log("dati salvati")
         }
+
+        const fetchUsers = async () => {
+            const data = await getAllUsers()
+            users.value = data
+        }
+
+        
+        
+        const userSelected = (usid) => {
+            if(currentSelect.value.includes(usid)){
+                currentSelect.value = currentSelect.value.filter(id => id !== usid)
+            }else{
+                currentSelect.value.push(usid)
+            }
+        }
+
+
+         onMounted(() => {
+            noteUser.value = store.state.username
+            fetchUsers()
+            loadNotesUser();
+        });
         
 
         
@@ -794,14 +855,19 @@ export default {
             addTask,
             tasks,
             taskDone,
-            taskTitle,
+            taskExpiration,
             uploadTask,
             addTasknote,
             noteUser,
             loadNotesUser,
             resetValor,
             newNote,
-            selectNotes
+            selectNotes,
+            users,
+            fetchUsers,
+            userSelected,
+            currentSelect,
+            saveExpiration,
             
             
             

@@ -27,8 +27,8 @@ module.exports = {
         fourth: '#dddbf1', //lavender
         fifth: '#D1BEB0', //dune
         sixth: '#AB9F9D', //rose quartz
-        seventh: '#8cb8b9',//#ddb39b  #8cb8b9
-        eighth: '#ddb39b',//#B8C4BB
+        seventh: '#cbbeb5',//
+        eighth: '#ddb39b',//
       },
     },
   },

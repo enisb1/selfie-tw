@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export async function postNote(title, bodyNote, bodyTask, category, format, access, type, user) {
+export async function postNote(title, bodyNote, bodyTask, category, format, access, type, user, userListAccess) {
     await axios.post('http://localhost:8000/api/note/addNote', {"title": title, "bodyNote": bodyNote, "bodyTask": bodyTask, 
                                                                 "category": category, "format": format, "access": access,
-                                                                "type": type, "user": user
+                                                                "type": type, "user": user, "userListAccess": userListAccess
     })
     .then(({data}) => {
         console.log(data);
@@ -46,6 +46,22 @@ export async function getNoteUser(username, access){
             }
         })
         console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching notes user: ', error);
+        throw error;
+    }
+}
+
+export async function getUserSelectNote(username, access){
+    console.log(username)
+    try {
+        const response = await axios.get(`http://localhost:8000/api/note/getUserSelectNote`, {
+            params: {
+                user:username, 
+                access:access
+            }
+        })
         return response.data;
     } catch (error) {
         console.error('Error fetching notes user: ', error);

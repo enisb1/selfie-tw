@@ -43,7 +43,7 @@
             <div class="relative mt-3">
                 <input class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border
                                 border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none 
-                                focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" v-model="taskTitle">
+                                focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" v-model="taskTitleInput">
                 <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all 
                                   transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs 
                                   peer-focus:text-slate-400 peer-focus:scale-90">
@@ -51,13 +51,16 @@
                 </label>
             </div>
             <button @click="addTask(taskTitle,taskDone,note._id)" class="p-4 w-full my-4 bg-secondary text-white rounded-xl font-bold">Add task</button>
-            <h1 class="font-bold text-2xl mt-6 mb-4 text-secondary"> {{ noteTitle }} </h1>
-            <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
-                <div v-for="task in taskBody" :key="task.id">
-                    <SingleTask :task="task" />
+            <h1 class="font-bold text-2xl mt-6 mb-4  text-secondary overflow-hidden text-center md:text-start"> {{ noteTitle }} </h1>
+            <div class="relative h-screen w-full">
+            <div class="absolute w-full top-0 bottom-72 overflow-scroll">
+                <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
+                    <div v-for="task in taskBody" :key="task.id">
+                        <SingleTask :task="task" @save-expiration="saveExpiration"/>
+                    </div>
                 </div>
             </div>
-
+            </div>
         </div>
     </div>
     
@@ -70,17 +73,21 @@ import { marked } from 'marked'
 import SingleNote from '@/components/Notes/SingleNote.vue'
 import SingleTask from '@/components/Notes/SingleTask.vue';
 import { format } from 'date-fns'
+import Modal from '@/components/Modal.vue';
+import DatePicker from '@vuepic/vue-datepicker';
 
 export default {
     props: ['note','noteFormat','noteTitle', 'noteBody', 'task','taskBody'],
 
     components: {
         SingleNote,
-        SingleTask
+        SingleTask,
+        Modal,
+        DatePicker
     },
 
     setup(props, {emit}){
-        const {note, noteFormat, noteTitle, noteBody, tasks, taskBody, taskTitle} = props
+        const {note, noteFormat, noteTitle, noteBody, tasks, taskBody} = props
 
         
         const convertedMarkdown = computed(() => {
@@ -92,14 +99,23 @@ export default {
             emit('save-note',noteBody,id)
         }
 
+        const taskTitleInput = ref("")
         const addTask = (taskTitle, taskdone, id) => {
+            taskTitle = taskTitleInput.value
             emit('add-task',taskTitle,taskdone, id)
+            taskTitleInput.value = ""
         }
 
         
         const toggleEditorTask = (id, body) => {
             console.log(id)
             emit('add-tasknote', id, body)
+        }
+
+        
+    
+        const saveExpiration = (taskExpiration) => {
+            emit('add-expiration-task', taskExpiration)
         }
 
         return{
@@ -113,9 +129,10 @@ export default {
             toggleEditorTask,
             tasks,
             taskBody,
-            taskTitle,
+            taskTitleInput,
             convertedMarkdown,
-            format
+            format,
+            saveExpiration,
         }
 
     },
