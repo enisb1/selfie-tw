@@ -17,7 +17,7 @@
         
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div  class="hidden lg:flex space-x-6">
-          <router-link class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
+          <router-link v-show="store.state.isAdmin"class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche </router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
