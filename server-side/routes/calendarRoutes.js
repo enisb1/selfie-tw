@@ -167,7 +167,6 @@ router.get("/resourcesEvents", async (req,res) => {
               },
             },
         ]);
-        console.log(events)
         res.json(events);
     } catch (error) {
         res.status(500).json({ error: 'Error fetching events' });
@@ -301,7 +300,6 @@ router.get("/resourcesFromIds", async (req, res) => {
   const {resources} = req.query;
   const objectIds = resources.split(",").map(r => new mongoose.Types.ObjectId(r))
   try {
-    // Query Mongoose to find matching resources
     const matchingResources = await Resource.find({ 
       _id: { $in: objectIds } 
     });
@@ -322,5 +320,24 @@ router.post("/addResource", async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+router.patch("/removeResourceFromEvent", async (req, res) => {
+  const {resource, event} = req.body;
+  try {
+    const result = await Event.updateOne(
+      { _id: event }, // Find the document with the specified ID
+      { $pull: { resources: resource } } // Use $pull to remove the resource
+    );
+    // Check if the document was modified
+    if (result.modifiedCount > 0) {
+      return res.status(200).json({ message: 'Resource removed successfully.' });
+    } else {
+      return res.status(404).json({ message: 'Event not found or resource not present.' });
+    }
+  }catch (error) {
+      console.error('Error saving data:', error);
+      res.status(500).json({ message: 'Server error' });
+  }
+})
 
 export default router;

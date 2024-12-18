@@ -149,6 +149,10 @@
                 <p>{{ new Date(resourceEvent.endDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
             </div>
         </div>
+
+        <!-- delete button -->
+        <button @click="removeResource" class="w-full mt-4 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Remove resource</button>
     </Modal>
 </template>
 
@@ -161,7 +165,7 @@ import { watch } from 'vue';
 import { onMounted, onBeforeUnmount } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
-import { getEvents, getActivitiesInRange, getResourcesEvents } from '@/apis/calendar.js';
+import { getEvents, getActivitiesInRange, getResourcesEvents, removeResourceFromEvent } from '@/apis/calendar.js';
 import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
@@ -235,6 +239,11 @@ export default {
         }
 
         const resourceEvent = ref()
+        const removeResource = async () => {
+            await removeResourceFromEvent(resourceEvent.value.resourceId, resourceEvent.value.eventId)
+            updateCalendar()
+            toggleResourceEventInfoOff()
+        }
         const showResourceEventModal = ref(false)
         const toggleResourceEventInfoOnFromEvent = (event) => {
             resourceEvent.value = event.detail
@@ -382,7 +391,8 @@ export default {
             resourceEvent,
             showResourceEventModal,
             toggleResourceEventInfoOff,
-            resourceDateFormat
+            resourceDateFormat,
+            removeResource
         }
     }
 }

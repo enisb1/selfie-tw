@@ -124,6 +124,10 @@
                 <p>{{ new Date(resourceEvent.endDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
             </div>
         </div>
+        
+        <!-- delete button -->
+        <button @click="removeResource" class="w-full mt-4 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Remove resource</button>
     </Modal>
 </template>
 
@@ -135,7 +139,7 @@ import { ref } from 'vue'
 import { watch } from 'vue'
 import { updateSchedules } from './update-events-month.js'
 import { computed } from 'vue'
-import { getEvents, getActivitiesInRange, getResourcesEvents } from '@/apis/calendar.js'
+import { getEvents, getActivitiesInRange, getResourcesEvents, removeResourceFromEvent } from '@/apis/calendar.js'
 import { getAllEventsInstances } from '../repeated-events.js'
 import Modal from '@/components/Modal.vue'
 import EventInfoEdit from '../EventInfoEdit.vue'
@@ -238,7 +242,7 @@ export default {
                     events.forEach(event => {
                         event.matchedResources.forEach(resource => {
                             // Clone the event and add the resource
-                            const newEvent = { ...event, resourceUsername: resource.username }    // copy event and add resource
+                            const newEvent = { ...event, resourceUsername: resource.username, resourceId: resource._id, eventId: event._id }    // copy event and add resource
                             delete newEvent.matchedResources // remove matchedResources field (optional)
                             transformedEvents.push(newEvent)
                         });
@@ -259,6 +263,11 @@ export default {
         }
         const toggleResourceEventModalOff = () => {
             showResourceEventModal.value = false
+        }
+        const removeResource = async () => {
+            await removeResourceFromEvent(resourceEvent.value.resourceId, resourceEvent.value.eventId)
+            updateCalendar()
+            toggleResourceEventModalOff()
         }
         const resourceDateFormat = {
             year: 'numeric',
@@ -362,7 +371,8 @@ export default {
             toggleResourceEventModalOff,
             resourceEvent,
             showResourceEventModal,
-            resourceDateFormat
+            resourceDateFormat,
+            removeResource
         }
     }
 }

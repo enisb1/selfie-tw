@@ -136,7 +136,7 @@ function addEvent(eventToAdd, startDate, endDate, resource) {
     else {
         // add click listener to show resource event info
         const resourceEvent = {startDate: eventToAdd.startDate, endDate: eventToAdd.endDate,
-            resourceUsername: resource.username
+            resourceUsername: resource.username, resourceId: resource._id, eventId: eventToAdd._id
         }
         
         eventToAddDiv.addEventListener('click', function () {

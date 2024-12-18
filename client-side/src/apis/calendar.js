@@ -133,3 +133,12 @@ export async function postResource(username) {
         console.log(data);
     })
 }
+
+export async function removeResourceFromEvent(resourceId, eventId) {
+    try {
+        const response = await axios.patch(`http://localhost:8000/api/calendar/removeResourceFromEvent`, {resource: resourceId, event: eventId})
+        return response.data;
+    }catch (error) {
+        throw error.response.data;
+    }
+}
