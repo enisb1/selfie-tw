@@ -6,7 +6,7 @@
         <div v-for="resource in resources" class="w-3/4 sm:w-1/4 font-semibold text-lg mt-4 bg-white bg-opacity-50 py-2 px-4 rounded-lg">
             <div class="flex justify-between">
                 <p class="max_width_half truncate"> {{ resource.username }} </p>
-                <img src="../images/delete-black.png">
+                <button @click="onDeleteResource(resource._id)"><img src="../images/delete-black.png"></button>
             </div>
         </div>
     </div>
@@ -36,9 +36,8 @@
 <script>
 import { onMounted } from 'vue';
 import { ref } from 'vue';
-import { getResources } from '@/apis/calendar';
+import { getResources, postResource, deleteResource } from '@/apis/calendar';
 import Modal from '@/components/Modal.vue';
-import { postResource } from '@/apis/calendar';
 
 export default {
     components : {
@@ -64,6 +63,11 @@ export default {
             updateResources()
         }
 
+        const onDeleteResource = async (resourceId) => {
+            await deleteResource(resourceId)
+            updateResources()
+        }
+
         onMounted(() => {
             updateResources()
         })
@@ -73,7 +77,8 @@ export default {
             showAddResourceModal,
             toggleAddResourceModal,
             addResource,
-            resourceToAddUsername
+            resourceToAddUsername,
+            onDeleteResource
         }
     }
 }

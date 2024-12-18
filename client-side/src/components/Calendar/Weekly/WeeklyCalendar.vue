@@ -205,7 +205,7 @@
         </div>
 
         <!-- delete button -->
-        <button @click="removeResource" class="w-full mt-4 rounded-md 
+        <button v-show="store.state.isAdmin" @click="removeResource" class="w-full mt-4 rounded-md 
                 bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Remove resource</button>
     </Modal>
 </template>
@@ -441,7 +441,8 @@ export default {
             toggleResourceEventInfoOnFromEvent,
             toggleResourceEventInfoOff,
             resourceDateFormat,
-            removeResource
+            removeResource,
+            store
         }
     }
 }

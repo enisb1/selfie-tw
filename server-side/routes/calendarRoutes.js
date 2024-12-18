@@ -340,4 +340,30 @@ router.patch("/removeResourceFromEvent", async (req, res) => {
   }
 })
 
+router.delete("/resources/:id", async (req, res) => {
+  const resourceId = req.params.id;
+  try {
+    // 1. Delete the resource from the resources collection
+    const deleteResult = await Resource.deleteOne({ _id: new mongoose.Types.ObjectId(resourceId) });
+    if (deleteResult.deletedCount === 0) {
+      return res.status(404).send({ error: "Resource not found" });
+    }
+
+    // 2. Remove the resourceId from the resources array in the events collection
+    const updateResult = await Event.updateMany(
+      { resources: resourceId }, // Find events where the resource exists in the resources array
+      { $pull: { resources: resourceId } } // Remove the resourceId from the resources array
+    );
+
+    return res.status(200).send({
+      message: "Resource deleted successfully",
+      resourceDeleted: deleteResult.deletedCount,
+      eventsUpdated: updateResult.modifiedCount,
+    });
+  } catch (error) {
+    console.error("Error deleting resource:", error);
+    return res.status(500).send({ error: "Internal server error" });
+  }
+})
+
 export default router;

@@ -142,3 +142,11 @@ export async function removeResourceFromEvent(resourceId, eventId) {
         throw error.response.data;
     }
 }
+
+// delete resource from collection of resources and from each event that uses it
+export async function deleteResource(resourceId) {
+    await axios.delete(`http://localhost:8000/api/calendar/resources/${resourceId}`)
+    .then(({data}) => {
+        console.log(data);
+    })
+}
