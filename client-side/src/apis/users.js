@@ -57,3 +57,12 @@ export async function getAllUsers() {
         throw error.response.data;
     }
 }
+
+export async function updateUnavailability(userId, updatedData) {
+    try {
+        const response = await axios.put(`http://localhost:8000/api/login/updateUnavailability/${userId}`, updatedData);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}

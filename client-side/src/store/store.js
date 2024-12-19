@@ -78,8 +78,22 @@ export const store = createStore({
                 state.unavailableRepNumber = localStorage.getItem('unavailableRepNumber');
                 state.unavailableRepDate = localStorage.getItem('unavailableRepDate');
             }
+        },
+        setUnavailableStart(state, value) {
+            state.unavailableStart = value;
+        },
+        setUnavailableEnd(state, value) {
+            state.unavailableEnd = value;
+        },
+        setUnavailableFrequency(state, value) {
+            state.unavailableFrequency = value;
+        },
+        setUnavailableRepNumber(state, value) {
+            state.unavailableRepNumber = value;
+        },
+        setUnavailableRepDate(state, value) {
+            state.unavailableRepDate = value;
         }
-
     },
     actions: {
 

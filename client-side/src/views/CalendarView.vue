@@ -142,10 +142,6 @@
       </div>
 
       <!-- invite users -->
-      <!--TODO: selectedUsers contains array of events and resources, when user
-      submits form, add this array to 'users' field in database, after that
-      for each resource, calculate its event by seeing if its id is contained
-      in the 'users' field of the event-->
       <div class="mt-4">
         <p class="font-semibold text-base">Invite users</p>
         <Multiselect v-model="selectedUsers" :options="usersOptions"

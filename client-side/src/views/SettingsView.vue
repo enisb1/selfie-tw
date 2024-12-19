@@ -10,17 +10,19 @@
 
             <div class="mt-4" v-if="unavailableStart">
                 <p class="font-semibold text-base">Unavailable start</p>
-                <p> {{ unavailableStart.toLocaleDateString("it-IT", formatDate) }}</p>  
+                <p> {{ new Date(unavailableStart).toLocaleDateString("it-IT", unavailableDatesOptions) }}</p>  
             </div>
 
             <div class="mt-4" v-if="unavailableEnd">
                 <p class="font-semibold text-base">Unavailable end</p>
-                <p> {{ unavailableEnd.toLocaleDateString("it-IT", formatDate) }}</p>  
+                <p> {{ new Date(unavailableEnd).toLocaleDateString("it-IT", unavailableDatesOptions) }}</p>  
             </div>
 
             <div class="mt-4" v-if="unavailableFrequency != 'none'">
                 <p class="font-semibold text-base">Unavailable frequency</p>
-                <p> {{ unavailableFrequency }} </p>  
+                <p> {{ unavailableFrequency }} frequency {{ unavailableRepNumber ? `repeating ${unavailableRepNumber} times` :
+                    `until ${new Date(unavailableRepDate).toLocaleDateString
+                    ('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>  
             </div>
         </div>
 
@@ -44,14 +46,14 @@
                 <div class="mt-4">
                     <p class="font-semibold text-base">Start</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="unavailableStartToSet" 
-                    :format="formatDate" minutes-increment="5" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
                 </div>
                 
                 <!-- end date -->
                 <div class="mt-4 sm:ml-4">
                     <p class="font-semibold text-base">End</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="unavailableEndToSet" 
-                    :format="formatDate" minutes-increment="5" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
                 </div>
             </div>
             
@@ -101,6 +103,9 @@
                 </DatePicker>
             </div>
 
+            <div v-show="showError" class="bg-red-400 text-white font-bold mt-2 
+                inline px-2 text-center mx-auto" > {{ errorValue }}</div>
+
             <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 
                     py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button>
         </form>
@@ -114,6 +119,7 @@ import '@vuepic/vue-datepicker/dist/main.css'
 import Modal from '@/components/Modal.vue';
 import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
+import { updateUnavailability } from '@/apis/users';
 
 export default {
     components : {
@@ -134,6 +140,15 @@ export default {
         const updateUserData = () => {
             username.value = store.state.username
             email.value = store.state.email
+        }
+
+        const unavailableDatesOptions = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
         }
 
         const unavailableStartToSet = ref()
@@ -220,11 +235,42 @@ export default {
             }
         }
 
-        const setUnavailability = () => {
+        const showError = ref(true)
+        const errorValue = ref('')
+        const setUnavailability = async () => {
             // modify db
-            // modify store
+            if (unavailableEndToSet.value.getTime() <= unavailableStartToSet.value.getTime()) {
+                errorValue.value = "End date must be after start date"
+                showError.value = true
+            }
+            else {
+                // create updated user object
+                if (unavailableRepDateToSet.value)
+                    unavailableRepDateToSet.value = new Date(new Date(unavailableRepDateToSet.value).setHours(23,59,59,999))
+
+                const updatedUser = {
+                    unavailableStart: unavailableStartToSet.value,
+                    unavailableEnd: unavailableEndToSet.value,
+                    unavailableFrequency: unavailableFrequencyToSet.value,
+                    unavailableRepNumber: unavailableRepNumberToSet.value,
+                    unavailableRepDate: unavailableRepDateToSet.value
+                };
+                // put new user as events are put in eventinfoedit
+                await updateUnavailability(store.state._id, updatedUser);
+
+                // modify store to update unavailability data
+                store.commit('setUnavailableStart', unavailableStartToSet.value);
+                store.commit('setUnavailableEnd', unavailableEndToSet.value);
+                store.commit('setUnavailableFrequency', unavailableFrequencyToSet.value);
+                store.commit('setUnavailableRepNumber', unavailableRepNumberToSet.value);
+                store.commit('setUnavailableRepDate', unavailableRepDateToSet.value);
+                
+                showError.value = false
+            }
             toggleUnavailableModal()
         }
+
+        const startTime = ref({ hours: 12, minutes: 30 })
 
         onMounted(() => {
             updateUserData()
@@ -259,7 +305,11 @@ export default {
             unavailableRepNumber,
             unavailableRepDate,
             toggleUnavailableModal,
-            setUnavailability
+            setUnavailability,
+            showError,
+            errorValue,
+            startTime,
+            unavailableDatesOptions
         }
     }
 }

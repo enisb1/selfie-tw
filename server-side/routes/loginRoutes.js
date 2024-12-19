@@ -113,6 +113,29 @@ router.get("/allUsers", async (req, res) => {
     }
 });
 
+router.put("/updateUnavailability/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { unavailableStart, unavailableEnd, unavailableFrequency, unavailableRepNumber, unavailableRepDate } = req.body;
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+            unavailableStart,
+            unavailableEnd,
+            unavailableFrequency,
+            unavailableRepNumber,
+            unavailableRepDate
+        }, { new: true });
+
+        if (updatedUser) {
+            res.status(200).json({ message: 'Unavailability updated successfully', user: updatedUser });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating unavailability', error: error.message });
+    }
+});
+
 
 
 

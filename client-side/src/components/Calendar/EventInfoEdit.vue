@@ -248,7 +248,6 @@ export default {
                 //isRepNumberRequired.value = !(!!editedEventRepDate.value)
             }
         }
-        
 
         const formatDateNoTime = (date) => {
             // format date to dd/mm/yyyy
