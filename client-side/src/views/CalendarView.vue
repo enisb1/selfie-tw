@@ -157,6 +157,42 @@
         <input type="color" value="#3C4F76" v-model="selectedColor">
       </div>
 
+      <!-- notifications -->
+      <div class="flex mt-4">
+        <div>
+          <input 
+            type="checkbox"
+            v-model="notify15Before"
+            class="mr-2"
+          />
+          <label class="mr-2">15 minutes before</label>
+        </div>
+        <div>
+          <input 
+            type="checkbox"
+            v-model="notify30Before"
+            class="mr-2"
+          />
+          <label class="mr-2">30 minutes before</label>
+        </div>
+        <div>
+          <input 
+            type="checkbox"
+            v-model="notify1HourBefore"
+            class="mr-2"
+          />
+          <label class="mr-2">1 hour before</label>
+        </div>
+        <div>
+          <input 
+            type="checkbox"
+            v-model="notify1DayBefore"
+            class="mr-2"
+          />
+          <label class="mr-2">1 day before</label>
+        </div>
+      </div>
+
       <div v-show="showAddError" class="bg-red-400 text-white font-bold mt-2 
         inline px-2 text-center mx-auto" > {{ addErrorValue }}</div>
         
@@ -289,6 +325,10 @@ export default {
       activityToAddDeadline.value = null
       inAddActivity.value = false
       inAddEvent.value = true
+      notify15Before.value = false
+      notify30Before.value = false
+      notify1HourBefore.value = false
+      notify1DayBefore.value = false
       updateUsersOptions()
     }
     // add event modal data
@@ -296,6 +336,10 @@ export default {
     const eventToAddLocation = ref()
     const eventToAddStartDate = ref()
     const eventToAddEndDate = ref()
+    const notify15Before = ref(false)
+    const notify30Before = ref(false)
+    const notify1HourBefore = ref(false)
+    const notify1DayBefore = ref(false)
     // format date in add event modal
     const formatDate = (date) => {
       if (!date) return '';
@@ -347,7 +391,8 @@ export default {
         //const eventToAddUsers = availableResources.map(r => r._id).concat([store.state._id])
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-        eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id))
+        eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id),
+        notify15Before.value, notify30Before.value, notify1HourBefore.value, notify1DayBefore.value)
         updateAllCalendars()
         toggleAddModal();
         showAddError.value = false
@@ -520,7 +565,11 @@ export default {
       inYoursCalendar,
       inResourcesCalendar,
       toggleInYoursCalendar,
-      toggleInResourcesCalendar
+      toggleInResourcesCalendar,
+      notify15Before,
+      notify30Before,
+      notify1HourBefore,
+      notify1DayBefore
     }
   }
 }

@@ -9,8 +9,6 @@
 
 <style scoped>
     .modal {
-        top: 20%;
-        max-height: 80%;
-        overflow-y: auto;
+        top: 10%;
     }
 </style>
