@@ -1,5 +1,4 @@
 <template>
-
     <div class="flex flex-col items-center mt-24">
         <div class="flex flex-col px-4 py-2 bg-white rounded-md border border-third w-3/4 sm:w-1/2 min-h-40">
             <p class="mt-4 font-semibold">Username</p>
@@ -26,8 +25,10 @@
             </div>
         </div>
 
-        <button @click="toggleUnavailableModal" class="mt-4 rounded-md bg-secondary 
-      px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Set unavailability</button>
+        <div class="flex mt-4">
+            <button @click="toggleUnavailableModal" class="rounded-md bg-secondary
+                px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Set unavailability</button>
+        </div>
     </div>
 
     <Modal v-show="showUnavailableModal" @close="toggleUnavailableModal">

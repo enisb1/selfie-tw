@@ -141,7 +141,7 @@
         <div v-for="[day, events] in eventsForDay" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ new Date(day).getDate() }} {{ months[new Date(day).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
+                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :class="{'mt-4': indexEvent>0}" 
                     :data-event-id="event._id" :style="{backgroundColor: event.color}" class="event w-full 
                     opacity-75 truncate px-4 rounded-xl py-2 cursor-pointer">
                         {{ event.title }} 

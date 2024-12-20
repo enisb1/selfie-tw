@@ -62,7 +62,7 @@
             <div class="flew flex-col bg-white bg-opacity-50 rounded-lg py-4 px-2 w-3/4">
                 <div class="flex justify-between items-center" :class="{'mt-4': indexEvent>0}" 
                     v-for="(event, indexEvent) in eventsBeforeMidnight">
-                    <div @click="toggleScheduleInfoOn(event)" :style="{backgroundColor: event.color}" class="px-4 opacity-75 hover:opacity-100 hover:font-bold 
+                    <div @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :style="{backgroundColor: event.color}" class="px-4 opacity-75 hover:opacity-100 hover:font-bold 
                     truncate bg-secondary rounded-xl py-2 cursor-pointer max_width_half">
                         {{ event.title }}
                     </div>
@@ -81,7 +81,7 @@
             <div class="flew flex-col bg-white bg-opacity-50 rounded-lg py-4 px-2 w-3/4">
                 <div class="flex justify-between items-center" :class="{'mt-4': indexEvent>0}" 
                     v-for="(event, indexEvent) in events">
-                    <div @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
+                    <div @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :class="{'mt-4': indexEvent>0}" 
                         :style="{backgroundColor: event.color}" class="px-4 opacity-75 hover:opacity-100 hover:font-bold 
                         truncate bg-secondary rounded-xl py-2 cursor-pointer max_width_half">
                         {{ event.title }}

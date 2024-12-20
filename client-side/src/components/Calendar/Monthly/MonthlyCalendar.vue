@@ -31,7 +31,7 @@
                 <div v-if="!showResourcesCalendar" v-for="event in eventsForDay[index+1]" :data-event-id="event.startDate ? event._id : null" 
                 :style="{backgroundColor: event.deadline ? 'crimson' : event.color}" 
                 :class="{'line-through': event.isDone, 'font-bold': event.deadline,'opacity-75': event.startDate, 'event': event.startDate}" 
-                class="px-1 mt-2 truncate cursor-pointer" @click="toggleScheduleInfoOn(event)">
+                class="px-1 mt-2 truncate cursor-pointer" @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)">
                     <p> {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }}</p>
                 </div>
                 <div v-else v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}"
@@ -63,7 +63,7 @@
         <div v-for="[day, events] in filteredEvents" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ day }} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
+                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :class="{'mt-4': indexEvent>0}" 
                     :style="{backgroundColor: event.color}" :data-event-id="event._id" 
                     class="w-full truncate px-4 rounded-xl py-2 opacity-75 event cursor-pointer">
                         {{ event.title }} 

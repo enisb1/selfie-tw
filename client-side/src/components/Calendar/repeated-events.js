@@ -44,9 +44,11 @@ export function getAllEventsInstances(events) {
                 // create copies of the event modifying start date and end date
                 const eventDuration = new Date(e.endDate).getTime() - new Date(e.startDate).getTime()
                 const eventRepeated = structuredClone(e);
-                eventRepeated.startDate = date
-                eventRepeated.endDate = new Date(date.getTime() + eventDuration)
-                allEventsInstances.push(eventRepeated)
+                eventRepeated.startDate = date;
+                eventRepeated.endDate = new Date(date.getTime() + eventDuration);
+                // add original event to show this when user clicks on event in calendar
+                eventRepeated.originalEvent = e;
+                allEventsInstances.push(eventRepeated);
             }
         }
         else {

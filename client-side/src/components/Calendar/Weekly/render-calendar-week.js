@@ -126,8 +126,13 @@ function addEvent(eventToAdd, startDate, endDate, resource) {
     if (!resource) {
         // add click listener to show event's info
         eventToAddDiv.addEventListener('click', function () {
+            let detail = null;
+            if (eventToAdd.originalEvent)
+                detail = eventToAdd.originalEvent;
+            else
+                detail = eventToAdd;
             const event = new CustomEvent('showScheduleInfoWeekly', {
-                detail: eventToAdd
+                detail: detail
             });
             window.dispatchEvent(event); // Dispatch event to the global window
         });
