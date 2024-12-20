@@ -214,6 +214,7 @@ import { ref, computed } from 'vue';
 import { useStore } from 'vuex';
 import Multiselect from 'vue-multiselect';
 import { getAllUsers } from '@/apis/users';
+import { getUnavailableRepeatedDates } from '@/components/Calendar/repeated-dates';
 
 export default {
   components: {
@@ -322,14 +323,31 @@ export default {
         // set repetition date to end of day (otherwise it would be current time)
         if (eventToAddRepetitionDate.value)
           eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
+
         // process selectedUsers to get users and resources
         const users = selectedUsers.value.filter(obj => obj.firstName) // TODO: will have to send invite to these users
+        // send invite to users
+        for (const user of users) {
+          const repeatedDatesArray = await getUnavailableRepeatedDates(user._id)
+          let sendInvite = true
+          for (const [unavailableStart, unavailableEnd] of repeatedDatesArray) {
+            if (eventToAddStartDate.value.getTime() >= unavailableStart.getTime() && eventToAddStartDate.value.getTime() <= unavailableEnd.getTime()
+              || eventToAddEndDate.value.getTime() >= unavailableStart.getTime() && eventToAddEndDate.value.getTime() <= unavailableEnd.getTime()
+              || eventToAddStartDate.value.getTime() >= unavailableStart.getTime() && eventToAddEndDate.value.getTime() <= unavailableEnd.getTime()){
+              sendInvite = false
+              break
+            }
+          }
+          if (sendInvite) {
+            // TODO: send invite to user
+          }
+        }
         const resources = selectedUsers.value.filter(obj => !obj.firstName)
         const availableResources = await getAvailableResources(resources.map(obj => obj._id), new Date(eventToAddStartDate.value), new Date(eventToAddEndDate.value))
         //const eventToAddUsers = availableResources.map(r => r._id).concat([store.state._id])
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-        eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id)) 
+        eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id))
         updateAllCalendars()
         toggleAddModal();
         showAddError.value = false
