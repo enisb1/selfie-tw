@@ -29,11 +29,11 @@
 
       <!--Dropdown menu-->
       <div v-show="showCalendarMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-        <div @click="showDailyCalendar"
+        <div @click="showCalendar('daily')"
           class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
-        <div @click="showWeeklyCalendar"
+        <div @click="showCalendar('weekly')"
           class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Weekly</div>
-        <div @click="showMonthlyCalendar"
+        <div @click="showCalendar('monthly')"
           class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Monthly</div>
       </div>
     </div>
@@ -118,15 +118,15 @@
 
         <!-- dropdown menu -->
         <div v-show="showFrequencyMenu" class="absolute mt-2 z-50 origin-top-left rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
-          <div @click="selectNoneFrequency()"
+          <div @click="selectFrequency('none')"
             class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">None</div>
-          <div @click="selectDailyFrequency()"
+          <div @click="selectFrequency('daily')"
             class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Daily</div>
-          <div @click="selectWeeklyFrequency()"
+          <div @click="selectFrequency('weekly')"
             class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Weekly</div>
-          <div @click="selectMonthlyFrequency()"
+          <div @click="selectFrequency('monthly')"
             class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Monthly</div>
-          <div @click="selectYearlyFrequency()"
+          <div @click="selectFrequency('yearly')"
             class="block px-4 py-2 text-md text-gray-700 hover:bg-secondary hover:text-white" tabindex="-1">Yearly</div>
         </div>
       </div>
@@ -162,35 +162,19 @@
       <!-- notifications -->
       <div class="flex mt-4">
         <div>
-          <input 
-            type="checkbox"
-            v-model="notify15Before"
-            class="mr-2"
-          />
+          <input type="checkbox" v-model="notify15Before" class="mr-2"/>
           <label class="mr-2">15 minutes before</label>
         </div>
         <div>
-          <input 
-            type="checkbox"
-            v-model="notify30Before"
-            class="mr-2"
-          />
+          <input type="checkbox" v-model="notify30Before" class="mr-2"/>
           <label class="mr-2">30 minutes before</label>
         </div>
         <div>
-          <input 
-            type="checkbox"
-            v-model="notify1HourBefore"
-            class="mr-2"
-          />
+          <input type="checkbox" v-model="notify1HourBefore" class="mr-2"/>
           <label class="mr-2">1 hour before</label>
         </div>
         <div>
-          <input 
-            type="checkbox"
-            v-model="notify1DayBefore"
-            class="mr-2"
-          />
+          <input type="checkbox" v-model="notify1DayBefore" class="mr-2"/>
           <label class="mr-2">1 day before</label>
         </div>
       </div>
@@ -259,7 +243,7 @@ import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { getResources, postEvent, getAvailableResources } from '@/apis/calendar';
+import { getResources, postEvent, getEventsByResource } from '@/apis/calendar';
 import { getCurrentInstance, onMounted, nextTick } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
@@ -268,6 +252,7 @@ import Multiselect from 'vue-multiselect';
 import { getAllUsers } from '@/apis/users';
 import { getUnavailableRepeatedDates } from '@/components/Calendar/repeated-dates';
 import { getEventsFromIcsString } from '@/components/Calendar/import-events';
+import { getAllEventsInstances } from '@/components/Calendar/repeated-events';
 
 export default {
   components: {
@@ -301,16 +286,8 @@ export default {
 
     // calendar to show
     const calendarToShow = ref('daily')
-    const showDailyCalendar = () => {
-      calendarToShow.value = 'daily'
-      toggleShowCalendarMenu()
-    }
-    const showWeeklyCalendar = () => {
-      calendarToShow.value = 'weekly'
-      toggleShowCalendarMenu()
-    }
-    const showMonthlyCalendar = () => {
-      calendarToShow.value = 'monthly'
+    const showCalendar = (calendarType) => {
+      calendarToShow.value = calendarType
       toggleShowCalendarMenu()
     }
 
@@ -404,9 +381,31 @@ export default {
             // TODO: send invite to user
           }
         }
+        // calculate available and not available resources
         const resources = newEventSelectedUsers.value.filter(obj => !obj.firstName)
-        const availableResources = await getAvailableResources(resources.map(obj => obj._id), new Date(eventToAddStartDate.value), new Date(eventToAddEndDate.value))
-        //const eventToAddUsers = availableResources.map(r => r._id).concat([store.state._id])
+        const availableResources = []
+        const notAvailableResources = []
+        const eventToAddStartTime = eventToAddStartDate.value.getTime()
+        const eventToAddEndTime = eventToAddEndDate.value.getTime()
+        for (const resource of resources) {
+          const eventsUsingResource = await getEventsByResource(resource._id)
+          const allEventsInstances = getAllEventsInstances(eventsUsingResource)
+          let isAvailable = true
+          for (const eventInstance of allEventsInstances) {
+            const eventInstanceStartTime = new Date(eventInstance.startDate).getTime()
+            const eventInstanceEndTime = new Date(eventInstance.endDate).getTime()
+            if (eventToAddStartTime >= eventInstanceStartTime && eventToAddStartTime <= eventInstanceEndTime
+              || eventToAddEndTime >= eventInstanceStartTime && eventToAddEndTime <= eventInstanceEndTime
+              || eventToAddStartTime <= eventInstanceStartTime && eventToAddEndTime >= eventInstanceEndTime){
+              isAvailable = false
+              break
+            }
+          }
+          if (isAvailable)
+            availableResources.push(resource)
+          else
+            notAvailableResources.push(resource)
+        }
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
         eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id),
@@ -440,24 +439,8 @@ export default {
     const toggleFrequencyMenu = () => {
       showFrequencyMenu.value = !showFrequencyMenu.value
     }
-    const selectNoneFrequency = () => {
-      eventToAddFrequency.value = 'none'
-      toggleFrequencyMenu()
-    }
-    const selectDailyFrequency = () => {
-      eventToAddFrequency.value = 'daily'
-      toggleFrequencyMenu()
-    }
-    const selectWeeklyFrequency = () => {
-      eventToAddFrequency.value = 'weekly'
-      toggleFrequencyMenu()
-    }
-    const selectMonthlyFrequency = () => {
-      eventToAddFrequency.value = 'monthly'
-      toggleFrequencyMenu()
-    }
-    const selectYearlyFrequency = () => {
-      eventToAddFrequency.value = 'yearly'
+    const selectFrequency = (frequency) => {
+      eventToAddFrequency.value = frequency
       toggleFrequencyMenu()
     }
     // disable number frequency when date is used and viceversa
@@ -484,11 +467,9 @@ export default {
 
     const toggleRepInputs = (activeField) => {
         if (activeField === 'number') {
-            isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value // Disable date input if number input has a value
-            //isRepDateRequired.value = !(!!editedEventRepNumber.value)
+            isRepetitionDateDisabled.value = !!eventToAddRepetitionNumber.value // disable if number input has a value
         } else if (activeField === 'date') {
-            isRepetitionNumberDisabled.value = !!eventToAddRepetitionDate.value // Disable number input if date input has a value
-            //isRepNumberRequired.value = !(!!editedEventRepDate.value)
+            isRepetitionNumberDisabled.value = !!eventToAddRepetitionDate.value // disable if date input has a value
         }
     }
 
@@ -557,9 +538,7 @@ export default {
 
     return {
       calendarToShow,
-      showDailyCalendar,
-      showWeeklyCalendar,
-      showMonthlyCalendar,
+      showCalendar,
       showCalendarMenu,
       toggleShowCalendarMenu,
       showAddEventModal: showAddModal,
@@ -577,11 +556,6 @@ export default {
       showFrequencyMenu,
       toggleFrequencyMenu,
       eventToAddFrequency,
-      selectNoneFrequency,
-      selectDailyFrequency,
-      selectWeeklyFrequency,
-      selectMonthlyFrequency,
-      selectYearlyFrequency,
       eventToAddRepetitionNumber,
       eventToAddRepetitionDate,
       isRepetitionDateDisabled,
@@ -613,7 +587,8 @@ export default {
       inImportEvent,
       selectInImportEvent,
       importEvent,
-      newActivitySelectedUsers
+      newActivitySelectedUsers,
+      selectFrequency
     }
   }
 }

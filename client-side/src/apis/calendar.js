@@ -108,18 +108,6 @@ export async function getResources() {
     }
 }
 
-// get list of available resources given, list of users, startDate and endDate
-export async function getAvailableResources(users, startDate, endDate) {
-    const startStringUTC = new Date(startDate).toISOString();
-    const endStringUTC = new Date(endDate).toISOString();
-    try {
-        const response = await axios.get(`http://localhost:8000/api/calendar/availableResources?users=${users}&start=${startStringUTC}&end=${endStringUTC}`)
-        return response.data;
-    }catch (error) {
-        throw error.response.data;
-    }
-}
-
 export async function getResourcesFromIds(resources) {
     try {
         const response = await axios.get(`http://localhost:8000/api/calendar/resourcesFromIds?resources=${resources}`)
@@ -152,4 +140,13 @@ export async function deleteResource(resourceId) {
     .then(({data}) => {
         console.log(data);
     })
+}
+
+export async function getEventsByResource(resourceId) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/eventsByResource/${resourceId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
 }
