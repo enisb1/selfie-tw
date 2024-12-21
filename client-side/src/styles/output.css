@@ -750,6 +750,11 @@ video {
   margin-bottom: 1rem;
 }
 
+.my-auto {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .-mr-1 {
   margin-right: -0.25rem;
 }
@@ -932,6 +937,10 @@ video {
 
 .min-h-screen {
   min-height: 100vh;
+}
+
+.min-h-14 {
+  min-height: 3.5rem;
 }
 
 .w-1\/2 {
@@ -1211,16 +1220,16 @@ video {
   align-self: flex-end;
 }
 
+.self-center {
+  align-self: center;
+}
+
 .overflow-auto {
   overflow: auto;
 }
 
 .overflow-hidden {
   overflow: hidden;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
 }
 
 .overflow-x-scroll {

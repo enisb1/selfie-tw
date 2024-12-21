@@ -1,13 +1,20 @@
 <template>
     <div class="flex flex-col">
         <!-- Edit and go back button -->
-        <button @click="toggleEditEvent" v-show="!showEditEvent" type="button" class="mt-4 w-6 h-6">
-            <img src="../../images/edit.png" alt="edit"></button>
-        <button @click="toggleEditEvent" v-show="showEditEvent" type="button" class="mt-4 w-6 h-6">
+        <div v-show="showInfoEvent" class="flex mt-4">
+            <button @click="toggleShowEdit" type="button" class="w-6 h-6">
+                <img src="../../images/edit.png" alt="edit"></button>
+            <button @click="toggleShowEventExportOn" class="w-6 h-6 ml-4" type="button">
+                <img src="../../images/export.png" alt="export"></button>
+        </div>
+        <button @click="toggleShowInfo" v-show="showEditEvent || showEventExport" type="button" class="mt-4 w-6 h-6">
             <img src="../../images/returnButton.png" alt="back"></button>
+        
+        <!-- Event export -->
+        <EventExportModal v-if="showEventExport" :event="eventObject"></EventExportModal>
 
         <!-- Event info -->
-        <div v-show="!showEditEvent">
+        <div v-show="showInfoEvent">
             <!-- location -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Location</p>
@@ -142,7 +149,7 @@
 
         <div class="flex justify-evenly">
             <!-- delete button -->
-            <button v-show="!showEditEvent" @click="deleteEventObject" type="button" class="w-full mt-4 rounded-md 
+            <button v-show="showInfoEvent" @click="deleteEventObject" type="button" class="w-full mt-4 rounded-md 
                 bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
         </div>
     </div>
@@ -154,23 +161,50 @@ import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { editEvent, deleteEvent, getResourcesFromIds } from '@/apis/calendar';
 import { computed } from 'vue';
+import { exportEventToICS } from './export-events';
+import EventExportModal from './EventExport.vue';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
     components : {
-        DatePicker
+        DatePicker,
+        EventExportModal
     },
     props : {
         eventObject : Object
     },
     setup(props, { emit }) {
         const showEditEvent = ref(false)
+        const showInfoEvent = ref(true)
         const editedEventTitle = ref()
         const editedEventLocation = ref()
         const editedEventColor = ref()
         const editedEventStart = ref()
         const editedEventEnd = ref()
-        const toggleEditEvent = () => {
+        const toggleShowEdit = () => {
+            editedEventFrequency.value = props.eventObject.frequency
+            // set repetition number or date
+            if (editedEventFrequency.value != 'none') {
+                if (props.eventObject.repetitionNumber) {
+                    editedEventRepNumber.value = props.eventObject.repetitionNumber
+                    isEditedRepDateDisabled.value = true
+                }
+                else {
+                    editedEventRepDate.value = props.eventObject.repetitionDate
+                    isEditedRepNumberDisabled.value = true
+                }
+                    
+            }
+            editedEventTitle.value = props.eventObject.title
+            editedEventLocation.value = props.eventObject.location
+            editedEventStart.value = new Date(props.eventObject.startDate)
+            editedEventEnd.value = new Date(props.eventObject.endDate)
+            editedEventColor.value = props.eventObject.color
+
+            showEditEvent.value = true
+            showInfoEvent.value = false
+        }
+        /*const toggleEditEvent = () => {
             // if it's about to be toggled on update data inside
             if (!showEditEvent.value) {
                 editedEventFrequency.value = props.eventObject.frequency
@@ -193,6 +227,17 @@ export default {
                 editedEventColor.value = props.eventObject.color
             }
             showEditEvent.value = !showEditEvent.value
+        }*/
+
+        const toggleShowInfo = () => {
+            if (showEditEvent.value) {
+                showEditEvent.value = false
+            }
+            else if (showEventExport.value) {
+                showEventExport.value = false
+            }
+            showInfoEvent.value = true
+
         }
 
         // frequency
@@ -301,6 +346,16 @@ export default {
         // resources usernames
         const resourcesUsernames = ref()
 
+        const showEventExport = ref(false)
+        const toggleShowEventExportOn = () => {
+            showInfoEvent.value = false
+            showEventExport.value = true
+        }
+        const exportEvent = () => {
+            exportEventToICS(props.eventObject)
+            showEventExport.value = true
+        }
+
         onMounted(async () => {
             console.log(props.eventObject.resources)
             if (props.eventObject.resources.length > 0) {
@@ -321,7 +376,6 @@ export default {
             editedEventColor,
             editedEventStart,
             editedEventEnd,
-            toggleEditEvent,
             selectNoneFrequency,
             selectDailyFrequency,
             selectWeeklyFrequency,
@@ -344,7 +398,13 @@ export default {
             isRepDateRequired,
             showAddError,
             addErrorValue,
-            resourcesUsernames
+            resourcesUsernames,
+            exportEvent,
+            showEventExport,
+            toggleShowEventExportOn,
+            toggleShowInfo,
+            toggleShowEdit,
+            showInfoEvent
         }
     }
 }

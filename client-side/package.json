@@ -11,6 +11,8 @@
     "@vuepic/vue-datepicker": "^9.0.3",
     "axios": "^1.7.7",
     "core-js": "^3.8.3",
+    "datebook": "^8.0.1",
+    "file-saver": "^2.0.5",
     "markdown": "^0.5.0",
     "marked": "^15.0.0",
     "passport": "^0.7.0",
