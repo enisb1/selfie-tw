@@ -1,4 +1,4 @@
-import Router from "express";
+/*import Router from "express";
 import Category from '../models/Category.js'
 
 const router = Router()
@@ -37,4 +37,4 @@ router.delete('/:id', async (req, res) => {
 
 
 
-export default router;
+export default router;*/

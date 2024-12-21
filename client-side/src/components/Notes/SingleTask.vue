@@ -1,5 +1,6 @@
 <template>
-<div class="inline-flex items-center">
+<div class="flex justify-between items-center">
+  <div class="inline-flex items-center">
   <label
     class="relative flex cursor-pointer items-center rounded-full p-3"
     for="ripple-on"
@@ -13,7 +14,7 @@
       before:h-12 before:w-12 before:-translate-y-2/4 before:-translate-x-2/4 before:rounded-full 
       before:bg-secondary/40 before:opacity-0 before:transition-opacity checked:border-secondary/80 checked:bg-secondary
       checked:before:bg-secondary/40 hover:before:opacity-10"
-      v-model="task.done"
+      v-model="task.done"  
 
     />
     <span class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
@@ -33,31 +34,57 @@
       </svg>
     </span>
   </label>
-  <label class="cursor-pointer text-slate-600 text-sm"
-    for="ripple-on"
-  >
-    <h3 class="font-semibold text-lg text-secondary"> {{task.title}} </h3>
-
+  <label class="cursor-pointer text-slate-600 text-sm" for="ripple-on">
+      <h3 class="font-semibold text-lg text-secondary"> {{ task.title }} </h3>
   </label>
+  </div>
+<img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3 mr-4">
+<Modal @click.self="openExiparation" v-show="exiparationVisible">
+            <div class="h-full w-full flex justify-between items-center">
+                <div class="font-bold text-secondary">Select expiration date:</div>
+                <div><DatePicker class="mt-px inline-block w-auto"  v-model="task.expiration"></DatePicker></div>
+                <div><button @click="saveExpiration(task.expiration)" class="p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
+            </div>
+        </Modal>
 </div>
-
-    <!--<label class="relative flex cursor-pointer items-center rounded-full p-3">
-        <input type="checkbox" class="checkbox checkbox-secondary" v-model="task.done">
-        
-    </label>-->
 </template>
 
 <script>
 
-
+import {ref} from 'vue';
+import Modal from '@/components/Modal.vue';
+import DatePicker from '@vuepic/vue-datepicker';
 
 export default {
     props: ['task'],
-    setup(){
 
+    components: {
+      Modal,
+      DatePicker
+    },
+
+    
+
+    setup(props, {emit}){
+      
+      const exiparationVisible = ref(false)
+        const openExiparation = () => {
+            exiparationVisible.value = !exiparationVisible.value
+        }
+
+      const saveExpiration = (taskExpiration) => {
+        emit('save-expiration', taskExpiration)
+        exiparationVisible.value = false
+      }
+
+      
 
         
-        
+      return{
+        openExiparation,
+        exiparationVisible,
+        saveExpiration
+      }
     }
 
 };
