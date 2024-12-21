@@ -1,13 +1,26 @@
 <template>
     <div class="flex flex-col">
         <!-- Edit and go back button -->
-        <button @click="toggleEditEvent" v-show="!showEditEvent" type="button" class="mt-4 w-6 h-6">
-            <img src="../../images/edit.png" alt="edit"></button>
-        <button @click="toggleEditEvent" v-show="showEditEvent" type="button" class="mt-4 w-6 h-6">
+        <div v-show="showInfoEvent" class="flex mt-4">
+            <button @click="toggleShowEdit" type="button" class="w-6 h-6">
+                <img src="../../images/edit.png" alt="edit"></button>
+            <button @click="toggleShowEventExportOn" class="w-6 h-6 ml-4" type="button">
+                <img src="../../images/export.png" alt="export"></button>
+        </div>
+        <button @click="toggleShowInfo" v-show="showEditEvent || showEventExport" type="button" class="mt-4 w-6 h-6">
             <img src="../../images/returnButton.png" alt="back"></button>
+        
+        <!-- Event export -->
+        <EventExportModal v-if="showEventExport" :event="eventObject"></EventExportModal>
 
         <!-- Event info -->
-        <div v-show="!showEditEvent">
+        <div v-show="showInfoEvent">
+            <!-- location -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Location</p>
+                <p> {{ eventObject.location }} </p>
+            </div>
+
             <!-- starts -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Starts</p>
@@ -24,20 +37,32 @@
 
             <!-- frequency -->
             <div class="mt-4">
-                <p class="font-semibold text-base">Frequency </p>
+                <p class="font-semibold text-base">Frequency</p>
                 <p v-show="eventObject.frequency != 'none'"> {{ eventObject.frequency }} frequency {{ eventObject.repetitionNumber ? `repeating ${eventObject.repetitionNumber} times` :
                     `until ${new Date(eventObject.repetitionDate).toLocaleDateString
                     ('it-IT', {day: '2-digit', month: '2-digit', year: 'numeric'})}` }}</p>
                 <p v-show="eventObject.frequency == 'none'">none</p>    
             </div>
+
+            <!-- resources -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Resources</p>
+                <p>{{ resourcesUsernames }}</p>
+            </div>
         </div>
 
         <!-- Edit event form -->
-        <form @submit.prevent="applyEdits" v-show="showEditEvent">
+        <form @submit.prevent="applyEdits" v-show="showEditEvent" class="flex flex-col">
             <!-- title -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Title</p>
                 <input class="border border-third" type="text" maxlength="30" required v-model="editedEventTitle">
+            </div>
+
+            <!-- location -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Location</p>
+                <input class="border border-third" type="text" maxlength="30" required v-model="editedEventLocation">
             </div>
             
             <div class="flex flex-col sm:flex-row">
@@ -111,6 +136,9 @@
             <input type="color" value="#3C4F76" v-model="editedEventColor">
             </div>
 
+            <div v-show="showAddError" class="bg-red-400 text-white font-bold mt-2 
+                inline px-2 text-center mx-auto" > {{ addErrorValue }}</div>
+
             <!-- buttons -->
             <div class="flex justify-evenly">
                 <!-- apply button -->
@@ -121,35 +149,62 @@
 
         <div class="flex justify-evenly">
             <!-- delete button -->
-            <button v-show="!showEditEvent" @click="deleteEventObject" type="button" class="w-full mt-4 rounded-md 
+            <button v-show="showInfoEvent" @click="deleteEventObject" type="button" class="w-full mt-4 rounded-md 
                 bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
         </div>
     </div>
 </template>
 
 <script>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { deleteEvent } from '@/apis/calendar';
-import { editEvent } from '@/apis/calendar';
+import { editEvent, deleteEvent, getResourcesFromIds } from '@/apis/calendar';
 import { computed } from 'vue';
+import { exportEventToICS } from './export-events';
+import EventExportModal from './EventExport.vue';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
     components : {
-        DatePicker
+        DatePicker,
+        EventExportModal
     },
     props : {
         eventObject : Object
     },
     setup(props, { emit }) {
         const showEditEvent = ref(false)
+        const showInfoEvent = ref(true)
         const editedEventTitle = ref()
+        const editedEventLocation = ref()
         const editedEventColor = ref()
         const editedEventStart = ref()
         const editedEventEnd = ref()
-        const toggleEditEvent = () => {
+        const toggleShowEdit = () => {
+            editedEventFrequency.value = props.eventObject.frequency
+            // set repetition number or date
+            if (editedEventFrequency.value != 'none') {
+                if (props.eventObject.repetitionNumber) {
+                    editedEventRepNumber.value = props.eventObject.repetitionNumber
+                    isEditedRepDateDisabled.value = true
+                }
+                else {
+                    editedEventRepDate.value = props.eventObject.repetitionDate
+                    isEditedRepNumberDisabled.value = true
+                }
+                    
+            }
+            editedEventTitle.value = props.eventObject.title
+            editedEventLocation.value = props.eventObject.location
+            editedEventStart.value = new Date(props.eventObject.startDate)
+            editedEventEnd.value = new Date(props.eventObject.endDate)
+            editedEventColor.value = props.eventObject.color
+
+            showEditEvent.value = true
+            showInfoEvent.value = false
+        }
+        /*const toggleEditEvent = () => {
             // if it's about to be toggled on update data inside
             if (!showEditEvent.value) {
                 editedEventFrequency.value = props.eventObject.frequency
@@ -166,11 +221,23 @@ export default {
                         
                 }
                 editedEventTitle.value = props.eventObject.title
+                editedEventLocation.value = props.eventObject.location
                 editedEventStart.value = new Date(props.eventObject.startDate)
                 editedEventEnd.value = new Date(props.eventObject.endDate)
                 editedEventColor.value = props.eventObject.color
             }
             showEditEvent.value = !showEditEvent.value
+        }*/
+
+        const toggleShowInfo = () => {
+            if (showEditEvent.value) {
+                showEditEvent.value = false
+            }
+            else if (showEventExport.value) {
+                showEventExport.value = false
+            }
+            showInfoEvent.value = true
+
         }
 
         // frequency
@@ -217,7 +284,6 @@ export default {
                 return !(!!editedEventRepNumber.value)
         })
 
-
         const toggleRepInputs = (activeField) => {
             if (activeField === 'number') {
                 isEditedRepDateDisabled.value = !!editedEventRepNumber.value // Disable date input if number input has a value
@@ -227,7 +293,6 @@ export default {
                 //isRepNumberRequired.value = !(!!editedEventRepDate.value)
             }
         }
-        
 
         const formatDateNoTime = (date) => {
             // format date to dd/mm/yyyy
@@ -252,21 +317,58 @@ export default {
             emit('close')
         }
 
+        const addErrorValue = ref()
+        const showAddError = ref()
         const applyEdits = async () => {
-            // create updatedEvent object
-            const updatedEvent = structuredClone(props.eventObject)
-            if (updatedEvent.repetitionDate)
-                updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
-            updatedEvent.title = editedEventTitle.value
-            updatedEvent.startDate = editedEventStart.value
-            updatedEvent.endDate = editedEventEnd.value
-            updatedEvent.frequency = editedEventFrequency.value
-            updatedEvent.repetitionNumber = editedEventRepNumber.value
-            updatedEvent.color = editedEventColor.value
-            await editEvent(props.eventObject._id, updatedEvent)
-            emit('updateAllCalendars')
-            emit('close')
+            if (editedEventEnd.value.getTime() <= editedEventStart.value.getTime()) {
+                addErrorValue.value = "End date must be after start date"
+                showAddError.value = true
+            }
+            else {
+                // create updatedEvent object
+                const updatedEvent = structuredClone(props.eventObject)
+                if (updatedEvent.repetitionDate)
+                    updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
+                updatedEvent.title = editedEventTitle.value
+                updatedEvent.location = editedEventLocation.value
+                updatedEvent.startDate = editedEventStart.value
+                updatedEvent.endDate = editedEventEnd.value
+                updatedEvent.frequency = editedEventFrequency.value
+                updatedEvent.repetitionNumber = editedEventRepNumber.value
+                updatedEvent.color = editedEventColor.value
+                await editEvent(props.eventObject._id, updatedEvent)
+                emit('updateAllCalendars')
+                emit('close')
+                showAddError.value = false
+            }
         }
+
+        // resources usernames
+        const resourcesUsernames = ref()
+
+        const showEventExport = ref(false)
+        const toggleShowEventExportOn = () => {
+            showInfoEvent.value = false
+            showEventExport.value = true
+        }
+        const exportEvent = () => {
+            exportEventToICS(props.eventObject)
+            showEventExport.value = true
+        }
+
+        onMounted(async () => {
+            console.log(props.eventObject.resources)
+            if (props.eventObject.resources.length > 0) {
+                const resourcesObjects = await getResourcesFromIds(props.eventObject.resources)
+                if (resourcesObjects.length > 0) {
+                    resourcesUsernames.value = resourcesObjects.map(r => r.username).join(", ")
+                }
+                else 
+                    resourcesUsernames.value = 'none'
+            }
+            else
+                resourcesUsernames.value = 'none'
+        })
         
         return {
             showEditEvent,
@@ -274,7 +376,6 @@ export default {
             editedEventColor,
             editedEventStart,
             editedEventEnd,
-            toggleEditEvent,
             selectNoneFrequency,
             selectDailyFrequency,
             selectWeeklyFrequency,
@@ -285,6 +386,7 @@ export default {
             toggleFrequencyMenu,
             editedEventRepNumber,
             editedEventRepDate,
+            editedEventLocation,
             isEditedRepNumberDisabled,
             isEditedRepDateDisabled,
             toggleRepInputs,
@@ -293,7 +395,16 @@ export default {
             deleteEventObject,
             applyEdits,
             isRepNumberRequired,
-            isRepDateRequired
+            isRepDateRequired,
+            showAddError,
+            addErrorValue,
+            resourcesUsernames,
+            exportEvent,
+            showEventExport,
+            toggleShowEventExportOn,
+            toggleShowInfo,
+            toggleShowEdit,
+            showInfoEvent
         }
     }
 }

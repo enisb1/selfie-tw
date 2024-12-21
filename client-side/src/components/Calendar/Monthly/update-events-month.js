@@ -25,7 +25,7 @@ export function updateSchedules(events, activities, rangeStartDate, rangeEndDate
             iteratedDayStart = new Date(new Date(eStartDate).setHours(0,0,0,0))
         }
         
-        //iterate and add to object if it's lower than the range end and event's ened
+        //iterate and add to object if it's lower than the range end and event's end
         while (iteratedDayStart.getTime() < rangeEndDate.getTime() && iteratedDayStart.getTime() < eEndDate) {
             eventsByDay[iteratedDayStart.getDate()].push(e)
             iteratedDayStart = new Date(iteratedDayStart.getTime() + oneDay);
@@ -33,13 +33,16 @@ export function updateSchedules(events, activities, rangeStartDate, rangeEndDate
     })
 
     // ADD ACTIVITIES
-    activities.forEach(a => {
-        const deadline = new Date(a.deadline)
-        if (eventsByDay[deadline.getDate()])
-            eventsByDay[deadline.getDate()].push(a)
-        else
-            eventsByDay[deadline.getDate()] = [a]
-    })
+    if (activities) {
+        activities.forEach(a => {
+            const deadline = new Date(a.deadline)
+            if (eventsByDay[deadline.getDate()])
+                eventsByDay[deadline.getDate()].push(a)
+            else
+                eventsByDay[deadline.getDate()] = [a]
+        })
+    }
+    
 
     // sort arrays containing events and activities by start date
     Object.keys(eventsByDay).forEach(day => {

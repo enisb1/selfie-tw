@@ -13,20 +13,29 @@ export async function getEventsInRange(startDate, endDate) {
 }
 
 // convert startDate and endDate to UTC time string, and get events in that range
-export async function getActivitiesInRange(startDate, endDate) {
+export async function getActivitiesInRange(startDate, endDate, userId) {
     const startStringUTC = new Date(startDate.setHours(0, 0, 0, 0)).toISOString();
     const endStringUTC = new Date(endDate.setHours(23, 59, 59, 999)).toISOString();
     try {
-        const response = await axios.get(`http://localhost:8000/api/calendar/activities?start=${startStringUTC}&end=${endStringUTC}`);
+        const response = await axios.get(`http://localhost:8000/api/calendar/activities?start=${startStringUTC}&end=${endStringUTC}&userId=${userId}`);
         return response.data;
     } catch (error) {
         console.error("Error fetching events: ", error);
     }
 }
 
-export async function getEvents() {
+export async function getEvents(userId) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/calendar/getEvents`);
+        const response = await axios.get(`http://localhost:8000/api/calendar/events/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching events: ", error);
+    }
+}
+
+export async function getResourcesEvents() {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resourcesEvents`);
         return response.data;
     } catch (error) {
         console.error("Error fetching events: ", error);
@@ -34,18 +43,24 @@ export async function getEvents() {
 }
 
 // post event to db
-export async function postEvent(title, start, end, frequency, repetitionNumber, repetitionDate, color) {
-    await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "startDate": start,
-        "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, "repetitionDate": repetitionDate, "color": color
-    })
+export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users, resources,
+    notify15Before, notify30Before, notify1HourBefore, notify1DayBefore) {
+    await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "location": location, "startDate": start,
+        "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, 
+        "repetitionDate": repetitionDate, "color": color, "users": users, "resources": resources,
+        "notify15Before": notify15Before, "notify30Before": notify30Before, "notify1HourBefore": notify1HourBefore, 
+        "notify1DayBefore": notify1DayBefore}
+    )
     .then(({data}) => {
         console.log(data);
     })
 }
 
 // post event to db
-export async function postActivity(title, deadline) {
-    await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, "isDone": false})
+export async function postActivity(title, deadline, userIds) {
+    await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
+        "isDone": false, "users": userIds}
+    )
     .then(({data}) => {
         console.log(data);
     })
@@ -81,4 +96,57 @@ export async function editEvent(eventId, updatedData) {
     .then(({data}) => {
         console.log(data);
     })
+}
+
+// get all resources
+export async function getResources() {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resources`);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+export async function getResourcesFromIds(resources) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/resourcesFromIds?resources=${resources}`)
+        return response.data;
+    }catch (error) {
+        throw error.response.data;
+    }
+}
+
+// post resource
+export async function postResource(username) {
+    await axios.post('http://localhost:8000/api/calendar/addResource', {"username": username})
+    .then(({data}) => {
+        console.log(data);
+    })
+}
+
+export async function removeResourceFromEvent(resourceId, eventId) {
+    try {
+        const response = await axios.patch(`http://localhost:8000/api/calendar/removeResourceFromEvent`, {resource: resourceId, event: eventId})
+        return response.data;
+    }catch (error) {
+        throw error.response.data;
+    }
+}
+
+// delete resource from collection of resources and from each event that uses it
+export async function deleteResource(resourceId) {
+    await axios.delete(`http://localhost:8000/api/calendar/resources/${resourceId}`)
+    .then(({data}) => {
+        console.log(data);
+    })
+}
+
+export async function getEventsByResource(resourceId) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/eventsByResource/${resourceId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
 }

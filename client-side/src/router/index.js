@@ -6,6 +6,8 @@ import LoginView from '@/views/LoginView.vue'
 import SignupView from '@/views/SignupView.vue'
 import NotificationView from '@/views/NotificationView.vue'
 import ChatView from '@/views/ChatView.vue'
+import AdminView from '@/views/AdminView.vue'
+import SettingsView from '@/views/SettingsView.vue'
 
 
 const routes = [
@@ -43,9 +45,17 @@ const routes = [
     path: '/chat',
     name: 'chat',
     component: ChatView
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminView
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: SettingsView
   }
- 
-  
 ]
 
 const router = createRouter({

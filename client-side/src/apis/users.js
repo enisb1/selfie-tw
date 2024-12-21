@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 // register new user
-export async function newUser(username,password,email,firstName,lastName,telegram){
+export async function newUser(username,password,email,firstName,lastName,telegram,
+    unavailableStart, unavailableEnd, unavailableFrequency, unavailableRepNumber, unavailableRepDate){
     try {
         const response = await axios.post(`http://localhost:8000/api/login/addUser`, {
             username: username,
@@ -9,7 +10,12 @@ export async function newUser(username,password,email,firstName,lastName,telegra
             email: email,
             firstName: firstName,
             lastName: lastName,
-            telegram: telegram
+            telegram: telegram,
+            unavailableStart: unavailableStart,
+            unavailableEnd: unavailableEnd,
+            unavailableFrequency, unavailableFrequency,
+            unavailableRepNumber: unavailableRepNumber,
+            unavailableRepDate: unavailableRepDate
         });
         return response.data;
     } catch (error) {
@@ -47,6 +53,42 @@ export async function getAllUsers() {
     try {
         const response = await axios.get(`http://localhost:8000/api/login/allUsers`);
         return response.data.users;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+export async function updateUnavailability(userId, updatedData) {
+    try {
+        const response = await axios.put(`http://localhost:8000/api/login/updateUnavailability/${userId}`, updatedData);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+export async function getUser(userId) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/login/getUser/${userId}`);
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+export async function getUsers(userIds) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/login/getUsers`, { userIds });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+export async function getUserIdsByEmails(emails) {
+    try {
+        const response = await axios.post('http://localhost:8000/api/login/getUserIdsByEmails', { emails });
+        return response.data;
     } catch (error) {
         throw error.response.data;
     }
