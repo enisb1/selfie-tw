@@ -19,12 +19,12 @@
         <div  class="hidden lg:flex space-x-6">
           <router-link v-show="store.state.isAdmin"class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche</router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Notifications Centre</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'projects'}">Projects</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Impostazioni</router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Notes</router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Settings</router-link>
           <!-- TODO: put inside of settings instead of navbar -->
           <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
         </div>
@@ -33,13 +33,13 @@
       <!-- Responsive drop down Menu (for mobile) -->
       <div class="lg:hidden" v-show="hamburgerMenuOpened">
         <ul class="p-4 bg-secondary">
-          <li class="mb-2"><a href="#" class="text-white block">Calendario</a></li>
-          <li class="mb-2"><a href="#" class="text-white block">Centro Notifiche</a></li>
+          <li class="mb-2"><a href="#" class="text-white block">Calendar</a></li>
+          <li class="mb-2"><a href="#" class="text-white block">Notifications Centre</a></li>
           <li class="mb-2"><a href="#" class="text-white block">Chat</a></li>
-          <li class="mb-2"><a href="#" class="text-white block">Progetti</a></li>
+          <li class="mb-2"><a href="#" class="text-white block">Projects</a></li>
           <li class="mb-2"><a href="#" class="text-white block">Pomodoro</a></li>
-          <li class="mb-2"><a href="#" class="text-white block">Note</a></li>
-          <li><a href="#" class="text-white block">Impostazioni</a></li>
+          <li class="mb-2"><a href="#" class="text-white block">Notes</a></li>
+          <li><a href="#" class="text-white block">Settings</a></li>
           <li class="mb-2"><router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link></li>
         </ul>
       </div>

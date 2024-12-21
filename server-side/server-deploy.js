@@ -9,7 +9,7 @@ import http from "node:http";
 import mongoose from 'mongoose';
 import {wsHandler} from "./ws/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
-import categoryRoutes from './routes/categoryRoutes.js'
+//import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
 
 const app = express();
@@ -17,9 +17,6 @@ const PORT = 8000;
 
 app.use(cors());
 app.use(express.json());
-
-
-
 
 //TODO: set up env variables for mongo uri parameters
 const mongouri = `mongodb+srv://bencio003:74TG73rgjIbrzp4Q@tecweb18.wgvir.mongodb.net/tw18_db?retryWrites=true&w=majority&appName=Tecweb18`
@@ -37,7 +34,7 @@ app.use("/api/calendar", calendarRoutes)
 app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
-app.use("/api/category", categoryRoutes)
+//app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d

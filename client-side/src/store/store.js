@@ -17,7 +17,7 @@ export const store = createStore({
         isLoggedIn: false,
         pushNotification: null,
         chatMessage: null,
-        ws: null
+        ws: null,
         unavailableStart: null,
         unavailableEnd: null,
         unavailableFrequency: 'none',
