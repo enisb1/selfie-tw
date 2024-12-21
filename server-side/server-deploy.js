@@ -2,16 +2,15 @@ import express from 'express';
 import calendarRoutes from './routes/calendarRoutes.js'
 import loginRoutes from './routes/loginRoutes.js'
 import notificationRoutes from './routes/notificationRoutes.js'
-import passport from './auth/passportConfiguration.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
 import http from "node:http";
 import mongoose from 'mongoose';
-import session from 'express-session';
-import flash from 'express-flash';
+import {wsHandler} from "./ws/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
-
+import categoryRoutes from './routes/categoryRoutes.js'
+import chatRoutes from './routes/chatRoutes.js'
 
 const app = express();
 const PORT = 8000;
@@ -19,28 +18,7 @@ const PORT = 8000;
 app.use(cors());
 app.use(express.json());
 
-/*
-app.use(session({
-    secret: 'password', //TODO: set up env variable for session secret
-    resave: false,
-    saveUninitialized: false
-}));
 
-
-app.use(passport.initialize());
-app.use(passport.session({
-    secret: 'password', //TODO: set up env variable for session secret
-    resave: false,
-    saveUninitialized: false
-}));
-*/
-
-const checkAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    return res.status(401).send('User not authenticated')
-}
 
 
 //TODO: set up env variables for mongo uri parameters
@@ -59,7 +37,8 @@ app.use("/api/calendar", calendarRoutes)
 app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
-
+app.use("/api/category", categoryRoutes)
+app.use("/api/chat", chatRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -74,6 +53,8 @@ app.get('*', (req, res) => {
 
 // Create an HTTP server and attach the Express app
 const server = http.createServer(app);
+
+export const wsConnectionHandler = new wsHandler({ server });
 
 // start server
 server.listen(PORT, () => {

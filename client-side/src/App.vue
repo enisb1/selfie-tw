@@ -1,7 +1,7 @@
 <template>
 <!--TODO: add bg-light and check if min-h-screen is needed (were previously contained in body) -->
   <div class="min-h-screen bg-primary">
-    <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full p-4">
+    <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full p-4 z-50 relative">
       <div class="container mx-auto flex justify-between items-center">
         <!-- App name (TODO: find a logo and add it) -->
         <a href="#"  class="text-white text-2xl font-bold">Selfie</a>
@@ -19,12 +19,14 @@
         <div  class="hidden lg:flex space-x-6">
           <router-link v-show="store.state.isAdmin"class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche </router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'projects'}">Projects</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Impostazioni</router-link>
+          <!-- TODO: put inside of settings instead of navbar -->
+          <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
         </div>
       </div>
 
@@ -38,6 +40,7 @@
           <li class="mb-2"><a href="#" class="text-white block">Pomodoro</a></li>
           <li class="mb-2"><a href="#" class="text-white block">Note</a></li>
           <li><a href="#" class="text-white block">Impostazioni</a></li>
+          <li class="mb-2"><router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link></li>
         </ul>
       </div>
     </nav>
@@ -47,19 +50,19 @@
 </template>
 
 <script>
-import {computed, onMounted, ref, triggerRef} from 'vue'
+import {ref} from 'vue'
 import {useStore} from "vuex";
-import router from "@/router";
+import {useRouter} from "vue-router";
 
 export default {
-  methods: {triggerRef},
-  setup: function () {
+  setup() {
     // hamburger menu
     const hamburgerMenuOpened = ref(false)
     const toggleHamburgerMenu = () => {
       hamburgerMenuOpened.value = !hamburgerMenuOpened.value
     }
     const store = useStore()
+    const router = useRouter();
     let stateString = sessionStorage.getItem('state')
     if (stateString) {
       store.replaceState(JSON.parse(stateString))
@@ -67,6 +70,8 @@ export default {
 
     if (!store.state.isLoggedIn) {
       router.push("/login")
+    }else{
+      store.commit('connect')
     }
 
     return {

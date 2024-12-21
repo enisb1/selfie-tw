@@ -13,7 +13,8 @@ module.exports = {
     "./src/components/Calendar/Monthly/*.vue",
     "./src/components/Calendar/Monthly/*.js",
     "./src/components/Notifications/*.vue",
-    "./src/components/Notes/*.vue"
+    "./src/components/Notes/*.vue",
+    "./src/components/Chat/*.vue",
   ],
   theme: {
     extend: { 

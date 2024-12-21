@@ -102,6 +102,7 @@
 
             if (resp.message === "Data saved successfully") {
               store.commit('setUser', resp.user);
+              store.commit('connect');
               sessionStorage.setItem('state', JSON.stringify(store.state));
               await router.push({name: 'home'})
             }
@@ -111,7 +112,7 @@
           }
         }
       }
-      console.log("11")
+
       let showModal = ref(false);
       const triggerModal = () => {
         showModal.value = !showModal.value;

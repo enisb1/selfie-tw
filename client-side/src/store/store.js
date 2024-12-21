@@ -1,4 +1,5 @@
 import { createStore } from 'vuex';
+import {wsService} from '@/ws/wsService';
 
 export const store = createStore({
 
@@ -14,6 +15,9 @@ export const store = createStore({
         telegram: '',
         __v: 0,
         isLoggedIn: false,
+        pushNotification: null,
+        chatMessage: null,
+        ws: null
         unavailableStart: null,
         unavailableEnd: null,
         unavailableFrequency: 'none',
@@ -72,11 +76,33 @@ export const store = createStore({
                 state.isAdmin = localStorage.getItem('isAdmin');
                 state.telegram = localStorage.getItem('telegram');
                 state.__v = localStorage.getItem('__v');
+                state.isLoggedIn = localStorage.getItem('isLoggedIn');
+                state.pushNotification = localStorage.getItem('pushNotification');
+                state.chatMessage = localStorage.getItem('chatMessage');
                 state.unavailableStart = localStorage.getItem('unavailableStart');
                 state.unavailableEnd = localStorage.getItem('unavailableEnd');
                 state.unavailableFrequency = localStorage.getItem('unavailableFrequency');
                 state.unavailableRepNumber = localStorage.getItem('unavailableRepNumber');
                 state.unavailableRepDate = localStorage.getItem('unavailableRepDate');
+            }
+        },
+        addPushNotification(state, notification) {
+            state.pushNotification = notification;
+        },
+        addChatMessage(state, message) {
+            state.chatMessage = message;
+        },
+        connect(){
+            if(!this.ws && this.state.isLoggedIn){
+                wsService.connect(this);
+                this.ws = wsService;
+            }
+
+        },
+        disconnect(){
+            if(this.ws){
+                wsService.disconnect();
+                this.ws = null;
             }
         },
         setUnavailableStart(state, value) {

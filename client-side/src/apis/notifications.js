@@ -1,9 +1,25 @@
 import axios from 'axios'
 
 // get all notifications
-export async function getNotifications() {
+export async function getNotifications(username) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/notifications/getNotifications`);
+        const response = await axios.post(`http://localhost:8000/api/notifications/getNotifications`,
+            {
+                receiver: username,
+            });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+// get new notifications
+export async function getNewNotifications(username) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/notifications/getNewNotifications`,
+            {
+                receiver: username,
+            });
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -18,7 +34,21 @@ export async function sendNotification(sender,receiver,text) {
             receiver: receiver,
             time: new Date(),
             read: false,
-            text: text
+            title: "Messaggio da "+sender,
+            text: text,
+            type: "message"
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+// mark notification as read
+export async function readNotification(id) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/notifications/readNotification`, {
+            _id: id
         });
         return response.data;
     } catch (error) {

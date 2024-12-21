@@ -1,122 +1,125 @@
 <template>
-    <div class="flex justify-between items-center p-4">
-        <div class="font-extrabold text-2xl text-secondary">Chat</div>
-        <button>
-            <img class="w-6" src="../images/trePallini.png">
-        </button>
-    </div>
 
-    <div class="relative px-4">
-        <input type="text" placeholder="Search" class="rounded-3xl text-left pl-7 w-full bottom-0">
-        <img class="absolute top-1/2 -translate-y-1/2 w-4 ml-2" src="../images/search.png">
-    </div>
-    
-    <div class="fixed h-3/4 overflow-y-scroll left-0 w-full">
-        <ul class="flex flex-col px-6 text-white mb-6">
-            <li class="relative self-start bg-secondary rounded-xl mt-4 mb-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Tu</span>
-                <p class="px-3 py-6">Ciaoooooooooooooooooooooooooooooo!</p>
-                <span class="absolute bottom-1 right-3 text-sm">26 Oct 13:54</span>   
-            </li>
-            <li class="relative self-end bg-secondary rounded-xl my-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Enis</span>
-                <p class="px-3 py-6">Ciaoo, come stai?</p>
-                <span class="absolute right-3 bottom-1 text-sm">26 Oct 13:57</span>
-            </li>
-            <li class="relative self-end bg-secondary rounded-xl my-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Enrico</span>
-                <p class="px-3 py-6">Lorem ipsum dolor sit amet, consectetur adipisicing elit. 
-                    Consequuntur nisi animi doloribus soluta illo at? Quia autem quis, 
-                    distinctio nihil rerum dicta nemo soluta ab nesciunt ea, et, suscipit ducimus.
-                </p>
-                <span class="absolute right-3 bottom-1 text-sm">26 Oct 13:57</span>
-            </li>
-            <li class="relative self-start bg-secondary rounded-xl mt-4 mb-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Tu</span>
-                <p class="px-3 py-6">OK</p>
-                <span class="absolute bottom-1 right-3 left-3 text-sm">26 Oct 13:54</span>   
-            </li>
-            <li class="relative self-end bg-secondary rounded-xl my-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Enis</span>
-                <p class="px-3 py-6">Ciaoo, come stai?
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit. 
-                    Optio quam maxime expedita enim vero sed placeat reiciendis, veritatis 
-                    epellendus dolorum laborum nostrum, 
-                    odio quod quasi quisquam alias! Hic, consequuntur ratione!
-                </p>
-                <span class="absolute right-3 bottom-1 text-sm">26 Oct 13:57</span>
-            </li>
-            <li class="relative self-start bg-secondary rounded-xl mt-4 mb-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Tu</span>
-                <p class="px-3 py-6">Lorem ipsum dolor sit amet consectetur adipisicing elit. 
-                    Accusantium quia dicta nobis doloribus, impedit cupiditate! Esse illo, voluptatem 
-                    voluptatum soluta eos quis quasi id, beatae facere aliquid voluptate odit vero?
-                </p>
-                <span class="absolute bottom-1 right-3 left-3 text-sm">26 Oct 13:54</span>   
-            </li>
-            <li class="relative self-start bg-secondary rounded-xl mt-4 mb-2 min-w-28 max-w-lg shadow-2xl">
-                <span class="absolute top-1 left-3 font-bold">Tu</span>
-                <p class="px-3 py-6">OK</p>
-                <span class="absolute bottom-1 right-3 left-3 text-sm">26 Oct 13:54</span>   
-            </li>
-        </ul>
-    </div>
+  <div class="absolute top-16 bottom-16 overflow-y-auto left-0 w-full z-10" ref="messagesContainer">
+    <!-- Lista dei messaggi -->
+    <ul class="flex flex-col px-6 space-y-2">
+      <li v-for="message in chatMessages" >
+        <ChatMessage
+            :message="message.message"
+            :sender="message.sender"
+            :time="message.time"
+        />
+      </li>
+    </ul>
+  </div>
 
-    <!--writingbar-->
-    <div class="fixed bottom-0 left-0 w-full bg-secondary p-4">
-        <form action="#" class="flex justify-between items-center">
-            <input class="w-full mr-2 rounded-3xl" type="text">
-            <button>
-                <img class="w-7 " src="../images/sendWhite.png" alt="sendIcon">
-            </button>
-        </form>
+  <!-- Input per nuovi messaggi -->
+  <div class="fixed bottom-0 left-0 w-full bg-secondary p-4 z-10">
+    <div class="flex justify-between items-center">
+      <input
+          class="w-full mr-2 p-2 rounded-3xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          type="text"
+          placeholder="Write a message..."
+          v-model="text"
+          @keyup.enter="addMessage"
+      />
+      <button
+          class="p-2 rounded-full bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          @click="addMessage"
+      >
+        <img class="w-6 h-6" src="../images/sendWhite.png" alt="Send Icon">
+      </button>
     </div>
-
+  </div>
 </template>
-
 <script>
-import {onBeforeMount, ref, onMounted } from 'vue';
+import {onBeforeMount, ref, onMounted, watchEffect, useTemplateRef, nextTick} from 'vue';
+import ChatMessage from "@/components/Chat/ChatMessage.vue";
+import {getChat, postMessage} from "@/apis/chat";
+import {useStore} from "vuex";
 
 export default {
-    setup(){
+  components: {ChatMessage},
+  setup() {
+    const store = useStore()
 
-        const inContact = ref(false)
-        const outContact =ref(true)
-        const largeScreen = ref(false)
+    const inContact = ref(false)
+    const outContact = ref(true)
+    const largeScreen = ref(false)
 
-        const checkScreen = () => {
-              largeScreen.value = window.innerWidth >= 768;
-        }
-
-        const chatView = () => {
-            if(largeScreen.value == true){
-                inContact.value = !inContact.value
-            }else{
-                inContact.value = true
-                outContact.value = false
-            }
-            
-        }
-
-        onMounted(() => {
-            checkScreen()
-            window.addEventListener('resize', checkScreen)
-        })
-
-        onBeforeMount(() => {
-            window.removeEventListener('resize', checkScreen)
-        })
-        
-    return{
-        inContact,
-        outContact,
-        largeScreen,
-        chatView,
-        checkScreen
-
-       
+    const checkScreen = () => {
+      largeScreen.value = window.innerWidth >= 768;
     }
+
+    const chatView = () => {
+      if (largeScreen.value === true) {
+        inContact.value = !inContact.value
+      } else {
+        inContact.value = true
+        outContact.value = false
+      }
+
     }
+
+    const messagesContainer = useTemplateRef('messagesContainer')
+
+    const scrollToBottom = () => {
+      console.log(messagesContainer)
+      if (messagesContainer.value) {
+        nextTick(() => {
+          messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
+        });
+      }
+    }
+
+    onMounted(() => {
+      checkScreen()
+      window.addEventListener('resize', checkScreen)
+    })
+
+    onBeforeMount(() => {
+      window.removeEventListener('resize', checkScreen)
+    })
+
+    const chatMessages = ref([])
+
+    onMounted(async () => {
+      const response = await getChat()
+      if (response.message === 'Chat messages found') {
+
+        chatMessages.value = response.data;
+      }
+      scrollToBottom()
+    })
+
+    const text = ref('');
+
+    const addMessage = async () => {
+      await postMessage(text.value, store.state.username)
+      text.value = '';
+      scrollToBottom()
+    }
+
+    watchEffect(() => {
+      if (store.state.chatMessage != null) {
+        chatMessages.value.push(store.state.chatMessage)
+        scrollToBottom()
+      }
+      store.state.chatMessage = null
+    })
+
+
+    return {
+      inContact,
+      outContact,
+      largeScreen,
+      chatView,
+      checkScreen,
+      text,
+      addMessage,
+      chatMessages
+    }
+  }
 }
 </script>
 
