@@ -4,7 +4,8 @@ import mongoose from 'mongoose';
 const activitySchema = new mongoose.Schema({
     title: String,
     deadline: Date,
-    isDone: Boolean
+    isDone: Boolean,
+    users: [String]
 });
 
 // model created from schema

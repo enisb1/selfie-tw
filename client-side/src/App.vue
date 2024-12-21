@@ -17,13 +17,15 @@
         
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div  class="hidden lg:flex space-x-6">
+          <router-link v-show="store.state.isAdmin"class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Centro Notifiche</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
-          <a href="#" class="text-white hover:text-accent">Progetti</a>
-          <a href="#" class="text-white hover:text-accent">Pomodoro</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'projects'}">Projects</router-link>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Note</router-link>
-          <a href="#" class="text-white hover:text-accent">Impostazioni</a>
+          <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Impostazioni</router-link>
+          <!-- TODO: put inside of settings instead of navbar -->
           <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
         </div>
       </div>

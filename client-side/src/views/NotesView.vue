@@ -1,10 +1,10 @@
 <template>
     <!--Blur effect-->
-    <div class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl
+    <div v-if="!editorVisible" class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl z-10
                     lg:hidden"></div>
 
     <!--NavBar-->
-    <div class="grid grid-flow-col auto-cols-auto bg-secondary rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl max-w-lg
+    <div v-if="!editorVisible" class="grid grid-flow-col auto-cols-auto bg-secondary rounded-3xl fixed bottom-8 left-1/2 -translate-x-1/2 w-10/12 shadow-xl max-w-lg z-20
                 lg:bottom-auto lg:top-20 lg:translate-x-0 lg:left-4 lg:absolute">
         <button id="button_note_page"
             :class="{ 'text-secondary bg-white rounded-3xl ': inNotePage, 'text-white': !inNotePage }" @click="showNotes"
@@ -59,7 +59,7 @@
     </div>
 
     <!--AddNoteTask modal-->
-    <div v-show="showAddModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full">
+    <div v-show="showAddModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full z-20">
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-third">
             <div class="border border-third fixed top-[52px] left-0 w-full"></div>
@@ -192,6 +192,14 @@
                             <div class="ml-2">Private</div>   
                         </div>
                     </div>
+                    <div v-if="noteSecurity==='selectAccess'" class="max-h-40 overflow-auto scrollbar-hidden">
+                        <div v-for="user in users" :key="user._id">
+                            <div @click="userSelected(user.username)" class="w-full rounded-xl border border-secondary text-center font-semibold my-2"
+                                                                    :class="{'bg-secondary text-white': currentSelect.includes(user.username), 'bg-white text-secondary': !currentSelect.includes(user.username)}">
+                                {{user.username}}
+                            </div>
+                        </div>
+                    </div>
 
                     <div class="flex justify-center mx-12 p-4">
                         <button id="SaveButton" type="submit"
@@ -203,7 +211,7 @@
     </div>
 
     <!--Filter modal-->
-    <div v-show="showFilterModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full">
+    <div v-show="showFilterModal" @click.self="closeAddMenu" class="fixed top-0 left-0 bg-black/40 h-full w-full z-10">
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 max-w-xs w-full border-4 border-third">
             <div class="border border-third fixed top-[52px] left-0 w-full"></div>
@@ -242,75 +250,28 @@
                             Category
                         </button>
                     </div>
-                </form>
+                </form> 
             </div>
         </div>
     </div>
 
     <!--NoteList-->
     <div class="grid grid-cols-1 gap-8 mx-10 pb-20 py-2 lg:grid-cols-3 lg:py-24">
+        
         <div v-for="note in toggleFilter" :key="note.id">
-            <SingleNote :note="note" @delete-note="deleteNote" @duplicate-note="duplicateNote" />
-        </div>
-    </div>   
-
-    <div v-if="categoryFilter" class="fixed top-0 left-0 bg-black/40 h-full w-full">
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-2 m-4  border-4 border-third bg-white">
-            <div class="grid grid-cols-3 gap-2 p-2">
-                <div class="flex justify-center" v-for="(category,index) in categories" :key="index">
-                    <button class="p-2 px-4 bg-secondary rounded-2xl text-white font-semibold w-full">{{ category.title }}</button>
-                </div>
-            </div>
-            
+            <SingleNote :note="note" @delete-note="deleteNoteView" @duplicate-note="duplicateNote" @open-note="openNote"
+             :noteUser="noteUser"/>
         </div>
     </div>
-    
 
-    <!--NoteEditor-->
     <div v-if="editorVisible" class="fixed left-0 top-0 h-full w-full">
-        <div class="fixed top-0 h-full w-full bg-white">
-            <div v-if="noteFormat == 'normalNote'" class="p-4 z-10">
-                <button @click="toggleEditor" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-                <!--<span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> {{ createDate(note.createdAt) }} </span>-->
-                <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
-                <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text here..." 
-                          class="w-full"></textarea>
-
-            </div>
-            <div v-else-if="noteFormat == 'markdownNote'" class="p-4 z-10">
-                <button @click="toggleEditor" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-                <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">30 October 2024 16:27</span>
-                <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
-                <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
-                          class="w-full"></textarea>
-            <div id="output" v-html="convertedOutput" class="fixed bottom-0 left-0 p-4 top-2/3 mt-4 overflow-y-scroll w-full overflow-auto whitespace-normal"></div>
-            </div>
-
-            <div v-else class="p-4 z-10">
-                <button @click="toggleEditorTask" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-                <span class="fixed left-1/2 -translate-x-1/2 text-secondary text-center min-w-72">30 October 2024 16:27</span>
-                <div class="relative mt-3">
-                    <input class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border
-                                border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none 
-                                focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" v-model="taskTitle">
-                    <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all 
-                                  transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs 
-                                  peer-focus:text-slate-400 peer-focus:scale-90">
-                        Write the task to add here...
-                    </label>
-                </div>
-                <button @click="addTask" class="p-4 w-full my-4 bg-secondary text-white rounded-xl font-bold">Add task</button>
-                <h1 class="font-bold text-2xl mt-6 mb-4 text-secondary"> {{ noteTitle }} </h1>
-                
-                <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
-                    <div v-for="task in tasks" :key="task.id">
-                        <SingleTask :task="task" />
-                    </div>
-                </div>
-                
-            </div>
+        <div v-for="note in notes">
+            <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
+            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @add-expiration-task="saveExpiration"/>
         </div>
     </div>
+
+   
 
     
 
@@ -328,17 +289,20 @@ import defaultImgCategory from "../images/filtrocategoria.png"
 import hoverImgCategory from "../images/categoryFilterWhite.png"
 import Modal from '@/components/Modal.vue';
 import SingleNote from '@/components/Notes/SingleNote.vue';
+import EditorNote from '@/components/Notes/EditorNote.vue';
 import SingleTask from '@/components/Notes/SingleTask.vue';
-import { marked } from 'marked';
-import { postNote, getNotes, deleteNoteById, getNoteById, updateNoteById} from '@/apis/note'
-import { postCategory, getCategory, deleteCategoryById } from '@/apis/category'
+import {postNote, getNotes, deleteNote, getNoteById, editNote, getNoteUser, getUserSelectNote} from '@/apis/note'
+import {getAllUsers} from '@/apis/users'
+import { useStore } from 'vuex';
+
 
 
 
 export default {
-    
+
     components: {
         SingleNote,
+        EditorNote,
         SingleTask
     },
     setup() {
@@ -347,18 +311,21 @@ export default {
         const noteTitle = ref('')
         const noteBody = ref('')
         const taskBody = ref([])
+        const taskExpiration = ref()
         const noteCategory = ref('')
         const noteSecurity = ref('')
         const noteFormat = ref('')
         const noteType = ref("Note")
+        const noteUser = ref('')
+        const currentSelect = ref([])
+        const store = useStore()
+        const publicNotes = ref([])
+        const selectNotes = ref([])
+        const users = ref([])
 
-        const categories = ref([])
-        const categoryFilter = ref(false)
-        
-        
         //Add Note to NoteView
         const addNote = async () => {
-
+            
             notes.value.push({
                 title: noteTitle.value,
                 bodyNote: noteBody.value,
@@ -366,90 +333,88 @@ export default {
                 category: noteCategory.value,
                 format: noteFormat.value,
                 access: noteSecurity.value,
-                type: noteType.value
+                type: noteType.value,
+                user: noteUser.value,
+                userListAccess: currentSelect.value
             })
 
-            categories.value.push({
-                title: noteCategory.value
-            })
-
-            await postCategory(noteCategory.value);
-
-            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, noteSecurity.value, noteType.value);
+            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, 
+                           noteSecurity.value, noteType.value, noteUser.value, currentSelect.value);
+            
             noteTitle.value = "";  
             noteBody.value = "";
             taskBody.value = [];
             noteCategory.value = "";
             noteFormat.value = "";
             noteSecurity.value = "";
-            noteType.value = ""
-            
-            
+            noteType.value = "Note";
+            currentSelect.value = [];
+           
+            loadNotesUser()
+
         };
 
 
         //Load note/task NoteView
-        const loadNotes = async () => {
+        const loadNotesUser = async () => {
+            noteUser.value = store.state.username
             try {
-                const fetchNotes = await getNotes();
+                const fetchNotes = await getNoteUser(noteUser.value, 'privateAccess');
                 notes.value = fetchNotes;
-                const fetchCategory = await getCategory();
-                categories.value = fetchCategory;
+                
+                const fetchNotesPublicNotes = await getNoteUser('', 'publicAccess');
+                publicNotes.value = fetchNotesPublicNotes;
+                
+                const fetchNotesSelectNotes = await getUserSelectNote(noteUser.value, 'selectAccess');
+                selectNotes.value = fetchNotesSelectNotes;
+                
+                notes.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
+
+                
+                console.log(notes.value)
             } catch (error) {
-                console.error("Errore durante il caricamento delle note: ", error);
+                console.error("Errore durante il caricamento delle noteUser: ", error);
             }
         };
 
-        onMounted(() => {
-            loadNotes();
-            
-        });
-
-        const tasks = ref([])
-        const taskTitle = ref("")
-        const taskDone = ref(false)
         
-        //Add Task to single TaskNote
-        const addTask = () => {
-            if(taskTitle.value.trim() === '' || taskTitle.value === null){
-                return
-            }
-            tasks.value.push({
-                title: taskTitle.value,
-                done: taskDone.value
-            })
-            taskTitle.value = ""
-        }
-
-        //Add TaskNote to NoteView
         const titles = ref(null)
-        const toggleEditorTask =  () => {
-            titles.value = tasks.value.map(task => task.title)
-            taskBody.value = titles.value
+        const addTasknote = (id, body) => {
+            if(newNote.value === true){
             editorVisible.value = !editorVisible.value
             showAddModal.value = false
-            showAddMenu.value = false
-            addNote()     
+            addNote()
+            taskBody.value = []
+            } else {
+                editorVisible.value = !editorVisible.value
+                uploadTask(body, id)
+                taskBody.value = []
+            }
+            resetValor()
+            newNote.value = false
         }
+        
 
-         //Delete Note to NoteView
-        const deleteNote = async (id,idc) => {
-            try{
-                const result = await deleteNoteById(id)
+        //Delete note 
+        const deleteNoteView = async (id) => {
+            try {
+                const result = await deleteNote(id)
                 console.log(result)
                 notes.value = notes.value.filter(note => note._id !== id)
-                /*const resultCat = await deleteCategoryById(id)
-                console.log(resultCat)
-                categories.value = categories.value.filter(category => category._id !== id)*/
 
-            }catch (error){
-                console.error("Errore durante il cancellamento delle note: ", error);
+            } catch (error) {
+                console.error("Error deleting note: ", error);
             }
         }
 
+
+        //Duplicate note
         const duplicateNote = async (id) => {
-            try{
+            try {
                 const noteId = await getNoteById(id)
+                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, 
+                               noteId.access, noteId.type, noteId.user, noteId.userListAccess);
+                
                 notes.value.push({
                     title: noteId.title,
                     bodyNote: noteId.bodyNote,
@@ -457,45 +422,82 @@ export default {
                     category: noteId.category,
                     format: noteId.format,
                     access: noteId.access,
-                    type: noteId.type
+                    type: noteId.type,
+                    user: noteId.user,
+                    userListAccess: noteId.userListAccess
                 })
-
-                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, noteId.access, noteId.type);
-    
-            }catch (error){
-                console.error("Errore durante il duplicamento delle note: ", error);
+                loadNotesUser()
+                
+            } catch (error) {
+                console.error("Error duplicating note: ", error);
             }
         }
 
-/*
-        const viewNoteDetails = async (id) => {
 
+        //Open note
+        const modicated = ref(false)
+        const selectedNote = ref("")
+        const openNote = async (id) => {
+            console.log("nota aperta")
             const result = await getNoteById(id)
-            
+
             noteTitle.value = result.title
             noteBody.value = result.bodyNote
             taskBody.value = result.bodyTask
-            noteCategory.value = result.category
-            noteFormat.value = result.format
-            noteSecurity.value = result.access
-
+            
+            selectedNote.value = result 
             editorVisible.value = !editorVisible.value
-            if(editorVisible.value == false){
-                    showAddModal.value = false
-                    showAddMenu.value = false
-                    
-            }
         }
 
-        const saveChanges = async () => {
-            try {
-                const result = await getNoteById(id)
-                const updatedNote = await updateNoteById(result._id, result.value);
-                console.log('Nota aggiornata:', updatedNote);
+
+        const uploadNote = async (body,id) => {
+            console.log("nota salvata")
+            const noteUp = await getNoteById(id)
+
+            noteBody.value = body
+            noteUp.bodyNote = noteBody.value
+            noteUp.bodyTask = taskBody.value 
+
+            await editNote(id, noteUp)
+            
+            loadNotesUser()
+        }
+
+        const uploadTask = async (body,id) => {
+            console.log(id)
+            const noteUp = await getNoteById(id)
+
+            taskBody.value = body
+            noteUp.bodyTask = taskBody.value 
+
+            await editNote(id, noteUp)
+            
+            loadNotesUser()
+        }
+
+
+
+
+        const tasks = ref([])
         
-            } catch (error) {
-                console.error('Errore durante il salvataggio delle modifiche:', error);
-        }}*/
+        const taskDone = ref(false)
+        
+        //Add Task to single TaskNote
+        const addTask = (tasktitle,taskdone,id) => {
+            taskBody.value.push({
+                title: tasktitle
+            })
+        }
+
+        const saveExpiration = (taskExpiration) => {
+            taskBody.value.push({
+                expiration : taskExpiration
+            })
+            
+        }
+
+
+        
         const filter = ref("")
         const toggleFilter = computed(() => {
             let filteredNotes = [...notes.value];
@@ -505,20 +507,60 @@ export default {
             }else if(filter.value === "Task"){
                 return notes.value.filter(note => note.type === filter.value)
             
+            }else if(filter.value === "Date" && inNotePage.value === true){
+                console.log("data note funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Note")
+                return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+
+            }else if(filter.value === "Date" && inTaskPage.value === true){
+                console.log("data task funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Task")
+                return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+            
             }else if(filter.value === "Date"){
                 console.log("Data Funziona")
-                return filteredNotes.sort((a, b) => new Date(formatDate(a.createdAt)) - new Date(formatDate(b.createdAt)))
+                showFilterModal.value = false
+                return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+
+            }else if(filter.value === "Title" && inNotePage.value === true){
+                console.log("title note funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Note")
+                return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
+
+            }else if(filter.value === "Title" && inTaskPage.value === true){
+                console.log("title task funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Task")
+                return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
 
             }else if(filter.value === "Title"){
                 console.log("Titolo Funziona")
+                showFilterModal.value = false
                 return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
+
+            }else if(filter.value === "Length" && inNotePage.value === true){
+                console.log("length note funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Note")
+                return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
+
+            }else if(filter.value === "Length" && inTaskPage.value === true){
+                console.log("length task funziona")
+                showFilterModal.value = false
+                filteredNotes = notes.value.filter(note => note.type === "Task")
+                return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
             
             }else if(filter.value === "Length"){
                 console.log("Lunghezza Funziona")
+                showFilterModal.value = false
                 return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
 
             }else if(filter.value === "Category"){
                 console.log("Categoria")
+                showFilterModal.value = false
 
             }
 
@@ -681,38 +723,73 @@ export default {
         })
 
         const editorVisible = ref(false)
-        const toggleEditor = () => {
-            if(noteTitle.value.trim() === '' || noteCategory.value.trim() === ''){
-                console.log("errore")
-                return
+        const toggleSave = async (body,id) => {
+            if(newNote.value === true){
+            noteBody.value = body
+            editorVisible.value = !editorVisible.value
+            addNote()
             }else{
+                uploadNote(body,id)
                 editorVisible.value = !editorVisible.value
-                if(editorVisible.value == false){
-                    showAddModal.value = false
-                    showAddMenu.value = false
-                    addNote();   
             }
-        }}
+            resetValor()
+            newNote.value = false
+        }
+        
+
+        const newNote = ref(false)
+        const toggleEditor = () => {
+            editorVisible.value = !editorVisible.value
+            newNote.value = showAddModal.value
+            console.log(newNote.value)
+            noteBody.value = ""
+            newNote.value = showAddModal.value
+            showAddModal.value = false
+            showAddMenu.value = false
+        }
+
+        const resetValor = () => {
+            noteTitle.value = "";  
+            noteBody.value = "";
+            taskBody.value = [];
+            noteCategory.value = "";
+            noteFormat.value = "";
+            noteSecurity.value = "";
+            noteType.value = "Note";
+            currentSelect.value = [];
+        }
+        
 
         const handleSubmit = (event) => {
             event.preventDefault()
             console.log("dati salvati")
         }
-        
+
+        const fetchUsers = async () => {
+            const data = await getAllUsers()
+            users.value = data
+        }
 
         
-        const convertedOutput = computed(() => {
-            return marked(noteBody.value);
+        
+        const userSelected = (usid) => {
+            if(currentSelect.value.includes(usid)){
+                currentSelect.value = currentSelect.value.filter(id => id !== usid)
+            }else{
+                currentSelect.value.push(usid)
+            }
+        }
+
+
+         onMounted(() => {
+            noteUser.value = store.state.username
+            fetchUsers()
+            loadNotesUser();
         });
-
         
 
         
-
-
-
-    
-
+        
         return {
             notesVisible,
             tasksVisible,
@@ -751,8 +828,7 @@ export default {
             hoverImgCategory,
             notes,
             editorVisible,
-            toggleEditor,
-            convertedOutput,
+            toggleSave,
             noteBody,
             taskBody,
             noteTitle,
@@ -761,14 +837,8 @@ export default {
             noteFormat,
             handleSubmit,
             addNote,
-            loadNotes,
-            taskTitle,
-            taskDone,
-            tasks,
-            addTask,
-            toggleEditorTask,
             titles,
-            deleteNote,
+            deleteNoteView,
             duplicateNote,
             toggleFilter,
             changeFilterDate,
@@ -777,8 +847,27 @@ export default {
             changeFilterCategory,
             filter,
             formatDate,
-            categories,
-            categoryFilter
+            openNote,
+            uploadNote,
+            selectedNote,
+            modicated,
+            toggleEditor,
+            addTask,
+            tasks,
+            taskDone,
+            taskExpiration,
+            uploadTask,
+            addTasknote,
+            noteUser,
+            loadNotesUser,
+            resetValor,
+            newNote,
+            selectNotes,
+            users,
+            fetchUsers,
+            userSelected,
+            currentSelect,
+            saveExpiration,
             
             
             

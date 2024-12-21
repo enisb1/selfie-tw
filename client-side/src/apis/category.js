@@ -1,4 +1,4 @@
-import axios from "axios";
+/*import axios from "axios";
 
 export async function postCategory(title) {
     await axios.post('http://localhost:8000/api/category/addCategory', {"title": title})   
@@ -25,4 +25,4 @@ export async function deleteCategoryById(id) {
         console.error("Error deleting Category: ", error)
 
     }
-}
+}*/

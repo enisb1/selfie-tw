@@ -18,6 +18,9 @@ module.exports = {
   ],
   theme: {
     extend: { 
+      backgroundImage:{
+          'prova':"url(../images/stanzagif.gif)",
+      },
       colors:{
         primary: '#dddbf1',
         secondary: '#383f51', //charcoal
@@ -25,6 +28,8 @@ module.exports = {
         fourth: '#dddbf1', //lavender
         fifth: '#D1BEB0', //dune
         sixth: '#AB9F9D', //rose quartz
+        seventh: '#cbbeb5',//
+        eighth: '#ddb39b',//
       },
     },
   },
