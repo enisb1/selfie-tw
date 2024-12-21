@@ -7,7 +7,7 @@ import SignupView from '@/views/SignupView.vue'
 import NotificationView from '@/views/NotificationView.vue'
 import ChatView from '@/views/ChatView.vue'
 import PomodoroView from '@/views/PomodoroView.vue'
-
+import ProjectsView from '@/views/ProjectsView.vue'
 
 const routes = [
   {
@@ -49,6 +49,11 @@ const routes = [
     path: '/pomodoro',
     name: 'pomodoro',
     component: PomodoroView
+  },
+  {
+    path: '/projects',
+    name: 'projects',
+    component: ProjectsView
   }
  
   
