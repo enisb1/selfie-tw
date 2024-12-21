@@ -220,9 +220,10 @@ export default {
             }
             else {
                 const resourcesEvents = await getResourcesEvents()
+                const allEventsInstances = getAllEventsInstances(resourcesEvents)  // get all instances, including those of repeating events
                 const startDate = new Date(firstDayOfMonth.value)
                 const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
-                const events = resourcesEvents.filter(e => {
+                const events = allEventsInstances.filter(e => {
                     const eventEndDate = new Date(e.endDate)
                     const eventStartDate = new Date(e.startDate)
                     return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
