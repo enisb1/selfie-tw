@@ -151,5 +151,32 @@ router.get("/getUser/:id", async (req, res) => {
     }
 });
 
+router.post("/getUsers", async (req, res) => {
+    const { userIds } = req.body;
+
+    try {
+        const users = await User.find({ _id: { $in: userIds } });
+        if (users.length > 0) {
+            res.status(200).json(users);
+        } else {
+            res.status(404).json({ message: 'Users not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user data', error: error.message });
+    }
+});
+
+router.post('/getUserIdsByEmails', async (req, res) => {
+    const { emails } = req.body;
+
+    try {
+        const users = await User.find({ email: { $in: emails } }, '_id');
+        const userIds = users.map(user => user._id);
+        res.status(200).json(userIds);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user IDs', error: error.message });
+    }
+});
+
 
 export default router;

@@ -10,3 +10,6 @@ In order to tackle this problem, when making comparisons with dates from db(for 
 Activities are displayed differently in the calendar.\
 In all types of calendars, in calendar view, the activity has the same 'crimson' red color. In the daily and weekly calendar, the activity deadline also has a rectangular border to distinguish it from the events.\
 The distinction is present also in list view, here the activities are displayed first, before the events, with the same bright 'crimson' red color.
+
+### Schedules
+The schedules are events/activities, schedules is a name we came up to identify both

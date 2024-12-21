@@ -53,10 +53,12 @@
     <header>
       <div class="flex items-center justify-between flex-row">
         <div class="flex items-center justify-between flex-row">
-          <button :class="{ 'bg-secondary text-white': inAddEvent, 'text-third': inAddActivity }"
-            @click="selectAddEvent()" class="p-2 px-3 font-bold rounded-xl">Add Event</button>
-          <button :class="{ 'bg-secondary text-white': inAddActivity, 'text-third': inAddEvent }"
-            @click="selectAddActivity()" class="p-2 px-3 mr-10 font-bold rounded-xl">Add Activity</button>
+          <button :class="{ 'bg-secondary text-white': inAddEvent, 'text-third': !inAddEvent }"
+            @click="selectAddEvent" class="p-2 px-3 font-bold rounded-xl">Add Event</button>
+          <button :class="{ 'bg-secondary text-white': inAddActivity, 'text-third': !inAddActivity }"
+            @click="selectAddActivity" class="p-2 px-3 font-bold rounded-xl">Add Activity</button>
+          <button :class="{ 'bg-secondary text-white': inImportEvent, 'text-third': !inImportEvent }"
+            @click="selectInImportEvent" class="p-2 px-3 font-bold rounded-xl">Import event</button>
         </div>
         <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
           src="../images/x.png" alt="Croce"></button>
@@ -220,6 +222,10 @@
       <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
           text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
     </form>
+
+    <div v-show="inImportEvent" class="mt-4">
+      <input type="file" accept=".ics" @change="importEvent">
+    </div>
   </Modal>
 
   <div v-show="calendarToShow === 'daily'">
@@ -251,6 +257,7 @@ import { useStore } from 'vuex';
 import Multiselect from 'vue-multiselect';
 import { getAllUsers } from '@/apis/users';
 import { getUnavailableRepeatedDates } from '@/components/Calendar/repeated-dates';
+import { getEventsFromIcsString } from '@/components/Calendar/import-events';
 
 export default {
   components: {
@@ -477,13 +484,21 @@ export default {
     // add activity
     const inAddActivity = ref(false)
     const inAddEvent = ref(true)
+    const inImportEvent = ref(false)
     const selectAddEvent = () => {
       inAddActivity.value = false
       inAddEvent.value = true
+      inImportEvent.value = false
     }
     const selectAddActivity = () => {
       inAddActivity.value = true
       inAddEvent.value = false
+      inImportEvent.value = false
+    }
+    const selectInImportEvent = () => {
+      inImportEvent.value = true
+      inAddEvent.value = false
+      inAddActivity.value = false
     }
     const activityToAddTitle = ref('')
     const activityToAddDeadline = ref()
@@ -509,6 +524,18 @@ export default {
       view.value = 'calendar'
       updateAllCalendars()
     }
+
+    const importEvent = async (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const icsContent = await file.text();
+        const events = await getEventsFromIcsString(icsContent)
+        for (const event of events) {
+          await postEvent(event.title, event.location, event.startDate, event.endDate, event.frequency, 
+            event.repetitionNumber, event.repetitionDate, '#3c4f76', event.users, [], false, false, false, false)
+        }
+      }
+    };
 
     onMounted(() => {
       updateUsersOptions()
@@ -569,7 +596,10 @@ export default {
       notify15Before,
       notify30Before,
       notify1HourBefore,
-      notify1DayBefore
+      notify1DayBefore,
+      inImportEvent,
+      selectInImportEvent,
+      importEvent
     }
   }
 }

@@ -84,3 +84,12 @@ export async function getUsers(userIds) {
         throw error.response.data;
     }
 }
+
+export async function getUserIdsByEmails(emails) {
+    try {
+        const response = await axios.post('http://localhost:8000/api/login/getUserIdsByEmails', { emails });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
