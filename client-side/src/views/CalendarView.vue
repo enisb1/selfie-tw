@@ -43,13 +43,13 @@
       <img v-show="view === 'list'"  class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/list_white.png" alt="list is shown">
     </button>
     
-    <button v-show="!inResourcesCalendar" @click="toggleAddEventModal" class="relative ml-6 bg-white w-11 rounded-full border border-third">
+    <button v-show="!inResourcesCalendar" @click="toggleAddModal" class="relative ml-6 bg-white w-11 rounded-full border border-third">
             <img class="w-4 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="../images/add.png" alt="Add">
     </button>
   </div>
   
   <!-- Add event modal -->
-  <Modal v-show="showAddEventModal" @close="toggleAddEventModal">
+  <Modal v-show="showAddEventModal" @close="toggleAddModal">
     <header>
       <div class="flex items-center justify-between flex-row">
         <div class="flex items-center justify-between flex-row">
@@ -60,7 +60,7 @@
           <button :class="{ 'bg-secondary text-white': inImportEvent, 'text-third': !inImportEvent }"
             @click="selectInImportEvent" class="p-2 px-3 font-bold rounded-xl">Import event</button>
         </div>
-        <button type="button" @click="toggleAddEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+        <button type="button" @click="toggleAddModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
           src="../images/x.png" alt="Croce"></button>
       </div>
       <hr style="border-color: black"/>
@@ -146,7 +146,7 @@
       <!-- invite users -->
       <div class="mt-4">
         <p class="font-semibold text-base">Invite users</p>
-        <Multiselect v-model="selectedUsers" :options="usersOptions"
+        <Multiselect v-model="newEventSelectedUsers" :options="usersOptions"
           optionLabel="username" placeholder="Select users" label="username" :multiple="true"
           :close-on-select="false" :clear-on-select="false"
           :preserve-search="true" track-by="username" :preselect-first="true">
@@ -217,6 +217,16 @@
           <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
             :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
         </div>
+
+        <!-- invite users -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Invite users</p>
+          <Multiselect v-model="newActivitySelectedUsers" :options="usersOptions"
+            optionLabel="username" placeholder="Select users" label="username" :multiple="true"
+            :close-on-select="false" :clear-on-select="false"
+            :preserve-search="true" track-by="username" :preselect-first="true">
+          </Multiselect>
+        </div>
       </div>
 
       <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
@@ -281,7 +291,7 @@ export default {
       usersOptions.value = usersOptions.value.concat(users)
       .concat(resources).filter(obj => obj._id != store.state._id)
     }
-    const selectedUsers = ref()
+    const newEventSelectedUsers = ref()
 
     // show calendar menu
     const showCalendarMenu = ref(false)
@@ -325,11 +335,12 @@ export default {
       eventToAddRepetitionNumber.value = null
       isRepetitionDateDisabled.value = false
       isRepetitionNumberDisabled.value = false
-      selectedUsers.value = []
+      newEventSelectedUsers.value = []
       selectedColor.value = '#3c4f76'
       showAddModal.value = !showAddModal.value
       activityToAddTitle.value = ''
       activityToAddDeadline.value = null
+      newActivitySelectedUsers.value = []
       inAddActivity.value = false
       inAddEvent.value = true
       notify15Before.value = false
@@ -376,7 +387,7 @@ export default {
           eventToAddRepetitionDate.value = new Date(eventToAddRepetitionDate.value.setHours(23,59,59,999))
 
         // process selectedUsers to get users and resources
-        const users = selectedUsers.value.filter(obj => obj.firstName) // TODO: will have to send invite to these users
+        const users = newEventSelectedUsers.value.filter(obj => obj.firstName) // fetch only users
         // send invite to users
         for (const user of users) {
           const repeatedDatesArray = await getUnavailableRepeatedDates(user._id)
@@ -393,7 +404,7 @@ export default {
             // TODO: send invite to user
           }
         }
-        const resources = selectedUsers.value.filter(obj => !obj.firstName)
+        const resources = newEventSelectedUsers.value.filter(obj => !obj.firstName)
         const availableResources = await getAvailableResources(resources.map(obj => obj._id), new Date(eventToAddStartDate.value), new Date(eventToAddEndDate.value))
         //const eventToAddUsers = availableResources.map(r => r._id).concat([store.state._id])
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
@@ -503,9 +514,12 @@ export default {
     const activityToAddTitle = ref('')
     const activityToAddDeadline = ref()
 
+    const newActivitySelectedUsers = ref()
+
     const addActivity = async () => {
-      // TODO: check if await is necessary if you don't need anything back
-      await postActivity(activityToAddTitle.value, activityToAddDeadline.value, store.state._id)
+      // newActivitySelectedUsers contains the users to invite
+      // TODO: invite them!
+      await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
       updateAllCalendars()
       toggleAddModal()
     }
@@ -549,7 +563,7 @@ export default {
       showCalendarMenu,
       toggleShowCalendarMenu,
       showAddEventModal: showAddModal,
-      toggleAddEventModal: toggleAddModal,
+      toggleAddModal,
       eventToAddStartDate,
       eventToAddLocation,
       eventToAddEndDate,
@@ -586,9 +600,8 @@ export default {
       formatDateNoTime,
       showAddError,
       addErrorValue,
-      selectedUsers,
+      newEventSelectedUsers,
       usersOptions,
-      selectedUsers,
       inYoursCalendar,
       inResourcesCalendar,
       toggleInYoursCalendar,
@@ -599,7 +612,8 @@ export default {
       notify1DayBefore,
       inImportEvent,
       selectInImportEvent,
-      importEvent
+      importEvent,
+      newActivitySelectedUsers
     }
   }
 }

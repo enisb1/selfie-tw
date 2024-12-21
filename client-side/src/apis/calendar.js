@@ -57,9 +57,9 @@ export async function postEvent(title, location, start, end, frequency, repetiti
 }
 
 // post event to db
-export async function postActivity(title, deadline, userId) {
+export async function postActivity(title, deadline, userIds) {
     await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
-        "isDone": false, "users": [userId]}
+        "isDone": false, "users": userIds}
     )
     .then(({data}) => {
         console.log(data);
