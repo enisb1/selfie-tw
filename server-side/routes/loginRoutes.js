@@ -13,7 +13,6 @@ router.post("/addUser", async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(req.body.password, salt);
 
-
         const user = new User({
             username: req.body.username,
             passwordHash: passwordHash,
@@ -22,7 +21,12 @@ router.post("/addUser", async (req, res) => {
             lastName: req.body.lastName,
             isAResource: false,
             isAdmin: false,
-            telegram: req.body.telegram
+            telegram: req.body.telegram,
+            unavailableStart: req.body.unavailableStart,
+            unavailableEnd: req.body.unavailableEnd,
+            unavailableFrequency: req.body.unavailableFrequency,
+            unavailableRepNumber: req.body.unavailableRepNumber,
+            unavailableRepDate: req.body.unavailableRepDate
         });
         await user.save();
         res.status(201).json({ message: 'Data saved successfully' ,
@@ -109,7 +113,70 @@ router.get("/allUsers", async (req, res) => {
     }
 });
 
+router.put("/updateUnavailability/:id", async (req, res) => {
+    const userId = req.params.id;
+    const { unavailableStart, unavailableEnd, unavailableFrequency, unavailableRepNumber, unavailableRepDate } = req.body;
 
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+            unavailableStart,
+            unavailableEnd,
+            unavailableFrequency,
+            unavailableRepNumber,
+            unavailableRepDate
+        }, { new: true });
+
+        if (updatedUser) {
+            res.status(200).json({ message: 'Unavailability updated successfully', user: updatedUser });
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating unavailability', error: error.message });
+    }
+});
+
+router.get("/getUser/:id", async (req, res) => {
+    const userId = req.params.id;
+
+    try {
+        const user = await User.findById(userId);
+        if (user) {
+            res.status(200).json(user);
+        } else {
+            res.status(404).json({ message: 'User not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user data', error: error.message });
+    }
+});
+
+router.post("/getUsers", async (req, res) => {
+    const { userIds } = req.body;
+
+    try {
+        const users = await User.find({ _id: { $in: userIds } });
+        if (users.length > 0) {
+            res.status(200).json(users);
+        } else {
+            res.status(404).json({ message: 'Users not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user data', error: error.message });
+    }
+});
+
+router.post('/getUserIdsByEmails', async (req, res) => {
+    const { emails } = req.body;
+
+    try {
+        const users = await User.find({ email: { $in: emails } }, '_id');
+        const userIds = users.map(user => user._id);
+        res.status(200).json(userIds);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user IDs', error: error.message });
+    }
+});
 
 
 export default router;

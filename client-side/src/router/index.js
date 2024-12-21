@@ -8,6 +8,8 @@ import NotificationView from '@/views/NotificationView.vue'
 import ChatView from '@/views/ChatView.vue'
 import PomodoroView from '@/views/PomodoroView.vue'
 import ProjectsView from '@/views/ProjectsView.vue'
+import AdminView from '@/views/AdminView.vue'
+import SettingsView from '@/views/SettingsView.vue'
 
 const routes = [
   {
@@ -54,9 +56,17 @@ const routes = [
     path: '/projects',
     name: 'projects',
     component: ProjectsView
+  },
+  {
+    path: '/admin',
+    name: 'admin',
+    component: AdminView
+  },
+  {
+    path: '/settings',
+    name: 'settings',
+    component: SettingsView
   }
- 
-  
 ]
 
 const router = createRouter({

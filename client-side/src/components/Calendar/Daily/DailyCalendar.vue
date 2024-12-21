@@ -43,9 +43,9 @@
     </div>
 
     <!-- List view -->
-    <div v-show="view==='list'" class="flex flex-col items-center mx-auto w-3/4 text-white py-5">
+    <div v-show="view==='list'" class="flex flex-col items-center mx-auto text-white py-5">
         <div v-for="[startTime, activities] in Object.entries(activitiesSelectedDay)" class="flex flex-row 
-        mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+        mt-4 justify-between items-start w-full bg-white bg-opacity-50 py-4 px-2 rounded-lg sm:w-1/2">
             <div class="px-4 rounded-xl py-2 font-bold" :style="{backgroundColor: 'crimson'}">{{ startTime }}</div>
             <div class="flew flex-col w-1/2">
                 <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" 
@@ -57,25 +57,40 @@
         </div>
 
         <div v-show="eventsBeforeMidnight.length>0" class="flex flex-row 
-            mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            mt-4 justify-between items-start w-full sm:w-1/2 px-2">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">00:00</div>
-            <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in eventsBeforeMidnight" @click="toggleScheduleInfoOn(event)" 
-                :class="{'mt-4': indexEvent>0}" class="opacity-75 hover:opacity-100 hover:font-bold w-full 
-                truncate bg-secondary px-4 rounded-xl py-2 cursor-pointer">
-                    {{ event.title }} 
+            <div class="flew flex-col bg-white bg-opacity-50 rounded-lg py-4 px-2 w-3/4">
+                <div class="flex justify-between items-center" :class="{'mt-4': indexEvent>0}" 
+                    v-for="(event, indexEvent) in eventsBeforeMidnight">
+                    <div @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :style="{backgroundColor: event.color}" class="px-4 opacity-75 hover:opacity-100 hover:font-bold 
+                    truncate bg-secondary rounded-xl py-2 cursor-pointer max_width_half">
+                        {{ event.title }}
+                    </div>
+                    <div class="bg-secondary px-4 rounded-xl py-2 font-semibold truncate">
+                        {{ new Date(event.endDate).getTime()>new Date(new Date(selectedDate).setHours(23,59,59,999)).getTime()? 
+                        `${new Date(event.endDate).getDate()} ${months[new Date(event.endDate).getMonth()]}` :
+                        new Date(event.endDate).toLocaleTimeString('it-IT', {hour:"2-digit", minute:"2-digit"})}}
+                    </div>
                 </div>
             </div>
         </div>
 
         <div v-for="[startTime, events] in Object.entries(eventsAfterMidnight)" class="flex flex-row 
-        mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
+            mt-4 justify-between items-start w-full sm:w-1/2 px-2">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold">{{ startTime }}</div>
-            <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
-                    :style="{backgroundColor: event.color}" class="opacity-75 hover:opacity-100 
-                    hover:font-bold w-full truncate px-4 rounded-xl py-2 cursor-pointer">
-                    {{ event.title }}
+            <div class="flew flex-col bg-white bg-opacity-50 rounded-lg py-4 px-2 w-3/4">
+                <div class="flex justify-between items-center" :class="{'mt-4': indexEvent>0}" 
+                    v-for="(event, indexEvent) in events">
+                    <div @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :class="{'mt-4': indexEvent>0}" 
+                        :style="{backgroundColor: event.color}" class="px-4 opacity-75 hover:opacity-100 hover:font-bold 
+                        truncate bg-secondary rounded-xl py-2 cursor-pointer max_width_half">
+                        {{ event.title }}
+                    </div>
+                    <div class="bg-secondary px-4 rounded-xl py-2 font-semibold truncate">
+                        {{ new Date(event.endDate).getTime()>new Date(new Date(selectedDate).setHours(23,59,59,999)).getTime()? 
+                        `${new Date(event.endDate).getDate()} ${months[new Date(event.endDate).getMonth()]}` :
+                        new Date(event.endDate).toLocaleTimeString('it-IT', {hour:"2-digit", minute:"2-digit"})}}
+                    </div>
                 </div>
             </div>
         </div>
@@ -86,7 +101,7 @@
     <Modal v-if="showScheduleModal" @close="toggleScheduleInfoOff">
         <header>
             <div class="flex items-center justify-between flex-row font-bold">
-                <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity deadline: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+                <p class="text-truncate text-lg"> '{{ scheduleObject.title }}'</p>
                 <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="../../../images/x.png" alt="Croce"></button>
             </div>
@@ -104,6 +119,41 @@
                 @close="toggleScheduleInfoOff"></ActivityInfoEdit>
         </div>
     </Modal>
+
+    <!-- Resource event info modal -->
+    <!-- v-if and not v-show because scheduleObject is defined only when showScheduleModal is true (would give error with v-show) -->
+    <Modal v-if="showResourceEventModal" @close="toggleResourceEventInfoOff">
+        <header>
+            <div class="flex items-center justify-between flex-row font-bold">
+                <p class="text-truncate text-lg">Info on used resource</p>
+                <button type="button" @click="toggleResourceEventInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                src="../../../images/x.png" alt="Croce"></button>
+            </div>
+            <hr style="border-color: black"/>
+        </header>
+
+        <div class="flex flex-col">
+            <!-- title -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Used resource</p>
+                <p>{{ resourceEvent.resourceUsername }}</p>
+            </div>
+            <!-- start -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Start</p>
+                <p>{{ new Date(resourceEvent.startDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
+            </div>
+            <!-- end -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">End</p>
+                <p>{{ new Date(resourceEvent.endDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
+            </div>
+        </div>
+
+        <!-- delete button -->
+        <button v-show="store.state.isAdmin" @click="removeResource" class="w-full mt-4 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Remove resource</button>
+    </Modal>
 </template>
 
 <script>
@@ -115,15 +165,17 @@ import { watch } from 'vue';
 import { onMounted, onBeforeUnmount } from 'vue';
 import { computed } from 'vue';
 import { getAllEventsInstances } from '../repeated-events.js';
-import { getEvents, getActivitiesInRange } from '@/apis/calendar.js';
+import { getEvents, getActivitiesInRange, getResourcesEvents, removeResourceFromEvent } from '@/apis/calendar.js';
 import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
+import { useStore } from 'vuex';
 
 export default {
     emits: ['updateAllCalendars'],
     props : {
-        view: String
+        view: String,
+        showResourcesCalendar: Boolean
     },
     components: {
         DatePicker,
@@ -131,7 +183,9 @@ export default {
         EventInfoEdit,
         ActivityInfoEdit
     },
-    setup() {
+    setup(props) {
+        const store = useStore()
+
         const selectedDate = ref(new Date());   // default date = current date
         watch(selectedDate, () => {
             // update events to show and day header only if selected month is not null
@@ -147,25 +201,64 @@ export default {
         const eventsSelectedDay = ref([])
         const activities = ref()
         const updateCalendar = async () => {
-            // fetch events from db and calculate all the events instances, including the one
-            // that repeat themselves, filter for selected day and render
-            const eventsFromDB = await getEvents()
-            const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
-            const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
-            const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
-            // filter all events instances getting only those that concern the selected day
-            eventsSelectedDay.value = allEventsInstances.filter(e => {
-                const eventEndDate = new Date(e.endDate)
-                const eventStartDate = new Date(e.startDate)
-                return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
-                || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
-                || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
-            })
+            if (!props.showResourcesCalendar) {
+                // fetch events from db and calculate all the events instances, including the one
+                // that repeat themselves, filter for selected day and render
+                const eventsFromDB = await getEvents(store.state._id)
+                const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+                const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
+                const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
+                // filter all events instances getting only those that concern the selected day
+                eventsSelectedDay.value = allEventsInstances.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
 
-            // fetch activities
-            activities.value = await getActivitiesInRange(startDate, endDate)
+                // fetch activities
+                activities.value = await getActivitiesInRange(startDate, endDate, store.state._id)
 
-            renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value);
+                renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value, false);
+            }
+            else {
+                const resourcesEvents = await getResourcesEvents()
+                const startDate = new Date(new Date(selectedDate.value).setHours(0,0,0,0));
+                const endDate = new Date(new Date(selectedDate.value).setHours(23, 59, 59, 999));
+                // filter all events instances getting only those that concern the selected day
+                eventsSelectedDay.value = resourcesEvents.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
+                renderCalendar(eventsSelectedDay.value, null, selectedDate.value, true)
+            }
+        }
+
+        const resourceEvent = ref()
+        const removeResource = async () => {
+            await removeResourceFromEvent(resourceEvent.value.resourceId, resourceEvent.value.eventId)
+            updateCalendar()
+            toggleResourceEventInfoOff()
+        }
+        const showResourceEventModal = ref(false)
+        const toggleResourceEventInfoOnFromEvent = (event) => {
+            resourceEvent.value = event.detail
+            showResourceEventModal.value = true
+        }
+        const toggleResourceEventInfoOff = () => {
+            showResourceEventModal.value = false
+        }
+        const resourceDateFormat = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
         }
 
         const headerDay = ref('')
@@ -263,6 +356,8 @@ export default {
             showScheduleModal.value = false
         }
 
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+
         // lifecycle hooks
         onMounted(() => {
             updateCalendar()
@@ -270,6 +365,7 @@ export default {
 
             // listen to schedule boxes click event
             window.addEventListener('showScheduleInfoDaily', toggleScheduleInfoOnFromEvent);
+            window.addEventListener('showResourceEventDaily', toggleResourceEventInfoOnFromEvent);
         })
         
         onBeforeUnmount(() => {
@@ -289,7 +385,15 @@ export default {
             showScheduleModal,
             scheduleObject,
             toggleScheduleInfoOn,
-            toggleScheduleInfoOff
+            toggleScheduleInfoOff,
+            months,
+            toggleResourceEventInfoOnFromEvent,
+            resourceEvent,
+            showResourceEventModal,
+            toggleResourceEventInfoOff,
+            resourceDateFormat,
+            removeResource,
+            store
         }
     }
 }
@@ -329,5 +433,9 @@ export default {
         width: 100%;
         height: 0.1rem;
         background: black;
+    }
+
+    .max_width_half {
+        max-width: 55%;
     }
 </style>

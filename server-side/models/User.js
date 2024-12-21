@@ -9,7 +9,12 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     isAResource: Boolean,
     isAdmin: Boolean,
-    telegram: String
+    telegram: String,
+    unavailableStart: Date,
+    unavailableEnd: Date,
+    unavailableFrequency: String,
+    unavailableRepNumber: Number,
+    unavailableRepDate: Date
 });
 
 // model created from schema

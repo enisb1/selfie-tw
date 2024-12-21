@@ -13,7 +13,12 @@ export const store = createStore({
         isAdmin: false,
         telegram: '',
         __v: 0,
-        isLoggedIn: false
+        isLoggedIn: false,
+        unavailableStart: null,
+        unavailableEnd: null,
+        unavailableFrequency: 'none',
+        unavailableRepNumber: null,
+        unavailableRepDate: null
     },
     getters: {
 
@@ -31,6 +36,11 @@ export const store = createStore({
             state.telegram = user.telegram;
             state.__v = user.__v;
             state.isLoggedIn = true;
+            state.unavailableStart = user.unavailableStart;
+            state.unavailableEnd = user.unavailableEnd;
+            state.unavailableFrequency = user.unavailableFrequency;
+            state.unavailableRepNumber = user.unavailableRepNumber;
+            state.unavailableRepDate = user.unavailableRepDate;
         },
         flushUser(state) {
             state._id = '';
@@ -44,6 +54,11 @@ export const store = createStore({
             state.telegram = '';
             state.__v = 0;
             state.isLoggedIn = false;
+            state.unavailableStart = null;
+            state.unavailableEnd = null;
+            state.unavailableFrequency = 'none';
+            state.unavailableRepNumber = null;
+            state.unavailableRepDate = null;
         },
         initializeStore(state) {
             if (localStorage.getItem('username')) {
@@ -57,9 +72,28 @@ export const store = createStore({
                 state.isAdmin = localStorage.getItem('isAdmin');
                 state.telegram = localStorage.getItem('telegram');
                 state.__v = localStorage.getItem('__v');
+                state.unavailableStart = localStorage.getItem('unavailableStart');
+                state.unavailableEnd = localStorage.getItem('unavailableEnd');
+                state.unavailableFrequency = localStorage.getItem('unavailableFrequency');
+                state.unavailableRepNumber = localStorage.getItem('unavailableRepNumber');
+                state.unavailableRepDate = localStorage.getItem('unavailableRepDate');
             }
+        },
+        setUnavailableStart(state, value) {
+            state.unavailableStart = value;
+        },
+        setUnavailableEnd(state, value) {
+            state.unavailableEnd = value;
+        },
+        setUnavailableFrequency(state, value) {
+            state.unavailableFrequency = value;
+        },
+        setUnavailableRepNumber(state, value) {
+            state.unavailableRepNumber = value;
+        },
+        setUnavailableRepDate(state, value) {
+            state.unavailableRepDate = value;
         }
-
     },
     actions: {
 

@@ -28,11 +28,15 @@
             <div v-for="(date, index) in daysArray" :key="index" :class="getDynamicDayClass(date, index)" class="text-white border-b border-black border-r text-center border-r">
                 <div class="bg-secondary"> {{ date.getDate() }}</div>
 
-                <div v-for="event in eventsForDay[index+1]" :data-event-id="event.startDate ? event._id : null" 
+                <div v-if="!showResourcesCalendar" v-for="event in eventsForDay[index+1]" :data-event-id="event.startDate ? event._id : null" 
                 :style="{backgroundColor: event.deadline ? 'crimson' : event.color}" 
                 :class="{'line-through': event.isDone, 'font-bold': event.deadline,'opacity-75': event.startDate, 'event': event.startDate}" 
-                class="px-1 mt-2 truncate cursor-pointer" @click="toggleScheduleInfoOn(event)">
+                class="px-1 mt-2 truncate cursor-pointer" @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)">
                     <p> {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }}</p>
+                </div>
+                <div v-else v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}"
+                    class="px-1 mt-2 truncate cursor-pointer opacity-75 event" @click="toggleResourceEventModalOn(event)">
+                    <p>{{ event.resourceUsername }} used</p>
                 </div>
             </div>
         </div>
@@ -59,7 +63,7 @@
         <div v-for="[day, events] in filteredEvents" class="flex flex-row mt-4 justify-between items-start w-full bg-white bg-opacity-50 p-4 rounded-lg">
             <div class="bg-secondary px-4 rounded-xl py-2 font-semibold"> {{ day }} {{ months[new Date(events[0].startDate).getMonth()] }}</div>
             <div class="flew flex-col w-1/2">
-                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event)" :class="{'mt-4': indexEvent>0}" 
+                <div v-for="(event, indexEvent) in events" @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)" :class="{'mt-4': indexEvent>0}" 
                     :style="{backgroundColor: event.color}" :data-event-id="event._id" 
                     class="w-full truncate px-4 rounded-xl py-2 opacity-75 event cursor-pointer">
                         {{ event.title }} 
@@ -73,7 +77,7 @@
     <Modal v-if="showScheduleModal" @close="toggleScheduleInfoOff">
         <header>
             <div class="flex items-center justify-between flex-row font-bold">
-                <p class="text-truncate text-lg"> {{ scheduleObject.deadline? 'Activity deadline: ' : 'Event: ' }} '{{ scheduleObject.title }}'</p>
+                <p class="text-truncate text-lg"> '{{ scheduleObject.title }}'</p>
                 <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="../../../images/x.png" alt="Croce"></button>
             </div>
@@ -92,6 +96,39 @@
         </div>
     </Modal>
 
+    <!-- Resource event modal -->
+    <Modal v-if="showResourceEventModal" @close="toggleResourceEventModalOff">
+        <header>
+            <div class="flex items-center justify-between flex-row font-bold">
+                <p class="text-truncate text-lg">Info on used resource</p>
+                <button type="button" @click="toggleResourceEventModalOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                src="../../../images/x.png" alt="Croce"></button>
+            </div>
+            <hr style="border-color: black"/>
+        </header>
+
+        <div class="flex flex-col">
+            <!-- title -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Used resource</p>
+                <p>{{ resourceEvent.resourceUsername }}</p>
+            </div>
+            <!-- start -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Start</p>
+                <p>{{ new Date(resourceEvent.startDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
+            </div>
+            <!-- end -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">End</p>
+                <p>{{ new Date(resourceEvent.endDate).toLocaleDateString('it-IT', resourceDateFormat) }}</p>
+            </div>
+        </div>
+        
+        <!-- delete button -->
+        <button v-show="store.state.isAdmin" @click="removeResource" class="w-full mt-4 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Remove resource</button>
+    </Modal>
 </template>
 
 <script>
@@ -102,16 +139,18 @@ import { ref } from 'vue'
 import { watch } from 'vue'
 import { updateSchedules } from './update-events-month.js'
 import { computed } from 'vue'
-import { getEvents, getActivitiesInRange } from '@/apis/calendar.js'
+import { getEvents, getActivitiesInRange, getResourcesEvents, removeResourceFromEvent } from '@/apis/calendar.js'
 import { getAllEventsInstances } from '../repeated-events.js'
 import Modal from '@/components/Modal.vue'
 import EventInfoEdit from '../EventInfoEdit.vue'
 import ActivityInfoEdit from '../ActivityInfoEdit.vue'
+import { useStore } from 'vuex'
 
 export default {
     emits: ['updateAllCalendars'],
     props : {
-        view: String
+        view: String,
+        showResourcesCalendar: Boolean
     },
     components : {
         DatePicker,
@@ -119,7 +158,9 @@ export default {
         EventInfoEdit,
         ActivityInfoEdit
     },
-    setup() {
+    setup(props) {
+        const store = useStore()
+
         // object containing field month and field year
         const monthSelected = ref({"month": new Date().getMonth(), "year": new Date().getFullYear()});
         watch(monthSelected, () => {
@@ -158,23 +199,84 @@ export default {
         // events object has day of month as key and array of events for that day as value
         const schedulesForDay = ref({})
         const updateCalendar = async () => {
-            // fetch events from db and calculate all the events instances, including the one
-            // that repeat themselves, filter for selected week and render
-            const eventsFromDB = await getEvents()
-            const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
-            const startDate = new Date(firstDayOfMonth.value)
-            const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
-            const events = allEventsInstances.filter(e => {
-                const eventEndDate = new Date(e.endDate)
-                const eventStartDate = new Date(e.startDate)
-                return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
-                || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
-                || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
-            })
-            // fetch activities
-            const activities = await getActivitiesInRange(startDate, endDate)
-            // update calendar
-            schedulesForDay.value = updateSchedules(events, activities, startDate, endDate)
+            if (!props.showResourcesCalendar) {
+                // fetch events from db and calculate all the events instances, including the one
+                // that repeat themselves, filter for selected week and render
+                const eventsFromDB = await getEvents(store.state._id)
+                const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+                const startDate = new Date(firstDayOfMonth.value)
+                const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
+                const events = allEventsInstances.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
+                // fetch activities
+                const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
+                // update calendar
+                schedulesForDay.value = updateSchedules(events, activities, startDate, endDate)
+            }
+            else {
+                const resourcesEvents = await getResourcesEvents()
+                const allEventsInstances = getAllEventsInstances(resourcesEvents)  // get all instances, including those of repeating events
+                const startDate = new Date(firstDayOfMonth.value)
+                const endDate = new Date(new Date(lastDayOfMonth.value).setHours(23,59,59,999))
+                const events = allEventsInstances.filter(e => {
+                    const eventEndDate = new Date(e.endDate)
+                    const eventStartDate = new Date(e.startDate)
+                    return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+                    || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+                    || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+                })
+                const schedules = updateSchedules(events, null, startDate, endDate)
+                // build structure for resource events
+                // Result structure
+                const transformedEventsByDay = {};
+
+                // build a new object with day as key and as value an array containing one event for 
+                // each resource in matchedResources
+                // (with an added field resourceUsername corresponding to the username of that specific resource)
+                for (const [day, events] of Object.entries(schedules)) {
+                    const transformedEvents = [];
+                    events.forEach(event => {
+                        event.matchedResources.forEach(resource => {
+                            // Clone the event and add the resource
+                            const newEvent = { ...event, resourceUsername: resource.username, resourceId: resource._id, eventId: event._id }    // copy event and add resource
+                            delete newEvent.matchedResources // remove matchedResources field (optional)
+                            transformedEvents.push(newEvent)
+                        });
+                    });
+                    transformedEventsByDay[day] = transformedEvents
+                }
+                schedulesForDay.value = transformedEventsByDay
+                console.log(transformedEventsByDay)
+            }
+        }
+
+        // resource event modal
+        const showResourceEventModal = ref(false)
+        const resourceEvent = ref()
+        const toggleResourceEventModalOn = (event) => {
+            resourceEvent.value = event
+            showResourceEventModal.value = true
+        }
+        const toggleResourceEventModalOff = () => {
+            showResourceEventModal.value = false
+        }
+        const removeResource = async () => {
+            await removeResourceFromEvent(resourceEvent.value.resourceId, resourceEvent.value.eventId)
+            updateCalendar()
+            toggleResourceEventModalOff()
+        }
+        const resourceDateFormat = {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
         }
 
         // remove empty arrays and filter to only events
@@ -199,9 +301,9 @@ export default {
             .filter(([day, events]) => events.length > 0)
         })
 
+        // event boxes hover effect
         const addHoverOnEventBoxes = () => {
             const eventBoxes = document.querySelectorAll('.event');
-
             eventBoxes.forEach(eventBox => {
                 eventBox.addEventListener('mouseover', () => {
                     const eventId = eventBox.getAttribute('data-event-id');
@@ -265,7 +367,14 @@ export default {
             scheduleObject,
             showScheduleModal,
             toggleScheduleInfoOn,
-            toggleScheduleInfoOff
+            toggleScheduleInfoOff,
+            toggleResourceEventModalOn,
+            toggleResourceEventModalOff,
+            resourceEvent,
+            showResourceEventModal,
+            resourceDateFormat,
+            removeResource,
+            store
         }
     }
 }
@@ -304,6 +413,4 @@ export default {
     .border-left {
         border-left-width: 1px;
     }
-
-    
 </style>
