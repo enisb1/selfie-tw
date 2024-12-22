@@ -126,6 +126,9 @@
           <input class="border border-third" type="text" maxlength="30" required v-model="projectToCreateFinalMilestoneName">
         </div>
 
+        <div v-show="showAddError" class="bg-red-400 text-white font-bold mt-2 
+        inline px-2 text-center mx-auto" > {{ errorValue }}</div>
+
         <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
         text-white shadow-sm ring-1 ring-inset ring-gray-300">Create</button>
       </div>
@@ -142,6 +145,7 @@ import { useStore } from 'vuex';
 import { createProject } from '@/apis/projects';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
+import { postActivity, updateActivityProjectId } from '@/apis/calendar';
 
 export default {
   components: {
@@ -239,16 +243,38 @@ export default {
         projectToCreateName.value = ''
         projectToCreateDescription.value = ''
         projectToCreateSelectedUsers.value = []
+        showAddError.value = false
+        projectToCreateStart.value = null
+        projectToCreateEnd.value = null
+        projectToCreateFinalMilestoneName.value = ''
       }
       showCreateProjectModal.value = !showCreateProjectModal.value
     }
 
+    const showAddError = ref(false)
+    const errorValue = ref('')
     const createNewProject = async () => {
       //TODO: invite members instead of automatically adding them
       // (as already done for activities/events)
-      await createProject(projectToCreateName.value, projectToCreateDescription.value, 
-      projectToCreateStart.value, projectToCreateEnd.value,
-        store.state._id, projectToCreateSelectedUsers.value.map(user => user._id), [])
+      if (projectToCreateEnd.value.getTime() <= projectToCreateStart.value.getTime()) {
+        errorValue.value = "End date must be after start date"
+        showAddError.value = true
+      }
+      else {
+        const selectedUsersIds = projectToCreateSelectedUsers.value.map(user => user._id).concat(store.state._id)
+        const milestoneActivityProjectData = {
+          projectId: null,
+          isMilestone: true,
+          subActivities: null
+        }
+        const milestoneActivity = await postActivity(projectToCreateFinalMilestoneName.value,  
+          projectToCreateEnd.value, selectedUsersIds, milestoneActivityProjectData)
+        const createdProject = await createProject(projectToCreateName.value, projectToCreateDescription.value, 
+        projectToCreateStart.value, projectToCreateEnd.value,
+        store.state._id, selectedUsersIds, [milestoneActivity._id])
+        await updateActivityProjectId(milestoneActivity._id, createdProject._id)
+        showAddError.value = false
+      }
     }
 
     const formatDate = (date) => {
@@ -298,7 +324,9 @@ export default {
       formatDate,
       projectToCreateStart,
       projectToCreateEnd,
-      startTime
+      startTime,
+      showAddError,
+      errorValue
     }
   }
 

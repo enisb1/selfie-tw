@@ -57,13 +57,24 @@ export async function postEvent(title, location, start, end, frequency, repetiti
 }
 
 // post event to db
-export async function postActivity(title, deadline, userIds) {
-    await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
-        "isDone": false, "users": userIds}
-    )
-    .then(({data}) => {
-        console.log(data);
-    })
+export async function postActivity(title, deadline, userIds, projectData) {
+    try {
+        const response = await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
+            "isDone": false, "users": userIds, "projectData": projectData}
+        );
+        return response.data; // Return the response data, which includes the activity ID
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+export async function updateActivityProjectId(activityId, projectId) {
+    try {
+        const response = await axios.put(`http://localhost:8000/api/calendar/updateActivityProjectId/${activityId}`, { projectId });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
 }
 
 // edit activity

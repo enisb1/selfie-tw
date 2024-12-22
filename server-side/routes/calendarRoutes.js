@@ -22,12 +22,34 @@ router.post("/addEvent", async (req, res) => {
 router.post("/addActivity", async (req, res) => {
     try {
         const activity = new Activity(req.body);
-        await activity.save();
-        res.status(201).json({ message: 'Data saved successfully' });
+        const savedActivity = await activity.save();
+        res.status(201).json(savedActivity);
     }catch (error) {
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });
     }
+});
+
+// Update an activity to add a project ID
+router.put('/updateActivityProjectId/:id', async (req, res) => {
+  const { id } = req.params;
+  const { projectId } = req.body;
+
+  try {
+      const updatedActivity = await Activity.findByIdAndUpdate(
+          id,
+          { 'projectData.projectId': projectId },
+          { new: true }
+      );
+
+      if (!updatedActivity) {
+          return res.status(404).json({ message: 'Activity not found' });
+      }
+
+      res.status(200).json(updatedActivity);
+  } catch (error) {
+      res.status(500).json({ message: 'Error updating activity', error: error.message });
+  }
 });
 
 // retrieve all events from db (//TODO: if not used delete this)
