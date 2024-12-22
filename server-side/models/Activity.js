@@ -1,11 +1,21 @@
 import mongoose from 'mongoose';
 
-// schema
+const projectDataSchema = new mongoose.Schema({
+    projectId: String,
+    isMilestone: Boolean,
+    subActivities: [String],
+});
+
 const activitySchema = new mongoose.Schema({
     title: String,
     deadline: Date,
     isDone: Boolean,
-    users: [String]
+    users: [String],
+    description: String,
+    projectData: {
+        type: projectDataSchema,
+        default: null, // not part of a project
+    }
 });
 
 // model created from schema

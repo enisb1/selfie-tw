@@ -11,6 +11,7 @@ import {wsHandler} from "./ws/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 //import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
+import projectRoutes from './routes/projectRoutes.js'
 
 const app = express();
 const PORT = 8000;
@@ -36,6 +37,7 @@ app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
 //app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/projects", projectRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

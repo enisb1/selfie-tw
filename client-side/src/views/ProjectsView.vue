@@ -1,12 +1,10 @@
 <template>
-<div>
   <!-- side navbar -->
   <div class="fixed w-1/5 h-full border-t border-white bg-secondary">
       <div class="relative h-full w-full">
-
           <!-- first section -->
           <div class="absolute flex flex-col top-0 bottom-2/3 w-full border-b border-white text-white text-xl font-bold whitespace-nowrap">
-              <div class="w-full h-1/4 pl-6 flex items-center"><button class="flex justify-start items-center"><img src="@/images/create.png" alt="create" class="w-5 mr-3">Create</button></div>
+              <div class="w-full h-1/4 pl-6 flex items-center"><button @click="toggleCreateProjectModal" class="flex justify-start items-center"><img src="@/images/create.png" alt="create" class="w-5 mr-3">Create</button></div>
               <div class="w-full h-1/4 pl-6 flex items-center"><button @click="homePage" class="flex justify-start items-center"><img src="@/images/home.png" alt="home" class="w-5 mr-3">Home</button></div>
               <div class="w-full h-1/4 pl-6 flex items-center"><button class="flex justify-start items-center"><img src="@/images/activity.png" alt="activity" class="w-5 mr-3">My activities</button></div>
               <div class="w-full h-1/4 pl-6 flex items-center"><button class="flex justify-start items-center"><img src="@/images/campana.png" alt="inbox" class="w-5 mr-3">Inbox</button></div>
@@ -29,61 +27,130 @@
   <div v-show="inHome" class="fixed w-4/5 h-full right-0">HOME</div>
 
   <!-- project view -->
-  <div v-show="inProject" class="fixed right-0 w-4/5 h-full bg-white">
-       <div class="relative h-1/6 w-full border-b-2 border-secondary">
-           <div class="absolute top-1/4 text-secondary text-3xl font-bold pl-8 flex justify-start items-center">
-               <div class="h-10 w-10 bg-red-500 rounded-xl mr-3"></div>
-               Titolo del progetto interfunzionale
-               <div><button class="ml-2"><img src="@/images/down_arrow.png" alt="downarrow" class="w-4"></button></div>
-               <div class="text-sm ml-2"><button class="flex justify-start items-center pt-2"><div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>Set state</button></div>
-           </div>
+  <div v-show="inProject" class="fixed right-0 w-4/5 h-full bg-primary">
+      <div class="relative h-1/6 w-full border-b-2 border-secondary">
+          <div class="absolute top-1/4 text-secondary text-3xl font-bold pl-8 flex justify-start items-center">
+              <div class="h-10 w-10 bg-red-500 rounded-xl mr-3"></div>
+              Titolo del progetto interfunzionale
+              <div><button class="ml-2"><img src="@/images/down_arrow.png" alt="downarrow" class="w-4"></button></div>
+              <div class="text-sm ml-2"><button class="flex justify-start items-center pt-2"><div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>Set state</button></div>
+          </div>
 
-           <!-- subnavbar project view -->
-           <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
-               <div class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}"><button @click="overviewPage" class="flex justify-start items-center"><img src="@/images/overview.png" alt="overview" class="w-5 mr-1">Overview</button></div> 
-               <div class="px-4" :class="{'border-b-4 border-secondary': inList, 'border-0': !inList}"><button @click="listPage" class="flex justify-start items-center"><img src="@/images/list.png" alt="list" class="w-5 mr-1">List</button></div> 
-               <div class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}"><button @click="ganttPage" class="flex justify-start items-center"><img src="@/images/gantt.png" alt="gantt" class="w-5 mr-1">Gantt</button></div> 
-               <div class="px-4" :class="{'border-b-4 border-secondary': inDashboard, 'border-0': !inDashboard}"><button @click="dashboardPage" class="flex justify-start items-center"><img src="@/images/dashboard.png" alt="dashboard" class="w-5 mr-1">Dashboard</button></div> 
-               <div class="px-4" :class="{'border-b-4 border-secondary': inMessage, 'border-0': !inMessage}"><button @click="messagePage" class="flex justify-start items-center"><img src="@/images/message.png" alt="message" class="w-5 mr-1">Message</button></div> 
-               <div class="px-4" :class="{'border-b-4 border-secondary': inFile, 'border-0': !inFile}"><button @click="filePage" class="flex justify-start items-center"><img src="@/images/file.png" alt="file" class="w-5 mr-1">File</button></div> 
-           </div>
-       </div>
+          <!-- subnavbar project view -->
+          <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
+              <div class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}"><button @click="overviewPage" class="flex justify-start items-center"><img src="@/images/overview.png" alt="overview" class="w-5 mr-1">Overview</button></div> 
+              <div class="px-4" :class="{'border-b-4 border-secondary': inList, 'border-0': !inList}"><button @click="listPage" class="flex justify-start items-center"><img src="@/images/list.png" alt="list" class="w-5 mr-1">List</button></div> 
+              <div class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}"><button @click="ganttPage" class="flex justify-start items-center"><img src="@/images/gantt.png" alt="gantt" class="w-5 mr-1">Gantt</button></div> 
+              <div class="px-4" :class="{'border-b-4 border-secondary': inDashboard, 'border-0': !inDashboard}"><button @click="dashboardPage" class="flex justify-start items-center"><img src="@/images/dashboard.png" alt="dashboard" class="w-5 mr-1">Dashboard</button></div> 
+              <div class="px-4" :class="{'border-b-4 border-secondary': inMessage, 'border-0': !inMessage}"><button @click="messagePage" class="flex justify-start items-center"><img src="@/images/message.png" alt="message" class="w-5 mr-1">Message</button></div> 
+              <div class="px-4" :class="{'border-b-4 border-secondary': inFile, 'border-0': !inFile}"><button @click="filePage" class="flex justify-start items-center"><img src="@/images/file.png" alt="file" class="w-5 mr-1">File</button></div> 
+          </div>
+      </div>
 
-       <div class="relative h-5/6 w-full">
+      <div class="relative h-5/6 w-full">
 
-           <!-- overview page -->
-           <div v-show="inOverview">OVERVIEW PAGE</div>
+          <!-- overview page -->
+          <div v-show="inOverview">OVERVIEW PAGE</div>
 
-           <!-- list page -->
-           <div v-show="inList">LIST PAGE</div>
+          <!-- list page -->
+          <div v-show="inList">LIST PAGE</div>
 
-           <!-- gantt page -->
-           <div v-show="inGantt">GANTT PAGE</div>
+          <!-- gantt page -->
+          <div v-show="inGantt">GANTT PAGE</div>
 
-           <!-- dashboard page -->
-           <div v-show="inDashboard">DASHBOARD PAGE</div>
+          <!-- dashboard page -->
+          <div v-show="inDashboard">DASHBOARD PAGE</div>
 
-           <!-- message page -->
-           <div v-show="inMessage">MESSAGE PAGE</div>
+          <!-- message page -->
+          <div v-show="inMessage">MESSAGE PAGE</div>
 
-           <!-- file page -->
-           <div v-show="inFile">FILE PAGE</div>
-       </div> 
+          <!-- file page -->
+          <div v-show="inFile">FILE PAGE</div>
+      </div> 
   </div> 
 
+  <Modal v-show="showCreateProjectModal" @close="toggleCreateProjectModal">
+    <header>
+        <div class="flex items-center justify-between flex-row font-bold">
+            <p class="text-truncate text-lg">Create project</p>
+            <button type="button" @click="toggleCreateProjectModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+            src="../images/x.png" alt="Croce"></button>
+        </div>
+        <hr style="border-color: black"/>
+    </header>
 
+    <form @submit.prevent="createNewProject">
+      <div class="flex flex-col">
+        <!-- name -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Name</p>
+          <input class="border border-third" type="text" maxlength="30" required v-model="projectToCreateName">
+        </div>
 
-</div>
+        <!-- description -->
+        <!-- TODO: change to textbox for better input quality -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Description</p>
+          <input class="border border-third" type="text" maxlength="30" required v-model="projectToCreateDescription">
+        </div>
+
+        <div class="flex flex-col sm:flex-row">
+          <!-- start date -->
+          <div class="mt-4">
+            <p class="font-semibold text-base">Starts</p>
+            <DatePicker class="mt-px inline-block w-auto" v-model="projectToCreateStart" 
+              :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+          </div>
+          
+          <!-- end date -->
+          <div class="mt-4 sm:ml-4">
+            <p class="font-semibold text-base">Ends</p>
+            <DatePicker class="mt-px inline-block w-auto" v-model="projectToCreateEnd" 
+              :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+          </div>
+        </div>
+
+        <!-- invite users -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Invite users</p>
+          <Multiselect  v-model="projectToCreateSelectedUsers" :options="selectableUsersOptions" optionLabel="username" 
+          placeholder="Select users" label="username" :multiple="true"
+          :close-on-select="false" :clear-on-select="false"
+          :preserve-search="true" track-by="username" :preselect-first="true">
+          </Multiselect>
+        </div>
+
+        <!-- final milestone name -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Final milestone name</p>
+          <input class="border border-third" type="text" maxlength="30" required v-model="projectToCreateFinalMilestoneName">
+        </div>
+
+        <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+        text-white shadow-sm ring-1 ring-inset ring-gray-300">Create</button>
+      </div>
+    </form>
+  </Modal>
 </template>
 
-
-
 <script>
-import {ref} from 'vue'
+import {onMounted, ref} from 'vue'
+import Modal from '@/components/Modal.vue';
+import Multiselect from 'vue-multiselect';
+import { getAllUsers } from '@/apis/users';
+import { useStore } from 'vuex';
+import { createProject } from '@/apis/projects';
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 
 export default {
-
+  components: {
+    Modal,
+    Multiselect,
+    DatePicker
+  },
   setup(){
+    const store = useStore()
 
     const inHome = ref(true)
     const homePage = () => {
@@ -157,6 +224,50 @@ export default {
       inMessage.value = false 
     }
 
+    // project creation
+    const projectToCreateName = ref()
+    const projectToCreateDescription = ref()
+    const projectToCreateFinalMilestoneName = ref()
+    const projectToCreateStart = ref()
+    const projectToCreateEnd = ref()
+
+    const showCreateProjectModal = ref(false)
+    const selectableUsersOptions = ref([])
+    const projectToCreateSelectedUsers = ref([])
+    const toggleCreateProjectModal = () => {
+      if (!showCreateProjectModal.value) {
+        projectToCreateName.value = ''
+        projectToCreateDescription.value = ''
+        projectToCreateSelectedUsers.value = []
+      }
+      showCreateProjectModal.value = !showCreateProjectModal.value
+    }
+
+    const createNewProject = async () => {
+      //TODO: invite members instead of automatically adding them
+      // (as already done for activities/events)
+      await createProject(projectToCreateName.value, projectToCreateDescription.value, 
+      projectToCreateStart.value, projectToCreateEnd.value,
+        store.state._id, projectToCreateSelectedUsers.value.map(user => user._id), [])
+    }
+
+    const formatDate = (date) => {
+      if (!date) return '';
+      return date.toLocaleString('it-IT', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false // (12 hour format)
+      });
+    }
+    const startTime = ref({ hours: 12, minutes: 30 })
+
+    onMounted(async () => {
+      // initialize data
+      selectableUsersOptions.value = await getAllUsers()
+    })
 
     return{
       inHome,
@@ -174,12 +285,28 @@ export default {
       inMessage,
       messagePage,
       inFile,
-      filePage
+      filePage,
+      toggleCreateProjectModal,
+      showCreateProjectModal,
+      selectableUsersOptions,
+      projectToCreateSelectedUsers,
+      projectToCreateSelectedUsers,
+      projectToCreateName,
+      projectToCreateDescription,
+      createNewProject,
+      projectToCreateFinalMilestoneName,
+      formatDate,
+      projectToCreateStart,
+      projectToCreateEnd,
+      startTime
     }
   }
 
 }
 </script>
+
+<!-- Multiselect CSS -->
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style>
 

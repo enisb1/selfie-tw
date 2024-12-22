@@ -13,3 +13,7 @@ The distinction is present also in list view, here the activities are displayed 
 
 ### Schedules
 The schedules are events/activities, schedules is a name we came up to identify both
+
+### Run tailwind
+nagivate to client side folder
+npx tailwindcss -i "src/styles/tailwind.css" -o "src/styles/output.css" --watch
