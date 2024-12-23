@@ -73,6 +73,31 @@
 
             <!-- Todo -->
             <h2 class="font-bold text-2xl mt-6 text-secondary">To do</h2>
+            <hr class="border-secondary border">
+            <div>
+              <div v-for="activity in todoActivities" :key="activity._id" class="mt-2 text-secondary font-semibold">
+                <div class="w-full flex items-center">
+                  <!-- title -->
+                  <div class="w-2/5">{{ activity.title }}</div>
+                  <!-- deadline -->
+                  <div class="w-1/5 border-l border-secondary">
+                    <span class="ml-1">{{ new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat) }}</span>
+                  </div>
+                  <!-- milestone or not-->
+                  <div class="w-1/5 border-l border-secondary">
+                    <span class="ml-1">{{ activity.projectData.milestone? 'Milestone' : 'Normal' }}</span>
+                  </div>
+                  <!-- status -->
+                  <div class="w-1/5 border-l border-secondary">
+                    <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
+                      ml-1 rounded-md">
+                      {{ activity.projectData.status }}
+                    </div>
+                  </div>  
+                </div>
+                <hr class="border-gray-400 border mt-px">
+              </div>
+            </div>
 
             <!-- In progress -->
 
@@ -104,7 +129,7 @@
             <button type="button" @click="toggleCreateProjectModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
             src="../images/x.png" alt="Croce"></button>
         </div>
-        <hr style="border-color: black"/>
+        <hr class="border-black"/>
     </header>
 
     <form @submit.prevent="createNewProject">
@@ -208,7 +233,7 @@
 </template>
 
 <script>
-import {onMounted, ref } from 'vue'
+import {onMounted, ref, computed } from 'vue'
 import Modal from '@/components/Modal.vue';
 import Multiselect from 'vue-multiselect';
 import { getAllUsers, getUsers } from '@/apis/users';
@@ -216,7 +241,7 @@ import { useStore } from 'vuex';
 import { addActivityToProject, createProject, getProjectsByUser } from '@/apis/projects';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { postActivity, updateActivityProjectId } from '@/apis/calendar';
+import { getActivitiesByProject, postActivity, updateActivityProjectId } from '@/apis/calendar';
 
 export default {
   components: {
@@ -240,11 +265,20 @@ export default {
     const inProject = ref(false)
     const currentProject = ref()
     const projectUsers = ref()
-    const showProject = (project) => {
+    const projectActivities = ref()
+    const showProject = async (project) => {
       inProject.value = true
       inHome.value = false
       currentProject.value = project
+      projectActivities.value = await getActivitiesByProject(project._id)
     }
+
+    const todoActivities = computed(() => {
+      if (projectActivities.value)
+        return projectActivities.value.filter(activity => activity.status === 'activable' || 'waitingActivable')
+      else
+        return []
+    })
 
     const inOverview = ref(true)
     const overviewPage = () => {
@@ -397,6 +431,15 @@ export default {
       }
     }
 
+    const infoDateFormat = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false // (12 hour format)
+    }
+
     const formatDate = (date) => {
       if (!date) return '';
       return date.toLocaleString('it-IT', {
@@ -460,7 +503,9 @@ export default {
       addActivity,
       showAddActivityError,
       addActivityErrorValue,
-      activityToAddIsMilestone
+      activityToAddIsMilestone,
+      todoActivities,
+      infoDateFormat
     }
   }
 
