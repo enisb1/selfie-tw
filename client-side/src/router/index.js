@@ -53,11 +53,6 @@ const routes = [
     component: PomodoroView
   },
   {
-    path: '/projects',
-    name: 'projects',
-    component: ProjectsView
-  },
-  {
     path: '/admin',
     name: 'admin',
     component: AdminView

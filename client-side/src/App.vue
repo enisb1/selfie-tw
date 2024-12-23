@@ -21,7 +21,7 @@
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Notifications Centre</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'projects'}">Projects</router-link>
+          <a class="text-white hover:text-accent" href="/projects.html">Projects</a>
           <router-link class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Notes</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Settings</router-link>
