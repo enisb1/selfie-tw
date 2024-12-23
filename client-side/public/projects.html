@@ -8,6 +8,7 @@
         <title>Projects</title>
         <link href="./output.css" rel="stylesheet">
         <script src="./modal.js" defer></script>
+        <script src="./projects.js" defer></script>
     </head>
     <body>
         <noscript>
@@ -42,7 +43,7 @@
                     <!-- first section -->
                     <div class="absolute flex flex-col top-0 bottom-2/3 w-full text-white text-xl font-bold whitespace-nowrap">
                         <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
-                            <button @click="toggleCreateProjectModal" class="flex justify-start items-center">
+                            <button onclick="showCreateModal()" class="flex justify-start items-center">
                                 <img src="./assets/create.png" alt="create" class="w-5 mr-0 sm:mr-3">
                                 <span class="hidden sm:block">Create</span>
                             </button>
@@ -66,6 +67,6 @@
         </div>
 
         <!-- Create project -->
-        <modal-component>prova</modal-component>
+        <modal-component id="createProjectModal">prova</modal-component>
     </body>
 </html>
