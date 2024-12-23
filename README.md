@@ -17,3 +17,16 @@ The schedules are events/activities, schedules is a name we came up to identify 
 ### Run tailwind
 nagivate to client side folder
 npx tailwindcss -i "src/styles/tailwind.css" -o "src/styles/output.css" --watch
+
+### Activities' possible status
+• waitingActivable (non è ancora disponibile l'input relativo)
+• activable (ma non attivata: l'input è presente ma l'attore non ha
+ancora dichiarato di averla iniziata)
+• active (l'attore ha dichiarato di averla iniziata)
+• done (l'attore ha dichiarato di averla conclusa ed un output è
+disponbile)
+• reactivated (il capo-progetto ha rifiutato l'output e ha richiesto revisioni)
+• overdue (la data di conclusione è passata ma l'output non è ancora
+disponibile)
+• discarded (la data di conclusione è passata da molto tempo,
+oppure l'attore ha dichiarato di non volersene più occupare)

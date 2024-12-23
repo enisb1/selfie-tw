@@ -5,7 +5,12 @@
           <!-- first section -->
           <div class="absolute flex flex-col top-0 bottom-2/3 w-full border-b border-white text-white text-xl font-bold whitespace-nowrap">
               <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal"><button @click="toggleCreateProjectModal" class="flex justify-start items-center"><img src="@/images/create.png" alt="create" class="w-5 mr-0 sm:mr-3"><span class="hidden sm:block">Create</span></button></div>
-              <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal"><button @click="homePage" class="flex justify-start items-center"><img src="@/images/home.png" alt="home" class="w-5 mr-0 sm:mr-3"><span class="hidden sm:block">Home</span></button></div>
+              <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
+                <button @click="homePage" class="flex justify-start items-center">
+                  <img src="@/images/home.png" alt="home" class="w-5 mr-0 sm:mr-3">
+                  <span class="hidden sm:block">Home</span>
+                </button>
+              </div>
               <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal"><button class="flex justify-start items-center"><img src="@/images/activity.png" alt="activity" class="w-5 mr-0 sm:mr-3"><span class="hidden sm:block">My activities</span></button></div>
               <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
                 <button class="flex justify-start items-center">
@@ -19,7 +24,7 @@
           <div class="absolute top-1/3 bottom-0 w-full">
               <div class="text-white text-xl font-bold pl-6 py-4">Projects</div>
               <div class="w-5/6 w- h-full flex flex-col gap-2 text-white font-semibold pl-6">
-                  <div @click="projectPage" class="flex justify-start items-center">
+                  <div @click="showProject" class="flex justify-start items-center">
                       <div class="w-5 h-5 rounded-md bg-red-500 mr-2 p-2"></div>
                       <div class="truncate">Titolo del progetto interfunzionale</div>
                   </div>  
@@ -29,14 +34,19 @@
   </div>
 
   <!-- home view -->
-  <div v-show="inHome" class="fixed w-4/5 h-full right-0">HOME</div>
+  <div v-show="inHome" class="fixed w-4/5 h-full right-0 flex flex-col items-center mt-16 space-y-8">
+    <div v-for="project in projects" class="px-4 py-2 bg-white rounded-md border 
+      border-third w-3/4 sm:w-1/2 cursor-pointer" @click="showProject(project)">
+      {{ project.name }}
+    </div>
+  </div>
 
   <!-- project view -->
-  <div v-show="inProject" class="fixed right-0 w-4/5 h-full bg-primary">
+  <div v-if="inProject" class="fixed right-0 w-4/5 h-full bg-primary">
       <div class="relative h-1/6 w-full border-b-2 border-secondary">
           <div class="absolute top-1/4 text-secondary text-3xl font-bold pl-8 flex justify-start items-center">
               <div class="h-10 w-10 bg-red-500 rounded-xl mr-3"></div>
-              Titolo del progetto interfunzionale
+              {{ currentProject.name }}
               <div><button class="ml-2"><img src="@/images/down_arrow.png" alt="downarrow" class="w-4"></button></div>
               <div class="text-sm ml-2"><button class="flex justify-start items-center pt-2"><div class="w-3 h-3 rounded-full bg-secondary mr-2"></div>Set state</button></div>
           </div>
@@ -55,7 +65,19 @@
       <div class="relative h-5/6 w-full">
 
           <!-- overview page -->
-          <div v-show="inOverview">OVERVIEW PAGE</div>
+          <div v-show="inOverview" class="px-10">
+            <button @click="toggleAddActivityModal" class="flex items-center bg-white rounded-lg border border-third px-2 py-1 mt-4">
+              <img src="../images/add.png" class="mr-2 h-3.5 w-3.5">
+              <span>Add activity</span>
+            </button>
+
+            <!-- Todo -->
+            <h2 class="font-bold text-2xl mt-6 text-secondary">To do</h2>
+
+            <!-- In progress -->
+
+            <!-- Completed -->
+          </div>
 
           <!-- list page -->
           <div v-show="inList">LIST PAGE</div>
@@ -74,6 +96,7 @@
       </div> 
   </div> 
 
+  <!-- CREATE PROJECT MODAL -->
   <Modal v-show="showCreateProjectModal" @close="toggleCreateProjectModal">
     <header>
         <div class="flex items-center justify-between flex-row font-bold">
@@ -139,15 +162,58 @@
       </div>
     </form>
   </Modal>
+
+  <!-- ADD ACTIVITY -->
+  <Modal v-if="inAddActivityModal" @close="toggleAddActivityModal">
+    <form @submit.prevent="addActivity">
+      <div class="flex flex-col">
+        <!-- title -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Title</p>
+          <input class="border border-third" type="text" maxlength="20" required v-model="activityToAddTitle">
+        </div>
+
+        <!-- deadline -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Deadline</p>
+          <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+        </div>
+
+        <!-- invite users -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Invite users</p>
+          <Multiselect v-model="newActivitySelectedUsers" :options="projectUsers"
+            optionLabel="username" placeholder="Select users" label="username" :multiple="true"
+            :close-on-select="false" :clear-on-select="false"
+            :preserve-search="true" track-by="username">
+          </Multiselect>
+        </div>
+
+        <!-- milestone -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Milestone</p>
+          <input type="checkbox" required v-model="activityToAddIsMilestone">
+        </div>
+
+        <div v-show="showAddActivityError" class="bg-red-400 text-white font-bold mt-2 
+        inline px-2 text-center mx-auto" > {{ addActivityErrorValue }}</div>
+
+        <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+            text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
+      </div>
+
+    </form>
+  </Modal>
 </template>
 
 <script>
-import {onMounted, ref} from 'vue'
+import {onMounted, ref } from 'vue'
 import Modal from '@/components/Modal.vue';
 import Multiselect from 'vue-multiselect';
-import { getAllUsers } from '@/apis/users';
+import { getAllUsers, getUsers } from '@/apis/users';
 import { useStore } from 'vuex';
-import { createProject } from '@/apis/projects';
+import { addActivityToProject, createProject, getProjectsByUser } from '@/apis/projects';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { postActivity, updateActivityProjectId } from '@/apis/calendar';
@@ -161,16 +227,23 @@ export default {
   setup(){
     const store = useStore()
 
+    const projects = ref()
     const inHome = ref(true)
-    const homePage = () => {
+    const homePage = async () => {
+      projects.value = await getProjectsByUser(store.state._id)
+      console.log(projects.value)
       inHome.value = true
       inProject.value = false
     }
 
+    // current project
     const inProject = ref(false)
-    const projectPage = () => {
+    const currentProject = ref()
+    const projectUsers = ref()
+    const showProject = (project) => {
       inProject.value = true
       inHome.value = false
+      currentProject.value = project
     }
 
     const inOverview = ref(true)
@@ -282,6 +355,48 @@ export default {
       }
     }
 
+    // add activity
+    const inAddActivityModal = ref(false)
+    const toggleAddActivityModal = async () => {
+      if (!inAddActivityModal.value) {
+        activityToAddTitle.value = ''
+        activityToAddDeadline.value = null
+        newActivitySelectedUsers.value = []
+        showAddActivityError.value = false
+        projectUsers.value = await getUsers(currentProject.value.members)
+      }
+      inAddActivityModal.value = !inAddActivityModal.value
+    }
+    const activityToAddTitle = ref()
+    const activityToAddDeadline = ref()
+    const newActivitySelectedUsers = ref([])
+    const activityToAddIsMilestone = ref(false)
+
+    const addActivityErrorValue = ref()
+    const showAddActivityError = ref()
+    const addActivity = async () => {
+      if (activityToAddDeadline.value.getTime() <= new Date(currentProject.value.start).getTime()
+          || activityToAddDeadline.value.getTime() >= new Date(currentProject.value.end).getTime()) {
+        addActivityErrorValue.value = "Deadline must be between project start and end date"
+        showAddActivityError.value = true
+      }
+      else {
+        const activityUsers = newActivitySelectedUsers.value.map(user => user._id).concat(store.state._id)
+        //TODO: set correct status based on previous activity (if previous activity is done it means
+        //it has output, hence the new activity can be activable, else it must be waitingActivable)
+        //TODO: make creation of set of activities possible
+        const projectData = {
+          projectId: currentProject.value._id,
+          isMilestone: activityToAddIsMilestone.value,
+          subActivities: null,
+          status: 'activable'
+        }
+        const createdActivity = await postActivity(activityToAddTitle.value, activityToAddDeadline.value, activityUsers, projectData)
+        await addActivityToProject(currentProject.value._id, createdActivity._id)
+        showAddActivityError.value = false
+      }
+    }
+
     const formatDate = (date) => {
       if (!date) return '';
       return date.toLocaleString('it-IT', {
@@ -298,13 +413,14 @@ export default {
     onMounted(async () => {
       // initialize data
       selectableUsersOptions.value = await getAllUsers()
+      projects.value = await getProjectsByUser(store.state._id)
     })
 
     return{
       inHome,
       homePage,
       inProject,
-      projectPage,
+      showProject,
       inOverview,
       overviewPage,
       inList,
@@ -331,7 +447,20 @@ export default {
       projectToCreateEnd,
       startTime,
       showAddError,
-      errorValue
+      errorValue,
+      projects,
+      showProject,
+      currentProject,
+      inAddActivityModal,
+      activityToAddTitle,
+      activityToAddDeadline,
+      newActivitySelectedUsers,
+      projectUsers,
+      toggleAddActivityModal,
+      addActivity,
+      showAddActivityError,
+      addActivityErrorValue,
+      activityToAddIsMilestone
     }
   }
 

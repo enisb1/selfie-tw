@@ -4,6 +4,7 @@ const projectDataSchema = new mongoose.Schema({
     projectId: String,
     isMilestone: Boolean,
     subActivities: [String],
+    status: String,
 });
 
 const activitySchema = new mongoose.Schema({
