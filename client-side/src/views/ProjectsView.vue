@@ -4,10 +4,15 @@
       <div class="relative h-full w-full">
           <!-- first section -->
           <div class="absolute flex flex-col top-0 bottom-2/3 w-full border-b border-white text-white text-xl font-bold whitespace-nowrap">
-              <div class="w-full h-1/4 pl-6 flex items-center"><button @click="toggleCreateProjectModal" class="flex justify-start items-center"><img src="@/images/create.png" alt="create" class="w-5 mr-3">Create</button></div>
-              <div class="w-full h-1/4 pl-6 flex items-center"><button @click="homePage" class="flex justify-start items-center"><img src="@/images/home.png" alt="home" class="w-5 mr-3">Home</button></div>
-              <div class="w-full h-1/4 pl-6 flex items-center"><button class="flex justify-start items-center"><img src="@/images/activity.png" alt="activity" class="w-5 mr-3">My activities</button></div>
-              <div class="w-full h-1/4 pl-6 flex items-center"><button class="flex justify-start items-center"><img src="@/images/campana.png" alt="inbox" class="w-5 mr-3">Inbox</button></div>
+              <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal"><button @click="toggleCreateProjectModal" class="flex justify-start items-center"><img src="@/images/create.png" alt="create" class="w-5 mr-0 sm:mr-3"><span class="hidden sm:block">Create</span></button></div>
+              <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal"><button @click="homePage" class="flex justify-start items-center"><img src="@/images/home.png" alt="home" class="w-5 mr-0 sm:mr-3"><span class="hidden sm:block">Home</span></button></div>
+              <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal"><button class="flex justify-start items-center"><img src="@/images/activity.png" alt="activity" class="w-5 mr-0 sm:mr-3"><span class="hidden sm:block">My activities</span></button></div>
+              <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
+                <button class="flex justify-start items-center">
+                  <img src="@/images/campana.png" alt="inbox" class="w-5 mr-0 sm:mr-3">
+                    <span class="hidden sm:block">Inbox</span>
+                </button>
+              </div>
           </div>  
       
           <!-- second section -->

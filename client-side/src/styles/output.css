@@ -932,6 +932,10 @@ video {
   margin-top: 1px;
 }
 
+.mr-0 {
+  margin-right: 0px;
+}
+
 .block {
   display: block;
 }
@@ -1883,6 +1887,10 @@ video {
   padding-top: 0.5rem;
 }
 
+.pl-0 {
+  padding-left: 0px;
+}
+
 .text-left {
   text-align: left;
 }
@@ -2417,6 +2425,14 @@ video {
     margin-left: 2rem;
   }
 
+  .sm\:mr-0 {
+    margin-right: 0px;
+  }
+
+  .sm\:mr-3 {
+    margin-right: 0.75rem;
+  }
+
   .sm\:block {
     display: block;
   }
@@ -2451,6 +2467,10 @@ video {
 
   .sm\:justify-normal {
     justify-content: normal;
+  }
+
+  .sm\:pl-6 {
+    padding-left: 1.5rem;
   }
 
   .sm\:text-left {
