@@ -46,7 +46,7 @@
                     <!-- first section -->
                     <div class="absolute flex flex-col top-0 bottom-2/3 w-full text-white text-xl font-bold whitespace-nowrap">
                         <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
-                            <button onclick="showCreateModal()" class="flex justify-start items-center">
+                            <button onclick="showCreateProjectModal()" class="flex justify-start items-center">
                                 <img src="./assets/create.png" alt="create" class="w-5 mr-0 sm:mr-3">
                                 <span class="hidden sm:block">Create</span>
                             </button>
@@ -74,41 +74,108 @@
             <header>
                 <div class="flex items-center justify-between flex-row font-bold">
                     <p class="text-truncate text-lg">Create project</p>
-                    <button type="button" onclick="closeCreateModal()"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                    <button type="button" onclick="closeCreateProjectModal()"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                     src="./assets/x.png" alt="Croce"></button>
                 </div>
                 <hr class="border-black"/>
             </header>
             <form id="createProjectForm">
                 <div class="flex flex-col">
+                  <!-- name -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Name</p>
+                    <input class="border border-third" type="text" maxlength="30" required>
+                  </div>
+          
+                  <!-- description -->
+                  <!-- TODO: change to textbox for better input quality -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Description</p>
+                    <input class="border border-third" type="text" maxlength="30" required>
+                  </div>
+          
+                  <div class="flex flex-col sm:flex-row">
+                    <!-- start date -->
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">Starts</p>
+                      <input type="date" id="newProjectStart" placeholder="Select start" required>
+                    </div>
+                    
+                    <!-- end date -->
+                    <div class="mt-4 sm:ml-4">
+                      <p class="font-semibold text-base">Ends</p>
+                      <input type="date" id="newProjectEnd" placeholder="Select end" required>
+                    </div>
+                  </div>
+                  
+                  <!-- invite users -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Invite users</p>
+                    <div class="flex">
+                        <input id="newProjectUsersInput" type="text" placeholder="Enter username">
+                        <button type="button" onclick="addUserToNewProjectList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
+                    </div>
+                    <div class="flex mt-2">
+                        <input type="text" id="newProjectAddedUsernamesInput" readonly>
+                        <button type="button" onclick="clearNewProjectUsers()" class="ml-2 bg-secondary p-1 text-white">Clear</button>
+                    </div>
+                  </div>
+          
+                  <!-- final milestone name -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Final milestone name</p>
+                    <input class="border border-third" type="text" maxlength="30" required>
+                  </div>
+                  
+                  <div id="createProjectError" class="bg-red-400 text-white font-bold mt-2 
+                  inline px-2 text-center mx-auto"></div>
+                
+                  <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                  text-white shadow-sm ring-1 ring-inset ring-gray-300">Create</button>
+                </div>
+            </form>
+        </modal-component>
+
+        <!-- Add activity -->
+        <modal-component id="addActivityModal">
+            <header>
+                <div class="flex items-center justify-between flex-row font-bold">
+                    <p class="text-truncate text-lg">Add activity</p>
+                    <button type="button" onclick="closeAddActivityModal()"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                    src="./assets/x.png" alt="Croce"></button>
+                </div>
+                <hr class="border-black"/>
+            </header>
+            <form id="addActivityForm">
+                <div class="flex flex-col">
                   <!-- title -->
                   <div class="mt-4">
                     <p class="font-semibold text-base">Title</p>
-                    <input class="border border-third" type="text" maxlength="20" required v-model="activityToAddTitle">
+                    <input class="border border-third" type="text" maxlength="20" required>
                   </div>
           
                   <!-- deadline -->
                   <div class="mt-4">
                     <p class="font-semibold text-base">Deadline</p>
-                    <input type="date" id="projectDeadline" placeholder="Select deadline" required>
+                    <input type="date" id="activityDeadline" placeholder="Select deadline" required>
                   </div>
 
                   <!-- invite users -->
                   <div class="mt-4">
                     <p class="font-semibold text-base">Invite users</p>
                     <div class="flex">
-                        <input id="userToAddInput" type="text" placeholder="Enter username">
-                        <button type="button" onclick="addUserToNewProjectList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
+                        <input id="newActivityUsersInput" type="text" placeholder="Enter username">
+                        <button type="button" onclick="addUserToNewActivityList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
                     </div>
                     <div class="flex mt-2">
-                        <input type="text" id="addedUsernamesInput" readonly>
-                        <button type="button" onclick="clearProjectUsers()" class="ml-2 bg-secondary p-1 text-white">Clear</button>
+                        <input type="text" id="newActivityAddedUsernamesInput" readonly>
+                        <button type="button" onclick="clearNewActivityUsers()" class="ml-2 bg-secondary p-1 text-white">Clear</button>
                     </div>
                   </div>
 
                   <div class="mt-4">
                     <p class="font-semibold text-base">Milestone</p>
-                    <input type="checkbox" required v-model="activityToAddIsMilestone">
+                    <input type="checkbox">
                   </div>
 
                   <div class="bg-red-400 text-white font-bold mt-2 
@@ -117,7 +184,6 @@
                   <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
                       text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
                 </div>
-          
               </form>
         </modal-component>
     </body>
