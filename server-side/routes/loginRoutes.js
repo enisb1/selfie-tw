@@ -178,5 +178,20 @@ router.post('/getUserIdsByEmails', async (req, res) => {
     }
 });
 
+// Check if a user exists by username
+router.get('/userExists/:username', async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const user = await User.findOne({ username: username });
+        if (user) {
+            res.status(200).json({ exists: true });
+        } else {
+            res.status(200).json({ exists: false });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error checking user existence', error: error.message });
+    }
+});
 
 export default router;

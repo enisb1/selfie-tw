@@ -8,7 +8,10 @@
         <title>Projects</title>
         <link href="./output.css" rel="stylesheet">
         <script src="./modal.js" defer></script>
+        <script src="api/projects.js"></script>
         <script src="./projects.js" defer></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     </head>
     <body>
         <noscript>
@@ -67,6 +70,55 @@
         </div>
 
         <!-- Create project -->
-        <modal-component id="createProjectModal">prova</modal-component>
+        <modal-component id="createProjectModal">
+            <header>
+                <div class="flex items-center justify-between flex-row font-bold">
+                    <p class="text-truncate text-lg">Create project</p>
+                    <button type="button" onclick="closeCreateModal()"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                    src="./assets/x.png" alt="Croce"></button>
+                </div>
+                <hr class="border-black"/>
+            </header>
+            <form id="createProjectForm">
+                <div class="flex flex-col">
+                  <!-- title -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Title</p>
+                    <input class="border border-third" type="text" maxlength="20" required v-model="activityToAddTitle">
+                  </div>
+          
+                  <!-- deadline -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Deadline</p>
+                    <input type="date" id="projectDeadline" placeholder="Select deadline" required>
+                  </div>
+
+                  <!-- invite users -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Invite users</p>
+                    <div class="flex">
+                        <input id="userToAddInput" type="text" placeholder="Enter username">
+                        <button type="button" onclick="addUserToNewProjectList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
+                    </div>
+                    <div class="flex mt-2">
+                        <input type="text" id="addedUsernamesInput" readonly>
+                        <button type="button" onclick="clearProjectUsers()" class="ml-2 bg-secondary p-1 text-white">Clear</button>
+                    </div>
+                  </div>
+
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Milestone</p>
+                    <input type="checkbox" required v-model="activityToAddIsMilestone">
+                  </div>
+
+                  <div class="bg-red-400 text-white font-bold mt-2 
+                  inline px-2 text-center mx-auto"></div>
+          
+                  <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                      text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
+                </div>
+          
+              </form>
+        </modal-component>
     </body>
 </html>
