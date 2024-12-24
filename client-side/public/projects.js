@@ -1,5 +1,36 @@
 const state = JSON.parse(sessionStorage.getItem('state'))
 
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('here')
+    updateProjects()
+});
+
+// HOME
+// Get the parent container
+const projectListElement = document.getElementById('homeLayout');
+
+async function updateProjects() {
+    const projects = await window.getProjectsByUser(state._id)
+    displayProjects(projects)
+}
+
+// Loop through projects and create divs
+function displayProjects(projects) {
+    projects.forEach(project => {
+        // Create a new div for each project
+        const projectDiv = document.createElement('div');
+        projectDiv.classList.add("px-4", "py-2", "bg-white", "rounded-md", "border", "border-third", "w-3/4", "sm:w-1/2", "cursor-pointer");
+        
+        // Add content to the div
+        projectDiv.innerHTML = `
+            <p>${project.name}</p>
+        `;
+        
+        // Append the div to the parent container
+        projectListElement.appendChild(projectDiv);
+    });
+}
+
 // CREATE PROJECT
 //--------------------------------------------------------------
 const createProjectError = document.getElementById("createProjectError")
@@ -78,7 +109,6 @@ async function addUserToNewProjectList() {
     let exists = false
     let user_id = ''
     //TODO: check if it's different than current user (need to get current user)
-    console.log(state.username)
     if (userToAddInput.value !== '' && userToAddInput.value !== state.username && !newProjectUsers.includes(userToAddInput.value)) {
         const existsObject = await window.userExists(userToAddInput.value)
         exists = existsObject.exists
@@ -141,7 +171,8 @@ async function addUserToNewActivityList() {
     const userToAddInput = document.getElementById("newActivityUsersInput")
     let exists = false
     //TODO: check if it's different than current user (need to get current user)
-    if (userToAddInput.value !== '' && !newActivityUsers.includes(userToAddInput.value))
+    if (userToAddInput.value !== '' && userToAddInput.value !== state.username 
+            && !newActivityUsers.includes(userToAddInput.value))
         exists = await window.userExists(userToAddInput.value)
     if (exists) {
         newActivityUsers.push(userToAddInput.value)

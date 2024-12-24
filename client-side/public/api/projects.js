@@ -91,8 +91,22 @@ async function updateActivityProjectId(activityId, projectId) {
     }
 }
 
+async function getProjectsByUser(userId) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/projectsByUser/${userId}`);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        return data; // Return the response data
+    } catch (error) {
+        throw new Error(`Error fetching projects by user: ${error.message}`);
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
 window.createProject = createProject;
 window.updateActivityProjectId = updateActivityProjectId;
+window.getProjectsByUser = getProjectsByUser;
