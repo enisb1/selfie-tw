@@ -1,6 +1,48 @@
+const state = JSON.parse(sessionStorage.getItem('state'))
+
 // CREATE PROJECT
 //--------------------------------------------------------------
 const createProjectError = document.getElementById("createProjectError")
+const newProjectUsers = [];
+const newProjectIds = []
+
+// create project form submit
+document.getElementById('createProjectForm').addEventListener('submit', async function(event) {
+    // prevent default refresh
+    event.preventDefault();
+
+    // create
+    if (newProjectStartElem.value == '' || newProjectEndElem.value == '') {
+        createProjectError.innerHTML = 'Start and end date must be selected'
+    }
+    else {
+        const newProjectStartDate = new Date(newProjectStartElem.value)
+        const newProjectEndDate = new Date(newProjectEndElem.value)
+        if (newProjectEndDate.getTime() <= newProjectStartDate.getTime()) {
+            createProjectError.innerHTML = 'End date must be after start date'
+        }
+        else {
+            const selectedUsersIds = newProjectIds.concat(state._id)
+            const milestoneActivityProjectData = {
+                projectId: null,
+                isMilestone: true,
+                subActivities: null
+            }
+            const finalMilestoneName = document.getElementById("finalMilestoneName").value
+            const newProjectName = document.getElementById("newProjectName").value
+            const newProjectDescription = document.getElementById("newProjectDescription").value
+            // create milestone activity
+            const milestoneActivity = await postActivity(finalMilestoneName,  
+                newProjectEndDate, selectedUsersIds, milestoneActivityProjectData)
+            // create project
+            const createdProject = await createProject(newProjectName, newProjectDescription, 
+                newProjectStartDate, newProjectEndDate, state._id, selectedUsersIds, [milestoneActivity._id])
+            // update milestone activity with created project ids
+            await updateActivityProjectId(milestoneActivity._id, createdProject._id)
+            createProjectError.innerHTML = ''
+        }
+    }
+});
 
 const newProjectStartElem = document.getElementById('newProjectStart');
 flatpickr(newProjectStartElem, {
@@ -14,37 +56,15 @@ flatpickr(newProjectEndElem, {
     dateFormat: "Y-m-d H:i",
 });
 
-function createProject() {
-    console.log('he')
-}
-
 function showCreateProjectModal() {
     const modal = document.getElementById('createProjectModal');
     if (modal) {
         modal.open()
+        newProjectUsers.length = 0
+        newProjectIds.length = 0
+        document.getElementById('createProjectForm').reset();
     }
 }
-
-// create project form submit
-document.getElementById('createProjectForm').addEventListener('submit', function(event) {
-    // prevent default refresh
-    event.preventDefault();
-
-    // create
-    if (newProjectStartElem.value == '' || newProjectEndElem.value == '') {
-        createProjectError.innerHTML = 'Start and end date must be selected'
-    }
-    else {
-        const startDate = new Date(newProjectStartElem.value)
-        const endDate = new Date(newProjectEndElem.value)
-        if (endDate.getTime() <= startDate.getTime()) {
-            createProjectError.innerHTML = 'End date must be after start date'
-        }
-        else {
-            createProjectError.innerHTML = ''
-        }
-    }
-});
 
 function closeCreateProjectModal() {
     const modal = document.getElementById('createProjectModal');
@@ -53,17 +73,24 @@ function closeCreateProjectModal() {
     }
 }
 
-const newProjectUsers = [];
 async function addUserToNewProjectList() {
     const userToAddInput = document.getElementById("newProjectUsersInput")
     let exists = false
+    let user_id = ''
     //TODO: check if it's different than current user (need to get current user)
-    if (userToAddInput.value !== '' && !newProjectUsers.includes(userToAddInput.value))
-        exists = await window.userExists(userToAddInput.value)
+    console.log(state.username)
+    if (userToAddInput.value !== '' && userToAddInput.value !== state.username && !newProjectUsers.includes(userToAddInput.value)) {
+        const existsObject = await window.userExists(userToAddInput.value)
+        exists = existsObject.exists
+        user_id = existsObject.id
+    }
     if (exists) {
         newProjectUsers.push(userToAddInput.value)
+        newProjectIds.push(user_id)
         userToAddInput.value = ''
         updateNewProjectUsersInput()
+        console.log('here')
+        console.log(user_id)
     }
 }
 
@@ -78,10 +105,13 @@ function clearNewProjectUsers() {
 
 // ADD ACTIVITY
 //--------------------------------------------------------------
+const newActivityUsers = [];
+
 function showAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
     if (modal) {
         modal.open()
+        newActivityUsers.length = 0
         document.getElementById('addActivityForm').reset();
     }
 }
@@ -107,7 +137,6 @@ flatpickr(activityDeadlineElem, {
     dateFormat: "Y-m-d H:i",
 });
 
-const newActivityUsers = [];
 async function addUserToNewActivityList() {
     const userToAddInput = document.getElementById("newActivityUsersInput")
     let exists = false

@@ -185,9 +185,9 @@ router.get('/userExists/:username', async (req, res) => {
     try {
         const user = await User.findOne({ username: username });
         if (user) {
-            res.status(200).json({ exists: true });
+            res.status(200).json({ exists: true, id: user._id });
         } else {
-            res.status(200).json({ exists: false });
+            res.status(200).json({ exists: false, id: null });
         }
     } catch (error) {
         res.status(500).json({ message: 'Error checking user existence', error: error.message });
