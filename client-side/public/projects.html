@@ -52,7 +52,7 @@
                             </button>
                         </div>
                         <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
-                        <button @click="homePage" class="flex justify-start items-center">
+                        <button onclick="goToHomeView()" class="flex justify-start items-center">
                             <img src="./assets/home.png" alt="home" class="w-5 mr-0 sm:mr-3">
                             <span class="hidden sm:block">Home</span>
                         </button>
@@ -68,8 +68,66 @@
             </div>
 
             <!-- home view -->
-            <div v-show="inHome" id="homeLayout" class="fixed w-4/5 h-full right-0 flex flex-col items-center mt-16 space-y-8">
+            <div id="homeLayout" class="fixed w-4/5 h-full right-0 flex flex-col items-center mt-16 space-y-8">
             </div>
+            
+            <!-- project view -->
+            <div id="projectLayout" class="hidden fixed right-0 w-4/5 h-full bg-primary">
+              <div class="relative h-1/6 w-full border-b-2 border-secondary">
+                  <div class="absolute top-1/4 text-secondary text-3xl font-bold pl-8 flex justify-start items-center">
+                      <div class="h-10 w-10 bg-red-500 rounded-xl mr-3"></div>
+                      <span id="projectViewName"></span>
+                  </div>
+
+                  <!-- subnavbar project view -->
+                  <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
+                      <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
+                        <button onclick="goToOverviewPage()" class="flex justify-start items-center">
+                          <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
+                          <span>Overview</span>
+                        </button>
+                      </div> 
+                      <div id="listTitle" class="px-4" :class="{'border-b-4 border-secondary': inList, 'border-0': !inList}">
+                        <button onclick="goToListPage()" class="flex justify-start items-center">
+                          <img src="./assets/list.png" alt="list" class="w-5 mr-1">
+                          <span>List</span>
+                        </button>
+                      </div> 
+                      <div id="ganttTitle" class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}">
+                        <button onclick="goToGanttPage()" class="flex justify-start items-center">
+                          <img src="./assets/gantt.png" alt="gantt" class="w-5 mr-1">
+                          <span>Gantt</span>
+                        </button>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="relative h-5/6 w-full">
+                  <!-- overview page -->
+                  <div id="overviewPage" class="px-10">
+                    <button @click="toggleAddActivityModal" class="flex items-center bg-white rounded-lg border border-third px-2 py-1 mt-4">
+                      <img src="./assets/add.png" class="mr-2 h-3.5 w-3.5">
+                      <span>Add activity</span>
+                    </button>
+
+                    <!-- Todo -->
+                    <h2 class="font-bold text-2xl mt-6 text-secondary">To do</h2>
+                    <hr class="border-secondary border">
+                    <div id="todoActivitiesContainer">
+                    </div>
+
+                    <!-- In progress -->
+
+                    <!-- Completed -->
+                  </div>
+
+                  <!-- list page -->
+                  <div class="hidden" id="listPage">LIST PAGE</div>
+
+                  <!-- gantt page -->
+                  <div class="hidden" id="ganttPage">GANTT PAGE</div>
+              </div> 
+          </div> 
 
         </div>
 

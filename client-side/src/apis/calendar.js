@@ -77,15 +77,6 @@ export async function updateActivityProjectId(activityId, projectId) {
     }
 }
 
-export async function getActivitiesByProject(projectId) {
-    try {
-        const response = await axios.get(`http://localhost:8000/api/calendar/activitiesByProject/${projectId}`);
-        return response.data;
-    } catch (error) {
-        throw error.response.data;
-    }
-}
-
 // edit activity
 export async function editActivity(activityId, updatedData) {
     await axios.put(`http://localhost:8000/api/calendar/activities/${activityId}`, updatedData)

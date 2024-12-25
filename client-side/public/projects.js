@@ -1,13 +1,141 @@
 const state = JSON.parse(sessionStorage.getItem('state'))
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('here')
     updateProjects()
 });
 
-// HOME
+const homeView = document.getElementById('homeLayout');
+const projectView = document.getElementById('projectLayout');
+
+const infoDateFormat = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false // (12 hour format)
+}
+
+// PROJECT VIEW
+//--------------------------------------------------------------
+const overviewPage = document.getElementById('overviewPage');
+const listPage = document.getElementById('listPage');
+const ganttPage = document.getElementById('ganttPage');
+const overviewTitle = document.getElementById('overviewTitle')
+const listTitle = document.getElementById('listTitle')
+const ganttTitle = document.getElementById('ganttTitle')
+const projectViewName = document.getElementById('projectViewName')
+const todoActivitiesContainer = document.getElementById('todoActivitiesContainer')
+
+function goToProjectView(projectId, projectName) {
+    homeView.classList.add('hidden')
+    projectView.classList.remove('hidden')
+    updateProjectActivities(projectId)
+    goToOverviewPage()
+    projectViewName.innerHTML = projectName
+}
+
+/*
+<div v-for="activity in todoActivities" :key="activity._id" class="mt-2 text-secondary font-semibold">
+    <div class="w-full flex items-center">
+        <!-- title -->
+        <div class="w-2/5">{{ activity.title }}</div>
+        <!-- deadline -->
+        <div class="w-1/5 border-l border-secondary">
+        <span class="ml-1">{{ new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat) }}</span>
+        </div>
+        <!-- milestone or not-->
+        <div class="w-1/5 border-l border-secondary">
+        <span class="ml-1">{{ activity.projectData.milestone? 'Milestone' : 'Normal' }}</span>
+        </div>
+        <!-- status -->
+        <div class="w-1/5 border-l border-secondary">
+        <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
+            ml-1 rounded-md">
+            {{ activity.projectData.status }}
+        </div>
+        </div>  
+    </div>
+    <hr class="border-gray-400 border mt-px">
+</div>
+*/
+
+async function updateProjectActivities(projectId) {
+    const activities = await window.getActivitiesByProject(projectId)
+    displayToDoActivities(activities.filter(activity => activity.status === 'activable' || 'waitingActivable'))
+}
+
+function displayToDoActivities(activities) {
+    todoActivitiesContainer.innerHTML = ''
+    activities.forEach(activity => {
+        // Create a new div for each project
+        const activityDiv = document.createElement('div');
+        activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
+        
+        // Add content to the div
+        activityDiv.innerHTML = `
+            <!-- title -->
+            <div class="w-2/5 truncate"><span>${activity.title}</span></div>
+            <!-- deadline -->
+            <div class="w-1/5 border-l border-secondary truncate">
+                <span class="ml-1">${new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)}</span>
+            </div>
+            <!-- milestone or not-->
+            <div class="w-1/5 border-l border-secondary truncate">
+                <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
+            </div>
+            <!-- status -->
+            <div class="w-1/5 border-l border-secondary truncate">
+                <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
+                    ml-1 rounded-md">
+                    ${activity.projectData.status}
+                </div>
+            </div>
+        `;
+        
+        // Append the div to the parent container
+        todoActivitiesContainer.appendChild(activityDiv);
+    });
+}
+
+function goToOverviewPage() {
+    overviewPage.classList.remove("hidden")
+    listPage.classList.add("hidden")
+    ganttPage.classList.add("hidden")
+    // highlight overview title
+    overviewTitle.classList.add("border-b-4", "border-secondary")
+    listTitle.classList.remove("border-b-4", "border-secondary")
+    ganttTitle.classList.remove("border-b-4", "border-secondary")
+}
+
+function goToListPage() {
+    overviewPage.classList.add("hidden")
+    listPage.classList.remove("hidden")
+    ganttPage.classList.add("hidden")
+    // highlight list title
+    overviewTitle.classList.remove("border-b-4", "border-secondary")
+    listTitle.classList.add("border-b-4", "border-secondary")
+    ganttTitle.classList.remove("border-b-4", "border-secondary")
+}
+
+function goToGanttPage() {
+    overviewPage.classList.add("hidden")
+    listPage.classList.add("hidden")
+    ganttPage.classList.remove("hidden")
+    // highlight gantt title
+    overviewTitle.classList.remove("border-b-4", "border-secondary")
+    listTitle.classList.remove("border-b-4", "border-secondary")
+    ganttTitle.classList.add("border-b-4", "border-secondary")
+}
+
+// HOME VIEW
+//--------------------------------------------------------------
 // Get the parent container
-const projectListElement = document.getElementById('homeLayout');
+
+function goToHomeView() {
+    homeView.classList.remove('hidden')
+    projectView.classList.add('hidden')
+}
 
 async function updateProjects() {
     const projects = await window.getProjectsByUser(state._id)
@@ -25,9 +153,17 @@ function displayProjects(projects) {
         projectDiv.innerHTML = `
             <p>${project.name}</p>
         `;
+
+        // Add click listener to the project div
+        projectDiv.addEventListener('click', () => {
+            // Handle the click event
+            console.log(`Project clicked: ${project.name}`);
+            // You can add more actions here, such as navigating to a project detail page
+            goToProjectView(project._id, project.name)
+        });
         
         // Append the div to the parent container
-        projectListElement.appendChild(projectDiv);
+        homeView.appendChild(projectDiv);
     });
 }
 
@@ -57,7 +193,8 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
             const milestoneActivityProjectData = {
                 projectId: null,
                 isMilestone: true,
-                subActivities: null
+                subActivities: null,
+                status: 'activable'
             }
             const finalMilestoneName = document.getElementById("finalMilestoneName").value
             const newProjectName = document.getElementById("newProjectName").value
@@ -71,6 +208,7 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
             // update milestone activity with created project ids
             await updateActivityProjectId(milestoneActivity._id, createdProject._id)
             createProjectError.innerHTML = ''
+            closeCreateProjectModal()
         }
     }
 });

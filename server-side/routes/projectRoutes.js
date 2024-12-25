@@ -1,5 +1,6 @@
 import Router from 'express';
 import Project from '../models/Project.js';
+import Activity from '../models/Activity.js';
 
 const router = Router();
 
@@ -52,5 +53,17 @@ router.put('/addActivityToProject/:projectId', async (req, res) => {
         res.status(500).json({ message: 'Error updating project', error: error.message });
     }
 });
+
+// Get all activities by project ID
+router.get('/activitiesByProject/:projectId', async (req, res) => {
+    const { projectId } = req.params;
+  
+    try {
+        const activities = await Activity.find({ 'projectData.projectId': projectId });
+        res.status(200).json(activities);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching activities', error: error.message });
+    }
+  });
 
 export default router;

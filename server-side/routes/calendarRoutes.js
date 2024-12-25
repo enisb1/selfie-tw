@@ -52,18 +52,6 @@ router.put('/updateActivityProjectId/:id', async (req, res) => {
   }
 });
 
-// Get all activities by project ID
-router.get('/activitiesByProject/:projectId', async (req, res) => {
-  const { projectId } = req.params;
-
-  try {
-      const activities = await Activity.find({ 'projectData.projectId': projectId });
-      res.status(200).json(activities);
-  } catch (error) {
-      res.status(500).json({ message: 'Error fetching activities', error: error.message });
-  }
-});
-
 // retrieve all events from db (//TODO: if not used delete this)
 router.get("/events/:userId", async (req, res) => {
     const userId = req.params.userId;
