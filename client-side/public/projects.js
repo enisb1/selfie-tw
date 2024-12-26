@@ -26,47 +26,25 @@ const listTitle = document.getElementById('listTitle')
 const ganttTitle = document.getElementById('ganttTitle')
 const projectViewName = document.getElementById('projectViewName')
 const todoActivitiesContainer = document.getElementById('todoActivitiesContainer')
+let currentProject = null;
 
-function goToProjectView(projectId, projectName) {
+function goToProjectView(project) {
+    currentProject = project; // UPDATE current project data
     homeView.classList.add('hidden')
     projectView.classList.remove('hidden')
-    updateProjectActivities(projectId)
+    updateProjectActivities()
     goToOverviewPage()
-    projectViewName.innerHTML = projectName
+    projectViewName.innerHTML = project.name
 }
 
-/*
-<div v-for="activity in todoActivities" :key="activity._id" class="mt-2 text-secondary font-semibold">
-    <div class="w-full flex items-center">
-        <!-- title -->
-        <div class="w-2/5">{{ activity.title }}</div>
-        <!-- deadline -->
-        <div class="w-1/5 border-l border-secondary">
-        <span class="ml-1">{{ new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat) }}</span>
-        </div>
-        <!-- milestone or not-->
-        <div class="w-1/5 border-l border-secondary">
-        <span class="ml-1">{{ activity.projectData.milestone? 'Milestone' : 'Normal' }}</span>
-        </div>
-        <!-- status -->
-        <div class="w-1/5 border-l border-secondary">
-        <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
-            ml-1 rounded-md">
-            {{ activity.projectData.status }}
-        </div>
-        </div>  
-    </div>
-    <hr class="border-gray-400 border mt-px">
-</div>
-*/
-
-async function updateProjectActivities(projectId) {
-    const activities = await window.getActivitiesByProject(projectId)
+async function updateProjectActivities() {
+    const activities = await window.getActivitiesByProject(currentProject._id)
     displayToDoActivities(activities.filter(activity => activity.status === 'activable' || 'waitingActivable'))
 }
 
 function displayToDoActivities(activities) {
     todoActivitiesContainer.innerHTML = ''
+    let activityNumber = 0
     activities.forEach(activity => {
         // Create a new div for each project
         const activityDiv = document.createElement('div');
@@ -76,6 +54,8 @@ function displayToDoActivities(activities) {
         activityDiv.innerHTML = `
             <!-- title -->
             <div class="w-2/5 truncate"><span>${activity.title}</span></div>
+            <button class="ml-2 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+            <button class="ml-2 w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
             <!-- deadline -->
             <div class="w-1/5 border-l border-secondary truncate">
                 <span class="ml-1">${new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)}</span>
@@ -92,10 +72,65 @@ function displayToDoActivities(activities) {
                 </div>
             </div>
         `;
-        
+        const hr = document.createElement('hr');
+        hr.classList.add("border-gray-400", "border", "mt-px")
+
         // Append the div to the parent container
         todoActivitiesContainer.appendChild(activityDiv);
+        todoActivitiesContainer.appendChild(hr)
+
+        const infoButton = document.getElementById(`infoActivity${activityNumber}`);
+        infoButton.addEventListener('click', () => {
+            showInfoModal(activity)
+        });
+
+        const editButton = document.getElementById(`editActivity${activityNumber}`);
+        editButton.addEventListener('click', () => {
+            showEditModal()
+        });
+
+        activityNumber++;
     });
+}
+
+async function showInfoModal(activity) {
+    const modal = document.getElementById('infoActivityModal');
+    if (modal) {
+        document.getElementById('infoActivityModalTitle').innerHTML = activity.title
+        document.getElementById('infoActivityTitle').innerHTML = activity.title
+        document.getElementById('infoActivityDeadline').innerHTML = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
+        const users = await window.getUsers(activity.users)
+        document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
+        document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
+        const infoActivityDeadline = document.getElementById('infoActivityDeadline')
+        const infoActivityUsers = document.getElementById('infoActivityUsers')
+        const infoActivityMilestone = document.getElementById('infoActivityMilestone')
+        modal.open()
+    }
+}
+
+function showEditModal() {
+    const modal = document.getElementById('editActivityModal');
+    if (modal) {
+        modal.open()
+        //document.getElementById('createProjectForm').reset();
+    }
+}
+
+function closeInfoModal() {
+    const modal = document.getElementById('infoActivityModal');
+    if (modal) {
+        modal.close()
+        //document.getElementById('createProjectForm').reset();
+    }
+}
+
+function closeEditModal() {
+    const modal = document.getElementById('editActivityModal');
+    if (modal) {
+        modal.close()
+        //document.getElementById('createProjectForm').reset();
+    }
 }
 
 function goToOverviewPage() {
@@ -144,6 +179,7 @@ async function updateProjects() {
 
 // Loop through projects and create divs
 function displayProjects(projects) {
+    homeView.innerHTML = ''
     projects.forEach(project => {
         // Create a new div for each project
         const projectDiv = document.createElement('div');
@@ -159,7 +195,7 @@ function displayProjects(projects) {
             // Handle the click event
             console.log(`Project clicked: ${project.name}`);
             // You can add more actions here, such as navigating to a project detail page
-            goToProjectView(project._id, project.name)
+            goToProjectView(project)
         });
         
         // Append the div to the parent container
@@ -209,6 +245,7 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
             await updateActivityProjectId(milestoneActivity._id, createdProject._id)
             createProjectError.innerHTML = ''
             closeCreateProjectModal()
+            updateProjects()
         }
     }
 });
@@ -257,8 +294,6 @@ async function addUserToNewProjectList() {
         newProjectIds.push(user_id)
         userToAddInput.value = ''
         updateNewProjectUsersInput()
-        console.log('here')
-        console.log(user_id)
     }
 }
 
@@ -267,13 +302,10 @@ function updateNewProjectUsersInput() {
     addedUsernamesInput.value = newProjectUsers.join(', ')
 }
 
-function clearNewProjectUsers() {
-
-}
-
 // ADD ACTIVITY
 //--------------------------------------------------------------
 const newActivityUsers = [];
+const newActivityIds = [];
 
 function showAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
@@ -291,29 +323,63 @@ function closeAddActivityModal() {
     }
 }
 
+const activityToAddDeadlineElem = document.getElementById('activityToAddDeadline');
+flatpickr(activityToAddDeadlineElem, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+});
+
 // add activity form submit
-document.getElementById('addActivityForm').addEventListener('submit', function(event) {
+document.getElementById('addActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
     event.preventDefault();
 
     // add activity
-});
-
-const activityDeadlineElem = document.getElementById('activityDeadline');
-flatpickr(activityDeadlineElem, {
-    enableTime: true,
-    dateFormat: "Y-m-d H:i",
+    const activityToAddTitle = document.getElementById("activityToAddTitle")
+    const activityToAddIsMilestone = document.getElementById("activityToAddIsMilestone")
+    const activityToAddError = document.getElementById("activityToAddError")
+    const projectStart = new Date(currentProject.start)
+    const projectEnd = new Date(currentProject.end)
+    const activityToAddDeadlineValue = new Date(activityToAddDeadlineElem.value)
+    if (activityToAddDeadlineValue.getTime() <= projectStart.getTime()
+        || activityToAddDeadlineValue.getTime() >= projectEnd.getTime()) {
+        activityToAddError.innerHTML = "Deadline must be between project start and end date"
+    }
+    else {
+        const activityUsers = newActivityIds.concat(state._id)
+        //TODO: set correct status based on previous activity (if previous activity is done it means
+        //it has output, hence the new activity can be activable, else it must be waitingActivable)
+        //TODO: make creation of set of activities possible
+        const projectData = {
+            projectId: currentProject._id,
+            isMilestone: activityToAddIsMilestone.checked,
+            subActivities: null,
+            status: 'activable'
+        }
+        const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
+            activityUsers, projectData)
+        await window.addActivityToProject(currentProject._id, createdActivity._id)
+        activityToAddError.innerHTML = ""
+        closeAddActivityModal()
+        updateProjectActivities()
+    }
 });
 
 async function addUserToNewActivityList() {
     const userToAddInput = document.getElementById("newActivityUsersInput")
     let exists = false
-    //TODO: check if it's different than current user (need to get current user)
+    let user_id = ''
+    // TODO: check if it's different from current user and also if it's
+    // contained in the project's ids
     if (userToAddInput.value !== '' && userToAddInput.value !== state.username 
-            && !newActivityUsers.includes(userToAddInput.value))
-        exists = await window.userExists(userToAddInput.value)
+            && !newActivityUsers.includes(userToAddInput.value)) {
+        const existsObject = await window.userExists(userToAddInput.value)
+        exists = existsObject.exists
+        user_id = existsObject.id
+    }       
     if (exists) {
         newActivityUsers.push(userToAddInput.value)
+        newActivityIds.push(user_id)
         userToAddInput.value = ''
         updateNewActivityUsersInput()
     }

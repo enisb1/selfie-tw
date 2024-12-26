@@ -117,6 +117,48 @@ async function getActivitiesByProject(projectId) {
     }
 }
 
+async function addActivityToProject(projectId, activityId) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/addActivityToProject/${projectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ activityId })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data; // Return the response data
+    } catch (error) {
+        throw new Error(`Error adding activity to project: ${error.message}`);
+    }
+}
+
+async function getUsers(userIds) {
+    try {
+        const response = await fetch('http://localhost:8000/api/login/getUsers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userIds })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data; // Return the response data
+    } catch (error) {
+        throw new Error(`Error fetching users: ${error.message}`);
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -124,3 +166,5 @@ window.createProject = createProject;
 window.updateActivityProjectId = updateActivityProjectId;
 window.getProjectsByUser = getProjectsByUser;
 window.getActivitiesByProject = getActivitiesByProject;
+window.addActivityToProject = addActivityToProject;
+window.getUsers = getUsers;

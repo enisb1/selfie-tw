@@ -25,6 +25,7 @@ router.post("/addActivity", async (req, res) => {
         const savedActivity = await activity.save();
         res.status(201).json(savedActivity);
     }catch (error) {
+        console.log(error)
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });
     }
