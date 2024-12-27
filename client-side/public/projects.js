@@ -25,8 +25,9 @@ const overviewTitle = document.getElementById('overviewTitle')
 const listTitle = document.getElementById('listTitle')
 const ganttTitle = document.getElementById('ganttTitle')
 const projectViewName = document.getElementById('projectViewName')
-const todoActivitiesContainer = document.getElementById('todoActivitiesContainer')
 let currentProject = null;
+let currentEditedActivity = null;
+let activityNumber = 0
 
 function goToProjectView(project) {
     currentProject = project; // UPDATE current project data
@@ -39,37 +40,48 @@ function goToProjectView(project) {
 
 async function updateProjectActivities() {
     const activities = await window.getActivitiesByProject(currentProject._id)
-    displayToDoActivities(activities.filter(activity => activity.status === 'activable' || 'waitingActivable'))
+    activityNumber = 0
+    displayToDoActivities(activities.filter(activity => activity.projectData.status === 'activable' || activity.projectData.status === 'waitingActivable'))
+    displayInProgressActivities(activities.filter(activity => activity.projectData.status === 'active' || activity.projectData.status === 'reactivated' || activity.projectData.status === 'overdue'))
+    displayCompletedActivities(activities.filter(activity => activity.projectData.status === 'done' || activity.projectData.status === 'discarded'))
 }
 
 function displayToDoActivities(activities) {
+    const todoActivitiesContainer = document.getElementById('todoActivitiesContainer')
     todoActivitiesContainer.innerHTML = ''
-    let activityNumber = 0
-    activities.forEach(activity => {
+    activities.forEach(async (activity) => {
         // Create a new div for each project
         const activityDiv = document.createElement('div');
         activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
-        
+        const users = await window.getUsers(activity.users)
         // Add content to the div
         activityDiv.innerHTML = `
             <!-- title -->
-            <div class="w-2/5 truncate"><span>${activity.title}</span></div>
-            <button class="ml-2 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-            <button class="ml-2 w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+            <div class="w-3/12 truncate">
+                <span>${activity.title}</span>
+            </div>
+            <!-- users -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
+            </div>
             <!-- deadline -->
-            <div class="w-1/5 border-l border-secondary truncate">
+            <div class="w-2/12 border-l border-secondary truncate">
                 <span class="ml-1">${new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)}</span>
             </div>
             <!-- milestone or not-->
-            <div class="w-1/5 border-l border-secondary truncate">
+            <div class="w-2/12 border-l border-secondary truncate">
                 <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
             </div>
             <!-- status -->
-            <div class="w-1/5 border-l border-secondary truncate">
+            <div class="w-2/12 border-l border-secondary truncate">
                 <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
                     ml-1 rounded-md">
                     ${activity.projectData.status}
                 </div>
+            </div>
+            <div class="w-1/12 border-l border-secondary">
+                <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
             </div>
         `;
         const hr = document.createElement('hr');
@@ -86,12 +98,137 @@ function displayToDoActivities(activities) {
 
         const editButton = document.getElementById(`editActivity${activityNumber}`);
         editButton.addEventListener('click', () => {
-            showEditModal()
+            currentEditedActivity = activity
+            showEditActivityModal()
         });
 
         activityNumber++;
     });
 }
+
+function displayInProgressActivities(activities) {
+    const inProgressActivitiesContainer = document.getElementById('inProgressActivitiesContainer')
+    inProgressActivitiesContainer.innerHTML = ''
+    activities.forEach(async (activity) => {
+        // Create a new div for each project
+        const activityDiv = document.createElement('div');
+        activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
+        const users = await window.getUsers(activity.users)
+        // Add content to the div
+        activityDiv.innerHTML = `
+            <!-- title -->
+            <div class="w-3/12 truncate">
+                <span>${activity.title}</span>
+            </div>
+            <!-- users -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
+            </div>
+            <!-- deadline -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)}</span>
+            </div>
+            <!-- milestone or not-->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
+            </div>
+            <!-- status -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
+                    ml-1 rounded-md">
+                    ${activity.projectData.status}
+                </div>
+            </div>
+            <div class="w-1/12 border-l border-secondary">
+                <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+            </div>
+        `;
+        const hr = document.createElement('hr');
+        hr.classList.add("border-gray-400", "border", "mt-px")
+
+        // Append the div to the parent container
+        inProgressActivitiesContainer.appendChild(activityDiv);
+        inProgressActivitiesContainer.appendChild(hr)
+
+        const infoButton = document.getElementById(`infoActivity${activityNumber}`);
+        infoButton.addEventListener('click', () => {
+            showInfoModal(activity)
+        });
+
+        const editButton = document.getElementById(`editActivity${activityNumber}`);
+        editButton.addEventListener('click', () => {
+            currentEditedActivity = activity
+            showEditActivityModal()
+        });
+
+        activityNumber++;
+    });
+}
+
+function displayCompletedActivities(activities) {
+    const finishedActivitiesContainer = document.getElementById('finishedActivitiesContainer')
+    finishedActivitiesContainer.innerHTML = ''
+    activities.forEach(async (activity) => {
+        // Create a new div for each project
+        const activityDiv = document.createElement('div');
+        activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
+        const users = await window.getUsers(activity.users)
+        // Add content to the div
+        activityDiv.innerHTML = `
+            <!-- title -->
+            <div class="w-3/12 truncate">
+                <span>${activity.title}</span>
+            </div>
+            <!-- users -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
+            </div>
+            <!-- deadline -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)}</span>
+            </div>
+            <!-- milestone or not-->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
+            </div>
+            <!-- status -->
+            <div class="w-2/12 border-l border-secondary truncate">
+                <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
+                    ml-1 rounded-md">
+                    ${activity.projectData.status}
+                </div>
+            </div>
+            <!-- info and edit buttons -->
+            <div class="w-1/12 border-l border-secondary">
+                <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+            </div>
+        `;
+        const hr = document.createElement('hr');
+        hr.classList.add("border-gray-400", "border", "mt-px")
+
+        // Append the div to the parent container
+        finishedActivitiesContainer.appendChild(activityDiv);
+        finishedActivitiesContainer.appendChild(hr)
+
+        const infoButton = document.getElementById(`infoActivity${activityNumber}`);
+        infoButton.addEventListener('click', () => {
+            showInfoModal(activity)
+        });
+
+        const editButton = document.getElementById(`editActivity${activityNumber}`);
+        editButton.addEventListener('click', () => {
+            currentEditedActivity = activity
+            showEditActivityModal()
+        });
+
+        activityNumber++;
+    });
+}
+
+const editedActivityUsers = []
+const editedActivityIds = []
 
 async function showInfoModal(activity) {
     const modal = document.getElementById('infoActivityModal');
@@ -102,34 +239,118 @@ async function showInfoModal(activity) {
         const users = await window.getUsers(activity.users)
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
-        const infoActivityDeadline = document.getElementById('infoActivityDeadline')
-        const infoActivityUsers = document.getElementById('infoActivityUsers')
-        const infoActivityMilestone = document.getElementById('infoActivityMilestone')
         modal.open()
     }
 }
 
-function showEditModal() {
+async function addUserToEditedActivityList() {
+    const userToAddInput = document.getElementById("editActivityUsersInput")
+    let exists = false
+    let user_id = ''
+    const activityToEditError = document.getElementById("activityToEditError")
+    console.log(userToAddInput.value)
+    //TODO: check if it's not already contained in current activity, and check if it's contained in project
+    // and if it's != from current user... if all of this is correct then OK!
+    if (userToAddInput.value !== '' && userToAddInput.value !== state.username && 
+        !editedActivityUsers.includes(userToAddInput.value)) {
+        const existsObject = await window.userExists(userToAddInput.value)
+        exists = existsObject.exists
+        user_id = existsObject.id
+    }
+    // check if it's in current project and if it's NOT contained in current activity (else it would duplicate)
+    if (exists && currentProject.members.includes(user_id)) {
+        console.log('here')
+        editedActivityUsers.push(userToAddInput.value)
+        editedActivityIds.push(user_id)
+        userToAddInput.value = ''
+        activityToEditError.innerHTML = ''
+        updateEditedActivityAddedUsersInput()
+    }
+    else {
+        activityToEditError.innerHTML = "User not valid"
+    }
+
+}
+
+// add activity form submit
+document.getElementById('editActivityForm').addEventListener('submit', async function(event) {
+    // prevent default refresh
+    event.preventDefault();
+
+    // add activity
+    const newActivity = structuredClone(currentEditedActivity)
+    // check what is not empty and update that  
+    // update activities list
+    newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
+    newActivity.title = document.getElementById("activityToEditTitle").value
+    newActivity.users = newActivity.users.concat(editedActivityIds)
+    newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
+    // set correct isDone
+    if (newActivity.projectData.status == 'done')
+        newActivity.isDone = true
+    else
+        newActivity.isDone = false
+    await window.editActivity(newActivity._id, newActivity)
+    updateProjectActivities()
+    closeEditActivityModal()
+});
+
+function updateEditedActivityAddedUsersInput() {
+    const addedUsernamesInput = document.getElementById("editActivityAddedUsernamesInput")
+    addedUsernamesInput.value = editedActivityUsers.join(', ')
+}
+
+function showEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
     if (modal) {
+        //TODO: se sei CAPO PROGETTO puoi decidere se l'attività TRASLA O CONTRAE
+        // in caso di ritardo dell'attività prima
         modal.open()
-        //document.getElementById('createProjectForm').reset();
+        console.log('prova')
+        editedActivityUsers.length = 0
+        editedActivityIds.length = 0
+        document.getElementById('editActivityForm').reset();
+        document.getElementById("activityToEditError").innerHTML = ''
+        document.getElementById("activityToEditTitle").value = currentEditedActivity.title
+        document.getElementById("activityToEditIsMilestone").checked = currentEditedActivity.projectData.isMilestone
+        const statusSelect = document.getElementById("activityToEditStatusSelect")
+        statusSelect.innerHTML = '' // reset from previous options
+        let statuses = []
+        // modify statuses also for other values of status
+        if (currentEditedActivity.projectData.status == 'waitingActivable')
+            statuses = ['waitingActivable']
+        else if (currentEditedActivity.projectData.status == 'activable')
+            statuses = ['activable', 'active', 'done']
+        else if (currentEditedActivity.projectData.status == 'active')
+            statuses = ['active', 'done']
+        else if (currentEditedActivity.projectData.status == 'reactivated')
+            statuses = ['reactivated', 'done']
+        else if (currentEditedActivity.projectData.status == 'overdue')
+            statuses = ['overdue', 'done']
+        else if (currentEditedActivity.projectData.status == 'done')
+            statuses = ['done', 'reactivated'] //TODO: reactivated only if you are the project manager
+        else if (currentEditedActivity.projectData.status == 'discarded')
+            statuses = ['discarded']
+        statuses.forEach(status => {
+            const option = document.createElement('option');
+            option.value = status;
+            option.textContent = status;
+            statusSelect.appendChild(option);
+        });
     }
 }
 
-function closeInfoModal() {
+function closeInfoActivityModal() {
     const modal = document.getElementById('infoActivityModal');
     if (modal) {
         modal.close()
-        //document.getElementById('createProjectForm').reset();
     }
 }
 
-function closeEditModal() {
+function closeEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
     if (modal) {
         modal.close()
-        //document.getElementById('createProjectForm').reset();
     }
 }
 
@@ -170,6 +391,9 @@ function goToGanttPage() {
 function goToHomeView() {
     homeView.classList.remove('hidden')
     projectView.classList.add('hidden')
+    document.getElementById('todoActivitiesContainer').innerHTML = ''
+    document.getElementById('inProgressActivitiesContainer').innerHTML = ''
+    document.getElementById('finishedActivitiesContainer').innerHTML = ''
 }
 
 async function updateProjects() {

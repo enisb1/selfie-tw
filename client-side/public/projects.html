@@ -67,67 +67,85 @@
                 </div>
             </div>
 
-            <!-- home view -->
-            <div id="homeLayout" class="fixed w-4/5 h-full right-0 flex flex-col items-center mt-16 space-y-8">
-            </div>
-            
-            <!-- project view -->
-            <div id="projectLayout" class="hidden fixed right-0 w-4/5 h-full bg-primary">
-              <div class="relative h-1/6 w-full border-b-2 border-secondary">
-                  <div class="absolute top-1/4 text-secondary text-3xl font-bold pl-8 flex justify-start items-center">
-                      <div class="h-10 w-10 bg-red-500 rounded-xl mr-3"></div>
-                      <span id="projectViewName"></span>
-                  </div>
-
-                  <!-- subnavbar project view -->
-                  <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
-                      <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
-                        <button onclick="goToOverviewPage()" class="flex justify-start items-center">
-                          <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
-                          <span>Overview</span>
-                        </button>
-                      </div> 
-                      <div id="listTitle" class="px-4" :class="{'border-b-4 border-secondary': inList, 'border-0': !inList}">
-                        <button onclick="goToListPage()" class="flex justify-start items-center">
-                          <img src="./assets/list.png" alt="list" class="w-5 mr-1">
-                          <span>List</span>
-                        </button>
-                      </div> 
-                      <div id="ganttTitle" class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}">
-                        <button onclick="goToGanttPage()" class="flex justify-start items-center">
-                          <img src="./assets/gantt.png" alt="gantt" class="w-5 mr-1">
-                          <span>Gantt</span>
-                        </button>
-                      </div>
-                  </div>
+            <div>
+              <!-- home view -->
+              <div id="homeLayout" class="fixed w-4/5 h-full right-0 flex flex-col items-center mt-16 space-y-8">
               </div>
-
-              <div class="relative h-5/6 w-full">
-                  <!-- overview page -->
-                  <div id="overviewPage" class="px-10">
-                    <button onclick="showAddActivityModal()" class="flex items-center bg-white rounded-lg border border-third px-2 py-1 mt-4">
-                      <img src="./assets/add.png" class="mr-2 h-3.5 w-3.5">
-                      <span>Add activity</span>
-                    </button>
-
-                    <!-- Todo -->
-                    <h2 class="font-bold text-2xl mt-6 text-secondary">To do</h2>
-                    <hr class="border-secondary border">
-                    <div id="todoActivitiesContainer">
+              
+              <!-- project view -->
+              <div id="projectLayout" class="hidden fixed right-0 w-4/5 h-full bg-primary overflow-y-scroll">
+                <div class="relative h-1/6 w-full border-b-2 border-secondary">
+                    <div class="absolute top-1/4 text-secondary text-3xl font-bold pl-8 flex justify-start items-center">
+                        <div class="h-10 w-10 bg-red-500 rounded-xl mr-3"></div>
+                        <span id="projectViewName"></span>
                     </div>
 
-                    <!-- In progress -->
+                    <!-- subnavbar project view -->
+                    <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
+                        <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
+                          <button onclick="goToOverviewPage()" class="flex justify-start items-center">
+                            <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
+                            <span>Overview</span>
+                          </button>
+                        </div> 
+                        <div id="listTitle" class="px-4" :class="{'border-b-4 border-secondary': inList, 'border-0': !inList}">
+                          <button onclick="goToListPage()" class="flex justify-start items-center">
+                            <img src="./assets/list.png" alt="list" class="w-5 mr-1">
+                            <span>List</span>
+                          </button>
+                        </div> 
+                        <div id="ganttTitle" class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}">
+                          <button onclick="goToGanttPage()" class="flex justify-start items-center">
+                            <img src="./assets/gantt.png" alt="gantt" class="w-5 mr-1">
+                            <span>Gantt</span>
+                          </button>
+                        </div>
+                    </div>
+                </div>
 
-                    <!-- Completed -->
-                  </div>
+                <div class="relative h-5/6 w-full">
+                    <!-- overview page -->
+                    <div id="overviewPage" class="px-10">
+                      <button onclick="showAddActivityModal()" class="flex items-center bg-white rounded-lg border border-third px-2 py-1 mt-4">
+                        <img src="./assets/add.png" class="mr-2 h-3.5 w-3.5">
+                        <span>Add activity</span>
+                      </button>
 
-                  <!-- list page -->
-                  <div class="hidden" id="listPage">LIST PAGE</div>
+                      <div class="w-full flex mt-4 border-secondary border-t border-b py-1">
+                        <div class="w-3/12"><span class="font-semibold text-secondary">Activity name</span></div>
+                        <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">In charge</span></div>
+                        <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Deadline</span></div>
+                        <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Type</span></div>
+                        <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Status</span></div>
+                      </div>
 
-                  <!-- gantt page -->
-                  <div class="hidden" id="ganttPage">GANTT PAGE</div>
+                      <!-- Todo -->
+                      <h2 class="font-bold text-2xl mt-4 text-secondary">To do</h2>
+                      <hr class="border-secondary border">
+                      <div id="todoActivitiesContainer">
+                      </div>
+
+                      <!-- In progress -->
+                      <h2 class="font-bold text-2xl mt-6 text-secondary">In progress</h2>
+                      <hr class="border-secondary border">
+                      <div id="inProgressActivitiesContainer">
+                      </div>
+
+                      <!-- Completed -->
+                      <h2 class="font-bold text-2xl mt-6 text-secondary">Finished</h2>
+                      <hr class="border-secondary border">
+                      <div id="finishedActivitiesContainer">
+                      </div>
+                    </div>
+
+                    <!-- list page -->
+                    <div class="hidden" id="listPage">LIST PAGE</div>
+
+                    <!-- gantt page -->
+                    <div class="hidden" id="ganttPage">GANTT PAGE</div>
+                </div> 
               </div> 
-          </div> 
+            </div>
 
         </div>
 
@@ -293,6 +311,45 @@
             </div>
             <hr class="border-black"/>
           </header>
+          <form id="editActivityForm">
+            <div class="flex flex-col">
+              <!-- title -->
+              <div class="mt-4">
+                <p class="font-semibold text-base">Title</p>
+                <input id="activityToEditTitle" class="border border-third" type="text" maxlength="20">
+              </div>
+
+              <!-- invite users -->
+              <div class="mt-4">
+                <p class="font-semibold text-base">Invite new users</p>
+                <div class="flex">
+                    <input id="editActivityUsersInput" type="text" placeholder="Enter username">
+                    <button type="button" onclick="addUserToEditedActivityList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
+                </div>
+                <div class="flex mt-2">
+                    <input type="text" id="editActivityAddedUsernamesInput" readonly>
+                    <button type="button" onclick="clearNewActivityUsers()" class="ml-2 bg-secondary p-1 text-white">Clear</button>
+                </div>
+              </div>
+
+              <div>
+                <p class="font-semibold text-base">Change status</p>
+                <select id="activityToEditStatusSelect"></select>
+              </div>
+
+              <!-- Milestone -->
+              <div class="mt-4">
+                <p class="font-semibold text-base">Milestone</p>
+                <input id="activityToEditIsMilestone" type="checkbox">
+              </div>
+
+              <div id="activityToEditError" class="bg-red-400 text-white font-bold mt-2 
+                  inline px-2 text-center mx-auto"></div>
+      
+              <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                  text-white shadow-sm ring-1 ring-inset ring-gray-300">Edit</button>
+            </div>
+          </form>
         </modal-component>
     </body>
 </html>
