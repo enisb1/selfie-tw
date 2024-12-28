@@ -239,6 +239,7 @@ async function showInfoModal(activity) {
         const users = await window.getUsers(activity.users)
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
+        document.getElementById('infoActivityContracts').innerHTML = activity.projectData.contracts? 'yes' : 'no'
         modal.open()
     }
 }
@@ -285,6 +286,7 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
     newActivity.title = document.getElementById("activityToEditTitle").value
     newActivity.users = newActivity.users.concat(editedActivityIds)
     newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
+    newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
     // set correct isDone
     if (newActivity.projectData.status == 'done')
         newActivity.isDone = true
@@ -313,6 +315,7 @@ function showEditActivityModal() {
         document.getElementById("activityToEditError").innerHTML = ''
         document.getElementById("activityToEditTitle").value = currentEditedActivity.title
         document.getElementById("activityToEditIsMilestone").checked = currentEditedActivity.projectData.isMilestone
+        document.getElementById("activityToEditContracts").checked = currentEditedActivity.projectData.contracts
         const statusSelect = document.getElementById("activityToEditStatusSelect")
         statusSelect.innerHTML = '' // reset from previous options
         let statuses = []
@@ -561,6 +564,7 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     // add activity
     const activityToAddTitle = document.getElementById("activityToAddTitle")
     const activityToAddIsMilestone = document.getElementById("activityToAddIsMilestone")
+    const activityToAddContracts = document.getElementById("activityToAddContracts")
     const activityToAddError = document.getElementById("activityToAddError")
     const projectStart = new Date(currentProject.start)
     const projectEnd = new Date(currentProject.end)
@@ -578,7 +582,8 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
             projectId: currentProject._id,
             isMilestone: activityToAddIsMilestone.checked,
             subActivities: null,
-            status: 'activable'
+            status: 'activable',
+            contracts: activityToAddContracts.checked
         }
         const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
             activityUsers, projectData)

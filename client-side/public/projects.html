@@ -258,6 +258,11 @@
                     <input id="activityToAddIsMilestone" type="checkbox">
                   </div>
 
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Contract else translate if previous activity is overdue</p>
+                    <input id="activityToAddContracts" type="checkbox">
+                  </div>
+
                   <div id="activityToAddError" class="bg-red-400 text-white font-bold mt-2 
                   inline px-2 text-center mx-auto"></div>
           
@@ -267,11 +272,12 @@
               </form>
         </modal-component>
 
+        <!-- Activity info modal -->
         <modal-component id="infoActivityModal">
           <header>
             <div class="flex items-center justify-between flex-row font-bold">
                 <p id="infoActivityModalTitle" class="text-truncate text-lg"></p>
-                <button onclick="closeInfoModal()" type="button"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                <button onclick="closeInfoActivityModal()" type="button"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="./assets/x.png" alt="Croce"></button>
             </div>
             <hr class="border-black"/>
@@ -299,14 +305,20 @@
               <p class="font-semibold text-base">Milestone</p>
               <p id="infoActivityMilestone"></p>
             </div>
+
+            <div class="mt-4">
+              <p class="font-semibold text-base">Contracts if previous activity is overdue</p>
+              <p id="infoActivityContracts"></p>
+            </div>
           </div>
         </modal-component>
 
+        <!-- Edit activity modal -->
         <modal-component id="editActivityModal">
           <header>
             <div class="flex items-center justify-between flex-row font-bold">
                 <p class="text-truncate text-lg">Edit activity</p>
-                <button onclick="closeEditModal()" type="button"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                <button onclick="closeEditActivityModal()" type="button"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="./assets/x.png" alt="Croce"></button>
             </div>
             <hr class="border-black"/>
@@ -341,6 +353,12 @@
               <div class="mt-4">
                 <p class="font-semibold text-base">Milestone</p>
                 <input id="activityToEditIsMilestone" type="checkbox">
+              </div>
+
+              <!-- Contracts -->
+              <div class="mt-4">
+                <p class="font-semibold text-base">Contracts if previous activity is overdue</p>
+                <input id="activityToEditContracts" type="checkbox">
               </div>
 
               <div id="activityToEditError" class="bg-red-400 text-white font-bold mt-2 
