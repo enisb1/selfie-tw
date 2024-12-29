@@ -81,7 +81,13 @@
 
                   <!-- subnavbar project view -->
                   <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
-                      <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
+                    <div id="settingsTitle" class="px-4" :class="{'border-b-4 border-secondary': inSettings, 'border-0': !inSettings}">
+                      <button onclick="goToSettingsPage()" class="flex justify-start items-center">
+                        <img src="./assets/settings.png" alt="overview" class="w-5 mr-1">
+                        <span>Settings</span>
+                      </button>
+                    </div>  
+                    <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
                         <button onclick="goToOverviewPage()" class="flex justify-start items-center">
                           <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
                           <span>Overview</span>
@@ -103,6 +109,10 @@
               </div>
 
               <div class="relative h-5/6 w-full">
+
+                  <!-- settings page -->
+                  <div class="hidden w-full h-full" id="settingsPage"></div>
+
                   <!-- overview page -->
                   <div id="overviewPage" class="px-10">
                     <button @click="toggleAddActivityModal" class="flex items-center bg-white rounded-lg border border-third px-2 py-1 mt-4">
@@ -125,11 +135,13 @@
                   <div class="hidden" id="listPage">LIST PAGE</div>
 
                   <!-- gantt page -->
-                  <div class="hidden" id="ganttPage">GANTT PAGE</div>
-              </div> 
+                  <div class="hidden p-2" id="ganttPage">
+                    
+                  </div>
+            </div> 
           </div> 
 
-        </div>
+        </div> 
 
         <!-- Create project -->
         <modal-component id="createProjectModal">
@@ -248,5 +260,6 @@
                 </div>
               </form>
         </modal-component>
+
     </body>
 </html>
