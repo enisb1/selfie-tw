@@ -86,6 +86,18 @@ router.get("/activities", async (req,res) => {
     }
 })
 
+// Get all activities by array of IDs
+router.post('/getActivitiesByIds', async (req, res) => {
+  const { activityIds } = req.body;
+
+  try {
+      const activities = await Activity.find({ _id: { $in: activityIds } });
+      res.status(200).json(activities);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching activities', error: error.message });
+  }
+});
+
 // delete activity given id
 router.delete("/activities/:id", async (req, res) => {
     const activityId = req.params.id;

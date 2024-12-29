@@ -39,33 +39,7 @@
                 </div>
               </div>
             </nav>
-            
-            <!--
-            <div class="fixed w-1/5 h-full border-t border-white bg-secondary">
-                <div class="relative h-full w-full">
-                    <div class="absolute flex flex-col top-0 bottom-2/3 w-full text-white text-xl font-bold whitespace-nowrap">
-                        <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
-                            <button onclick="showCreateProjectModal()" class="flex justify-start items-center">
-                                <img src="./assets/create.png" alt="create" class="w-5 mr-0 sm:mr-3">
-                                <span class="hidden sm:block">Create</span>
-                            </button>
-                        </div>
-                        <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
-                        <button onclick="goToHomeView()" class="flex justify-start items-center">
-                            <img src="./assets/home.png" alt="home" class="w-5 mr-0 sm:mr-3">
-                            <span class="hidden sm:block">Home</span>
-                        </button>
-                        </div>
-                        <div class="w-full h-1/4 pl-0 sm:pl-6 flex items-center justify-center sm:justify-normal">
-                            <button class="flex justify-start items-center">
-                                <img src="./assets/activity.png" alt="activity" class="w-5 mr-0 sm:mr-3">
-                                <span class="hidden sm:block">My activities</span>
-                            </button>
-                        </div>
-                    </div>  
-                </div>
-            </div>
-          -->
+
             <div class="w-full h-full">
               <!-- home view -->
               <div id="homeLayout" class="w-full h-full flex flex-col items-center mt-10 space-y-8">
@@ -119,10 +93,11 @@
                       </button>
 
                       <div class="w-full flex mt-4 border-secondary border-t border-b py-1">
-                        <div class="w-3/12"><span class="font-semibold text-secondary">Activity name</span></div>
+                        <div class="w-2/12"><span class="font-semibold text-secondary">Activity name</span></div>
                         <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">In charge</span></div>
+                        <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Start</span></div>
                         <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Deadline</span></div>
-                        <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Type</span></div>
+                        <div class="w-1/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Type</span></div>
                         <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Status</span></div>
                       </div>
 
@@ -153,7 +128,6 @@
                 </div> 
               </div> 
             </div>
-
         </div>
 
         <!-- Create project -->
@@ -253,10 +227,16 @@
                     <input id="activityToAddTitle" class="border border-third" type="text" maxlength="20" required>
                   </div>
           
-                  <!-- deadline -->
-                  <div class="mt-4">
-                    <p id="activityToAddDeadlineParagraph" class="font-semibold text-base">Deadline</p>
-                    <input id="activityToAddDeadline" type="date" placeholder="Select deadline" required>
+                  <!-- start and deadline -->
+                  <div class="mt-4 flex flex-col sm:flex-row">
+                    <div>
+                      <p id="activityToAddStartParagraph" class="font-semibold text-base">Start</p>
+                      <input id="activityToAddStart" type="date" placeholder="Select start">
+                    </div>
+                    <div class="sm:ml-4 mt-4 sm:mt-0">
+                      <p id="activityToAddDeadlineParagraph" class="font-semibold text-base">Deadline</p>
+                      <input id="activityToAddDeadline" type="date" placeholder="Select deadline">
+                    </div>
                   </div>
 
                   <!-- add subactivity button -->

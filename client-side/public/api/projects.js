@@ -181,6 +181,27 @@ async function editActivity(activityId, updatedData) {
     }
 }
 
+async function getActivitiesByIds(activityIds) {
+    try {
+        const response = await fetch('http://localhost:8000/api/calendar/getActivitiesByIds', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ activityIds })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data; // Return the response data
+    } catch (error) {
+        throw new Error(`Error fetching activities: ${error.message}`);
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -191,3 +212,4 @@ window.getActivitiesByProject = getActivitiesByProject;
 window.addActivityToProject = addActivityToProject;
 window.getUsers = getUsers;
 window.editActivity = editActivity;
+window.getActivitiesByIds = getActivitiesByIds;

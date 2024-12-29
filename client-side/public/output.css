@@ -852,6 +852,10 @@ video {
   margin-left: 0.25rem;
 }
 
+.ml-10 {
+  margin-left: 2.5rem;
+}
+
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -1170,10 +1174,6 @@ video {
 
 .w-3\.5 {
   width: 0.875rem;
-}
-
-.w-3\/12 {
-  width: 25%;
 }
 
 .w-3\/4 {
@@ -1931,6 +1931,10 @@ video {
   padding-left: 2rem;
 }
 
+.pr-5 {
+  padding-right: 1.25rem;
+}
+
 .pt-2 {
   padding-top: 0.5rem;
 }
@@ -2471,6 +2475,10 @@ video {
 
   .sm\:mr-3 {
     margin-right: 0.75rem;
+  }
+
+  .sm\:mt-0 {
+    margin-top: 0px;
   }
 
   .sm\:block {
