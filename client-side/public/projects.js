@@ -533,13 +533,38 @@ function updateNewProjectUsersInput() {
 //--------------------------------------------------------------
 const newActivityUsers = [];
 const newActivityIds = [];
+const listOfSubactivities = [];
+let nSubactivities = 0;
+
+function resetAddSubactivityElements() {
+    document.getElementById("activityToAddTitleParagraph").innerHTML = 'Title'
+    document.getElementById("activityToAddDeadlineParagraph").innerHTML = 'Deadline'
+    document.getElementById("activityToAddUsersParagraph").innerHTML = 'Invite users'
+    document.getElementById("addSubactivityButtonDiv").classList.add("hidden")
+    document.getElementById("addSubactivityButtonDiv").classList.remove("block")
+    document.getElementById("compositeActivityToAddTitleDiv").classList.add("hidden")
+    document.getElementById("subactivitiesSummary").classList.remove("mt-4")
+}
+
+function updateSubactivityElements() {
+    document.getElementById("activityToAddTitleParagraph").innerHTML = `Subactivity ${nSubactivities+1} title`
+    document.getElementById("activityToAddDeadlineParagraph").innerHTML = `Subactivity ${nSubactivities+1} deadline`
+    document.getElementById("addSubactivityButtonDiv").classList.add("block")
+    document.getElementById("addSubactivityButtonDiv").classList.remove("hidden")
+    document.getElementById("compositeActivityToAddTitleDiv").classList.remove("hidden")
+}
 
 function showAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
     if (modal) {
         modal.open()
         newActivityUsers.length = 0
+        listOfSubactivities.length = 0
+        nSubactivities = 0
         document.getElementById('addActivityForm').reset();
+        document.getElementById('activityToAddError').innerHTML = ''
+        document.getElementById('subactivitiesSummary').innerHTML = ''
+        resetAddSubactivityElements()
     }
 }
 
@@ -556,6 +581,53 @@ flatpickr(activityToAddDeadlineElem, {
     dateFormat: "Y-m-d H:i",
 });
 
+document.getElementById("activityToAddIsComposite").addEventListener('click', (event) => {
+    // Handle the click event
+    if (event.target.checked) {
+        updateSubactivityElements()
+        document.getElementById("activityToAddTitle").removeAttribute("required")
+        document.getElementById("activityToAddDeadline").removeAttribute("required")
+        document.getElementById("compositeActivityToAddTitleInput").setAttribute("required", "true")
+    } else {
+        resetAddSubactivityElements()
+        document.getElementById("activityToAddTitle").setAttribute("required", "true")
+        document.getElementById("activityToAddDeadline").setAttribute("required", "true")
+        document.getElementById("compositeActivityToAddTitleInput").removeAttribute("required")
+    }
+})
+
+document.getElementById("addSubactivityButton").addEventListener('click', (event) => {
+    const activityToAddTitle = document.getElementById('activityToAddTitle');
+    const activityToAddDeadline = document.getElementById('activityToAddDeadline');
+    const activityToAddError = document.getElementById('activityToAddError');
+    const subactivitiesSummary = document.getElementById('subactivitiesSummary');
+
+    if (activityToAddTitle.value === '')
+        activityToAddError.innerHTML = 'Subactivity\'s title is needed'
+    else if (activityToAddDeadline.value === '')
+        activityToAddError.innerHTML = 'Subactivity\'s deadline is needed'
+    else if (new Date(activityToAddDeadline.value).getTime() <= new Date(currentProject.start).getTime()
+        || new Date(activityToAddDeadline.value).getTime() >= new Date(currentProject.end).getTime()) {
+        activityToAddError.innerHTML = "Deadline must be between project start and end date"
+    }
+    else {
+        const subactivityDiv = document.createElement('div');
+        subactivityDiv.classList.add("mt-2", "rounded");
+        subactivityDiv.innerHTML = `
+            <p><strong>Title:</strong> ${activityToAddTitle.value}</p>
+            <p><strong>Deadline:</strong> ${new Date(activityToAddDeadline.value).toLocaleDateString("it-IT", infoDateFormat)}</p>
+        `;
+        subactivitiesSummary.appendChild(subactivityDiv);
+        listOfSubactivities.push({"title": activityToAddTitle.value, 
+            "deadline": new Date(activityToAddDeadline.value)})
+        // update values
+        activityToAddTitle.value = ''
+        activityToAddDeadline.value = ''
+        nSubactivities++;
+        updateSubactivityElements()
+    }
+})
+
 // add activity form submit
 document.getElementById('addActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
@@ -569,28 +641,59 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     const projectStart = new Date(currentProject.start)
     const projectEnd = new Date(currentProject.end)
     const activityToAddDeadlineValue = new Date(activityToAddDeadlineElem.value)
-    if (activityToAddDeadlineValue.getTime() <= projectStart.getTime()
-        || activityToAddDeadlineValue.getTime() >= projectEnd.getTime()) {
-        activityToAddError.innerHTML = "Deadline must be between project start and end date"
+    if (!document.getElementById("activityToAddIsComposite").checked) {
+        if (activityToAddDeadlineValue.getTime() <= projectStart.getTime()
+            || activityToAddDeadlineValue.getTime() >= projectEnd.getTime()) {
+            activityToAddError.innerHTML = "Deadline must be between project start and end date"
+        }
+        else {
+            const activityUsers = newActivityIds.concat(state._id)
+            //TODO: set correct status based on previous activity (if previous activity is done it means
+            //it has output, hence the new activity can be activable, else it must be waitingActivable)
+            //TODO: make creation of set of activities possible
+            const projectData = {
+                projectId: currentProject._id,
+                isMilestone: activityToAddIsMilestone.checked,
+                subActivities: null,
+                status: 'activable',
+                contracts: activityToAddContracts.checked
+            }
+            const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
+                activityUsers, projectData)
+            await window.addActivityToProject(currentProject._id, createdActivity._id)
+            activityToAddError.innerHTML = ""
+            closeAddActivityModal()
+            updateProjectActivities()
+        }
     }
     else {
-        const activityUsers = newActivityIds.concat(state._id)
-        //TODO: set correct status based on previous activity (if previous activity is done it means
-        //it has output, hence the new activity can be activable, else it must be waitingActivable)
-        //TODO: make creation of set of activities possible
-        const projectData = {
-            projectId: currentProject._id,
-            isMilestone: activityToAddIsMilestone.checked,
-            subActivities: null,
-            status: 'activable',
-            contracts: activityToAddContracts.checked
+        //TODO: check if activities > 0, if so add composite activity
+        if (listOfSubactivities.length > 0) {
+            const subactivitiesIds = []
+            for (const subactivity of listOfSubactivities) {
+                const createdSubactivity = await window.postActivity(subactivity.title, subactivity.deadline, 
+                    newActivityIds.concat(state._id), null)
+                subactivitiesIds.push(createdSubactivity._id)
+            }
+            // create composite activity to add to project
+            const projectData = {
+                projectId: currentProject._id,
+                isMilestone: activityToAddIsMilestone.checked,
+                subActivities: subactivitiesIds,
+                status: 'activable',
+                contracts: activityToAddContracts.checked
+            }
+            const createdCompositeActivity = await window.postActivity(document.getElementById
+                ("compositeActivityToAddTitleInput").value, null, 
+                newActivityIds.concat(state._id), projectData)
+            await window.addActivityToProject(currentProject._id, createdCompositeActivity._id)
+            activityToAddError.innerHTML = ""
+            closeAddActivityModal()
+            updateProjectActivities()
         }
-        const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
-            activityUsers, projectData)
-        await window.addActivityToProject(currentProject._id, createdActivity._id)
-        activityToAddError.innerHTML = ""
-        closeAddActivityModal()
-        updateProjectActivities()
+        else {
+            activityToAddError.innerHTML = "No subactivities have been added"
+        }
     }
 });
 
@@ -617,9 +720,4 @@ async function addUserToNewActivityList() {
 function updateNewActivityUsersInput() {
     const addedUsernamesInput = document.getElementById("newActivityAddedUsernamesInput")
     addedUsernamesInput.value = newActivityUsers.join(', ')
-}
-
-function clearNewActivityUsers() {
-    newActivityUsers.length = 0
-    updateNewActivityUsersInput()
 }

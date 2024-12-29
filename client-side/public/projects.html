@@ -228,21 +228,41 @@
             </header>
             <form id="addActivityForm">
                 <div class="flex flex-col">
+                  <!-- Contains sub-activities -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Is a composite activity</p>
+                    <input id="activityToAddIsComposite" type="checkbox">
+                  </div>
+
+                  <!-- Composite activity title -->
+                  <div id="compositeActivityToAddTitleDiv" class="mt-4">
+                    <p class="font-semibold text-base">Composite activity title</p>
+                    <input id="compositeActivityToAddTitleInput" class="border border-third" type="text" maxlength="20">
+                  </div>
+
                   <!-- title -->
                   <div class="mt-4">
-                    <p class="font-semibold text-base">Title</p>
+                    <p id="activityToAddTitleParagraph" class="font-semibold text-base">Title</p>
                     <input id="activityToAddTitle" class="border border-third" type="text" maxlength="20" required>
                   </div>
           
                   <!-- deadline -->
                   <div class="mt-4">
-                    <p class="font-semibold text-base">Deadline</p>
+                    <p id="activityToAddDeadlineParagraph" class="font-semibold text-base">Deadline</p>
                     <input id="activityToAddDeadline" type="date" placeholder="Select deadline" required>
                   </div>
 
+                  <!-- add subactivity button -->
+                  <div class="hidden" id="addSubactivityButtonDiv">
+                    <button type="button" id="addSubactivityButton" class="mt-2 bg-secondary p-1 text-white">Add subactivity</button>
+                  </div>
+
+                  <!-- subactivities summary -->
+                  <div id="subactivitiesSummary" class="flex flex-col"></div>
+
                   <!-- invite users -->
                   <div class="mt-4">
-                    <p class="font-semibold text-base">Invite users</p>
+                    <p id="activityToAddUsersParagraph" class="font-semibold text-base">Invite users</p>
                     <div class="flex">
                         <input id="newActivityUsersInput" type="text" placeholder="Enter username">
                         <button type="button" onclick="addUserToNewActivityList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
