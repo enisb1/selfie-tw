@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const homeView = document.getElementById('homeLayout');
+const homeProjectsList = document.getElementById('homeProjectsList');
 const projectView = document.getElementById('projectLayout');
 
 const infoDateFormat = {
@@ -406,7 +407,7 @@ async function updateProjects() {
 
 // Loop through projects and create divs
 function displayProjects(projects) {
-    homeView.innerHTML = ''
+    homeProjectsList.innerHTML = ''
     projects.forEach(project => {
         // Create a new div for each project
         const projectDiv = document.createElement('div');
@@ -426,7 +427,7 @@ function displayProjects(projects) {
         });
         
         // Append the div to the parent container
-        homeView.appendChild(projectDiv);
+        homeProjectsList.appendChild(projectDiv);
     });
 }
 
