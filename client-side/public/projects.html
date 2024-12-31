@@ -209,18 +209,6 @@
             </header>
             <form id="addActivityForm">
                 <div class="flex flex-col">
-                  <!-- Contains sub-activities -->
-                  <div class="mt-4">
-                    <p class="font-semibold text-base">Is a composite activity</p>
-                    <input id="activityToAddIsComposite" type="checkbox">
-                  </div>
-
-                  <!-- Composite activity title -->
-                  <div id="compositeActivityToAddTitleDiv" class="mt-4">
-                    <p class="font-semibold text-base">Composite activity title</p>
-                    <input id="compositeActivityToAddTitleInput" class="border border-third" type="text" maxlength="20">
-                  </div>
-
                   <!-- title -->
                   <div class="mt-4">
                     <p id="activityToAddTitleParagraph" class="font-semibold text-base">Title</p>
@@ -239,13 +227,11 @@
                     </div>
                   </div>
 
-                  <!-- add subactivity button -->
-                  <div class="hidden" id="addSubactivityButtonDiv">
-                    <button type="button" id="addSubactivityButton" class="mt-2 bg-secondary p-1 text-white">Add subactivity</button>
+                  <!-- phase name -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Phase name</p>
+                    <input id="activityToAddPhase" class="border border-third" type="text" maxlength="20" required>
                   </div>
-
-                  <!-- subactivities summary -->
-                  <div id="subactivitiesSummary" class="flex flex-col"></div>
 
                   <!-- invite users -->
                   <div class="mt-4">
@@ -308,6 +294,18 @@
               <p id="infoActivityUsers"></p>
             </div>
 
+            <!-- status -->
+            <div class="mt-4">
+              <p id="infoActivityTitleParagraph" class="font-semibold text-base">Status</p>
+              <p id="infoActivityStatus"></p>
+            </div>
+
+            <!-- phase -->
+            <div class="mt-4">
+              <p id="infoActivityTitleParagraph" class="font-semibold text-base">Phase</p>
+              <p id="infoActivityPhase"></p>
+            </div>
+
             <div class="mt-4">
               <p class="font-semibold text-base">Milestone</p>
               <p id="infoActivityMilestone"></p>
@@ -353,9 +351,14 @@
                 </div>
               </div>
 
-              <div>
+              <div class="mt-4">
                 <p class="font-semibold text-base">Change status</p>
                 <select id="activityToEditStatusSelect"></select>
+              </div>
+
+              <div class="mt-4">
+                <p class="font-semibold text-base">Change phase</p>
+                <input id="activityToEditPhase" class="border border-third" type="text" maxlength="20">
               </div>
 
               <!-- Milestone -->

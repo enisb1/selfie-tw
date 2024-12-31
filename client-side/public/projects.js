@@ -29,9 +29,6 @@ const projectViewName = document.getElementById('projectViewName')
 let currentProject = null;
 let currentEditedActivity = null;
 let activityNumber = 0;
-const editingSubactivitiesIds = [];
-const editingSubactivitiesInputsElements = [];
-const editingSubactivitiesStatusElements = [];
 
 function goToProjectView(project) {
     currentProject = project; // UPDATE current project data
@@ -60,26 +57,6 @@ function displayToDoActivities(activities) {
         const users = await window.getUsers(activity.users)
         let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
         let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        if (activity.projectData.subActivities) {
-            console.log('here')
-            console.log(activity.projectData.subActivities)
-            const subactivities = await window.getActivitiesByIds(activity.projectData.subActivities)
-            console.log(subactivities)
-            // Find the subactivity with the earliest start date
-            const earliestSubactivity = subactivities.reduce((earliest, subactivity) => {
-                console.log(subactivity)
-                const subactivityStartDate = new Date(subactivity.projectData.startDate);
-                return (!earliest || subactivityStartDate < new Date(earliest.projectData.startDate)) ? subactivity : earliest;
-            }, null);
-            startString = new Date(earliestSubactivity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
-
-            // Find the subactivity with the latest deadline
-            const latestSubactivity = subactivities.reduce((latest, subactivity) => {
-                const subactivityDeadline = new Date(subactivity.deadline);
-                return (!latest || subactivityDeadline > new Date(latest.deadline)) ? subactivity : latest;
-            }, null);
-            deadlineString = new Date(latestSubactivity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        }
         // Add content to the div
         activityDiv.innerHTML = `
             <!-- title -->
@@ -146,23 +123,6 @@ function displayInProgressActivities(activities) {
         const users = await window.getUsers(activity.users)
         const startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
         const deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        if (activity.projectData.subActivities) {
-            console.log('here')
-            const subactivities = window.getActivitiesByIds(activity.projectData.subActivities)
-            // Find the subactivity with the earliest start date
-            const earliestSubactivity = subactivities.reduce((earliest, subactivity) => {
-                const subactivityStartDate = new Date(subactivity.projectData.startDate);
-                return (!earliest || subactivityStartDate < new Date(earliest.projectData.startDate)) ? subactivity : earliest;
-            }, null);
-            startString = new Date(earliestSubactivity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
-
-            // Find the subactivity with the latest deadline
-            const latestSubactivity = subactivities.reduce((latest, subactivity) => {
-                const subactivityDeadline = new Date(subactivity.deadline);
-                return (!latest || subactivityDeadline > new Date(latest.deadline)) ? subactivity : latest;
-            }, null);
-            deadlineString = new Date(latestSubactivity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        }
         // Add content to the div
         activityDiv.innerHTML = `
             <!-- title -->
@@ -229,23 +189,6 @@ function displayCompletedActivities(activities) {
         const users = await window.getUsers(activity.users)
         const startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
         const deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        if (activity.projectData.subActivities) {
-            console.log('here')
-            const subactivities = window.getActivitiesByIds(activity.projectData.subActivities)
-            // Find the subactivity with the earliest start date
-            const earliestSubactivity = subactivities.reduce((earliest, subactivity) => {
-                const subactivityStartDate = new Date(subactivity.projectData.startDate);
-                return (!earliest || subactivityStartDate < new Date(earliest.projectData.startDate)) ? subactivity : earliest;
-            }, null);
-            startString = new Date(earliestSubactivity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
-
-            // Find the subactivity with the latest deadline
-            const latestSubactivity = subactivities.reduce((latest, subactivity) => {
-                const subactivityDeadline = new Date(subactivity.deadline);
-                return (!latest || subactivityDeadline > new Date(latest.deadline)) ? subactivity : latest;
-            }, null);
-            deadlineString = new Date(latestSubactivity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        }
         // Add content to the div
         activityDiv.innerHTML = `
             <!-- title -->
@@ -310,32 +253,15 @@ async function showInfoModal(activity) {
     const modal = document.getElementById('infoActivityModal');
     if (modal) {
         document.getElementById('infoActivityModalTitle').innerHTML = activity.title
-        document.getElementById('infoActivityTitleParagraph').innerHTML = activity.projectData.subActivities? 'Composite activity title' : 'Title'
         document.getElementById('infoActivityTitle').innerHTML = activity.title
+        document.getElementById('infoActivityStatus').innerHTML = activity.projectData.status
+        document.getElementById('infoActivityPhase').innerHTML = activity.projectData.phase
         document.getElementById('infoActivityDeadline').innerHTML = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
         const users = await window.getUsers(activity.users)
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
         document.getElementById('infoActivityContracts').innerHTML = activity.projectData.contracts? 'yes' : 'no'
-        // show subactivities
-        if (activity.projectData.subActivities) {
-            const subActivities = await window.getActivitiesByIds(activity.projectData.subActivities)
-            console.log(subActivities)
-            let i = 0
-            const activityInfoContainer = document.getElementById('infoSubactivitiesContainer');
-            activityInfoContainer.innerHTML = ''; // Clear previous subactivities
-            for (const subactivity of subActivities) {
-                const subactivityTitleParagraph = document.createElement('p');
-                subactivityTitleParagraph.classList.add('font-semibold', 'mt-4');
-                subactivityTitleParagraph.innerHTML = `Subactivity ${i + 1} title`;
-
-                const subactivityTitle = document.createElement('p');
-                subactivityTitle.innerHTML = subactivity.title;
-
-                activityInfoContainer.appendChild(subactivityTitleParagraph);
-                activityInfoContainer.appendChild(subactivityTitle);
-            }
-        }
+        //TODO: show phase
         modal.open()
     }
 }
@@ -379,6 +305,7 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
     // update activities list
     newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
     newActivity.title = document.getElementById("activityToEditTitle").value
+    newActivity.projectData.phase = document.getElementById("activityToEditPhase").value
     newActivity.users = newActivity.users.concat(editedActivityIds)
     newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
     newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
@@ -408,6 +335,7 @@ function showEditActivityModal() {
         document.getElementById('editActivityForm').reset();
         document.getElementById("activityToEditError").innerHTML = ''
         document.getElementById("activityToEditTitle").value = currentEditedActivity.title
+        document.getElementById("activityToEditPhase").value = currentEditedActivity.projectData.phase
         document.getElementById("activityToEditIsMilestone").checked = currentEditedActivity.projectData.isMilestone
         document.getElementById("activityToEditContracts").checked = currentEditedActivity.projectData.contracts
         const statusSelect = document.getElementById("activityToEditStatusSelect")
@@ -434,7 +362,6 @@ function showEditActivityModal() {
             option.textContent = status;
             statusSelect.appendChild(option);
         });
-        // edit subactivities' titles
     }
 }
 
@@ -551,7 +478,6 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
             const milestoneActivityProjectData = {
                 projectId: null,
                 isMilestone: true,
-                subActivities: null,
                 status: 'activable'
             }
             const finalMilestoneName = document.getElementById("finalMilestoneName").value
@@ -627,39 +553,14 @@ function updateNewProjectUsersInput() {
 //--------------------------------------------------------------
 const newActivityUsers = [];
 const newActivityIds = [];
-const listOfSubactivities = [];
-let nSubactivities = 0;
-
-function resetAddSubactivityElements() {
-    document.getElementById("activityToAddTitleParagraph").innerHTML = 'Title'
-    document.getElementById("activityToAddDeadlineParagraph").innerHTML = 'Deadline'
-    document.getElementById("activityToAddUsersParagraph").innerHTML = 'Invite users'
-    document.getElementById("addSubactivityButtonDiv").classList.add("hidden")
-    document.getElementById("addSubactivityButtonDiv").classList.remove("block")
-    document.getElementById("compositeActivityToAddTitleDiv").classList.add("hidden")
-    document.getElementById("subactivitiesSummary").classList.remove("mt-4")
-}
-
-function updateSubactivityElements() {
-    document.getElementById("activityToAddTitleParagraph").innerHTML = `Subactivity ${nSubactivities+1} title`
-    document.getElementById("activityToAddStartParagraph").innerHTML = `Subactivity ${nSubactivities+1} start`
-    document.getElementById("activityToAddDeadlineParagraph").innerHTML = `Subactivity ${nSubactivities+1} deadline`
-    document.getElementById("addSubactivityButtonDiv").classList.add("block")
-    document.getElementById("addSubactivityButtonDiv").classList.remove("hidden")
-    document.getElementById("compositeActivityToAddTitleDiv").classList.remove("hidden")
-}
 
 function showAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
     if (modal) {
         modal.open()
         newActivityUsers.length = 0
-        listOfSubactivities.length = 0
-        nSubactivities = 0
         document.getElementById('addActivityForm').reset();
         document.getElementById('activityToAddError').innerHTML = ''
-        document.getElementById('subactivitiesSummary').innerHTML = ''
-        resetAddSubactivityElements()
     }
 }
 
@@ -682,63 +583,6 @@ flatpickr(activityToAddDeadlineElem, {
     dateFormat: "Y-m-d H:i",
 });
 
-document.getElementById("activityToAddIsComposite").addEventListener('click', (event) => {
-    // Handle the click event
-    if (event.target.checked) {
-        updateSubactivityElements()
-        document.getElementById("activityToAddTitle").removeAttribute("required")
-        document.getElementById("compositeActivityToAddTitleInput").setAttribute("required", "true")
-    } else {
-        resetAddSubactivityElements()
-        document.getElementById("activityToAddTitle").setAttribute("required", "true")
-        document.getElementById("compositeActivityToAddTitleInput").removeAttribute("required")
-    }
-})
-
-document.getElementById("addSubactivityButton").addEventListener('click', (event) => {
-    const activityToAddTitle = document.getElementById('activityToAddTitle');
-    const activityToAddStart = document.getElementById('activityToAddStart');
-    const activityToAddDeadline = document.getElementById('activityToAddDeadline');
-    const activityToAddError = document.getElementById('activityToAddError');
-    const subactivitiesSummary = document.getElementById('subactivitiesSummary');
-
-    if (activityToAddTitle.value === '')
-        activityToAddError.innerHTML = 'Subactivity\'s title is needed'
-    else if (activityToAddStart.value === '')
-        activityToAddError.innerHTML = 'Subactivity\'s start is needed'
-    else if (activityToAddDeadline.value === '')
-        activityToAddError.innerHTML = 'Subactivity\'s deadline is needed'
-    else if (new Date(activityToAddStart.value).getTime() <= new Date(currentProject.start).getTime()
-        || new Date(activityToAddStart.value).getTime() >= new Date(currentProject.end).getTime()) {
-        activityToAddError.innerHTML = "Start must be between project start and end date"
-    }
-    else if (new Date(activityToAddDeadline.value).getTime() <= new Date(currentProject.start).getTime()
-        || new Date(activityToAddDeadline.value).getTime() >= new Date(currentProject.end).getTime()) {
-        activityToAddError.innerHTML = "Deadline must be between project start and end date"
-    }
-    else if (new Date(activityToAddDeadline.value).getTime() <= new Date(activityToAddStart.value).getTime()) {
-        activityToAddError.innerHTML = "Deadline must be after activity's start"
-    }
-    else {
-        const subactivityDiv = document.createElement('div');
-        subactivityDiv.classList.add("mt-2", "rounded");
-        subactivityDiv.innerHTML = `
-            <p><strong>Title:</strong> ${activityToAddTitle.value}</p>
-            <p><strong>Start:</strong> ${new Date(activityToAddStart.value).toLocaleDateString("it-IT", infoDateFormat)}</p>
-            <p><strong>Deadline:</strong> ${new Date(activityToAddDeadline.value).toLocaleDateString("it-IT", infoDateFormat)}</p>
-        `;
-        subactivitiesSummary.appendChild(subactivityDiv);
-        listOfSubactivities.push({"title": activityToAddTitle.value, 
-            "deadline": new Date(activityToAddDeadline.value), "start": new Date(activityToAddStart.value)})
-        // update values
-        activityToAddTitle.value = ''
-        activityToAddStart.value = ''
-        activityToAddDeadline.value = ''
-        nSubactivities++;
-        updateSubactivityElements()
-    }
-})
-
 // add activity form submit
 document.getElementById('addActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
@@ -749,84 +593,47 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     const activityToAddIsMilestone = document.getElementById("activityToAddIsMilestone")
     const activityToAddContracts = document.getElementById("activityToAddContracts")
     const activityToAddError = document.getElementById("activityToAddError")
+    const activityToAddPhase = document.getElementById("activityToAddPhase")
     const projectStart = new Date(currentProject.start)
     const projectEnd = new Date(currentProject.end)
     const activityToAddDeadlineValue = new Date(activityToAddDeadlineElem.value)
     const activityToAddStartValue = new Date(activityToAddStartElem.value)
-    if (!document.getElementById("activityToAddIsComposite").checked) {
-        if (activityToAddStartValue === '') {
-            activityToAddError.innerHTML = "Start date is needed"
-        }
-        else if (activityToAddDeadlineValue === '') {
-            activityToAddError.innerHTML = "Deadline is needed"
-        }
-        else if (activityToAddStartValue.getTime() <= projectStart.getTime()
-            || activityToAddStartValue.getTime() >= projectEnd.getTime()) {
-            activityToAddError.innerHTML = "Start must be between project start and end date"
-        }
-        else if (activityToAddDeadlineValue.getTime() <= projectStart.getTime()
-            || activityToAddDeadlineValue.getTime() >= projectEnd.getTime()) {
-            activityToAddError.innerHTML = "Deadline must be between project start and end date"
-        }
-        else if (activityToAddDeadlineValue.getTime() <= activityToAddStartValue.getTime()) {
-            activityToAddError.innerHTML = "Deadline must be after activity's start"
-        }
-        else {
-            const activityUsers = newActivityIds.concat(state._id)
-            //TODO: set correct status based on previous activity (if previous activity is done it means
-            //it has output, hence the new activity can be activable, else it must be waitingActivable)
-            //TODO: make creation of set of activities possible
-            const projectData = {
-                projectId: currentProject._id,
-                isMilestone: activityToAddIsMilestone.checked,
-                subActivities: null,
-                status: 'activable',
-                contracts: activityToAddContracts.checked
-            }
-            const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
-                activityUsers, projectData)
-            await window.addActivityToProject(currentProject._id, createdActivity._id)
-            activityToAddError.innerHTML = ""
-            closeAddActivityModal()
-            updateProjectActivities()
-        }
+    if (activityToAddStartValue === '') {
+        activityToAddError.innerHTML = "Start date is needed"
+    }
+    else if (activityToAddDeadlineValue === '') {
+        activityToAddError.innerHTML = "Deadline is needed"
+    }
+    else if (activityToAddStartValue.getTime() <= projectStart.getTime()
+        || activityToAddStartValue.getTime() >= projectEnd.getTime()) {
+        activityToAddError.innerHTML = "Start must be between project start and end date"
+    }
+    else if (activityToAddDeadlineValue.getTime() <= projectStart.getTime()
+        || activityToAddDeadlineValue.getTime() >= projectEnd.getTime()) {
+        activityToAddError.innerHTML = "Deadline must be between project start and end date"
+    }
+    else if (activityToAddDeadlineValue.getTime() <= activityToAddStartValue.getTime()) {
+        activityToAddError.innerHTML = "Deadline must be after activity's start"
     }
     else {
-        //TODO: check if activities > 0, if so add composite activity
-        if (listOfSubactivities.length > 0) {
-            const subactivitiesIds = []
-            for (const subactivity of listOfSubactivities) {
-                const projectData = {
-                    startDate: subactivity.start,
-                    projectId: null,
-                    isMilestone: null,
-                    subActivities: null,
-                    status: null,
-                    contracts: null
-                }
-                const createdSubactivity = await window.postActivity(subactivity.title, subactivity.deadline, 
-                    newActivityIds.concat(state._id), projectData)
-                subactivitiesIds.push(createdSubactivity._id)
-            }
-            // create composite activity to add to project
-            const projectData = {
-                projectId: currentProject._id,
-                isMilestone: activityToAddIsMilestone.checked,
-                subActivities: subactivitiesIds,
-                status: 'activable',
-                contracts: activityToAddContracts.checked
-            }
-            const createdCompositeActivity = await window.postActivity(document.getElementById
-                ("compositeActivityToAddTitleInput").value, null, 
-                newActivityIds.concat(state._id), projectData)
-            await window.addActivityToProject(currentProject._id, createdCompositeActivity._id)
-            activityToAddError.innerHTML = ""
-            closeAddActivityModal()
-            updateProjectActivities()
+        const activityUsers = newActivityIds.concat(state._id)
+        //TODO: set correct status based on previous activity (if previous activity is done it means
+        //it has output, hence the new activity can be activable, else it must be waitingActivable)
+        //TODO: make creation of set of activities possible
+        const projectData = {
+            startDate: activityToAddStartValue,
+            projectId: currentProject._id,
+            isMilestone: activityToAddIsMilestone.checked,
+            phase: activityToAddPhase.value,
+            status: 'activable',
+            contracts: activityToAddContracts.checked
         }
-        else {
-            activityToAddError.innerHTML = "No subactivities have been added"
-        }
+        const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
+            activityUsers, projectData)
+        await window.addActivityToProject(currentProject._id, createdActivity._id)
+        activityToAddError.innerHTML = ""
+        closeAddActivityModal()
+        updateProjectActivities()
     }
 });
 
