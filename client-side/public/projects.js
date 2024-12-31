@@ -28,7 +28,10 @@ const ganttTitle = document.getElementById('ganttTitle')
 const projectViewName = document.getElementById('projectViewName')
 let currentProject = null;
 let currentEditedActivity = null;
-let activityNumber = 0
+let activityNumber = 0;
+const editingSubactivitiesIds = [];
+const editingSubactivitiesInputsElements = [];
+const editingSubactivitiesStatusElements = [];
 
 function goToProjectView(project) {
     currentProject = project; // UPDATE current project data
@@ -307,12 +310,32 @@ async function showInfoModal(activity) {
     const modal = document.getElementById('infoActivityModal');
     if (modal) {
         document.getElementById('infoActivityModalTitle').innerHTML = activity.title
+        document.getElementById('infoActivityTitleParagraph').innerHTML = activity.projectData.subActivities? 'Composite activity title' : 'Title'
         document.getElementById('infoActivityTitle').innerHTML = activity.title
         document.getElementById('infoActivityDeadline').innerHTML = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
         const users = await window.getUsers(activity.users)
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
         document.getElementById('infoActivityContracts').innerHTML = activity.projectData.contracts? 'yes' : 'no'
+        // show subactivities
+        if (activity.projectData.subActivities) {
+            const subActivities = await window.getActivitiesByIds(activity.projectData.subActivities)
+            console.log(subActivities)
+            let i = 0
+            const activityInfoContainer = document.getElementById('infoSubactivitiesContainer');
+            activityInfoContainer.innerHTML = ''; // Clear previous subactivities
+            for (const subactivity of subActivities) {
+                const subactivityTitleParagraph = document.createElement('p');
+                subactivityTitleParagraph.classList.add('font-semibold', 'mt-4');
+                subactivityTitleParagraph.innerHTML = `Subactivity ${i + 1} title`;
+
+                const subactivityTitle = document.createElement('p');
+                subactivityTitle.innerHTML = subactivity.title;
+
+                activityInfoContainer.appendChild(subactivityTitleParagraph);
+                activityInfoContainer.appendChild(subactivityTitle);
+            }
+        }
         modal.open()
     }
 }
@@ -380,7 +403,6 @@ function showEditActivityModal() {
         //TODO: se sei CAPO PROGETTO puoi decidere se l'attività TRASLA O CONTRAE
         // in caso di ritardo dell'attività prima
         modal.open()
-        console.log('prova')
         editedActivityUsers.length = 0
         editedActivityIds.length = 0
         document.getElementById('editActivityForm').reset();
@@ -412,6 +434,7 @@ function showEditActivityModal() {
             option.textContent = status;
             statusSelect.appendChild(option);
         });
+        // edit subactivities' titles
     }
 }
 
