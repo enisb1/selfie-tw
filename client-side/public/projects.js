@@ -20,10 +20,8 @@ const infoDateFormat = {
 // PROJECT VIEW
 //--------------------------------------------------------------
 const overviewPage = document.getElementById('overviewPage');
-const listPage = document.getElementById('listPage');
 const ganttPage = document.getElementById('ganttPage');
 const overviewTitle = document.getElementById('overviewTitle')
-const listTitle = document.getElementById('listTitle')
 const ganttTitle = document.getElementById('ganttTitle')
 const projectViewName = document.getElementById('projectViewName')
 let currentProject = null;
@@ -47,203 +45,268 @@ async function updateProjectActivities() {
     displayCompletedActivities(activities.filter(activity => activity.projectData.status === 'done' || activity.projectData.status === 'discarded'))
 }
 
-function displayToDoActivities(activities) {
-    const todoActivitiesContainer = document.getElementById('todoActivitiesContainer')
-    todoActivitiesContainer.innerHTML = ''
-    activities.forEach(async (activity) => {
-        // Create a new div for each project
-        const activityDiv = document.createElement('div');
-        activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
-        const users = await window.getUsers(activity.users)
-        let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
-        let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        // Add content to the div
-        activityDiv.innerHTML = `
-            <!-- title -->
-            <div class="w-2/12 truncate">
-                <span>${activity.title}</span>
-            </div>
-            <!-- users -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
-            </div>
-            <!-- start -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${startString}</span>
-            </div>
-            <!-- deadline -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${deadlineString}</span>
-            </div>
-            <!-- milestone or not-->
-            <div class="w-1/12 border-l border-secondary truncate">
-                <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
-            </div>
-            <!-- status -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
-                    ml-1 rounded-md">
-                    ${activity.projectData.status}
+async function displayToDoActivities(activities) {
+    const todoActivitiesContainer = document.getElementById('todoActivitiesContainer');
+    todoActivitiesContainer.innerHTML = '';
+    const activitiesForPhase = {};
+
+    // Group activities by phase
+    for (const activity of activities) {
+        if (!activitiesForPhase[activity.projectData.phase]) {
+            activitiesForPhase[activity.projectData.phase] = [activity];
+        } else {
+            activitiesForPhase[activity.projectData.phase].push(activity);
+        }
+    }
+
+    // Iterate over each phase and its activities
+    for (const [phase, phaseActivities] of Object.entries(activitiesForPhase)) {
+        // Create a header for the phase
+        const phaseParagraph = document.createElement('p');
+        phaseParagraph.classList.add("mt-2", "text-secondary", "font-semibold", "bg-secondary", "text-white", "inline-block", "rounded-md", "p-1");
+        phaseParagraph.innerText = phase;
+        todoActivitiesContainer.appendChild(phaseParagraph);
+
+        // Iterate over each activity in the phase
+        for (const activity of phaseActivities) {
+            // Create a new div for each project
+            const activityDiv = document.createElement('div');
+            activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
+
+            const users = await window.getUsers(activity.users);
+            let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat);
+            let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat);
+
+            // Add content to the div
+            activityDiv.innerHTML = `
+                <!-- title -->
+                <div class="w-2/12 truncate">
+                    <span>${activity.title}</span>
                 </div>
-            </div>
-            <div class="w-1/12 border-l border-secondary">
-                <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
-            </div>
-        `;
-        const hr = document.createElement('hr');
-        hr.classList.add("border-gray-400", "border", "mt-px")
-
-        // Append the div to the parent container
-        todoActivitiesContainer.appendChild(activityDiv);
-        todoActivitiesContainer.appendChild(hr)
-
-        const infoButton = document.getElementById(`infoActivity${activityNumber}`);
-        infoButton.addEventListener('click', () => {
-            showInfoModal(activity)
-        });
-
-        const editButton = document.getElementById(`editActivity${activityNumber}`);
-        editButton.addEventListener('click', () => {
-            currentEditedActivity = activity
-            showEditActivityModal()
-        });
-
-        activityNumber++;
-    });
+                <!-- users -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
+                </div>
+                <!-- start -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${startString}</span>
+                </div>
+                <!-- deadline -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${deadlineString}</span>
+                </div>
+                <!-- milestone or not-->
+                <div class="w-1/12 border-l border-secondary truncate">
+                    <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
+                </div>
+                <!-- status -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <div class="ml-1">
+                        ${activity.projectData.status}
+                    </div>
+                </div>
+                <div class="w-1/12 border-l border-secondary">
+                    <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                    <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                </div>
+            `;
+            const hr = document.createElement('hr');
+            hr.classList.add("border-gray-400", "border", "mt-px")
+    
+            // Append the div to the parent container
+            todoActivitiesContainer.appendChild(activityDiv);
+            todoActivitiesContainer.appendChild(hr)
+    
+            const infoButton = document.getElementById(`infoActivity${activityNumber}`);
+            infoButton.addEventListener('click', () => {
+                showInfoModal(activity)
+            });
+    
+            const editButton = document.getElementById(`editActivity${activityNumber}`);
+            editButton.addEventListener('click', () => {
+                currentEditedActivity = activity
+                showEditActivityModal()
+            });
+    
+            activityNumber++;
+        }
+    }
 }
 
-function displayInProgressActivities(activities) {
-    const inProgressActivitiesContainer = document.getElementById('inProgressActivitiesContainer')
-    inProgressActivitiesContainer.innerHTML = ''
-    activities.forEach(async (activity) => {
-        // Create a new div for each project
-        const activityDiv = document.createElement('div');
-        activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
-        const users = await window.getUsers(activity.users)
-        const startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
-        const deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        // Add content to the div
-        activityDiv.innerHTML = `
-            <!-- title -->
-            <div class="w-2/12 truncate">
-                <span>${activity.title}</span>
-            </div>
-            <!-- users -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
-            </div>
-            <!-- start -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${startString}</span>
-            </div>
-            <!-- deadline -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${deadlineString}</span>
-            </div>
-            <!-- milestone or not-->
-            <div class="w-1/12 border-l border-secondary truncate">
-                <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
-            </div>
-            <!-- status -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
-                    ml-1 rounded-md">
-                    ${activity.projectData.status}
+async function displayInProgressActivities(activities) {
+    const inProgressActivitiesContainer = document.getElementById('inProgressActivitiesContainer');
+    inProgressActivitiesContainer.innerHTML = '';
+    const activitiesForPhase = {};
+
+    // Group activities by phase
+    for (const activity of activities) {
+        if (!activitiesForPhase[activity.projectData.phase]) {
+            activitiesForPhase[activity.projectData.phase] = [activity];
+        } else {
+            activitiesForPhase[activity.projectData.phase].push(activity);
+        }
+    }
+
+    // Iterate over each phase and its activities
+    for (const [phase, phaseActivities] of Object.entries(activitiesForPhase)) {
+        // Create a header for the phase
+        const phaseParagraph = document.createElement('p');
+        phaseParagraph.classList.add("mt-2", "text-secondary", "font-semibold", "bg-secondary", "text-white", "inline-block", "rounded-md", "p-1");
+        phaseParagraph.innerText = phase;
+        inProgressActivitiesContainer.appendChild(phaseParagraph);
+
+        // Iterate over each activity in the phase
+        for (const activity of phaseActivities) {
+            // Create a new div for each project
+            const activityDiv = document.createElement('div');
+            activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
+
+            const users = await window.getUsers(activity.users);
+            let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat);
+            let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat);
+
+            // Add content to the div
+            activityDiv.innerHTML = `
+                <!-- title -->
+                <div class="w-2/12 truncate">
+                    <span>${activity.title}</span>
                 </div>
-            </div>
-            <div class="w-1/12 border-l border-secondary">
-                <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
-            </div>
-        `;
-        const hr = document.createElement('hr');
-        hr.classList.add("border-gray-400", "border", "mt-px")
-
-        // Append the div to the parent container
-        inProgressActivitiesContainer.appendChild(activityDiv);
-        inProgressActivitiesContainer.appendChild(hr)
-
-        const infoButton = document.getElementById(`infoActivity${activityNumber}`);
-        infoButton.addEventListener('click', () => {
-            showInfoModal(activity)
-        });
-
-        const editButton = document.getElementById(`editActivity${activityNumber}`);
-        editButton.addEventListener('click', () => {
-            currentEditedActivity = activity
-            showEditActivityModal()
-        });
-
-        activityNumber++;
-    });
+                <!-- users -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
+                </div>
+                <!-- start -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${startString}</span>
+                </div>
+                <!-- deadline -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${deadlineString}</span>
+                </div>
+                <!-- milestone or not-->
+                <div class="w-1/12 border-l border-secondary truncate">
+                    <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
+                </div>
+                <!-- status -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <div class="ml-1">
+                        ${activity.projectData.status}
+                    </div>
+                </div>
+                <div class="w-1/12 border-l border-secondary">
+                    <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                    <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                </div>
+            `;
+            const hr = document.createElement('hr');
+            hr.classList.add("border-gray-400", "border", "mt-px")
+    
+            // Append the div to the parent container
+            inProgressActivitiesContainer.appendChild(activityDiv);
+            inProgressActivitiesContainer.appendChild(hr)
+    
+            const infoButton = document.getElementById(`infoActivity${activityNumber}`);
+            infoButton.addEventListener('click', () => {
+                showInfoModal(activity)
+            });
+    
+            const editButton = document.getElementById(`editActivity${activityNumber}`);
+            editButton.addEventListener('click', () => {
+                currentEditedActivity = activity
+                showEditActivityModal()
+            });
+    
+            activityNumber++;
+        }
+    }
 }
 
-function displayCompletedActivities(activities) {
-    const finishedActivitiesContainer = document.getElementById('finishedActivitiesContainer')
-    finishedActivitiesContainer.innerHTML = ''
-    activities.forEach(async (activity) => {
-        // Create a new div for each project
-        const activityDiv = document.createElement('div');
-        activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
-        const users = await window.getUsers(activity.users)
-        const startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat)
-        const deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat)
-        // Add content to the div
-        activityDiv.innerHTML = `
-            <!-- title -->
-            <div class="w-2/12 truncate">
-                <span>${activity.title}</span>
-            </div>
-            <!-- users -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
-            </div>
-            <!-- start -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${startString}</span>
-            </div>
-            <!-- deadline -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <span class="ml-1">${deadlineString}</span>
-            </div>
-            <!-- milestone or not-->
-            <div class="w-1/12 border-l border-secondary truncate">
-                <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
-            </div>
-            <!-- status -->
-            <div class="w-2/12 border-l border-secondary truncate">
-                <div class="inline-block px-2 py-1 border-l border-secondary bg-secondary text-white 
-                    ml-1 rounded-md">
-                    ${activity.projectData.status}
+async function displayCompletedActivities(activities) {
+    const finishedActivitiesContainer = document.getElementById('finishedActivitiesContainer');
+    finishedActivitiesContainer.innerHTML = '';
+    const activitiesForPhase = {};
+
+    // Group activities by phase
+    for (const activity of activities) {
+        if (!activitiesForPhase[activity.projectData.phase]) {
+            activitiesForPhase[activity.projectData.phase] = [activity];
+        } else {
+            activitiesForPhase[activity.projectData.phase].push(activity);
+        }
+    }
+
+    // Iterate over each phase and its activities
+    for (const [phase, phaseActivities] of Object.entries(activitiesForPhase)) {
+        // Create a header for the phase
+        const phaseParagraph = document.createElement('p');
+        phaseParagraph.classList.add("mt-2", "text-secondary", "font-semibold", "bg-secondary", "text-white", "inline-block", "rounded-md", "p-1");
+        phaseParagraph.innerText = phase;
+        finishedActivitiesContainer.appendChild(phaseParagraph);
+
+        // Iterate over each activity in the phase
+        for (const activity of phaseActivities) {
+            // Create a new div for each project
+            const activityDiv = document.createElement('div');
+            activityDiv.classList.add("w-full", "flex", "items-center", "mt-2", "text-secondary", "font-semibold");
+
+            const users = await window.getUsers(activity.users);
+            let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat);
+            let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat);
+
+            // Add content to the div
+            activityDiv.innerHTML = `
+                <!-- title -->
+                <div class="w-2/12 truncate">
+                    <span>${activity.title}</span>
                 </div>
-            </div>
-            <!-- info and edit buttons -->
-            <div class="w-1/12 border-l border-secondary">
-                <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
-            </div>
-        `;
-        const hr = document.createElement('hr');
-        hr.classList.add("border-gray-400", "border", "mt-px")
-
-        // Append the div to the parent container
-        finishedActivitiesContainer.appendChild(activityDiv);
-        finishedActivitiesContainer.appendChild(hr)
-
-        const infoButton = document.getElementById(`infoActivity${activityNumber}`);
-        infoButton.addEventListener('click', () => {
-            showInfoModal(activity)
-        });
-
-        const editButton = document.getElementById(`editActivity${activityNumber}`);
-        editButton.addEventListener('click', () => {
-            currentEditedActivity = activity
-            showEditActivityModal()
-        });
-
-        activityNumber++;
-    });
+                <!-- users -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
+                </div>
+                <!-- start -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${startString}</span>
+                </div>
+                <!-- deadline -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <span class="ml-1">${deadlineString}</span>
+                </div>
+                <!-- milestone or not-->
+                <div class="w-1/12 border-l border-secondary truncate">
+                    <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
+                </div>
+                <!-- status -->
+                <div class="w-2/12 border-l border-secondary truncate">
+                    <div class="ml-1">
+                        ${activity.projectData.status}
+                    </div>
+                </div>
+                <div class="w-1/12 border-l border-secondary">
+                    <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                    <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                </div>
+            `;
+            const hr = document.createElement('hr');
+            hr.classList.add("border-gray-400", "border", "mt-px")
+    
+            // Append the div to the parent container
+            finishedActivitiesContainer.appendChild(activityDiv);
+            finishedActivitiesContainer.appendChild(hr)
+    
+            const infoButton = document.getElementById(`infoActivity${activityNumber}`);
+            infoButton.addEventListener('click', () => {
+                showInfoModal(activity)
+            });
+    
+            const editButton = document.getElementById(`editActivity${activityNumber}`);
+            editButton.addEventListener('click', () => {
+                currentEditedActivity = activity
+                showEditActivityModal()
+            });
+    
+            activityNumber++;
+        }
+    }
 }
 
 const editedActivityUsers = []
@@ -381,31 +444,17 @@ function closeEditActivityModal() {
 
 function goToOverviewPage() {
     overviewPage.classList.remove("hidden")
-    listPage.classList.add("hidden")
     ganttPage.classList.add("hidden")
     // highlight overview title
     overviewTitle.classList.add("border-b-4", "border-secondary")
-    listTitle.classList.remove("border-b-4", "border-secondary")
-    ganttTitle.classList.remove("border-b-4", "border-secondary")
-}
-
-function goToListPage() {
-    overviewPage.classList.add("hidden")
-    listPage.classList.remove("hidden")
-    ganttPage.classList.add("hidden")
-    // highlight list title
-    overviewTitle.classList.remove("border-b-4", "border-secondary")
-    listTitle.classList.add("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
 }
 
 function goToGanttPage() {
     overviewPage.classList.add("hidden")
-    listPage.classList.add("hidden")
     ganttPage.classList.remove("hidden")
     // highlight gantt title
     overviewTitle.classList.remove("border-b-4", "border-secondary")
-    listTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.add("border-b-4", "border-secondary")
 }
 

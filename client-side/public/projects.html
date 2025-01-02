@@ -68,13 +68,7 @@
                             <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
                             <span>Overview</span>
                           </button>
-                        </div> 
-                        <div id="listTitle" class="px-4" :class="{'border-b-4 border-secondary': inList, 'border-0': !inList}">
-                          <button onclick="goToListPage()" class="flex justify-start items-center">
-                            <img src="./assets/list.png" alt="list" class="w-5 mr-1">
-                            <span>List</span>
-                          </button>
-                        </div> 
+                        </div>
                         <div id="ganttTitle" class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}">
                           <button onclick="goToGanttPage()" class="flex justify-start items-center">
                             <img src="./assets/gantt.png" alt="gantt" class="w-5 mr-1">
@@ -119,9 +113,6 @@
                       <div id="finishedActivitiesContainer">
                       </div>
                     </div>
-
-                    <!-- list page -->
-                    <div class="hidden" id="listPage">LIST PAGE</div>
 
                     <!-- gantt page -->
                     <div class="hidden" id="ganttPage">GANTT PAGE</div>
