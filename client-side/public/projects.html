@@ -86,6 +86,46 @@
                         <span>Add activity</span>
                       </button>
 
+                  <!-- subnavbar project view -->
+                  <div class="absolute bottom-0 flex pl-10 text-secondary font-semibold">
+                    <div id="settingsTitle" class="px-4" :class="{'border-b-4 border-secondary': inSettings, 'border-0': !inSettings}">
+                      <button onclick="goToSettingsPage()" class="flex justify-start items-center">
+                        <img src="./assets/settings.png" alt="overview" class="w-5 mr-1">
+                        <span>Settings</span>
+                      </button>
+                    </div>  
+                    <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
+                        <button onclick="goToOverviewPage()" class="flex justify-start items-center">
+                          <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
+                          <span>Overview</span>
+                        </button>
+                      </div>
+                      <div id="ganttTitle" class="px-4" :class="{'border-b-4 border-secondary': inGantt, 'border-0': !inGantt}">
+                        <button onclick="goToGanttPage()" class="flex justify-start items-center">
+                          <img src="./assets/gantt.png" alt="gantt" class="w-5 mr-1">
+                          <span>Gantt</span>
+                        </button>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="relative h-5/6 w-full">
+
+                  <!-- settings page -->
+                  <div class="hidden w-full h-full" id="settingsPage"></div>
+
+                  <!-- overview page -->
+                  <div id="overviewPage" class="px-10">
+                    <button @click="toggleAddActivityModal" class="flex items-center bg-white rounded-lg border border-third px-2 py-1 mt-4">
+                      <img src="./assets/add.png" class="mr-2 h-3.5 w-3.5">
+                      <span>Add activity</span>
+                    </button>
+
+                    <!-- Todo -->
+                    <h2 class="font-bold text-2xl mt-6 text-secondary">To do</h2>
+                    <hr class="border-secondary border">
+                    <div id="todoActivitiesContainer">
+                    </div>
                       <div class="w-full flex mt-4 border-secondary border-t border-b py-1">
                         <div class="w-2/12"><span class="font-semibold text-secondary">Activity name</span></div>
                         <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">In charge</span></div>
@@ -114,12 +154,12 @@
                       </div>
                     </div>
 
-                    <!-- gantt page -->
-                    <div class="hidden" id="ganttPage">GANTT PAGE</div>
-                </div> 
-              </div> 
-            </div>
-        </div>
+                  <!-- gantt page -->
+                  <div class="hidden p-2" id="ganttPage"></div>
+            </div> 
+          </div> 
+
+        </div> 
 
         <!-- Create project -->
         <modal-component id="createProjectModal">
