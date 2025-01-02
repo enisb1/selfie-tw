@@ -472,6 +472,9 @@ function goToGanttPage() {
     settingsTitle.classList.remove("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.add("border-b-4", "border-secondary")
+    ritardCalc(currentProject._id, currentProject.start)
+    createGrid(currentProject._id, currentProject.start)
+    createSettingsPage(currentProject._id, currentProject.name, currentProject.start, currentProject.description)
 }
 
 // HOME VIEW
@@ -506,10 +509,7 @@ function displayProjects(projects) {
 
         // Add click listener to the project div
         projectDiv.addEventListener('click', () => {
-            goToProjectView(project)
-            ritardCalc(project._id, project.start)
-            createGrid(project._id, project.start)
-            createSettingsPage(project._id, project.name, project.start, project.description)
+            goToProjectView(project);
         });
         
         // Append the div to the parent container
