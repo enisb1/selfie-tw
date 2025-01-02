@@ -17,8 +17,6 @@ const infoDateFormat = {
     hour12: false // (12 hour format)
 }
 
-
-
 // PROJECT VIEW
 //--------------------------------------------------------------
 const overviewPage = document.getElementById('overviewPage');
@@ -448,12 +446,10 @@ function closeEditActivityModal() {
 function goToSettingsPage() {
     settingsPage.classList.remove("hidden")
     overviewPage.classList.add("hidden")
-    listPage.classList.add("hidden")
     ganttPage.classList.add("hidden")
     // highlight overview title
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
-    listTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
 }
 
@@ -510,14 +506,10 @@ function displayProjects(projects) {
 
         // Add click listener to the project div
         projectDiv.addEventListener('click', () => {
-            // Handle the click event
-            console.log(`Project clicked: ${project.name}`);
-            // You can add more actions here, such as navigating to a project detail page
-            goToProjectView(project._id, project.name)
+            goToProjectView(project)
             ritardCalc(project._id, project.start)
             createGrid(project._id, project.start)
             createSettingsPage(project._id, project.name, project.start, project.description)
-            goToProjectView(project)
         });
         
         // Append the div to the parent container
@@ -825,9 +817,6 @@ function addDurationToDate(isoDate, duration) {
     return date.toISOString();
 }
 
-
-
-
 let newDeadline = [];
 async function ritardCalc(projectId, projectStart){
     const project = await window.getActivitiesByProject(projectId);
@@ -1118,9 +1107,6 @@ async function createGrid(projectId, projectStart) {
 
 //SETTINGS
 //---------------------------------------------------------------------
-
-
-
 function createSettingsPage(projectId, nameProject, startProject, descriptionProject){
     settingsPage.innerHTML = ''
     const titleProject = document.createElement("div");
@@ -1131,7 +1117,5 @@ function createSettingsPage(projectId, nameProject, startProject, descriptionPro
 
 
     settingsPage.appendChild(titleProject);
-
-}
 
 }
