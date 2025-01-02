@@ -2,6 +2,7 @@
 module.exports = {
   content: [
     "./public/*.html",
+    "./public/*.js",
     "./pages/*.html",
     "./script/*.js",
     "./src/views/*.vue",

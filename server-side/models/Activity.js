@@ -1,10 +1,12 @@
 import mongoose from 'mongoose';
 
 const projectDataSchema = new mongoose.Schema({
+    startDate: Date,
     projectId: String,
     isMilestone: Boolean,
-    subActivities: [String],
+    phase: String,
     status: String,
+    contracts: Boolean  // true -> contracts if delay happens, false -> translates
 });
 
 const activitySchema = new mongoose.Schema({
