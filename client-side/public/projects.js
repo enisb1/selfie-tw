@@ -39,8 +39,18 @@ function goToProjectView(project) {
     projectViewName.innerHTML = project.name
 }
 
-async function updateProjectActivities() {
-    const activities = await window.getActivitiesByProject(currentProject._id)
+async function updateProjectActivities(alphabeticalOrder) {
+    let activities = await window.getActivitiesByProject(currentProject._id)
+    if (alphabeticalOrder) {
+        activities = activities.sort((a, b) => {
+            const usersA = [...a.users].sort().join(","); // Sort and join for comparison
+            const usersB = [...b.users].sort().join(",");
+            return usersA.localeCompare(usersB); // Compare alphabetically
+        });
+    }
+    else {
+        activities = activities.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
+    }
     activityNumber = 0
     displayToDoActivities(activities.filter(activity => activity.projectData.status === 'activable' || activity.projectData.status === 'waitingActivable'))
     displayInProgressActivities(activities.filter(activity => activity.projectData.status === 'active' || activity.projectData.status === 'reactivated' || activity.projectData.status === 'overdue'))
@@ -314,6 +324,26 @@ async function displayCompletedActivities(activities) {
 const editedActivityUsers = []
 const editedActivityIds = []
 
+function onClickAlphabetOrderButton() {
+    const alphabetOrderButton = document.getElementById("alphabetOrderButton")
+    const alphabetOrderImageBlack = document.getElementById("alphabetOrderBlack")
+    const alphabetOrderImageWhite = document.getElementById("alphabetOrderWhite")
+    if (alphabetOrderButton.classList.contains("bg-white")) {
+        alphabetOrderButton.classList.remove("bg-white")
+        alphabetOrderButton.classList.add("bg-secondary")
+        alphabetOrderImageBlack.classList.add("hidden")
+        alphabetOrderImageWhite.classList.remove("hidden")
+        updateProjectActivities(true)
+    }
+    else {
+        alphabetOrderButton.classList.remove("bg-secondary")
+        alphabetOrderButton.classList.add("bg-white")
+        alphabetOrderImageBlack.classList.remove("hidden")
+        alphabetOrderImageWhite.classList.add("hidden")
+        updateProjectActivities(false)
+    }
+}
+
 async function showInfoModal(activity) {
     const modal = document.getElementById('infoActivityModal');
     if (modal) {
@@ -443,6 +473,7 @@ function closeEditActivityModal() {
         modal.close()
     }
 }
+
 function goToSettingsPage() {
     settingsPage.classList.remove("hidden")
     overviewPage.classList.add("hidden")
@@ -452,7 +483,6 @@ function goToSettingsPage() {
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
 }
-
 
 function goToOverviewPage() {
     overviewPage.classList.remove("hidden")
