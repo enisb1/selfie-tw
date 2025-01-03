@@ -43,11 +43,11 @@ export async function getResourcesEvents() {
 }
 
 // post event to db
-export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users, resources,
+export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users, creator,resources,
     notify15Before, notify30Before, notify1HourBefore, notify1DayBefore) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "location": location, "startDate": start,
         "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, 
-        "repetitionDate": repetitionDate, "color": color, "users": users, "resources": resources,
+        "repetitionDate": repetitionDate, "color": color, "users": users, "creator": creator, "resources": resources,
         "notify15Before": notify15Before, "notify30Before": notify30Before, "notify1HourBefore": notify1HourBefore, 
         "notify1DayBefore": notify1DayBefore}
     )
@@ -57,12 +57,13 @@ export async function postEvent(title, location, start, end, frequency, repetiti
 }
 
 // post event to db
-export async function postActivity(title, deadline, userIds) {
+export async function postActivity(title, deadline, userIds, myId) {
     await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
-        "isDone": false, "users": userIds}
+        "isDone": false, "users": userIds, "creator": myId}
     )
     .then(({data}) => {
         console.log(data);
+        return data.data;
     })
 }
 

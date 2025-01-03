@@ -38,6 +38,8 @@
         icon.value = '🔔';
       } else if (props.type === 'message') {
         icon.value = '📩';
+      } else if (props.type === 'invite') {
+        icon.value = '📨';
       }
 
       return {

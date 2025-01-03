@@ -55,3 +55,30 @@ export async function readNotification(id) {
         throw error.response.data;
     }
 }
+
+// accept activity invite
+export async function acceptInvite(id,userId,notificationId,type) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/notifications/acceptInvite`, {
+            id: id,
+            userId: userId,
+            notificationId: notificationId,
+            type: type
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}
+
+// decline activity invite
+export async function declineInvite(id) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/notifications/declineInvite`, {
+            id: id,
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}

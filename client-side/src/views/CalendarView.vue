@@ -243,7 +243,7 @@ import WeeklyCalendar from '@/components/Calendar/Weekly/WeeklyCalendar.vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { getResources, postEvent, getEventsByResource } from '@/apis/calendar';
+import {getResources, postEvent, getEventsByResource} from '@/apis/calendar';
 import { getCurrentInstance, onMounted, nextTick } from 'vue';
 import { postActivity } from '@/apis/calendar';
 import { ref, computed } from 'vue';
@@ -365,6 +365,7 @@ export default {
 
         // process selectedUsers to get users and resources
         const users = newEventSelectedUsers.value.filter(obj => obj.firstName) // fetch only users
+        let usersIds = []
         // send invite to users
         for (const user of users) {
           const repeatedDatesArray = await getUnavailableRepeatedDates(user._id)
@@ -378,7 +379,7 @@ export default {
             }
           }
           if (sendInvite) {
-            // TODO: send invite to user
+            usersIds.push(user._id)
           }
         }
         // calculate available and not available resources
@@ -408,7 +409,7 @@ export default {
         }
         await postEvent(eventToAddTitle.value, eventToAddLocation.value, eventToAddStartDate.value, eventToAddEndDate.value, 
         eventToAddFrequency.value, eventToAddRepetitionNumber.value,
-        eventToAddRepetitionDate.value, selectedColor.value, [store.state._id], availableResources.map(r => r._id),
+        eventToAddRepetitionDate.value, selectedColor.value, usersIds, store.state._id, availableResources.map(r => r._id),
         notify15Before.value, notify30Before.value, notify1HourBefore.value, notify1DayBefore.value)
         updateAllCalendars()
         toggleAddModal();
@@ -498,9 +499,7 @@ export default {
     const newActivitySelectedUsers = ref()
 
     const addActivity = async () => {
-      // newActivitySelectedUsers contains the users to invite
-      // TODO: invite them!
-      await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
+      await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [...newActivitySelectedUsers.value.map(u => u._id)], store.state._id)
       updateAllCalendars()
       toggleAddModal()
     }
@@ -527,7 +526,7 @@ export default {
         const events = await getEventsFromIcsString(icsContent)
         for (const event of events) {
           await postEvent(event.title, event.location, event.startDate, event.endDate, event.frequency, 
-            event.repetitionNumber, event.repetitionDate, '#3c4f76', event.users, [], false, false, false, false)
+            event.repetitionNumber, event.repetitionDate, '#3c4f76', event.users, store.state._id, false, false, false, false)
         }
       }
     };

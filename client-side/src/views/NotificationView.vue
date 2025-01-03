@@ -26,8 +26,17 @@
         <span class="text-2xl font-semibold">{{ icon }}</span>
         <h1 class="text-2xl font-semibold text-secondary mb-6">{{selectedNotification.title}}</h1>
         <p class="text-secondary">{{ selectedNotification.text }}</p>
-        <span class="text-xs text-third block">{{ moment(selectedNotification.time).forma }}</span>
-        <button class="bg-third text-primary p-2 m-2 rounded-lg" v-if="selectedNotification.type=='message'" @click="openSendMessageModal" >Rispondi</button>
+        <span class="text-xs text-third block">{{ selectedNotification.time }}</span>
+        <button class="bg-third text-primary p-2 m-2 rounded-lg" v-if="selectedNotification.type==='message'" @click="openSendMessageModal" >Rispondi</button>
+        <button
+            @click="accept(selectedNotification.data.id,selectedNotification._id,selectedNotification.data.type)"
+            v-if="selectedNotification.type === 'invite'"
+            class="bg-green-700 text-primary p-2 m-2 rounded-lg"
+        >Accept</button>
+        <button
+            @click="decline(selectedNotification._id)"
+            class="bg-red-600 text-primary p-2 m-2 rounded-lg"
+        >Decline</button>
       </Modal>
 
       <Modal v-if="showSendMessageModal" @close="closeSendMessageModal()">
@@ -53,7 +62,13 @@
   import {computed, onMounted, ref, watchEffect} from 'vue';
   import {getAllUsers} from "@/apis/users";
   import user from "../../../server-side/models/User";
-  import {getNewNotifications, readNotification, sendNotification} from "@/apis/notifications";
+  import {
+    acceptInvite,
+    declineInvite,
+    getNewNotifications,
+    readNotification,
+    sendNotification
+  } from "@/apis/notifications";
   import {useStore} from "vuex";
   
   export default {
@@ -97,6 +112,8 @@
             return '🚨';
           case 'calendar':
             return '📅';
+          case 'invite':
+            return '📨';
           default:
             return 'ℹ️';
         }
@@ -137,6 +154,7 @@
 
           sendNotification(store.state.username,selectedRecipient.value, text.value);
           closeSendMessageModal();
+          closeModal();
         } else {
           console.log("Seleziona un destinatario");
         }
@@ -149,6 +167,18 @@
         }
         store.state.pushNotification = null
       })
+
+      const accept = (id,notificationId,type) => {
+        acceptInvite(id,store.state._id,notificationId,type)
+        closeModal();
+        removeNotification(notificationId);
+      }
+
+      const decline = (notificationId) => {
+        declineInvite(notificationId)
+        closeModal();
+        removeNotification(notificationId);
+      }
 
 
       return {
@@ -165,7 +195,9 @@
         selectedRecipient,
         sendMessage,
         text,
-        icon
+        icon,
+        accept,
+        decline
       }
 
     }

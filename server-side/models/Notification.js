@@ -8,7 +8,8 @@ const notificationSchema = new mongoose.Schema({
     read: Boolean,
     title: String,
     text: String,
-    type: String
+    type: String,
+    data: Object
 });
 
 // model created from schema

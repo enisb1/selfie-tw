@@ -3,6 +3,10 @@ import Event from '../models/Event.js'
 import Activity from '../models/Activity.js'
 import Resource from '../models/Resource.js';
 import mongoose, { mongo } from 'mongoose';
+import User from "../models/User.js";
+import Notification from "../models/Notification.js";
+import {wsConnectionHandler} from "../server-deploy.js";
+import {Message} from "../ws/wsHandler.js";
 
 const router = Router();
 
@@ -10,8 +14,26 @@ const router = Router();
 
 router.post("/addEvent", async (req, res) => {
     try {
-        const event = new Event(req.body);
+        const event = new Event(
+            {
+                title: req.body.title,
+                location: req.body.location,
+                startDate: req.body.startDate,
+                endDate: req.body.endDate,
+                frequency: req.body.frequency,
+                repetitionNumber: req.body.repetitionNumber,
+                repetitionDate: req.body.repetitionDate,
+                color: req.body.color,
+                users: [req.body.creator],
+                resources: req.body.resources,
+                notify15Before: req.body.notify15Before,
+                notify30Before: req.body.notify30Before,
+                notify1HourBefore: req.body.notify1HourBefore,
+                notify1DayBefore: req.body.notify1DayBefore
+            }
+        );
         await event.save();
+        await sendEventNotificationToUsers(event, req.body.users, req.body.creator);
         res.status(201).json({ message: 'Data saved successfully' });
     }catch (error) {
         console.error('Error saving data:', error);
@@ -19,16 +41,74 @@ router.post("/addEvent", async (req, res) => {
     }
 });
 
+//TODO: sposta questa funzione da qui
+async function sendEventNotificationToUsers(event, users, creator) {
+    for (const userId of users) {
+        const user = await User.findOne({_id: userId});
+        const notification = new Notification({
+            sender: creator,
+            receiver: user.username,
+            time: new Date(),
+            read: false,
+            title: event.title,
+            text: `You have been invited to the event: ${event.title}`,
+            type: "invite",
+            data: {
+                type: "event",
+                id: event._id,
+                status: "pending"
+            }
+        });
+        await notification.save();
+        wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+    }
+}
+
 router.post("/addActivity", async (req, res) => {
     try {
-        const activity = new Activity(req.body);
+
+        const activity = new Activity({
+            title: req.body.title,
+            deadline: req.body.deadline,
+            isDone: false,
+            users: [req.body.creator]
+            }
+        );
         await activity.save();
-        res.status(201).json({ message: 'Data saved successfully' });
+        // TODO: send notification to users
+        await sendActivityNotificationToUsers(activity, req.body.users, req.body.creator);
+
+        res.status(201).json({ message: 'Data saved successfully', data: activity });
     }catch (error) {
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+// TODO: sposta questa funzione da qui
+async function sendActivityNotificationToUsers(activity, users,creator) {
+    for (const userId of users) {
+        const user = await User.findOne({_id: userId});
+        const notification = new Notification({
+            sender: creator,
+            receiver: user.username,
+            time: new Date(),
+            read: false,
+            title: activity.title,
+            text: `You have been invited to the activity: ${activity.title}`,
+            type: "invite",
+            data: {
+                type: "activity",
+                id: activity._id,
+                status: "pending"
+            }
+        });
+        await notification.save();
+        wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+
+    }
+}
+
 
 // retrieve all events from db (//TODO: if not used delete this)
 router.get("/events/:userId", async (req, res) => {
