@@ -6,7 +6,8 @@ const projectDataSchema = new mongoose.Schema({
     isMilestone: Boolean,
     phase: String,
     status: String,
-    contracts: Boolean  // true -> contracts if delay happens, false -> translates
+    contracts: Boolean,  // true -> contracts if delay happens, false -> translates
+    previous: String    // id of previous activity (synced)
 });
 
 const activitySchema = new mongoose.Schema({

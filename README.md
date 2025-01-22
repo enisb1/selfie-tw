@@ -18,7 +18,7 @@ The schedules are events/activities, schedules is a name we came up to identify 
 nagivate to client side folder\
 npx tailwindcss -i "src/styles/tailwind.css" -o "src/styles/output.css" --watch\
 if you don't want to --watch:\
-npx tailwindcss build -i ""./src/styles/tailwind.css" -o "src/styles/output.css"\
+npx tailwindcss build -i "./src/styles/tailwind.css" -o "src/styles/output.css"\
 copy output file in public directory in order to serve it to client when accessing projects.html, or run same command with output.css in public folder
 
 ### Activities' possible status

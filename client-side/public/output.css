@@ -948,6 +948,10 @@ video {
   margin-top: 1px;
 }
 
+.box-border {
+  box-sizing: border-box;
+}
+
 .block {
   display: block;
 }
@@ -1962,6 +1966,10 @@ video {
 
 .pt-2 {
   padding-top: 0.5rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
 }
 
 .text-left {

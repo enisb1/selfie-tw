@@ -419,7 +419,7 @@ function updateEditedActivityAddedUsersInput() {
     addedUsernamesInput.value = editedActivityUsers.join(', ')
 }
 
-function showEditActivityModal() {
+async function showEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
     if (modal) {
         //TODO: se sei CAPO PROGETTO puoi decidere se l'attività TRASLA O CONTRAE
@@ -457,6 +457,17 @@ function showEditActivityModal() {
             option.textContent = status;
             statusSelect.appendChild(option);
         });
+
+        // previous activity select
+        let activities = await window.getActivitiesByProject(currentProject._id)
+        const selectElement = document.getElementById('previousActivitySelectEdit');
+        activities.forEach((activity) => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify(activity);
+            opt.textContent = activity.title;
+            selectElement.appendChild(opt);
+        });
+        selectElement.value = JSON.stringify(activities.find(activity => currentEditedActivity.projectData.previous == activity._id))
     }
 }
 
@@ -649,13 +660,21 @@ function updateNewProjectUsersInput() {
 const newActivityUsers = [];
 const newActivityIds = [];
 
-function showAddActivityModal() {
+async function showAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
     if (modal) {
         modal.open()
         newActivityUsers.length = 0
         document.getElementById('addActivityForm').reset();
         document.getElementById('activityToAddError').innerHTML = ''
+        let activities = await window.getActivitiesByProject(currentProject._id)
+        const selectElement = document.getElementById('previousActivitySelectAdd');
+        activities.forEach((activity) => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify(activity);
+            opt.textContent = activity.title;
+            selectElement.appendChild(opt);
+        });
     }
 }
 
@@ -678,6 +697,10 @@ flatpickr(activityToAddDeadlineElem, {
     dateFormat: "Y-m-d H:i",
 });
 
+function isValidDate(date) {
+    return date instanceof Date && !isNaN(date.getTime());
+}
+
 // add activity form submit
 document.getElementById('addActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
@@ -693,10 +716,12 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     const projectEnd = new Date(currentProject.end)
     const activityToAddDeadlineValue = new Date(activityToAddDeadlineElem.value)
     const activityToAddStartValue = new Date(activityToAddStartElem.value)
-    if (activityToAddStartValue === '') {
+    const previousActivitySelect = document.getElementById("previousActivitySelectAdd")
+    const previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
+    if (!isValidDate(activityToAddStartValue)) {
         activityToAddError.innerHTML = "Start date is needed"
     }
-    else if (activityToAddDeadlineValue === '') {
+    else if (!isValidDate(activityToAddStartValue)) {
         activityToAddError.innerHTML = "Deadline is needed"
     }
     else if (activityToAddStartValue.getTime() <= projectStart.getTime()
@@ -710,6 +735,14 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     else if (activityToAddDeadlineValue.getTime() <= activityToAddStartValue.getTime()) {
         activityToAddError.innerHTML = "Deadline must be after activity's start"
     }
+    else if (previousActivitySelectValue!= 'Select previous activity' && 
+            previousActivitySelectValue.projectData.phase !== activityToAddPhase.value) {
+        activityToAddError.innerHTML = "Synced activities must have the same phase"
+    }
+    else if (previousActivitySelectValue!= 'Select previous activity' && 
+            new Date(previousActivitySelectValue.deadline).getTime() > activityToAddStartValue.getTime()) {
+        activityToAddError.innerHTML = "New activity must start after previous activity's deadline"
+    }
     else {
         const activityUsers = newActivityIds.concat(state._id)
         //TODO: set correct status based on previous activity (if previous activity is done it means
@@ -721,7 +754,8 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
             isMilestone: activityToAddIsMilestone.checked,
             phase: activityToAddPhase.value,
             status: 'activable',
-            contracts: activityToAddContracts.checked
+            contracts: activityToAddContracts.checked,
+            previous: previousActivitySelect.value? JSON.parse(previousActivitySelect.value)._id : null
         }
         const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
             activityUsers, projectData)

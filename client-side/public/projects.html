@@ -53,7 +53,7 @@
               <div id="projectLayout" class="hidden fixed right-0 w-full h-full bg-primary overflow-y-scroll">
                 <!-- header section -->
                 <div class="relative h-1/6 w-full border-b-2 border-secondary">
-                    <div class="pl-8 mt-4">
+                    <div class="pl-8 pt-4">
                       <button onclick="goToHomeView()"><img class="w-6 h-6" src="./assets/returnButton.png"></button>
                     </div>
 
@@ -260,6 +260,10 @@
                     <input id="activityToAddContracts" type="checkbox">
                   </div>
 
+                  <select id="previousActivitySelectAdd" class="mt-4">
+                    <option value="">Select previous activity</option>
+                  </select>
+
                   <div id="activityToAddError" class="bg-red-400 text-white font-bold mt-2 
                   inline px-2 text-center mx-auto"></div>
           
@@ -376,6 +380,10 @@
                 <p class="font-semibold text-base">Contracts if previous activity is overdue</p>
                 <input id="activityToEditContracts" type="checkbox">
               </div>
+
+              <select id="previousActivitySelectEdit" class="mt-4">
+                <option value="">None</option>
+              </select>
 
               <div id="activityToEditError" class="bg-red-400 text-white font-bold mt-2 
                   inline px-2 text-center mx-auto"></div>
