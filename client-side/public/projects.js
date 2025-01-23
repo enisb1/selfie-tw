@@ -394,24 +394,38 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
     // prevent default refresh
     event.preventDefault();
 
-    // add activity
-    const newActivity = structuredClone(currentEditedActivity)
-    // check what is not empty and update that  
-    // update activities list
-    newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
-    newActivity.title = document.getElementById("activityToEditTitle").value
-    newActivity.projectData.phase = document.getElementById("activityToEditPhase").value
-    newActivity.users = newActivity.users.concat(editedActivityIds)
-    newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
-    newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
-    // set correct isDone
-    if (newActivity.projectData.status == 'done')
-        newActivity.isDone = true
-    else
-        newActivity.isDone = false
-    await window.editActivity(newActivity._id, newActivity)
-    updateProjectActivities()
-    closeEditActivityModal()
+    const activityToEditError = document.getElementById("activityToEditError")
+    const previousActivitySelect = document.getElementById("previousActivitySelectEdit")
+    const previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
+    console.log(previousActivitySelectValue)
+    if (previousActivitySelectValue != 'Select previous activity' && 
+            previousActivitySelectValue.projectData.phase !== currentEditedActivity.projectData.phase) {
+                activityToEditError.innerHTML = "Synced activities must have the same phase"
+    }
+    else if (previousActivitySelectValue!= 'Select previous activity' && 
+            new Date(previousActivitySelectValue.deadline).getTime() > new Date(currentEditedActivity.projectData.startDate).getTime()) {
+                activityToEditError.innerHTML = "New activity must start after previous activity's deadline"
+    }
+    else {
+        // add activity
+        const newActivity = structuredClone(currentEditedActivity)
+        // check what is not empty and update that  
+        // update activities list
+        newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
+        newActivity.title = document.getElementById("activityToEditTitle").value
+        newActivity.users = newActivity.users.concat(editedActivityIds)
+        newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
+        newActivity.projectData.previous = previousActivitySelectValue!= 'Select previous activity'? previousActivitySelectValue._id : null
+        newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
+        // set correct isDone
+        if (newActivity.projectData.status == 'done')
+            newActivity.isDone = true
+        else
+            newActivity.isDone = false
+        await window.editActivity(newActivity._id, newActivity)
+        updateProjectActivities()
+        closeEditActivityModal()
+    }
 });
 
 function updateEditedActivityAddedUsersInput() {
@@ -430,7 +444,6 @@ async function showEditActivityModal() {
         document.getElementById('editActivityForm').reset();
         document.getElementById("activityToEditError").innerHTML = ''
         document.getElementById("activityToEditTitle").value = currentEditedActivity.title
-        document.getElementById("activityToEditPhase").value = currentEditedActivity.projectData.phase
         document.getElementById("activityToEditIsMilestone").checked = currentEditedActivity.projectData.isMilestone
         document.getElementById("activityToEditContracts").checked = currentEditedActivity.projectData.contracts
         const statusSelect = document.getElementById("activityToEditStatusSelect")
@@ -459,15 +472,19 @@ async function showEditActivityModal() {
         });
 
         // previous activity select
-        let activities = await window.getActivitiesByProject(currentProject._id)
+        const activities = await window.getActivitiesByProject(currentProject._id)
+        let activitiesSamePhase = activities.filter(activity => activity.projectData.phase == currentEditedActivity.projectData.phase)
         const selectElement = document.getElementById('previousActivitySelectEdit');
-        activities.forEach((activity) => {
+        selectElement.innerHTML = '' // reset from previous options
+        const opt = document.createElement('option');
+        opt.value = 'Select previous activity';
+        activitiesSamePhase.forEach((activity) => {
             const opt = document.createElement('option');
             opt.value = JSON.stringify(activity);
             opt.textContent = activity.title;
             selectElement.appendChild(opt);
         });
-        selectElement.value = JSON.stringify(activities.find(activity => currentEditedActivity.projectData.previous == activity._id))
+        selectElement.value = JSON.stringify(activitiesSamePhase.find(activity => currentEditedActivity.projectData.previous == activity._id))
     }
 }
 
@@ -669,6 +686,9 @@ async function showAddActivityModal() {
         document.getElementById('activityToAddError').innerHTML = ''
         let activities = await window.getActivitiesByProject(currentProject._id)
         const selectElement = document.getElementById('previousActivitySelectAdd');
+        selectElement.innerHTML = '' // reset from previous options
+        const opt = document.createElement('option');
+        opt.value = 'Select previous activity';
         activities.forEach((activity) => {
             const opt = document.createElement('option');
             opt.value = JSON.stringify(activity);
