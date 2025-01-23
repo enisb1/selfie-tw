@@ -688,7 +688,9 @@ async function showAddActivityModal() {
         const selectElement = document.getElementById('previousActivitySelectAdd');
         selectElement.innerHTML = '' // reset from previous options
         const opt = document.createElement('option');
-        opt.value = 'Select previous activity';
+        opt.value = null
+        opt.textContent = 'Select previous activity';
+        selectElement.appendChild(opt);
         activities.forEach((activity) => {
             const opt = document.createElement('option');
             opt.value = JSON.stringify(activity);
@@ -737,7 +739,10 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     const activityToAddDeadlineValue = new Date(activityToAddDeadlineElem.value)
     const activityToAddStartValue = new Date(activityToAddStartElem.value)
     const previousActivitySelect = document.getElementById("previousActivitySelectAdd")
-    const previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
+    let previousActivitySelectValue = null
+    if (previousActivitySelect.value)
+        previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
+    // checks
     if (!isValidDate(activityToAddStartValue)) {
         activityToAddError.innerHTML = "Start date is needed"
     }
@@ -755,11 +760,11 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     else if (activityToAddDeadlineValue.getTime() <= activityToAddStartValue.getTime()) {
         activityToAddError.innerHTML = "Deadline must be after activity's start"
     }
-    else if (previousActivitySelectValue!= 'Select previous activity' && 
+    else if (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity' && 
             previousActivitySelectValue.projectData.phase !== activityToAddPhase.value) {
         activityToAddError.innerHTML = "Synced activities must have the same phase"
     }
-    else if (previousActivitySelectValue!= 'Select previous activity' && 
+    else if (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity' && 
             new Date(previousActivitySelectValue.deadline).getTime() > activityToAddStartValue.getTime()) {
         activityToAddError.innerHTML = "New activity must start after previous activity's deadline"
     }
@@ -775,7 +780,7 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
             phase: activityToAddPhase.value,
             status: 'activable',
             contracts: activityToAddContracts.checked,
-            previous: previousActivitySelect.value? JSON.parse(previousActivitySelect.value)._id : null
+            previous: previousActivitySelectValue? previousActivitySelectValue._id : null
         }
         const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
             activityUsers, projectData)
