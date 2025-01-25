@@ -84,7 +84,7 @@
                     </div>
                 </div>
 
-                <div class="relative w-full">
+                <div class="relative w-full pb-4">
                   <!-- settings page -->
                   <div class="hidden w-full h-full" id="settingsPage"></div>
 
@@ -324,8 +324,13 @@
               <p class="font-semibold text-base">Contracts if previous activity is overdue</p>
               <p id="infoActivityContracts"></p>
             </div>
+
+            <div class="mt-4">
+              <p class="font-semibold text-base">Previous activity (sync)</p>
+              <p id="infoActivityPrevious"></p>
+            </div>
             
-            <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+            <button id="infoActivityDelete" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
           </div>
         </modal-component>
@@ -389,7 +394,7 @@
               <div class="flex">
                 <button type="submit" class="w-1/2 mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
                   text-white shadow-sm ring-1 ring-inset ring-gray-300">Edit</button>
-                <button type="submit" class="w-1/2 ml-2 mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                <button type="button" id="editActivityDelete" class="w-1/2 ml-2 mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
                     text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
               </div>
             </div>

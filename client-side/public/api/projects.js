@@ -202,6 +202,25 @@ async function getActivitiesByIds(activityIds) {
     }
 }
 
+async function deleteActivity(activityId) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/calendar/activities/${activityId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error(`Error deleting activity: ${error.message}`);
+        throw error;
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -213,3 +232,4 @@ window.addActivityToProject = addActivityToProject;
 window.getUsers = getUsers;
 window.editActivity = editActivity;
 window.getActivitiesByIds = getActivitiesByIds;
+window.deleteActivity = deleteActivity;

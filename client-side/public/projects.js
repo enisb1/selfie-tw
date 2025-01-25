@@ -356,7 +356,18 @@ async function showInfoModal(activity) {
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
         document.getElementById('infoActivityContracts').innerHTML = activity.projectData.contracts? 'yes' : 'no'
-        //TODO: show phase
+        //TODO: show previous activity
+        let previousAct = null
+        if (activity.projectData.previous) {
+            const result = await window.getActivitiesByIds([activity.projectData.previous])
+            previousAct = result[0]
+        }
+        document.getElementById('infoActivityPrevious').innerHTML = previousAct? previousAct.title : 'none'
+        document.getElementById("infoActivityDelete").addEventListener('click', async () => {
+            await window.deleteActivity(activity._id)
+            updateProjectActivities()
+            closeInfoActivityModal()
+        })
         modal.open()
     }
 }
@@ -393,7 +404,7 @@ async function addUserToEditedActivityList() {
 document.getElementById('editActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
     event.preventDefault();
-
+    
     const activityToEditError = document.getElementById("activityToEditError")
     const previousActivitySelect = document.getElementById("previousActivitySelectEdit")
     const previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
@@ -477,14 +488,23 @@ async function showEditActivityModal() {
         const selectElement = document.getElementById('previousActivitySelectEdit');
         selectElement.innerHTML = '' // reset from previous options
         const opt = document.createElement('option');
-        opt.value = 'Select previous activity';
+        opt.value = null
+        opt.textContent = 'Select previous activity';
+        selectElement.appendChild(opt);
         activitiesSamePhase.forEach((activity) => {
             const opt = document.createElement('option');
             opt.value = JSON.stringify(activity);
             opt.textContent = activity.title;
             selectElement.appendChild(opt);
         });
+        // set current edited activity's previous activity
         selectElement.value = JSON.stringify(activitiesSamePhase.find(activity => currentEditedActivity.projectData.previous == activity._id))
+        
+        document.getElementById("editActivityDelete").addEventListener('click', async () => {
+            await window.deleteActivity(currentEditedActivity._id)
+            updateProjectActivities()
+            closeEditActivityModal()
+        })
     }
 }
 
@@ -778,7 +798,7 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
             projectId: currentProject._id,
             isMilestone: activityToAddIsMilestone.checked,
             phase: activityToAddPhase.value,
-            status: 'activable',
+            status: previousActivitySelectValue.isDone? 'activable' : 'waitingActivable',
             contracts: activityToAddContracts.checked,
             previous: previousActivitySelectValue? previousActivitySelectValue._id : null
         }
