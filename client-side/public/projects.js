@@ -356,6 +356,8 @@ async function showInfoModal(activity) {
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
         document.getElementById('infoActivityContracts').innerHTML = activity.projectData.contracts? 'yes' : 'no'
+        document.getElementById('infoActivityInput').innerHTML = (activity.projectData.input == '')? '*empty*' : activity.projectData.input
+        document.getElementById('infoActivityOutput').innerHTML = (activity.projectData.output == '')? '*empty*' : activity.projectData.output
         //TODO: show previous activity
         let previousAct = null
         if (activity.projectData.previous) {
@@ -363,11 +365,17 @@ async function showInfoModal(activity) {
             previousAct = result[0]
         }
         document.getElementById('infoActivityPrevious').innerHTML = previousAct? previousAct.title : 'none'
-        document.getElementById("infoActivityDelete").addEventListener('click', async () => {
-            await window.deleteActivity(activity._id)
-            updateProjectActivities()
-            closeInfoActivityModal()
-        })
+        
+        // Reset the click event listener for the delete button
+        const deleteButton = document.getElementById("infoActivityDelete");
+        const newDeleteButton = deleteButton.cloneNode(true);
+        deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
+        newDeleteButton.addEventListener('click', async () => {
+            await window.deleteActivity(activity._id);
+            updateProjectActivities();
+            closeInfoActivityModal();
+        });
+
         modal.open()
     }
 }
@@ -407,13 +415,15 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
     
     const activityToEditError = document.getElementById("activityToEditError")
     const previousActivitySelect = document.getElementById("previousActivitySelectEdit")
-    const previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
-    console.log(previousActivitySelectValue)
-    if (previousActivitySelectValue != 'Select previous activity' && 
+    let previousActivitySelectValue = null
+    if (previousActivitySelect.value)
+        previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
+
+    if (previousActivitySelectValue && previousActivitySelectValue != 'Select previous activity' && 
             previousActivitySelectValue.projectData.phase !== currentEditedActivity.projectData.phase) {
                 activityToEditError.innerHTML = "Synced activities must have the same phase"
     }
-    else if (previousActivitySelectValue!= 'Select previous activity' && 
+    else if (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity' && 
             new Date(previousActivitySelectValue.deadline).getTime() > new Date(currentEditedActivity.projectData.startDate).getTime()) {
                 activityToEditError.innerHTML = "New activity must start after previous activity's deadline"
     }
@@ -426,11 +436,16 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
         newActivity.title = document.getElementById("activityToEditTitle").value
         newActivity.users = newActivity.users.concat(editedActivityIds)
         newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
-        newActivity.projectData.previous = previousActivitySelectValue!= 'Select previous activity'? previousActivitySelectValue._id : null
+        newActivity.projectData.previous = (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity')? previousActivitySelectValue._id : null
         newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
+        newActivity.projectData.input = document.getElementById("activityToEditInput").value
+        newActivity.projectData.output = document.getElementById("activityToEditOutput").value
         // set correct isDone
-        if (newActivity.projectData.status == 'done')
+        if (newActivity.projectData.status == 'done') {
             newActivity.isDone = true
+            //TODO: all the activities that have this activity as previous must have status set to 'activable' if they're status is 'waitingActivable'
+            await window.updateWaitingActivable(newActivity._id, newActivity.projectData.output)
+        }
         else
             newActivity.isDone = false
         await window.editActivity(newActivity._id, newActivity)
@@ -452,29 +467,57 @@ async function showEditActivityModal() {
         modal.open()
         editedActivityUsers.length = 0
         editedActivityIds.length = 0
+        
         document.getElementById('editActivityForm').reset();
         document.getElementById("activityToEditError").innerHTML = ''
         document.getElementById("activityToEditTitle").value = currentEditedActivity.title
         document.getElementById("activityToEditIsMilestone").checked = currentEditedActivity.projectData.isMilestone
         document.getElementById("activityToEditContracts").checked = currentEditedActivity.projectData.contracts
+        document.getElementById("activityToEditInput").value = currentEditedActivity.projectData.input
+        document.getElementById("activityToEditOutput").value = currentEditedActivity.projectData.output
         const statusSelect = document.getElementById("activityToEditStatusSelect")
         statusSelect.innerHTML = '' // reset from previous options
         let statuses = []
+
         // modify statuses also for other values of status
-        if (currentEditedActivity.projectData.status == 'waitingActivable')
+        const inputContainer = document.getElementById("activityToEditInputContainer")
+        const outputContainer = document.getElementById("activityToEditOutputContainer")
+        if (currentEditedActivity.projectData.status == 'waitingActivable') {
             statuses = ['waitingActivable']
-        else if (currentEditedActivity.projectData.status == 'activable')
+            inputContainer.classList.add('hidden')
+            outputContainer.classList.add('hidden')
+        }   
+        else if (currentEditedActivity.projectData.status == 'activable') {
             statuses = ['activable', 'active', 'done']
-        else if (currentEditedActivity.projectData.status == 'active')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.add('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'active') {
             statuses = ['active', 'done']
-        else if (currentEditedActivity.projectData.status == 'reactivated')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'reactivated') {
             statuses = ['reactivated', 'done']
-        else if (currentEditedActivity.projectData.status == 'overdue')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'overdue') {
             statuses = ['overdue', 'done']
-        else if (currentEditedActivity.projectData.status == 'done')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'done') {
             statuses = ['done', 'reactivated'] //TODO: reactivated only if you are the project manager
-        else if (currentEditedActivity.projectData.status == 'discarded')
+            inputContainer.classList.add('hidden')
+            outputContainer.classList.add('hidden')
+        } 
+        else if (currentEditedActivity.projectData.status == 'discarded') {
             statuses = ['discarded']
+            inputContainer.classList.add('hidden')
+            outputContainer.classList.add('hidden')
+        }
+            
         statuses.forEach(status => {
             const option = document.createElement('option');
             option.value = status;
@@ -500,7 +543,10 @@ async function showEditActivityModal() {
         // set current edited activity's previous activity
         selectElement.value = JSON.stringify(activitiesSamePhase.find(activity => currentEditedActivity.projectData.previous == activity._id))
         
-        document.getElementById("editActivityDelete").addEventListener('click', async () => {
+        const deleteButton = document.getElementById("editActivityDelete");
+        const newDeleteButton = deleteButton.cloneNode(true);
+        deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
+        newDeleteButton.addEventListener('click', async () => {
             await window.deleteActivity(currentEditedActivity._id)
             updateProjectActivities()
             closeEditActivityModal()
@@ -720,6 +766,14 @@ async function showAddActivityModal() {
     }
 }
 
+document.getElementById('previousActivitySelectAdd').addEventListener('change', function(event) {
+    const select = event.target;
+    if (select.value != 'null')
+        document.getElementById('activityToAddInputContainer').classList.add('hidden');
+    else
+        document.getElementById('activityToAddInputContainer').classList.remove('hidden');
+})
+
 function closeAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
     if (modal) {
@@ -793,14 +847,22 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
         //TODO: set correct status based on previous activity (if previous activity is done it means
         //it has output, hence the new activity can be activable, else it must be waitingActivable)
         //TODO: make creation of set of activities possible
+        let actInput = '';
+        if (previousActivitySelectValue && previousActivitySelectValue.isDone)
+            actInput = previousActivitySelectValue.projectData.output
+        let actStatus = 'activable';
+        if (previousActivitySelectValue && !previousActivitySelectValue.isDone)
+            actStatus = 'waitingActivable';
         const projectData = {
             startDate: activityToAddStartValue,
             projectId: currentProject._id,
             isMilestone: activityToAddIsMilestone.checked,
             phase: activityToAddPhase.value,
-            status: previousActivitySelectValue.isDone? 'activable' : 'waitingActivable',
+            status: actStatus,
             contracts: activityToAddContracts.checked,
-            previous: previousActivitySelectValue? previousActivitySelectValue._id : null
+            previous: previousActivitySelectValue? previousActivitySelectValue._id : null,
+            input: actInput,
+            output: ''
         }
         const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
             activityUsers, projectData)

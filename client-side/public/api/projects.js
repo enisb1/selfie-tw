@@ -203,6 +203,7 @@ async function getActivitiesByIds(activityIds) {
 }
 
 async function deleteActivity(activityId) {
+    console.log(activityId)
     try {
         const response = await fetch(`http://localhost:8000/api/calendar/activities/${activityId}`, {
             method: 'DELETE'
@@ -221,6 +222,29 @@ async function deleteActivity(activityId) {
     }
 }
 
+async function updateWaitingActivable(activityId, output) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/updateWaitingActivable/${activityId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ output })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error(`Error updating activities: ${error.message}`);
+        throw error;
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -233,3 +257,4 @@ window.getUsers = getUsers;
 window.editActivity = editActivity;
 window.getActivitiesByIds = getActivitiesByIds;
 window.deleteActivity = deleteActivity;
+window.updateWaitingActivable = updateWaitingActivable;

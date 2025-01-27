@@ -66,4 +66,24 @@ router.get('/activitiesByProject/:projectId', async (req, res) => {
     }
   });
 
+// Update activities with previous activity equal to activityId and status 'waitingActivable'
+router.put("/updateWaitingActivable/:id", async (req, res) => {
+    const activityId = req.params.id;
+    const { output } = req.body; // Get the output from the request body
+    
+    try {
+        const result = await Activity.updateMany(
+            { 'projectData.previous': activityId, 'projectData.status': 'waitingActivable' },
+            { $set: { 'projectData.status': 'activable', 'projectData.input': output } }
+        );
+
+        res.status(200).json({
+            message: 'Activities updated successfully',
+            updatedCount: result.nModified
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating activities', error: error.message });
+    }
+});
+
 export default router;

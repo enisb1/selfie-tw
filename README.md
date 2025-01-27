@@ -22,12 +22,13 @@ npx tailwindcss build -i "./src/styles/tailwind.css" -o "src/styles/output.css"\
 copy output file in public directory in order to serve it to client when accessing projects.html, or run same command with output.css in public folder
 
 ### Activities' possible status
-• waitingActivable (non è ancora disponibile l'input relativo)\
-• activable (ma non attivata: l'input è presente ma l'attore non ha
+• waitingActivable (non è ancora disponibile l'input relativo, nel caso di attività che hanno una precedente)\
+• activable (attivabile ma l'attore non ha
 ancora dichiarato di averla iniziata) (status goes from waitingActivable to activable when previous activity
 finishes)\
 • active (l'attore ha dichiarato di averla iniziata)\
-• reactivated (il capo-progetto ha rifiutato l'output e ha richiesto revisioni)\
+• reactivated (il capo-progetto ha rifiutato l'output e ha richiesto revisioni) -> è come se fosse done, solo che ci sono
+delle revisioni da effettuare per renderla effettivamente di nuovo done\
 • overdue (la data di conclusione è passata ma l'output non è ancora
 disponibile)\
 • done (l'attore ha dichiarato di averla conclusa ed un output è
