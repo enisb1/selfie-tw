@@ -2546,6 +2546,10 @@ video {
     flex-direction: row;
   }
 
+  .sm\:items-start {
+    align-items: flex-start;
+  }
+
   .sm\:justify-normal {
     justify-content: normal;
   }

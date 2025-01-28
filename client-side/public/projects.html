@@ -62,7 +62,7 @@
                     </div>
 
                     <!-- subnavbar project view -->
-                    <div class="bottom-0 flex pl-10 text-secondary font-semibold mt-4">
+                    <div class="bottom-0 flex pl-8 text-secondary font-semibold mt-4">
                       <div id="overviewTitle" class="px-4" :class="{'border-b-4 border-secondary': inOverview, 'border-0': !inOverview}">
                         <button onclick="goToOverviewPage()" class="flex justify-start items-center">
                           <img src="./assets/overview.png" alt="overview" class="w-5 mr-1">
@@ -85,8 +85,41 @@
                 </div>
 
                 <div class="relative w-full pb-4">
+
                   <!-- settings page -->
-                  <div class="hidden w-full h-full" id="settingsPage"></div>
+                  <div class="hidden w-full h-full px-10 flex flex-col" id="settingsPage">
+                    <button class="mt-4 w-6 h-6 mr-2" id="editProjectButton"><img src="./assets/edit_vector.png"></img></button>
+
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">Name</p>
+                      <p id="settingsProjectName"></p>
+                    </div>
+
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">Description</p>
+                      <p id="settingsProjectDescription"></p>
+                    </div>
+
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">Start date</p>
+                      <p id="settingsProjectStart"></p>
+                    </div>
+
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">End date</p>
+                      <p id="settingsProjectEnd"></p>
+                    </div>
+
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">Owner</p>
+                      <p id="settingsProjectOwner"></p>
+                    </div>
+
+                    <div class="mt-4">
+                      <p class="font-semibold text-base">Users</p>
+                      <p id="settingsProjectUsers"></p>
+                    </div>
+                  </div>
 
                   <!-- overview page -->
                   <div id="overviewPage" class="px-10">
@@ -132,7 +165,68 @@
                   <!-- gantt page -->
                   <div class="hidden p-2" id="ganttPage"></div>
               </div> 
-            </div> 
+            </div>
+        
+        <!-- Edit project -->
+        <modal-component id="editProjectModal">
+          <header>
+              <div class="flex items-center justify-between flex-row font-bold">
+                  <p class="text-truncate text-lg">Edit project</p>
+                  <button type="button" onclick="closeEditProjectModal()"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                  src="./assets/x.png" alt="Croce"></button>
+              </div>
+              <hr class="border-black"/>
+          </header>
+          <form id="editProjectForm">
+              <div class="flex flex-col">
+                <!-- name -->
+                <div class="mt-4">
+                  <p class="font-semibold text-base">Name</p>
+                  <input id="editedProjectName" class="border border-third" type="text" maxlength="30" required>
+                </div>
+        
+                <!-- description -->
+                <!-- TODO: change to textbox for better input quality -->
+                <div class="mt-4">
+                  <p class="font-semibold text-base">Description</p>
+                  <input id="editedProjectDescription" class="border border-third" type="text" maxlength="30" required>
+                </div>
+        
+                <div class="flex flex-col sm:flex-row">
+                  <!-- start date -->
+                  <div class="mt-4">
+                    <p class="font-semibold text-base">Starts</p>
+                    <input type="date" id="editedProjectStart" placeholder="Select start" required>
+                  </div>
+                  
+                  <!-- end date -->
+                  <div class="mt-4 sm:ml-4">
+                    <p class="font-semibold text-base">Ends</p>
+                    <input type="date" id="editedProjectEnd" placeholder="Select end" required>
+                  </div>
+                </div>
+                
+                <!-- invite users -->
+                <div class="mt-4">
+                  <p class="font-semibold text-base">Invite new users</p>
+                  <div class="flex">
+                      <input id="editedProjectUsersInput" type="text" placeholder="Enter username">
+                      <button type="button" onclick="addUserToEditedProjectList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
+                  </div>
+                  <div class="flex mt-2">
+                      <input type="text" id="editedProjectAddedUsernamesInput" readonly>
+                      <button type="button" onclick="clearEditedProjectUsers()" class="ml-2 bg-secondary p-1 text-white">Clear</button>
+                  </div>
+                </div>
+                
+                <div id="editedProjectError" class="bg-red-400 text-white font-bold mt-2 
+                  inline px-2 text-center mx-auto"></div>
+              
+                <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                  text-white shadow-sm ring-1 ring-inset ring-gray-300">Edit</button>
+              </div>
+          </form>
+        </modal-component>
 
         <!-- Create project -->
         <modal-component id="createProjectModal">

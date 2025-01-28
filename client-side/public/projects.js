@@ -459,12 +459,116 @@ function updateEditedActivityAddedUsersInput() {
     addedUsernamesInput.value = editedActivityUsers.join(', ')
 }
 
+const editedProjectStartElem = document.getElementById('editedProjectStart');
+const startFlatpickr = flatpickr(editedProjectStartElem, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+});
+
+const editedProjectEndElem = document.getElementById('editedProjectEnd');
+const endFlatpickr = flatpickr(editedProjectEndElem, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+});
+
+document.getElementById('editProjectButton').addEventListener('click', () => {
+    showEditProjectModal()
+})
+
+const editedProjectUsers = [];
+const editedProjectIds = []
+
+function updateEditedProjectUsersInput() {
+    const addedUsernamesInput = document.getElementById("editedProjectAddedUsernamesInput")
+    addedUsernamesInput.value = editedProjectUsers.join(', ')
+}
+
+function clearEditedProjectUsers() {
+    editedProjectUsers.length = 0
+    updateEditedProjectUsersInput()
+}
+
+async function addUserToEditedProjectList() {
+    const userToAddInput = document.getElementById("editedProjectUsersInput")
+    let exists = false
+    let user_id = ''
+    if (userToAddInput.value !== '' && userToAddInput.value !== state.username && !editedProjectUsers.includes(userToAddInput.value)) {
+        const existsObject = await window.userExists(userToAddInput.value)
+        exists = existsObject.exists
+        user_id = existsObject.id
+    }
+    
+    if (exists && !currentProject.members.includes(user_id)) {
+        editedProjectUsers.push(userToAddInput.value)
+        editedProjectIds.push(user_id)
+        userToAddInput.value = ''
+        updateEditedProjectUsersInput()
+    } else {
+        document.getElementById("editedProjectError").innerHTML = "User doesn't exist or is already in the project"
+    }
+}
+
+function showEditProjectModal() {
+    const modal = document.getElementById('editProjectModal');
+    if (modal) {
+        document.getElementById('editProjectForm').reset();
+        newProjectUsers.length = 0
+        newProjectIds.length = 0
+        document.getElementById('editedProjectName').value = currentProject.name
+        document.getElementById('editedProjectDescription').value = currentProject.description
+        document.getElementById('editedProjectError').innerHTML = ''
+        const startDate = new Date(currentProject.start);
+        const endDate = new Date(currentProject.end);
+        
+        // Set dates in Flatpickr
+        startFlatpickr.setDate(startDate, true);
+        endFlatpickr.setDate(endDate, true);
+        modal.open()
+    }
+}
+
+function closeEditProjectModal() {
+    const modal = document.getElementById('editProjectModal');
+    if (modal) {
+        modal.close()
+    }
+}
+
+document.getElementById('editProjectForm').addEventListener('submit', async function(event) {
+    // prevent default refresh
+    event.preventDefault();
+
+    const editProjectError = document.getElementById("editedProjectError")
+    const name = document.getElementById('editedProjectName').value
+    const description = document.getElementById('editedProjectDescription').value
+    const startValue = new Date(editedProjectStartElem.value)
+    const endValue = new Date(editedProjectEndElem.value)
+    if (startValue.getTime() > new Date(currentProject.start).getTime()) {
+        editProjectError.innerHTML = 'Start date cannot be after the current start date'
+    }
+    else if (endValue.getTime() < new Date(currentProject.end).getTime()) {
+        editProjectError.innerHTML = 'End date cannot be before the current end date'
+    }
+    else {
+        const newProject = structuredClone(currentProject)
+        newProject.name = name
+        newProject.description = description
+        newProject.start = startValue
+        newProject.end = endValue
+        newProject.members = newProject.members.concat(editedProjectIds)
+        await window.editProject(newProject._id, newProject)
+        currentProject = newProject
+        projectViewName.innerHTML = currentProject.name
+        updateSettingsPage()
+        closeEditProjectModal()
+    }
+});
+
 async function showEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
     if (modal) {
         //TODO: se sei CAPO PROGETTO puoi decidere se l'attività TRASLA O CONTRAE
         // in caso di ritardo dell'attività prima
-        modal.open()
         editedActivityUsers.length = 0
         editedActivityIds.length = 0
         
@@ -488,7 +592,7 @@ async function showEditActivityModal() {
             outputContainer.classList.add('hidden')
         }   
         else if (currentEditedActivity.projectData.status == 'activable') {
-            statuses = ['activable', 'active', 'done']
+            statuses = ['activable', 'active']
             inputContainer.classList.remove('hidden')
             outputContainer.classList.add('hidden')
         }
@@ -551,6 +655,8 @@ async function showEditActivityModal() {
             updateProjectActivities()
             closeEditActivityModal()
         })
+
+        modal.open()
     }
 }
 
@@ -568,6 +674,20 @@ function closeEditActivityModal() {
     }
 }
 
+async function updateSettingsPage() {
+    document.getElementById('settingsProjectName').innerHTML = currentProject.name
+    document.getElementById('settingsProjectDescription').innerHTML = currentProject.description
+    document.getElementById('settingsProjectStart').innerHTML = new Date(currentProject.start).toLocaleDateString("it-IT", infoDateFormat)
+    document.getElementById('settingsProjectEnd').innerHTML = new Date(currentProject.end).toLocaleDateString("it-IT", infoDateFormat)
+    // setting owner
+    const response = await window.getUsers([currentProject.owner])
+    const owner = response[0]
+    document.getElementById('settingsProjectOwner').innerHTML = owner.username
+    // setting users
+    const users = await window.getUsers(currentProject.members)
+    document.getElementById('settingsProjectUsers').innerHTML = users.filter(u => u._id != owner._id).map(u => u.username).join(", ")
+}
+
 function goToSettingsPage() {
     settingsPage.classList.remove("hidden")
     overviewPage.classList.add("hidden")
@@ -576,6 +696,7 @@ function goToSettingsPage() {
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
+    updateSettingsPage()
 }
 
 function goToOverviewPage() {
@@ -736,6 +857,11 @@ async function addUserToNewProjectList() {
 function updateNewProjectUsersInput() {
     const addedUsernamesInput = document.getElementById("newProjectAddedUsernamesInput")
     addedUsernamesInput.value = newProjectUsers.join(', ')
+}
+
+function clearNewProjectUsers() {
+    newProjectUsers.length = 0
+    updateNewProjectUsersInput()
 }
 
 // ADD ACTIVITY

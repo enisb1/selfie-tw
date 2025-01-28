@@ -86,4 +86,28 @@ router.put("/updateWaitingActivable/:id", async (req, res) => {
     }
 });
 
+router.put("/:id", async (req, res) => {
+    const projectId = req.params.id;
+    const { name, description, start, end, users } = req.body;
+
+    try {
+        const updatedProject = await Project.findByIdAndUpdate(
+            projectId,
+            { name, description, start, end, users },
+            { new: true }
+        );
+
+        if (updatedProject) {
+            res.status(200).json({
+                message: 'Project updated successfully',
+                project: updatedProject
+            });
+        } else {
+            res.status(404).json({ message: 'Project not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating project', error: error.message });
+    }
+});
+
 export default router;
