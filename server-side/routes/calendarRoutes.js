@@ -60,7 +60,7 @@ async function sendEventNotificationToUsers(event, users, creator) {
             }
         });
         await notification.save();
-        wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+        await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
     }
 }
 
@@ -75,7 +75,6 @@ router.post("/addActivity", async (req, res) => {
             }
         );
         await activity.save();
-        // TODO: send notification to users
         await sendActivityNotificationToUsers(activity, req.body.users, req.body.creator);
 
         res.status(201).json({ message: 'Data saved successfully', data: activity });
@@ -85,7 +84,7 @@ router.post("/addActivity", async (req, res) => {
     }
 });
 
-// TODO: sposta questa funzione da qui
+// TODO: magari sposta questa funzione da qui
 async function sendActivityNotificationToUsers(activity, users,creator) {
     for (const userId of users) {
         const user = await User.findOne({_id: userId});
@@ -104,8 +103,8 @@ async function sendActivityNotificationToUsers(activity, users,creator) {
             }
         });
         await notification.save();
-        wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
-
+        await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+        await mailer.sendMail(`You have been invited to the activity: ${activity.title}`, user.email,activity.title);
     }
 }
 

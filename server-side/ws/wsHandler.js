@@ -1,4 +1,5 @@
 import {WebSocket,WebSocketServer} from 'ws';
+import nodemailer from 'nodemailer';
 
 export class wsHandler{
     constructor(server){
@@ -51,7 +52,7 @@ export class wsHandler{
             connection.send(JSON.stringify(message));
         });
     }
-    sendPushNotification(message){
+    async sendPushNotification(message){
         const connections = this.userConnections.get(message.to) || [];
         connections.forEach(connection => {
             connection.send(JSON.stringify(message));

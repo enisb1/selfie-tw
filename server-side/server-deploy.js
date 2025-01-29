@@ -11,6 +11,8 @@ import {wsHandler} from "./ws/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 //import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
+import {AgendaHandler} from "./agenda/agendaHandler.js";
+import {Mailer} from "./ws/mailer.js";
 
 const app = express();
 const PORT = 8000;
@@ -28,6 +30,22 @@ mongoose.connect(mongouri)
     .catch(err => {
         console.error('Error connecting to MongoDB', err);
     });
+
+export const agendaHandler = new AgendaHandler(mongouri);
+
+await agendaHandler.start();
+await agendaHandler.defineJobs();
+
+process.on('SIGTERM', async () => {
+    await agendaHandler.stop();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    await agendaHandler.stop();
+    process.exit(0);
+});
+
 
 // routing
 app.use("/api/calendar", calendarRoutes)
@@ -51,6 +69,9 @@ app.get('*', (req, res) => {
 // Create an HTTP server and attach the Express app
 const server = http.createServer(app);
 
+export const mailer = new Mailer();
+
+// Create a WebSocket server
 export const wsConnectionHandler = new wsHandler({ server });
 
 // start server

@@ -1,7 +1,7 @@
 import Router from 'express';
 import Notification from "../models/Notification.js";
 import {Message} from "../ws/wsHandler.js";
-import {wsConnectionHandler} from "../server-deploy.js";
+import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import Activity from "../models/Activity.js";
 import Event from '../models/Event.js'
 
@@ -19,7 +19,8 @@ router.post("/addNotification", async (req, res) => {
             type: req.body.type
         });
         await message.save();
-        wsConnectionHandler.sendPushNotification(new Message('server', req.body.receiver, 'notification', message));
+        await wsConnectionHandler.sendPushNotification(new Message('server', req.body.receiver, 'notification', message));
+        await mailer.sendMail(message.text, await mailer.getEmailFromUsername(req.body.receiver), message.title);
         res.status(201).json({ message: 'Notification sent' });
     } catch (error) {
         console.error('Error saving data:', error);
@@ -74,7 +75,7 @@ router.post("/sendEventInvite", async (req, res) => {
             time: new Date(),
             read: false,
             title: req.body.event.title,
-            text: `You have been invited to the activity: ${req.body.event.title}`,
+            text: `You have been invited to the event: ${req.body.event.title}`,
             type: 'invite',
             data: {
                 type: "event",
@@ -83,7 +84,8 @@ router.post("/sendEventInvite", async (req, res) => {
             }
         });
         await message.save();
-        wsConnectionHandler.sendPushNotification(new Message('server', req.body.receiver, 'notification', message));
+        await wsConnectionHandler.sendPushNotification(new Message('server', req.body.receiver, 'notification', message));
+        await mailer.sendMail(`You have been invited to the event: ${req.body.event.title}`, await mailer.getEmailFromUsername(req.body.receiver),req.body.event.title);
         res.status(201).json({ message: 'Notification sent' });
     } catch (error) {
         console.error('Error saving data:', error);
