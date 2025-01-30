@@ -356,6 +356,7 @@ export default {
       notify1DayBefore.value = false
       isCompositeActivity.value = false
       compositeActivityTitle.value = ''
+      subactivitiesToAdd.value = []
       updateUsersOptions()
     }
     // add event modal data
@@ -533,7 +534,7 @@ export default {
       // newActivitySelectedUsers contains the users to invite
       // TODO: invite them!
       // TODO: check for deadline to be greater than current date
-      if (!isCompositeActivity) {
+      if (!isCompositeActivity.value) {
         await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
         updateAllCalendars()
         toggleAddModal()

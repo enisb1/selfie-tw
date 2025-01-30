@@ -356,4 +356,22 @@ router.delete("/resources/:id", async (req, res) => {
   }
 })
 
+// Delete activities by groupName and groupId
+router.delete("/deleteByGroup", async (req, res) => {
+  const { groupName, groupId } = req.body;
+
+  try {
+      const result = await Activity.deleteMany(
+          { 'compositeActivity.groupName': groupName, 'compositeActivity.groupId': groupId }
+      );
+
+      res.status(200).json({
+          message: 'Activities deleted successfully',
+          deletedCount: result.deletedCount
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Error deleting activities', error: error.message });
+  }
+});
+
 export default router;

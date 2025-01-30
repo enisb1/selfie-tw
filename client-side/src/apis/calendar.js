@@ -186,3 +186,17 @@ export async function getEventsByResource(resourceId) {
         throw error.response.data;
     }
 }
+
+export async function deleteActivitiesByGroup(groupName, groupId) {
+    try {
+        const response = await axios.delete('http://localhost:8000/api/calendar/deleteByGroup', {
+            data: { groupName, groupId }
+        });
+
+        console.log('Activities deleted:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting activities:', error);
+        throw error;
+    }
+}
