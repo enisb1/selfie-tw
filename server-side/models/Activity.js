@@ -18,6 +18,13 @@ const activitySchema = new mongoose.Schema({
     isDone: Boolean,
     users: [String],
     description: String,
+    compositeActivity: {
+        type: {
+            groupName: String,
+            groupId: String
+        },
+        default: null
+    },
     projectData: {
         type: projectDataSchema,
         default: null, // not part of a project
