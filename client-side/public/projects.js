@@ -1,8 +1,8 @@
 const state = JSON.parse(sessionStorage.getItem('state'))
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateProjects()
-});
+updateProjects()
+if (!state.isAdmin)
+        document.getElementById('adminNavLink').classList.add('hidden')
 
 const homeView = document.getElementById('homeLayout');
 const homeProjectsList = document.getElementById('homeProjectsList');

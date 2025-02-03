@@ -533,11 +533,14 @@ export default {
     const addActivity = async () => {
       // newActivitySelectedUsers contains the users to invite
       // TODO: invite them!
-      // TODO: check for deadline to be greater than current date
       if (!isCompositeActivity.value) {
-        await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
-        updateAllCalendars()
-        toggleAddModal()
+        if (activityToAddDeadline.value.getTime() <= new Date().getTime())
+          activityToAddError.value = "Deadline must be greater than current date"
+        else {
+          await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
+          updateAllCalendars()
+          toggleAddModal()
+        }
       }
       else if (subactivitiesToAdd.value.length <= 0) {
         activityToAddError.value = "At least one subactivity is required"
@@ -588,9 +591,14 @@ export default {
 
     const addSubact = () => {
       if (activityToAddTitle.value && activityToAddDeadline.value) {
-        subactivitiesToAdd.value.push({ title: activityToAddTitle.value, deadline: activityToAddDeadline.value })
-        activityToAddTitle.value = ''
-        activityToAddDeadline.value = null
+        if (activityToAddDeadline.value.getTime() <= new Date().getTime())
+          activityToAddError.value = "Deadline must be greater than current date"
+        else {
+          subactivitiesToAdd.value.push({ title: activityToAddTitle.value, deadline: activityToAddDeadline.value })
+          activityToAddTitle.value = ''
+          activityToAddDeadline.value = null
+          activityToAddError.value = ""
+        }
       }
       else {
         activityToAddError.value = "Title and deadline are required"
