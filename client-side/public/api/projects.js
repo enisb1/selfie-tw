@@ -202,6 +202,72 @@ async function getActivitiesByIds(activityIds) {
     }
 }
 
+async function deleteActivity(activityId) {
+    console.log(activityId)
+    try {
+        const response = await fetch(`http://localhost:8000/api/calendar/activities/${activityId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error(`Error deleting activity: ${error.message}`);
+        throw error;
+    }
+}
+
+async function updateWaitingActivable(activityId, output) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/updateWaitingActivable/${activityId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ output })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error(`Error updating activities: ${error.message}`);
+        throw error;
+    }
+}
+
+async function editProject(projectId, projectData) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(projectData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log(data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error(`Error updating project: ${error.message}`);
+        throw error;
+    }
+}
+
 async function updateActivityStartDate(activityId, newStartDate) {
     try {
         const response = await fetch(`http://localhost:8000/api/projects/editStartDate/${activityId}`, {
@@ -246,7 +312,6 @@ async function updateActivityDeadline(activityId, newDeadline) {
     }
 }
 
-
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -260,3 +325,6 @@ window.editActivity = editActivity;
 window.getActivitiesByIds = getActivitiesByIds;
 window.updateActivityStartDate = updateActivityStartDate;
 window.updateActivityDeadline = updateActivityDeadline;
+window.deleteActivity = deleteActivity;
+window.updateWaitingActivable = updateWaitingActivable;
+window.editProject = editProject;

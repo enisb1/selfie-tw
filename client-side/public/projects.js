@@ -1,8 +1,8 @@
 const state = JSON.parse(sessionStorage.getItem('state'))
 
-document.addEventListener('DOMContentLoaded', () => {
-    updateProjects()
-});
+updateProjects()
+if (!state.isAdmin)
+        document.getElementById('adminNavLink').classList.add('hidden')
 
 const homeView = document.getElementById('homeLayout');
 const homeProjectsList = document.getElementById('homeProjectsList');
@@ -39,11 +39,21 @@ function goToProjectView(project) {
     projectViewName.innerHTML = project.name
 }
 
-async function updateProjectActivities() {
-    const activities = await window.getActivitiesByProject(currentProject._id)
+async function updateProjectActivities(alphabeticalOrder) {
+    let activities = await window.getActivitiesByProject(currentProject._id)
+    if (alphabeticalOrder) {
+        activities = activities.sort((a, b) => {
+            const usersA = [...a.users].sort().join(","); // Sort and join for comparison
+            const usersB = [...b.users].sort().join(",");
+            return usersA.localeCompare(usersB); // Compare alphabetically
+        });
+    }
+    else {
+        activities = activities.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
+    }
     activityNumber = 0
     displayToDoActivities(activities.filter(activity => activity.projectData.status === 'activable' || activity.projectData.status === 'waitingActivable'))
-    displayInProgressActivities(activities.filter(activity => activity.projectData.status === 'active' || activity.projectData.status === 'reactivated' || activity.projectData.status === 'overdue'))
+    displayInProgressActivities(activities.filter(activity => activity.projectData.status === 'active' || activity.projectData.status === 'reactivated'))
     displayCompletedActivities(activities.filter(activity => activity.projectData.status === 'done' || activity.projectData.status === 'discarded'))
 }
 
@@ -166,7 +176,16 @@ async function displayInProgressActivities(activities) {
             const users = await window.getUsers(activity.users);
             let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat);
             let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat);
-
+            
+            const deadlineDate = new Date(activity.deadline);
+            let tenDaysAfterDeadline = new Date(deadlineDate);
+            tenDaysAfterDeadline.setDate(deadlineDate.getDate() + 10)
+            let status = activity.projectData.status
+            if (new Date(activity.deadline).getTime() < new Date().getTime() &&
+                tenDaysAfterDeadline.getTime() < new Date().getTime())
+                status = 'discarded'
+            else if (new Date(activity.deadline).getTime() < new Date().getTime())
+                status = 'overdue'
             // Add content to the div
             activityDiv.innerHTML = `
                 <!-- title -->
@@ -192,7 +211,7 @@ async function displayInProgressActivities(activities) {
                 <!-- status -->
                 <div class="w-2/12 border-l border-secondary truncate">
                     <div class="ml-1">
-                        ${activity.projectData.status}
+                        ${status}
                     </div>
                 </div>
                 <div class="w-1/12 border-l border-secondary">
@@ -314,6 +333,26 @@ async function displayCompletedActivities(activities) {
 const editedActivityUsers = []
 const editedActivityIds = []
 
+function onClickAlphabetOrderButton() {
+    const alphabetOrderButton = document.getElementById("alphabetOrderButton")
+    const alphabetOrderImageBlack = document.getElementById("alphabetOrderBlack")
+    const alphabetOrderImageWhite = document.getElementById("alphabetOrderWhite")
+    if (alphabetOrderButton.classList.contains("bg-white")) {
+        alphabetOrderButton.classList.remove("bg-white")
+        alphabetOrderButton.classList.add("bg-secondary")
+        alphabetOrderImageBlack.classList.add("hidden")
+        alphabetOrderImageWhite.classList.remove("hidden")
+        updateProjectActivities(true)
+    }
+    else {
+        alphabetOrderButton.classList.remove("bg-secondary")
+        alphabetOrderButton.classList.add("bg-white")
+        alphabetOrderImageBlack.classList.remove("hidden")
+        alphabetOrderImageWhite.classList.add("hidden")
+        updateProjectActivities(false)
+    }
+}
+
 async function showInfoModal(activity) {
     const modal = document.getElementById('infoActivityModal');
     if (modal) {
@@ -326,7 +365,26 @@ async function showInfoModal(activity) {
         document.getElementById('infoActivityUsers').innerHTML = users.map(u => u.username).join(", ")
         document.getElementById('infoActivityMilestone').innerHTML = activity.projectData.isMilestone? 'yes' : 'no'
         document.getElementById('infoActivityContracts').innerHTML = activity.projectData.contracts? 'yes' : 'no'
-        //TODO: show phase
+        document.getElementById('infoActivityInput').innerHTML = (activity.projectData.input == '')? '*empty*' : activity.projectData.input
+        document.getElementById('infoActivityOutput').innerHTML = (activity.projectData.output == '')? '*empty*' : activity.projectData.output
+        //TODO: show previous activity
+        let previousAct = null
+        if (activity.projectData.previous) {
+            const result = await window.getActivitiesByIds([activity.projectData.previous])
+            previousAct = result[0]
+        }
+        document.getElementById('infoActivityPrevious').innerHTML = previousAct? previousAct.title : 'none'
+        
+        // Reset the click event listener for the delete button
+        const deleteButton = document.getElementById("infoActivityDelete");
+        const newDeleteButton = deleteButton.cloneNode(true);
+        deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
+        newDeleteButton.addEventListener('click', async () => {
+            await window.deleteActivity(activity._id);
+            updateProjectActivities();
+            closeInfoActivityModal();
+        });
+
         modal.open()
     }
 }
@@ -363,25 +421,46 @@ async function addUserToEditedActivityList() {
 document.getElementById('editActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
     event.preventDefault();
+    
+    const activityToEditError = document.getElementById("activityToEditError")
+    const previousActivitySelect = document.getElementById("previousActivitySelectEdit")
+    let previousActivitySelectValue = null
+    if (previousActivitySelect.value)
+        previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
 
-    // add activity
-    const newActivity = structuredClone(currentEditedActivity)
-    // check what is not empty and update that  
-    // update activities list
-    newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
-    newActivity.title = document.getElementById("activityToEditTitle").value
-    newActivity.projectData.phase = document.getElementById("activityToEditPhase").value
-    newActivity.users = newActivity.users.concat(editedActivityIds)
-    newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
-    newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
-    // set correct isDone
-    if (newActivity.projectData.status == 'done')
-        newActivity.isDone = true
-    else
-        newActivity.isDone = false
-    await window.editActivity(newActivity._id, newActivity)
-    updateProjectActivities()
-    closeEditActivityModal()
+    if (previousActivitySelectValue && previousActivitySelectValue != 'Select previous activity' && 
+            previousActivitySelectValue.projectData.phase !== currentEditedActivity.projectData.phase) {
+                activityToEditError.innerHTML = "Synced activities must have the same phase"
+    }
+    else if (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity' && 
+            new Date(previousActivitySelectValue.deadline).getTime() > new Date(currentEditedActivity.projectData.startDate).getTime()) {
+                activityToEditError.innerHTML = "New activity must start after previous activity's deadline"
+    }
+    else {
+        // add activity
+        const newActivity = structuredClone(currentEditedActivity)
+        // check what is not empty and update that  
+        // update activities list
+        newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
+        newActivity.title = document.getElementById("activityToEditTitle").value
+        newActivity.users = newActivity.users.concat(editedActivityIds)
+        newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
+        newActivity.projectData.previous = (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity')? previousActivitySelectValue._id : null
+        newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
+        newActivity.projectData.input = document.getElementById("activityToEditInput").value
+        newActivity.projectData.output = document.getElementById("activityToEditOutput").value
+        // set correct isDone
+        if (newActivity.projectData.status == 'done') {
+            newActivity.isDone = true
+            //TODO: all the activities that have this activity as previous must have status set to 'activable' if they're status is 'waitingActivable'
+            await window.updateWaitingActivable(newActivity._id, newActivity.projectData.output)
+        }
+        else
+            newActivity.isDone = false
+        await window.editActivity(newActivity._id, newActivity)
+        updateProjectActivities()
+        closeEditActivityModal()
+    }
 });
 
 function updateEditedActivityAddedUsersInput() {
@@ -389,44 +468,204 @@ function updateEditedActivityAddedUsersInput() {
     addedUsernamesInput.value = editedActivityUsers.join(', ')
 }
 
-function showEditActivityModal() {
+const editedProjectStartElem = document.getElementById('editedProjectStart');
+const startFlatpickr = flatpickr(editedProjectStartElem, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+});
+
+const editedProjectEndElem = document.getElementById('editedProjectEnd');
+const endFlatpickr = flatpickr(editedProjectEndElem, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+});
+
+document.getElementById('editProjectButton').addEventListener('click', () => {
+    showEditProjectModal()
+})
+
+const editedProjectUsers = [];
+const editedProjectIds = []
+
+function updateEditedProjectUsersInput() {
+    const addedUsernamesInput = document.getElementById("editedProjectAddedUsernamesInput")
+    addedUsernamesInput.value = editedProjectUsers.join(', ')
+}
+
+function clearEditedProjectUsers() {
+    editedProjectUsers.length = 0
+    updateEditedProjectUsersInput()
+}
+
+async function addUserToEditedProjectList() {
+    const userToAddInput = document.getElementById("editedProjectUsersInput")
+    let exists = false
+    let user_id = ''
+    if (userToAddInput.value !== '' && userToAddInput.value !== state.username && !editedProjectUsers.includes(userToAddInput.value)) {
+        const existsObject = await window.userExists(userToAddInput.value)
+        exists = existsObject.exists
+        user_id = existsObject.id
+    }
+    
+    if (exists && !currentProject.members.includes(user_id)) {
+        editedProjectUsers.push(userToAddInput.value)
+        editedProjectIds.push(user_id)
+        userToAddInput.value = ''
+        updateEditedProjectUsersInput()
+    } else {
+        document.getElementById("editedProjectError").innerHTML = "User doesn't exist or is already in the project"
+    }
+}
+
+function showEditProjectModal() {
+    const modal = document.getElementById('editProjectModal');
+    if (modal) {
+        document.getElementById('editProjectForm').reset();
+        newProjectUsers.length = 0
+        newProjectIds.length = 0
+        document.getElementById('editedProjectName').value = currentProject.name
+        document.getElementById('editedProjectDescription').value = currentProject.description
+        document.getElementById('editedProjectError').innerHTML = ''
+        const startDate = new Date(currentProject.start);
+        const endDate = new Date(currentProject.end);
+        
+        // Set dates in Flatpickr
+        startFlatpickr.setDate(startDate, true);
+        endFlatpickr.setDate(endDate, true);
+        modal.open()
+    }
+}
+
+function closeEditProjectModal() {
+    const modal = document.getElementById('editProjectModal');
+    if (modal) {
+        modal.close()
+    }
+}
+
+document.getElementById('editProjectForm').addEventListener('submit', async function(event) {
+    // prevent default refresh
+    event.preventDefault();
+
+    const editProjectError = document.getElementById("editedProjectError")
+    const name = document.getElementById('editedProjectName').value
+    const description = document.getElementById('editedProjectDescription').value
+    const startValue = new Date(editedProjectStartElem.value)
+    const endValue = new Date(editedProjectEndElem.value)
+    if (startValue.getTime() > new Date(currentProject.start).getTime()) {
+        editProjectError.innerHTML = 'Start date cannot be after the current start date'
+    }
+    else if (endValue.getTime() < new Date(currentProject.end).getTime()) {
+        editProjectError.innerHTML = 'End date cannot be before the current end date'
+    }
+    else {
+        const newProject = structuredClone(currentProject)
+        newProject.name = name
+        newProject.description = description
+        newProject.start = startValue
+        newProject.end = endValue
+        newProject.members = newProject.members.concat(editedProjectIds)
+        await window.editProject(newProject._id, newProject)
+        currentProject = newProject
+        projectViewName.innerHTML = currentProject.name
+        updateSettingsPage()
+        closeEditProjectModal()
+    }
+});
+
+async function showEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
     if (modal) {
         //TODO: se sei CAPO PROGETTO puoi decidere se l'attività TRASLA O CONTRAE
         // in caso di ritardo dell'attività prima
-        modal.open()
         editedActivityUsers.length = 0
         editedActivityIds.length = 0
+        
         document.getElementById('editActivityForm').reset();
         document.getElementById("activityToEditError").innerHTML = ''
         document.getElementById("activityToEditTitle").value = currentEditedActivity.title
-        document.getElementById("activityToEditPhase").value = currentEditedActivity.projectData.phase
         document.getElementById("activityToEditIsMilestone").checked = currentEditedActivity.projectData.isMilestone
         document.getElementById("activityToEditContracts").checked = currentEditedActivity.projectData.contracts
+        document.getElementById("activityToEditInput").value = currentEditedActivity.projectData.input
+        document.getElementById("activityToEditOutput").value = currentEditedActivity.projectData.output
         const statusSelect = document.getElementById("activityToEditStatusSelect")
         statusSelect.innerHTML = '' // reset from previous options
         let statuses = []
+
         // modify statuses also for other values of status
-        if (currentEditedActivity.projectData.status == 'waitingActivable')
+        const inputContainer = document.getElementById("activityToEditInputContainer")
+        const outputContainer = document.getElementById("activityToEditOutputContainer")
+        if (currentEditedActivity.projectData.status == 'waitingActivable') {
             statuses = ['waitingActivable']
-        else if (currentEditedActivity.projectData.status == 'activable')
-            statuses = ['activable', 'active', 'done']
-        else if (currentEditedActivity.projectData.status == 'active')
+            inputContainer.classList.add('hidden')
+            outputContainer.classList.add('hidden')
+        }   
+        else if (currentEditedActivity.projectData.status == 'activable') {
+            statuses = ['activable', 'active']
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.add('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'active') {
             statuses = ['active', 'done']
-        else if (currentEditedActivity.projectData.status == 'reactivated')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'reactivated') {
             statuses = ['reactivated', 'done']
-        else if (currentEditedActivity.projectData.status == 'overdue')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'overdue') {
             statuses = ['overdue', 'done']
-        else if (currentEditedActivity.projectData.status == 'done')
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'done') {
             statuses = ['done', 'reactivated'] //TODO: reactivated only if you are the project manager
-        else if (currentEditedActivity.projectData.status == 'discarded')
+            inputContainer.classList.add('hidden')
+            outputContainer.classList.add('hidden')
+        } 
+        else if (currentEditedActivity.projectData.status == 'discarded') {
             statuses = ['discarded']
+            inputContainer.classList.add('hidden')
+            outputContainer.classList.add('hidden')
+        }
+            
         statuses.forEach(status => {
             const option = document.createElement('option');
             option.value = status;
             option.textContent = status;
             statusSelect.appendChild(option);
         });
+
+        // previous activity select
+        const activities = await window.getActivitiesByProject(currentProject._id)
+        let activitiesSamePhase = activities.filter(activity => activity.projectData.phase == currentEditedActivity.projectData.phase)
+        const selectElement = document.getElementById('previousActivitySelectEdit');
+        selectElement.innerHTML = '' // reset from previous options
+        const opt = document.createElement('option');
+        opt.value = null
+        opt.textContent = 'Select previous activity';
+        selectElement.appendChild(opt);
+        activitiesSamePhase.forEach((activity) => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify(activity);
+            opt.textContent = activity.title;
+            selectElement.appendChild(opt);
+        });
+        // set current edited activity's previous activity
+        selectElement.value = JSON.stringify(activitiesSamePhase.find(activity => currentEditedActivity.projectData.previous == activity._id))
+        
+        const deleteButton = document.getElementById("editActivityDelete");
+        const newDeleteButton = deleteButton.cloneNode(true);
+        deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
+        newDeleteButton.addEventListener('click', async () => {
+            await window.deleteActivity(currentEditedActivity._id)
+            updateProjectActivities()
+            closeEditActivityModal()
+        })
+
+        modal.open()
     }
 }
 
@@ -443,6 +682,21 @@ function closeEditActivityModal() {
         modal.close()
     }
 }
+
+async function updateSettingsPage() {
+    document.getElementById('settingsProjectName').innerHTML = currentProject.name
+    document.getElementById('settingsProjectDescription').innerHTML = currentProject.description
+    document.getElementById('settingsProjectStart').innerHTML = new Date(currentProject.start).toLocaleDateString("it-IT", infoDateFormat)
+    document.getElementById('settingsProjectEnd').innerHTML = new Date(currentProject.end).toLocaleDateString("it-IT", infoDateFormat)
+    // setting owner
+    const response = await window.getUsers([currentProject.owner])
+    const owner = response[0]
+    document.getElementById('settingsProjectOwner').innerHTML = owner.username
+    // setting users
+    const users = await window.getUsers(currentProject.members)
+    document.getElementById('settingsProjectUsers').innerHTML = users.filter(u => u._id != owner._id).map(u => u.username).join(", ")
+}
+
 function goToSettingsPage() {
     settingsPage.classList.remove("hidden")
     overviewPage.classList.add("hidden")
@@ -451,8 +705,8 @@ function goToSettingsPage() {
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
+    updateSettingsPage()
 }
-
 
 function goToOverviewPage() {
     overviewPage.classList.remove("hidden")
@@ -614,20 +868,46 @@ function updateNewProjectUsersInput() {
     addedUsernamesInput.value = newProjectUsers.join(', ')
 }
 
+function clearNewProjectUsers() {
+    newProjectUsers.length = 0
+    updateNewProjectUsersInput()
+}
+
 // ADD ACTIVITY
 //--------------------------------------------------------------
 const newActivityUsers = [];
 const newActivityIds = [];
 
-function showAddActivityModal() {
+async function showAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
     if (modal) {
         modal.open()
         newActivityUsers.length = 0
         document.getElementById('addActivityForm').reset();
         document.getElementById('activityToAddError').innerHTML = ''
+        let activities = await window.getActivitiesByProject(currentProject._id)
+        const selectElement = document.getElementById('previousActivitySelectAdd');
+        selectElement.innerHTML = '' // reset from previous options
+        const opt = document.createElement('option');
+        opt.value = null
+        opt.textContent = 'Select previous activity';
+        selectElement.appendChild(opt);
+        activities.forEach((activity) => {
+            const opt = document.createElement('option');
+            opt.value = JSON.stringify(activity);
+            opt.textContent = activity.title;
+            selectElement.appendChild(opt);
+        });
     }
 }
+
+document.getElementById('previousActivitySelectAdd').addEventListener('change', function(event) {
+    const select = event.target;
+    if (select.value != 'null')
+        document.getElementById('activityToAddInputContainer').classList.add('hidden');
+    else
+        document.getElementById('activityToAddInputContainer').classList.remove('hidden');
+})
 
 function closeAddActivityModal() {
     const modal = document.getElementById('addActivityModal');
@@ -648,6 +928,10 @@ flatpickr(activityToAddDeadlineElem, {
     dateFormat: "Y-m-d H:i",
 });
 
+function isValidDate(date) {
+    return date instanceof Date && !isNaN(date.getTime());
+}
+
 // add activity form submit
 document.getElementById('addActivityForm').addEventListener('submit', async function(event) {
     // prevent default refresh
@@ -663,10 +947,15 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     const projectEnd = new Date(currentProject.end)
     const activityToAddDeadlineValue = new Date(activityToAddDeadlineElem.value)
     const activityToAddStartValue = new Date(activityToAddStartElem.value)
-    if (activityToAddStartValue === '') {
+    const previousActivitySelect = document.getElementById("previousActivitySelectAdd")
+    let previousActivitySelectValue = null
+    if (previousActivitySelect.value)
+        previousActivitySelectValue = JSON.parse(previousActivitySelect.value)
+    // checks
+    if (!isValidDate(activityToAddStartValue)) {
         activityToAddError.innerHTML = "Start date is needed"
     }
-    else if (activityToAddDeadlineValue === '') {
+    else if (!isValidDate(activityToAddStartValue)) {
         activityToAddError.innerHTML = "Deadline is needed"
     }
     else if (activityToAddStartValue.getTime() <= projectStart.getTime()
@@ -680,18 +969,35 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
     else if (activityToAddDeadlineValue.getTime() <= activityToAddStartValue.getTime()) {
         activityToAddError.innerHTML = "Deadline must be after activity's start"
     }
+    else if (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity' && 
+            previousActivitySelectValue.projectData.phase !== activityToAddPhase.value) {
+        activityToAddError.innerHTML = "Synced activities must have the same phase"
+    }
+    else if (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity' && 
+            new Date(previousActivitySelectValue.deadline).getTime() > activityToAddStartValue.getTime()) {
+        activityToAddError.innerHTML = "New activity must start after previous activity's deadline"
+    }
     else {
         const activityUsers = newActivityIds.concat(state._id)
         //TODO: set correct status based on previous activity (if previous activity is done it means
         //it has output, hence the new activity can be activable, else it must be waitingActivable)
         //TODO: make creation of set of activities possible
+        let actInput = '';
+        if (previousActivitySelectValue && previousActivitySelectValue.isDone)
+            actInput = previousActivitySelectValue.projectData.output
+        let actStatus = 'activable';
+        if (previousActivitySelectValue && !previousActivitySelectValue.isDone)
+            actStatus = 'waitingActivable';
         const projectData = {
             startDate: activityToAddStartValue,
             projectId: currentProject._id,
             isMilestone: activityToAddIsMilestone.checked,
             phase: activityToAddPhase.value,
-            status: 'activable',
-            contracts: activityToAddContracts.checked
+            status: actStatus,
+            contracts: activityToAddContracts.checked,
+            previous: previousActivitySelectValue? previousActivitySelectValue._id : null,
+            input: actInput,
+            output: ''
         }
         const createdActivity = await window.postActivity(activityToAddTitle.value, activityToAddDeadlineValue, 
             activityUsers, projectData)

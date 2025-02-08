@@ -2,6 +2,7 @@ import Router from 'express';
 import Event from '../models/Event.js'
 import Activity from '../models/Activity.js'
 import Resource from '../models/Resource.js';
+import Project from '../models/Project.js';
 import mongoose, { mongo } from 'mongoose';
 
 const router = Router();
@@ -99,20 +100,41 @@ router.post('/getActivitiesByIds', async (req, res) => {
 });
 
 // delete activity given id
+//TODO: delete these activities from project activities as well (check if project activities are needed, else delete)
 router.delete("/activities/:id", async (req, res) => {
-    const activityId = req.params.id;
-    try {
-        const result = await Activity.findByIdAndDelete(activityId);
+  const activityId = req.params.id;
+  try {
+      // Delete the specified activity
+      const result = await Activity.findByIdAndDelete(activityId);
 
-        if (result) {
-            res.status(200).json({ message: 'Activity deleted successfully', activity: result });
-        } else {
-            res.status(404).json({ message: 'Activity not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting activity', error: error.message });
-    }
-})
+      if (result) {
+          // Update activities that have the deleted activity's ID as the 'previous' field in projectData
+          const relatedActivities = await Activity.updateMany(
+              { 'projectData.previous': activityId },
+              { $set: { 'projectData.previous': null } }
+          );
+
+          // Remove the activity from the project's 'activities' field
+          const projectId = result.projectData.projectId;
+          const projectUpdateResult = await Project.findByIdAndUpdate(
+              projectId,
+              { $pull: { activities: activityId } },
+              { new: true }
+          );
+
+          res.status(200).json({
+              message: 'Activity deleted successfully',
+              activity: result,
+              relatedActivitiesUpdated: relatedActivities.nModified,
+              projectUpdateResult: projectUpdateResult
+          });
+      } else {
+          res.status(404).json({ message: 'Activity not found' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Error deleting activity', error: error.message });
+  }
+});
 
 // edit activity given id
 router.put("/activities/:id", async (req,res) => {
@@ -333,5 +355,23 @@ router.delete("/resources/:id", async (req, res) => {
     return res.status(500).send({ error: "Internal server error" });
   }
 })
+
+// Delete activities by groupName and groupId
+router.delete("/deleteByGroup", async (req, res) => {
+  const { groupName, groupId } = req.body;
+
+  try {
+      const result = await Activity.deleteMany(
+          { 'compositeActivity.groupName': groupName, 'compositeActivity.groupId': groupId }
+      );
+
+      res.status(200).json({
+          message: 'Activities deleted successfully',
+          deletedCount: result.deletedCount
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Error deleting activities', error: error.message });
+  }
+});
 
 export default router;

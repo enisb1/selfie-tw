@@ -20,6 +20,12 @@
                 <p class="font-semibold text-base">Done</p>
                 <p> {{ activityObject.isDone? 'yes' : 'no' }}</p>
             </div>
+
+            <!-- name of composite activity if available-->
+            <div class="mt-4" v-if="activityObject.compositeActivity">
+                <p class="font-semibold text-base">Composite Activity Name</p>
+                <p> {{ activityObject.compositeActivity.groupName }}</p>
+            </div>
         </div>
 
         <!-- Edit activity form -->
@@ -38,19 +44,22 @@
             </div>
             
             <div class="flex justify-evenly">
-                <button v-show="showEditActivity" type="submit" class="w-full mt-4 rounded-md bg-green-700 px-3 
+                <!-- done button -->
+                <button v-show="!activityObject.isDone" @click="setActivityDone" type="button" class="min-w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
+                <button v-show="showEditActivity" type="submit" class="min-w-1/3 mt-4 rounded-md bg-green-700 px-3 
                     py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
             </div>
         </form>
 
         <!-- buttons -->
         <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
-            <!-- done button -->
-            <button v-show="!activityObject.isDone" @click="setActivityDone" type="button" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-                text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
             <!-- delete button -->
-            <button @click="deleteActivityObject" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+            <button @click="deleteActivityObject" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <!-- delete composite -->
+            <button @click="deleteCompositeActivity()" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete composite</button> 
         </div>
     </div>
 </template>
@@ -59,8 +68,7 @@
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { ref } from 'vue';
-import { deleteActivity } from '@/apis/calendar';
-import { editActivity } from '@/apis/calendar';
+import { editActivity, deleteActivitiesByGroup, deleteActivity } from '@/apis/calendar';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
@@ -120,6 +128,14 @@ export default {
             emit('close')
         }
 
+        const deleteCompositeActivity = async () => {
+            console.log(props.activityObject)
+            await deleteActivitiesByGroup(props.activityObject.compositeActivity.groupName, 
+                props.activityObject.compositeActivity.groupId)
+            emit('updateAllCalendars')
+            emit('close')
+        }
+
         return {
             showEditActivity,
             toggleEditActivity,
@@ -128,7 +144,8 @@ export default {
             formatDate,
             deleteActivityObject,
             applyEdits,
-            setActivityDone
+            setActivityDone,
+            deleteCompositeActivity
         }
     }
 }

@@ -6,7 +6,10 @@ const projectDataSchema = new mongoose.Schema({
     isMilestone: Boolean,
     phase: String,
     status: String,
-    contracts: Boolean  // true -> contracts if delay happens, false -> translates
+    contracts: Boolean,  // true -> contracts if delay happens, false -> translates
+    previous: String,    // id of previous activity (synced)
+    input: String,
+    output: String
 });
 
 const activitySchema = new mongoose.Schema({
@@ -15,6 +18,13 @@ const activitySchema = new mongoose.Schema({
     isDone: Boolean,
     users: [String],
     description: String,
+    compositeActivity: {
+        type: {
+            groupName: String,
+            groupId: String
+        },
+        default: null
+    },
     projectData: {
         type: projectDataSchema,
         default: null, // not part of a project

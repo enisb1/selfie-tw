@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid';
 
 // convert startDate and endDate to UTC time string, and get events in that range
 export async function getEventsInRange(startDate, endDate) {
@@ -56,15 +57,39 @@ export async function postEvent(title, location, start, end, frequency, repetiti
     })
 }
 
-// post event to db
-export async function postActivity(title, deadline, userIds, projectData) {
+// post activity to db
+export async function postActivity(title, deadline, userIds, compositeActivity, projectData) {
     try {
         const response = await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
-            "isDone": false, "users": userIds, "projectData": projectData}
+            "isDone": false, "users": userIds, "compositeActivity": compositeActivity,"projectData": projectData}
         );
         return response.data; // Return the response data, which includes the activity ID
     } catch (error) {
         throw error.response.data;
+    }
+}
+
+// post subactivities of groupActivity to db
+export async function postSubacts(compositeActivityTitle, subactivities, users) {
+    const groupId = uuidv4(); // Generate a unique ID for the group activity
+
+    const promises = subactivities.map(subactivity => {
+        const { title, deadline } = subactivity;
+        const compositeActivity = {
+            groupName: compositeActivityTitle,
+            groupId: groupId
+        };
+
+        return postActivity(title, deadline, users, compositeActivity);
+    });
+
+    try {
+        const results = await Promise.all(promises);
+        console.log('Subactivities posted:', results);
+        return results;
+    } catch (error) {
+        console.error('Error posting subactivities:', error);
+        throw error;
     }
 }
 
@@ -159,5 +184,19 @@ export async function getEventsByResource(resourceId) {
         return response.data;
     } catch (error) {
         throw error.response.data;
+    }
+}
+
+export async function deleteActivitiesByGroup(groupName, groupId) {
+    try {
+        const response = await axios.delete('http://localhost:8000/api/calendar/deleteByGroup', {
+            data: { groupName, groupId }
+        });
+
+        console.log('Activities deleted:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting activities:', error);
+        throw error;
     }
 }
