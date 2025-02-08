@@ -268,6 +268,50 @@ async function editProject(projectId, projectData) {
     }
 }
 
+async function updateActivityStartDate(activityId, newStartDate) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/editStartDate/${activityId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ startDate: newStartDate })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log('Activity updated:', data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error('Error updating activity start date:', error);
+    }
+}
+
+async function updateActivityDeadline(activityId, newDeadline) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/editDeadline/${activityId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ deadline: newDeadline })
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        console.log('Activity updated:', data);
+        return data; // Return the response data
+    } catch (error) {
+        console.error('Error updating activity deadline date:', error);
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -279,6 +323,8 @@ window.addActivityToProject = addActivityToProject;
 window.getUsers = getUsers;
 window.editActivity = editActivity;
 window.getActivitiesByIds = getActivitiesByIds;
+window.updateActivityStartDate = updateActivityStartDate;
+window.updateActivityDeadline = updateActivityDeadline;
 window.deleteActivity = deleteActivity;
 window.updateWaitingActivable = updateWaitingActivable;
 window.editProject = editProject;

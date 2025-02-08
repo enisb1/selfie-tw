@@ -1123,58 +1123,130 @@ function addDurationToDate(isoDate, duration) {
     return date.toISOString();
 }
 
+function getActivitiesByPhase(activities, phase, currentActivityId) {
+    // Filtra le attività per la fase specificata
+    let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
+
+    // Ordina le attività per data di inizio
+    activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
+    
+    // Trova l'indice dell'attività corrente
+    const currentIndex = activitiesForPhase.findIndex(activity => activity.projectData._id === currentActivityId);
+    
+    if(activitiesForPhase.length === 1){
+        return "Unique";
+    }
+    // Restituisci l'attività successiva se esiste, altrimenti null
+    if (currentIndex !== -1 && currentIndex < activitiesForPhase.length - 1) {
+        return activitiesForPhase[currentIndex + 1];
+    } else {
+        return "No successor";
+    }
+}
+
+function getActivitiesNumberByPhase(activities, phase) {
+    let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
+    return activitiesForPhase.length;
+}
+
+function getActivitiesPhase(activities, phase){
+    let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
+    return activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
+}
+
+function calculateNewDateBasedOnDifference(date1, date2, dataNow) {
+    const date1Time = new Date(date1).getTime();
+    const date2Time = new Date(date2).getTime();
+    const dataNowTime = new Date(dataNow).getTime();
+
+    // Calcola la differenza in millisecondi
+    const differenceInMilliseconds = Math.abs(date1Time - date2Time);
+
+    // Aggiungi la differenza in millisecondi alla data attuale
+    const newDate = new Date(dataNowTime + differenceInMilliseconds);
+
+    return newDate.toISOString();
+}
+
+function isActivityInRitardo(activity, nowDate) {
+    return new Date(activity.deadline) < new Date(nowDate);
+}
+
+const nowDate = "2025-02-23T11:00:00.000+00:00";
+async function calcoloRitardo(currentActivity, countRic){
+    console.log(currentActivity[countRic].deadline, currentActivity[countRic].title)
+    if(getActivitiesNumberByPhase(currentActivity, currentActivity[countRic].projectData.phase) === 1){
+        if(currentActivity[countRic].projectData.isMilestone === true && currentActivity[countRic].deadline < nowDate){
+            console.log("UNA SOLA ATTIVITA NELLA FASE + MILESTONE")
+        }else{
+            updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
+            console.log("UNA SOLA ATTIVITA NELLA FASE + NON MILESTONE")
+        
+        }
+    }else{
+        if(currentActivity[countRic].projectData.isMilestone === true){
+            await updateActivityStartDate(currentActivity[countRic].projectData._id,
+                calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate))
+            currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
+                console.log("MILESTONE")
+        }else if(getActivitiesByPhase(currentActivity, currentActivity[countRic].projectData.phase, 
+            currentActivity[countRic].projectData._id) === "No successor"){
+                await updateActivityDeadline(currentActivity[countRic].projectData._id,
+                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].deadline))
+                currentActivity[countRic].deadline = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].deadline)
+                await updateActivityStartDate(currentActivity[countRic].projectData._id,
+                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate))
+                currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
+            console.log("NON MILESTONE + NO SUCCESSOR")
+        }else{
+            if(countRic !== 0){
+                await updateActivityDeadline(currentActivity[countRic].projectData._id,
+                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].deadline))
+                currentActivity[countRic].deadline = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].deadline)
+                await updateActivityStartDate(currentActivity[countRic].projectData._id,
+                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate))
+                currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
+                console.log("NON MILESTONE + SUCCESSOR")
+            }else{
+                await updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
+                currentActivity[countRic].deadline = nowDate
+                console.log("primo elemento")
+            }
+            countRic++
+            console.log("NON MILESTONE")
+            calcoloRitardo(currentActivity, countRic) 
+            
+        }
+    }
+        
+    }
+
 let newDeadline = [];
+let countRic = 0
 async function ritardCalc(projectId, projectStart){
     const project = await window.getActivitiesByProject(projectId);
-    const nowDate = "2025-01-05T19:00:00.000+00:00";
     //const nowDate = new Date();
     let isNormal = false
     let count = 2;
     let isoDelay = "";
+    let lastActivity = false;
+    const processedPhases = new Set();
+    project.slice().forEach((activity, index) => {
+        const phase = activity.projectData.phase;
 
-    project.slice().reverse().forEach((activity, index) => {
-        if(project.length === 1 && nowDate > activity.deadline && activity.isDone === false){
-            console.log("ATTIVITA SCADUTA")  
-        }
-        else if(nowDate > activity.deadline && activity.isDone === false && index+1 < project.length){
-            if(project[project.length-count].projectData.isMilestone === true){
-                newDeadline[index] = nowDate
-                console.log("RITARDO + NEXT MILESTONE")
-                
-            }else{
-                isoDelay =  getFullIsoDifference(activity.deadline, nowDate)
-                
-                if(isNormal === false){
-                    newDeadline[index] = nowDate
-                    isNormal = true
-                
-                }else{
-                    const deadlineUploaded =  addDurationToDate(activity.deadline, isoDelay)
-                    newDeadline[index] = deadlineUploaded
-                }
+        // Verifica se la fase corrente è già stata elaborata
+        if (!processedPhases.has(phase)) {
+            // Aggiungi la fase al set delle fasi elaborate
+            processedPhases.add(phase);
 
-                
-                console.log("quella dopo è chill")
+            // Chiama calcoloRitardo per la fase corrente
+            if (isActivityInRitardo(activity, nowDate)) {
+                calcoloRitardo(getActivitiesPhase(project, phase), countRic);
             }
-           
-    
-        }else if(isNormal=== true){
-                
-                const deadlineUploaded =  addDurationToDate(activity.deadline, isoDelay)    
-                newDeadline[index] = deadlineUploaded
-                if(project[project.length-count].projectData.isMilestone === true){
-                    isNormal = false
-                }
-            
-        }else{
-            newDeadline[index] = activity.deadline
-            console.log("TUTTO GIUSTO")
-            
         }
-        count++
-        })
-        
-};
+    });
+
+}
 
 function isDateInArray(dateToCompare, datesArray) {
     // Estrai anno, mese e giorno dalla data da confrontare
@@ -1182,6 +1254,7 @@ function isDateInArray(dateToCompare, datesArray) {
     const yearToCompare = compareDate.getUTCFullYear();
     const monthToCompare = compareDate.getUTCMonth(); // Il mese è zero-indicizzato (0 = gennaio, 11 = dicembre)
     const dayToCompare = compareDate.getUTCDate();
+    const hourToCompare = compareDate.getUTCHours();
 
     // Confronta con ciascun elemento dell'array
     for (let date of datesArray) {
@@ -1191,7 +1264,7 @@ function isDateInArray(dateToCompare, datesArray) {
         const day = currentDate.getUTCDate();
 
         // Se anno, mese e giorno sono uguali, restituisci true
-        if (yearToCompare === year && monthToCompare === month && dayToCompare === day) {
+        if (yearToCompare === year && monthToCompare === month && dayToCompare === day && hourToCompare === currentDate.getUTCHours()) {
             return true;
         }
     }
@@ -1209,10 +1282,12 @@ function sortByDate(dates) {
         const yearA = dateA.getUTCFullYear();
         const monthA = dateA.getUTCMonth(); // Il mese è zero-indicizzato (0 = gennaio, 11 = dicembre)
         const dayA = dateA.getUTCDate();
+        const hourA = dateA.getUTCHours();
         
         const yearB = dateB.getUTCFullYear();
         const monthB = dateB.getUTCMonth();
         const dayB = dateB.getUTCDate();
+        const hourB = dateB.getUTCHours();
         
         // Confronta anno
         if (yearA !== yearB) {
@@ -1223,14 +1298,16 @@ function sortByDate(dates) {
         if (monthA !== monthB) {
             return monthA - monthB;
         }
+
+        if (dayA !== dayB) {
+            return dayA - dayB;
+        }
         
-        // Se mese e anno sono uguali, confronta giorno
-        return dayA - dayB;
+        // Se mese e anno e giorno sono uguali, confronta ora
+        return hourA - hourB;
     });
 }
-
   
-
 async function createGrid(projectId, projectStart) {
 
     const project = await window.getActivitiesByProject(projectId)
@@ -1257,112 +1334,169 @@ async function createGrid(projectId, projectStart) {
 
     containerFixedGrid.appendChild(navTitle);
 
-    let count = 2;
-     
-    project.slice().reverse().forEach((activity, index) => {
+   
+    const dates = [];
+    const sortedDates = [];
+    const uniqueDays = new Set();
+    let uniqueDay = 0
+    let countx = 1;
+    let county = 2;
 
-        let startDate;
-        if(index === 0){
-            startDate = projectStart;
+    project.slice().reverse().forEach((activity, index) => {
+        let start
+        let pStart 
+        let activityStructure = {
+            start:"",
+            end:"",
+            phase:"",
+            prev:"",
+            id:"",
+            title:"",
+            owner:""
+        }
             
-        }else{
-            startDate = project[project.length-count].projectData.startDate;
-            count = count + 1;
+            const startDate = new Date(activity.projectData.startDate);
+            if(!isNaN(startDate)){
+            start = startDate.setHours(startDate.getHours() + 1);
+            start = new Date(start).toISOString();
+            pStart = new Date(activity.deadline);
+            pStart.setHours(pStart.getHours() + 1);
+            pStart = new Date(pStart).toISOString()
+            activityStructure.start = start;
+            activityStructure.phase = activity.projectData.phase;
+            activityStructure.end = pStart;
+            activityStructure.prev = activity.projectData.prev;
+            activityStructure.id = activity.projectData._id;
+            activityStructure.title = activity.title;
+            activityStructure.owner = activity.users;
+            dates.push(activityStructure)  
         }    
 
+        dates.sort((a, b) => {
+            // Ordina per fase in ordine crescente
+            const phaseComparison = a.phase.localeCompare(b.phase);
+            if (phaseComparison !== 0) {
+                return phaseComparison;
+            }
         
+            // Se le fasi sono uguali, ordina per sequenza
+            if (a.prev === 'none' && b.prev !== 'none') {
+                return -1;
+            }
+            if (a.prev !== 'none' && b.prev === 'none') {
+                return 1;
+            }
+            if (a.prev === b.id) {
+                return 1;
+            }
+            if (b.prev === a.id) {
+                return -1;
+            }
+        
+            // Se anche la sequenza è uguale, ordina per data (start) in ordine crescente
+            return new Date(a.start) - new Date(b.start);
+        });
+    })
+        
+        // Costruisci le sequenze basate su prev
+        const dateMap = new Map();
+        dates.forEach(date => dateMap.set(date.id, date));
+        
+        dates.forEach(date => {
+            if (date.prev === 'none') {
+                sortedDates.push(date);
+                let currentId = date.id;
+                while (true) {
+                    const nextDate = dates.find(d => d.prev === currentId);
+                    if (!nextDate) break;
+                    sortedDates.push(nextDate);
+                    currentId = nextDate.id;
+                }
+                
+            }
+        });
+
+    
+        
+        
+    project.slice().forEach((activity, index) => {
+
 
         const taskGrid = document.createElement("div");
         taskGrid.classList.add("bg-white", "text-secondary", "font-bold", "grid", "grid-cols-4", "divide-x", "divide-y", "divide-secondary");
         taskGrid.innerHTML = ` 
-            <div class="truncate text-center"><span>${activity.title}</span></div>
-            <div class="truncate text-center"><span>${activity.users}</span></div>
-            <div class="truncate text-center"><span>${formatDateToDayMonth(startDate)}</span></div>
-            <div class="truncate text-center"><span>${formatDateToDayMonth(activity.deadline)}</span></div>
+            <div class="truncate text-center"><span>${sortedDates[index].title}</span></div>
+            <div class="truncate text-center"><span>${sortedDates[index].owner}</span></div>
+            <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].start)}</span></div>
+            <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].end)}</span></div>
 
         `;
         containerFixedGrid.appendChild(taskGrid);
+        
         
     });
     const dayGrid = document.createElement("div");
     dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "divide-x", "divide-white", "overflow-x-scroll");
 
-    const dates = [];
-    let countx = 1;
-    let county = 2;
-    project.slice().reverse().forEach((activity, index) => {
-        let startDate;
-        let pStart;
-        let actualMonth;
-
-        pStart = new Date(projectStart);
-        actualMonth = pStart.getMonth() + 1;
-                
-       /* if(index === 0){
-            startDate = projectStart;
-            dates.push(startDate);
-            const startDayDiv = document.createElement("div");
-            startDayDiv.innerHTML = `
-                <div class="truncate text-center min-w-24 bg-secondary"><span>${formatDateToDayMonth(startDate)}</span></div>
-            `;
-            dayGrid.appendChild(startDayDiv);
-            if(startDate !== activity.deadline){
-                dates.push(newDeadline[index])
-                const deadlineDiv = document.createElement("div");
-                deadlineDiv.innerHTML = `
-                <div class="truncate text-center min-w-24 bg-secondary"><span>${formatDateToDayMonth(newDeadline[index])}</span></div>
-                `;
-                dayGrid.appendChild(deadlineDiv);
-            }    
-        }else{*/
-            startDate = project[project.length-countx].projectData.startDate;
-            pStart = new Date(activity.deadline);
-            console.log(startDate)
-            if(isDateInArray(startDate, dates) === false){
-                dates.push(startDate)
-                
-            }
-            if(isDateInArray(newDeadline[index], dates) === false){
-                dates.push(newDeadline[index])
-                
-            } 
-            countx++ 
-        
-  
     
+        project.slice().forEach((activity, index) => {
+            
+
+            dates.forEach(date => {
+            const day = new Date(date.start).toISOString().split('T')[0]; 
+            uniqueDays.add(day);
+            const endDay = new Date(date.end).toISOString().split('T')[0]; 
+            uniqueDays.add(endDay);
+            });
+
+            uniqueDay = uniqueDays.size;
+            
+
+                        
         if(index === project.length-1){
             const colorGrid = document.createElement("div");
             colorGrid.classList.add("absolute", "left-0", "top-6", "right-2", "bg-white", "grid", "divide-y", "divide-x", "divide-secondary");
-            colorGrid.style.gridTemplateColumns =  `repeat(${dates.length}, minmax(96px, 1fr))`;
+            colorGrid.style.gridTemplateColumns =  `repeat(${uniqueDay}, minmax(96px, 1fr))`;
             colorGrid.style.gridTemplateRows =  `repeat(${project.length}, minmax(0, 1fr))`;
             
-            let actualyStart = projectStart;
+            
+
+            let actualyStart =  sortedDates.length > 0 ? sortedDates[0].start : null; //first start of dates
+            let actualyEnd = dates.length > 0 ? dates[0].end : null; //first end of dates
+            let oldStart = "";
+            let oldEnd = "";
             let stato = "";
             let hours = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
             let inActivityTime = false;
+            const uniqueDaysArray = Array.from(uniqueDays).map(day => new Date(day).toISOString());
+            uniqueDaysArray.sort((a, b) => new Date(a) - new Date(b));
             
 
             project.slice().reverse().forEach((activity, index) => {
                 const sortDates = sortByDate(dates);
-                sortDates.forEach((d => {
+                
+            
+                uniqueDaysArray.forEach((d => {
                     let classe = "";
                     let hourStart = extractTimeFromDate(actualyStart) -1
-                    let hourEnd = extractTimeFromDate(newDeadline[index]) -1 
+                    let hourEnd = extractTimeFromDate(actualyEnd) -1 
                     const colorDiv = document.createElement("div");
-                    colorDiv.classList.add("truncate", "text-center", "min-w-24", "grid", "grid-cols-24");
+                    colorDiv.classList.add("truncate", "text-center", "grid", "grid-cols-24");
                     
 
                 hours.forEach((hour) => {
-                if(((formatDateToDayMonth(actualyStart) === formatDateToDayMonth(d) && hourStart === hour)|| (formatDateToDayMonth(newDeadline[index]) === formatDateToDayMonth(d) && hourEnd === hour))){
+                                
+                if(((formatDateToDayMonth(actualyStart) === formatDateToDayMonth(d) && hourStart === hour)|| 
+                    (formatDateToDayMonth(actualyEnd) === formatDateToDayMonth(d) && hourEnd === hour))){
                     
                     if(inActivityTime === false){
                         inActivityTime = true;
                         stato = "colorato"
-                        classe = "bg-red-500";
+                        classe = "bg-red-500";   
                     }else{
                         inActivityTime = false;
                         stato = "biancoo"
-                        classe = "bg-white";   
+                        classe = "bg-white";
                     }
                      
                 }else{
@@ -1377,9 +1511,11 @@ async function createGrid(projectId, projectStart) {
                         
                     }   
                 }
+                
+                
         
                 const hourDiv = document.createElement("div");
-                hourDiv.classList.add("truncate", "text-center", "min-w-24", classe);
+                hourDiv.classList.add("truncate", "text-center", classe);
 
                 hourDiv.innerHTML = `<div>&nbsp;</div>`
                 colorDiv.appendChild(hourDiv);
@@ -1389,39 +1525,29 @@ async function createGrid(projectId, projectStart) {
                 
             }))
             
-            if(project.length > county){
-            actualyStart = project[project.length-county].projectData.startDate
-            }else if(project.length === county){
-                actualyStart = project[0].projectData.startDate
-            }
+            if(index+1 < project.length){
+            actualyStart = sortedDates[index+1].start
+            actualyEnd = sortedDates[index+1].end
+            }  
+            
+            
             inActivityTime = false;
             county++
         })
         dayGrid.appendChild(colorGrid)
         }
     });
-    const sortDates = sortByDate(dates);
-    dates.forEach((sortDates) => {
+//si può togliere
+    const uniqueDaysArray = Array.from(uniqueDays).map(day => new Date(day).toISOString());
+    uniqueDaysArray.sort((a, b) => new Date(a) - new Date(b));
+
+    for (let i = 0; i < uniqueDay; i++) {
         const dayDiv = document.createElement("div");
             dayDiv.innerHTML = `
-            <div class="truncate text-center min-w-24 bg-secondary"><span>${formatDateToDayMonth(sortDates)}</span></div>
+            <div class="truncate text-center min-w-24 bg-secondary"><span>${formatDateToDayMonth(uniqueDaysArray[i])}</span></div>
             `;
             dayGrid.appendChild(dayDiv);
-    })
+    }
         ganttContainer.appendChild(dayGrid);
 }
 
-//SETTINGS
-//---------------------------------------------------------------------
-function createSettingsPage(projectId, nameProject, startProject, descriptionProject){
-    settingsPage.innerHTML = ''
-    const titleProject = document.createElement("div");
-    titleProject.classList.add("w-3/4", "h-1/2");
-    titleProject.innerHTML = `
-                <div class="p-6 px-8 text-3xl text-secondary font-bold"><span>${nameProject}</span></div>
-            `;
-
-
-    settingsPage.appendChild(titleProject);
-
-}
