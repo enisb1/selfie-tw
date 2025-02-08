@@ -53,7 +53,7 @@ async function updateProjectActivities(alphabeticalOrder) {
     }
     activityNumber = 0
     displayToDoActivities(activities.filter(activity => activity.projectData.status === 'activable' || activity.projectData.status === 'waitingActivable'))
-    displayInProgressActivities(activities.filter(activity => activity.projectData.status === 'active' || activity.projectData.status === 'reactivated' || activity.projectData.status === 'overdue'))
+    displayInProgressActivities(activities.filter(activity => activity.projectData.status === 'active' || activity.projectData.status === 'reactivated'))
     displayCompletedActivities(activities.filter(activity => activity.projectData.status === 'done' || activity.projectData.status === 'discarded'))
 }
 
@@ -176,7 +176,16 @@ async function displayInProgressActivities(activities) {
             const users = await window.getUsers(activity.users);
             let startString = new Date(activity.projectData.startDate).toLocaleDateString("it-IT", infoDateFormat);
             let deadlineString = new Date(activity.deadline).toLocaleDateString("it-IT", infoDateFormat);
-
+            
+            const deadlineDate = new Date(activity.deadline);
+            let tenDaysAfterDeadline = new Date(deadlineDate);
+            tenDaysAfterDeadline.setDate(deadlineDate.getDate() + 10)
+            let status = activity.projectData.status
+            if (new Date(activity.deadline).getTime() < new Date().getTime() &&
+                tenDaysAfterDeadline.getTime() < new Date().getTime())
+                status = 'discarded'
+            else if (new Date(activity.deadline).getTime() < new Date().getTime())
+                status = 'overdue'
             // Add content to the div
             activityDiv.innerHTML = `
                 <!-- title -->
@@ -202,7 +211,7 @@ async function displayInProgressActivities(activities) {
                 <!-- status -->
                 <div class="w-2/12 border-l border-secondary truncate">
                     <div class="ml-1">
-                        ${activity.projectData.status}
+                        ${status}
                     </div>
                 </div>
                 <div class="w-1/12 border-l border-secondary">
