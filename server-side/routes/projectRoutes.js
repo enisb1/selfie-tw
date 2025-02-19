@@ -105,7 +105,7 @@ router.put('/editDeadline/:activityId', async (req, res) => {
         res.status(200).json(updatedActivity);
     } catch (error) {
         res.status(500).json({ message: 'Error updating activity', error: error.message });
-=======
+    }})
 // Update activities with previous activity equal to activityId and status 'waitingActivable'
 router.put("/updateWaitingActivable/:id", async (req, res) => {
     const activityId = req.params.id;
