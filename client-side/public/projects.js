@@ -728,7 +728,6 @@ function goToGanttPage() {
     ganttTitle.classList.add("border-b-4", "border-secondary")
     ritardCalc(currentProject._id, currentProject.start)
     createGrid(currentProject._id, currentProject.start)
-    createSettingsPage(currentProject._id, currentProject.name, currentProject.start, currentProject.description)
 }
 
 // HOME VIEW
