@@ -728,7 +728,7 @@ function goToGanttPage() {
     ganttTitle.classList.add("border-b-4", "border-secondary")
     ritardCalc(currentProject._id, currentProject.start)
     createGrid(currentProject._id, currentProject.start)
-    createSettingsPage(currentProject._id, currentProject.name, currentProject.start, currentProject.description)
+    
 }
 
 // HOME VIEW
@@ -1326,7 +1326,7 @@ async function createGrid(projectId, projectStart) {
     navTitle.classList.add("bg-white", "text-secondary", "font-bold", "grid", "grid-cols-4", "divide-x", "divide-white");
     navTitle.innerHTML = `
        <div class="bg-secondary text-white text-center truncate"><span>Title</span></div>
-       <div class="bg-secondary text-white text-center truncate"><span>Owner</span></div>
+       <div class="bg-secondary text-white text-center truncate"><span>In charge</span></div>
        <div class="bg-secondary text-white text-center truncate"><span>Start</span></div>
        <div class="bg-secondary text-white text-center truncate"><span>End</span></div>
     
@@ -1424,7 +1424,7 @@ async function createGrid(projectId, projectStart) {
         
     async function getUserNames(userIds) {
         const users = await window.getUsers(userIds);
-        return users.map(user => user.username).join(", ");
+        return users.map(user => user.username).join(", "); 
     }
     
     
@@ -1437,7 +1437,7 @@ async function createGrid(projectId, projectStart) {
         const taskGrid = document.createElement("div");
         taskGrid.classList.add("bg-white", "text-secondary", "font-bold", "grid", "grid-cols-4", "divide-x", "divide-y", "divide-secondary");
         taskGrid.innerHTML = ` 
-            <div class="truncate text-center"><span>${sortedDates[index].title}</span></div>
+            <div class="truncate text-center flex items-center justify-center"><span>${sortedDates[index].title}</span><span class="text-xs text-gray-400">[${sortedDates[index].phase}]</span></div>
             <div class="truncate text-center"><span>${userNames}</span></div>
             <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].start)}</span></div>
             <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].end)}</span></div>
@@ -1484,10 +1484,17 @@ async function createGrid(projectId, projectStart) {
             let inActivityTime = false;
             const uniqueDaysArray = Array.from(uniqueDays).map(day => new Date(day).toISOString());
             uniqueDaysArray.sort((a, b) => new Date(a) - new Date(b));
+            const colors = ["bg-red-500", "bg-blue-500", "bg-cyan-500", "bg-sky-500", "bg-gray-400"];
+            let currentColorIndex = -1;
+            let lastPhase = null;
             
 
             project.slice().reverse().forEach((activity, index) => {
                 const sortDates = sortByDate(dates);
+                if (sortDates[index].phase !== lastPhase) {
+                    lastPhase = sortDates[index].phase;
+                    currentColorIndex = (currentColorIndex + 1) % colors.length; // Cambia colore ciclicamente
+                }
                 
             
                 uniqueDaysArray.forEach((d => {
@@ -1502,11 +1509,12 @@ async function createGrid(projectId, projectStart) {
                                 
                 if(((formatDateToDayMonth(actualyStart) === formatDateToDayMonth(d) && hourStart === hour)|| 
                     (formatDateToDayMonth(actualyEnd) === formatDateToDayMonth(d) && hourEnd === hour))){
-                    
+
+                   
                     if(inActivityTime === false){
                         inActivityTime = true;
                         stato = "colorato"
-                        classe = "bg-red-500";   
+                        classe = colors[currentColorIndex];   
                     }else{
                         inActivityTime = false;
                         stato = "biancoo"
@@ -1521,7 +1529,7 @@ async function createGrid(projectId, projectStart) {
                         
                     }else{
                         stato = "colorato"
-                        classe = "bg-red-500";
+                        classe = colors[currentColorIndex];
                         
                     }   
                 }
