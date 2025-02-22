@@ -1,6 +1,6 @@
 <template>
    <div class="h-32 rounded-r-xl rounded-bl-xl border-4 bg-white border-third shadow-2xl overflow-hidden">
-            <h5 @click.self="openNote(note._id)" :class="{'bg-fourth':note.format == 'normalNote'|| 'markdownNote', 'text-secondary':note.format == 'normalNote' || 'markdownNote', 'bg-secondary':note.format == 'Task', 'text-white':note.format == 'Task'}"  
+            <h5 @click.self="openNote(note._id)" :class="{'bg-fourth cursor-pointer':note.format == 'normalNote'|| 'markdownNote', 'text-secondary cursor-pointer':note.format == 'normalNote' || 'markdownNote', 'bg-secondary cursor-pointer':note.format == 'Task', 'text-white cursor-pointer':note.format == 'Task'}"  
                  class="p-1 h-1/4 m-1 font-medium flex items-center justify-between"> 
                  {{note.title}}
                  <span class="flex justify-between items-center">

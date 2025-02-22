@@ -1,4 +1,5 @@
 <template>
+<div :class="{ 'fixed': editorVisible }">
     <!--Blur effect-->
     <div v-if="!editorVisible" class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl z-10
                     lg:hidden"></div>
@@ -264,14 +265,14 @@
         </div>
     </div>
 
-    <div v-if="editorVisible" class="fixed left-0 top-0 h-full w-full">
-        <div v-for="note in notes">
+    <div v-if="editorVisible" class="absolute top-0 h-full w-full">
+        <div>
             <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
             @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @add-expiration-task="saveExpiration"/>
         </div>
     </div>
 
-   
+</div>
 
     
 
