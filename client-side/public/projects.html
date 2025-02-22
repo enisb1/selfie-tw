@@ -23,6 +23,15 @@
               <div class="container mx-auto flex justify-between items-center">
                 <!-- App name (TODO: find a logo and add it) -->
                 <a href="#"  class="text-white text-2xl font-bold">Selfie</a>
+
+                <!-- Hamburger Menu (for mobile) -->
+                <div class="block lg:hidden">
+                  <button class="text-white focus:outline-none" id="hamburgerMenuButton">
+                    <svg class="w-6 h-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                      <path fill-rule="evenodd" clip-rule="evenodd" d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"></path>
+                    </svg>
+                  </button>
+                </div>
                 
                 <!-- Menu Links TODO: update remaining 'a' elements -->
                 <div class="hidden lg:flex space-x-6">
@@ -37,6 +46,22 @@
                     <!-- TODO: put inside of settings instead of navbar -->
                     <a class="text-white hover:text-accent" href="/login">Logout</a>
                 </div>
+              </div>
+
+              <!-- Responsive drop down Menu (for mobile) -->
+              <div class="hidden" id="hamburgerMenu">
+                <ul class="p-4 bg-secondary">
+                  <li><a class="text-white hover:text-accent" href="/admin" id="adminNavLink">Admin</a></li>
+                  <li><a class="text-white hover:text-accent" href="/calendar">Calendar</a></li>
+                  <li><a class="text-white hover:text-accent" href="/notifications">Notifications Centre</a></li>
+                  <li><a class="text-white hover:text-accent" href="/chat">Chat</a></li>
+                  <li><a class="text-white hover:text-accent" href="/projects.html">Projects</a></li>
+                  <li><a class="text-white hover:text-accent" href="/pomodoro">Pomodoro</a></li>
+                  <li><a class="text-white hover:text-accent" href="/notes">Notes</a></li>
+                  <li><a class="text-white hover:text-accent" href="/settings">Settings</a></li>
+                  <!-- TODO: put inside of settings instead of navbar -->
+                  <li><a class="text-white hover:text-accent" href="/login">Logout</a></li>
+                </ul>
               </div>
             </nav>
 
@@ -135,7 +160,7 @@
                       </button>
                     </div>
 
-                    <div class="w-full flex mt-4 border-secondary border-t border-b py-1">
+                    <div class="hidden sm:flex w-full mt-4 border-secondary border-t border-b py-1">
                       <div class="w-2/12"><span class="font-semibold text-secondary">Activity name</span></div>
                       <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">In charge</span></div>
                       <div class="w-2/12 border-l border-secondary"><span class="ml-1 font-semibold text-secondary">Start</span></div>

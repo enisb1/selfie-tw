@@ -868,10 +868,6 @@ video {
   margin-left: 1.5rem;
 }
 
-.ml-8 {
-  margin-left: 2rem;
-}
-
 .ml-auto {
   margin-left: auto;
 }
@@ -1437,6 +1433,10 @@ video {
 
 .justify-evenly {
   justify-content: space-evenly;
+}
+
+.gap-1 {
+  gap: 0.25rem;
 }
 
 .gap-2 {
@@ -2513,6 +2513,10 @@ video {
     display: block;
   }
 
+  .sm\:flex {
+    display: flex;
+  }
+
   .sm\:hidden {
     display: none;
   }
@@ -2543,6 +2547,10 @@ video {
 
   .sm\:justify-normal {
     justify-content: normal;
+  }
+
+  .sm\:border-l {
+    border-left-width: 1px;
   }
 
   .sm\:pl-6 {
