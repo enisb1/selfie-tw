@@ -1484,7 +1484,7 @@ async function createGrid(projectId, projectStart) {
             let inActivityTime = false;
             const uniqueDaysArray = Array.from(uniqueDays).map(day => new Date(day).toISOString());
             uniqueDaysArray.sort((a, b) => new Date(a) - new Date(b));
-            const colors = ["bg-red-500", "bg-blue-500", "bg-cyan-500", "bg-sky-500", "bg-gray-400"];
+            const colors = ["bg-blue-500", "bg-red-500", "bg-cyan-500", "bg-sky-500", "bg-gray-400"];
             let currentColorIndex = -1;
             let lastPhase = null;
             
