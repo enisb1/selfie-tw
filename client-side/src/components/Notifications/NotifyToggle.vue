@@ -40,6 +40,8 @@
         icon.value = '📩';
       } else if (props.type === 'invite') {
         icon.value = '📨';
+      } else if (props.type === 'pomodoro') {
+        icon.value = '🍅';
       }
 
       return {

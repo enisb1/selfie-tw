@@ -88,6 +88,17 @@
             <div class="flex items-center justify-center rounded-xl bg-secondary px-2">TIME RELAX {{minuteRelax/60}}'</div>
             <div class="flex items-center justify-center rounded-xl bg-secondary px-2">NUMBER CYCLES {{numCicli}}</div>
         </div>
+        <button @click="showShareTrigger" class="bg-secondary text-white font-semibold rounded-xl p-2 w-full mt-4">Share configuration</button>
+    </Modal>
+
+    <Modal v-show="showShare" @click.self="showShareTrigger">
+        <div class="flex flex-col items-center justify-center">
+            <p class="text-center text-secondary font-semibold">Share your study configuration with a friend</p>
+            <input type="text" class="w-1/2 p-2 mt-4 rounded-xl" placeholder="Enter the username" v-model="receiver">
+            <button @click="shareStudyConfig(receiver)" class="bg-secondary text-white font-semibold rounded-xl p-2 w-24 mt-4">Share</button>
+            <p class="text-red-500">{{ shareError }}</p>
+        </div>
+
     </Modal>
 
     <div class="relative">
@@ -177,7 +188,11 @@
 <script>
 import {ref, onMounted, watch} from 'vue'
 import Modal from "@/components/Modal.vue";
-
+import {sharePomodoroConfig} from "@/apis/notifications";
+import {useStore} from "vuex";
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+import {checkUsername} from "@/apis/users";
 
 export default {
 
@@ -187,14 +202,21 @@ export default {
 
     setup(){
 
+
+        const route = useRoute();
+
+        const study = computed(() => Number(route.query.study) || 1800);
+        const relax = computed(() => Number(route.query.relax) || 300);
+        const cycles = computed(() => Number(route.query.cycles) || 5);
+
         const cicles = ref([
             {
-                relax: 5,
-                ncicle: 5,
-                study: 30
+                relax: relax,
+                ncicle: cycles,
+                study: study
             }
         ])
-
+        const store = useStore()
         const audio = new Audio("/soundbutton.mp3")
         const audioReset = new Audio("/soundReset.mp3")
         const audioFinish = new Audio("/finishsound.mp3")
@@ -203,9 +225,9 @@ export default {
         const minutes = ref()
         const time = ref()
         let interval
-        const numCicli = ref(5)
-        const minuteStudy = ref(1800)
-        const minuteRelax = ref(300)
+        const numCicli = ref(cycles)
+        const minuteStudy = ref(study)
+        const minuteRelax = ref(relax)
         const mstudy = ref()
         const side = ref("A")
         const cicleState = ref("STUDY")
@@ -217,6 +239,9 @@ export default {
         const minSetStudy = ref()
         const minSetRelax = ref()
         const numSetCycle = ref()
+
+        const showShare = ref(false)
+        const receiver = ref()
 
         onMounted(() => {
             nCicle.value = numCicli.value
@@ -487,6 +512,27 @@ export default {
             minutesNumber.value = ""
         }
 
+        const shareError = ref("")
+
+        const shareStudyConfig = async (receiver) => {
+          // check if the receiver is a valid username
+          const data = await checkUsername(receiver);
+
+          if(data.message === "Username not available"){
+            await sharePomodoroConfig(store.state.username,receiver,minuteStudy.value, minuteRelax.value, numCicli.value)
+            showShareTrigger()
+            currentSettings.value = false
+          }else {
+            shareError.value = "Insert a valid username"
+          }
+
+        }
+
+        const showShareTrigger = () => {
+            showShare.value = !showShare.value
+            shareError.value = ""
+        }
+
 
         
         return{
@@ -531,7 +577,12 @@ export default {
             minSetStudy,
             numSetCycle,
             saveCicleCustom,
-            nextStage
+            nextStage,
+            shareStudyConfig,
+            showShare,
+            showShareTrigger,
+            receiver,
+            shareError
     }
 
 }}

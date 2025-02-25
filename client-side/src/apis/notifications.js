@@ -82,3 +82,19 @@ export async function declineInvite(id) {
         throw error.response.data;
     }
 }
+
+// send pomodoro configuration
+export async function sharePomodoroConfig(sender,receiver,minuteStudy,minuteRelax,numCycles) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/notifications/sharePomodoroConfig`, {
+            sender: sender,
+            receiver: receiver,
+            minuteStudy: minuteStudy,
+            minuteRelax: minuteRelax,
+            numCycles: numCycles
+        });
+        return response.data;
+    } catch (error) {
+        throw error.response.data;
+    }
+}

@@ -27,16 +27,24 @@
         <h1 class="text-2xl font-semibold text-secondary mb-6">{{selectedNotification.title}}</h1>
         <p class="text-secondary">{{ selectedNotification.text }}</p>
         <span class="text-xs text-third block">{{ selectedNotification.time }}</span>
-        <button class="bg-third text-primary p-2 m-2 rounded-lg" v-if="selectedNotification.type==='message'" @click="openSendMessageModal" >Rispondi</button>
+        <button class="bg-third text-primary p-2 m-2 rounded-lg" v-if="selectedNotification.type==='message'" @click="openSendMessageModal" >Reply</button>
         <button
             @click="accept(selectedNotification.data.id,selectedNotification._id,selectedNotification.data.type)"
             v-if="selectedNotification.type === 'invite'"
             class="bg-green-700 text-primary p-2 m-2 rounded-lg"
         >Accept</button>
+
         <button
             @click="decline(selectedNotification._id)"
+            v-if="selectedNotification.type === 'invite'"
             class="bg-red-600 text-primary p-2 m-2 rounded-lg"
         >Decline</button>
+
+        <button
+            class="bg-orange-500 text-primary rounded-lg  p-2 m-2 "
+            v-if="selectedNotification.type === 'pomodoro'"
+            @click="goToStudy(selectedNotification.data.minuteStudy, selectedNotification.data.minuteRelax, selectedNotification.data.numCycles)"
+        >Study</button>
       </Modal>
 
       <Modal v-if="showSendMessageModal" @close="closeSendMessageModal()">
@@ -70,6 +78,7 @@
     sendNotification
   } from "@/apis/notifications";
   import {useStore} from "vuex";
+  import router from "@/router";
   
   export default {
     name: "NotificationPage",
@@ -114,6 +123,8 @@
             return '📅';
           case 'invite':
             return '📨';
+          case 'pomodoro':
+            return '🍅';
           default:
             return 'ℹ️';
         }
@@ -155,8 +166,6 @@
           sendNotification(store.state.username,selectedRecipient.value, text.value);
           closeSendMessageModal();
           closeModal();
-        } else {
-          console.log("Seleziona un destinatario");
         }
       }
 
@@ -180,6 +189,15 @@
         removeNotification(notificationId);
       }
 
+      const goToStudy = (study, relax, cycles ) => {
+        router.push({
+          name: 'pomodoro',
+          query: { study, relax, cycles }
+        });
+
+        closeModal();
+      }
+
 
       return {
         removeNotification,
@@ -197,7 +215,8 @@
         text,
         icon,
         accept,
-        decline
+        decline,
+        goToStudy
       }
 
     }

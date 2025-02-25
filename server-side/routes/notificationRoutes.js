@@ -129,6 +129,39 @@ router.post("/declineInvite", async (req, res) => {
     }
 });
 
+/**
+ * Share pomodoro config
+ * @param {String} sender - the user sending the invite
+ * @param {String} receiver - the user receiving the invite
+ * @param {Number} minuteStudy - the minutes of study
+ * @param {Number} minuteRelax - the minutes of relax
+ * @param {Number} numCycles - the number of cycles
+ */
+
+router.post("/sharePomodoroConfig", async (req, res) => {
+    try {
+        const message = new Notification({
+            sender: req.body.sender,
+            receiver: req.body.receiver,
+            time: new Date(),
+            read: false,
+            title: "Pomodoro Config",
+            text: `You have received a Pomodoro configuration from ${req.body.sender}`,
+            type: 'pomodoro',
+            data: {
+                minuteStudy: req.body.minuteStudy,
+                minuteRelax: req.body.minuteRelax,
+                numCycles: req.body.numCycles
+            }
+        });
+        await message.save();
+        await wsConnectionHandler.sendPushNotification(new Message(req.body.sender, req.body.receiver, 'notification', message));
+        res.status(201).json({ message: 'Pomodoro config sent' });
+    } catch (error) {
+        console.error('Error saving data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 export default router;
 
