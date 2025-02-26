@@ -1,6 +1,6 @@
 <template>
   <!--NoteEditor-->
-    <div class="fixed top-0 h-full w-full bg-white">
+    <div class="absolute bottom-0 h-full w-full bg-white">
         <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
             <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
@@ -17,7 +17,7 @@
 
         </div>
         <div v-else-if="note.format == 'markdownNote' || noteFormat == 'markdownNote'" class="p-4 z-10">
-            <button @click="toggleSave(noteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
+            <button @click="toggleSave(localNoteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
             <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
             </span> -->
@@ -26,7 +26,7 @@
                 Access: {{ note.access }} 
             </span>
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
-            <textarea v-model="noteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
+            <textarea v-model="localNoteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
                         class="w-full"></textarea>
             <div v-html="convertedMarkdown" class="fixed bottom-0 left-0 p-4 top-2/3 mt-4 overflow-y-scroll w-full overflow-auto whitespace-normal"></div>
         </div>
@@ -68,7 +68,7 @@
 
 <script>
 
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { marked } from 'marked'
 import SingleNote from '@/components/Notes/SingleNote.vue'
 import SingleTask from '@/components/Notes/SingleTask.vue';
@@ -89,14 +89,19 @@ export default {
     setup(props, {emit}){
         const {note, noteFormat, noteTitle, noteBody, tasks, taskBody} = props
 
-        
-        const convertedMarkdown = computed(() => {
-            return marked(noteBody)
+        const localNoteBody = ref(props.noteBody)
+        const convertedMarkdown = ref(marked(noteBody)) 
+
+
+        watch(() => localNoteBody.value, (newVal) => {
+            convertedMarkdown.value = marked(newVal)
+            console.log("modi")
         })
 
-
+    
         const toggleSave = (noteBody,id) => {
             emit('save-note',noteBody,id)
+            console.log(noteBody)
         }
 
         const taskTitleInput = ref("")
@@ -133,6 +138,7 @@ export default {
             convertedMarkdown,
             format,
             saveExpiration,
+            localNoteBody
         }
 
     },
