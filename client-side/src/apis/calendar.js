@@ -13,6 +13,66 @@ export async function getEventsInRange(startDate, endDate) {
     }
 }
 
+export async function getTodayEvents(userId) {
+    const startStringUTC = new Date((new Date()).setHours(0, 0, 0, 0)).toISOString();
+    const endStringUTC = new Date((new Date()).setHours(23, 59, 59, 999)).toISOString();
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/events?start=${startStringUTC}&end=${endStringUTC}&userId=${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching events: ", error);
+    }
+}
+
+export async function getTodayActivities(userId) {
+    const startStringUTC = new Date((new Date()).setHours(0, 0, 0, 0)).toISOString();
+    const endStringUTC = new Date((new Date()).setHours(23, 59, 59, 999)).toISOString();
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/activities?start=${startStringUTC}&end=${endStringUTC}&userId=${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching events: ", error);
+    }
+}
+
+// Get this week's events for the current user
+export async function getWeekEvents(userId) {
+    const today = new Date();
+    const startStringUTC = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+
+    // Calculate the last day of the week (Sunday)
+    const lastDayOfWeek = new Date(today);
+    lastDayOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+    const endStringUTC = new Date(lastDayOfWeek.setHours(23, 59, 59, 999)).toISOString();
+
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/events?start=${startStringUTC}&end=${endStringUTC}&userId=${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching week's events: ", error);
+        throw error;
+    }
+}
+
+// Get this week's events for the current user
+export async function getWeekActivities(userId) {
+    const today = new Date();
+    const startStringUTC = new Date(today.setHours(0, 0, 0, 0)).toISOString();
+
+    // Calculate the last day of the week (Sunday)
+    const lastDayOfWeek = new Date(today);
+    lastDayOfWeek.setDate(today.getDate() + (7 - today.getDay()));
+    const endStringUTC = new Date(lastDayOfWeek.setHours(23, 59, 59, 999)).toISOString();
+
+    try {
+        const response = await axios.get(`http://localhost:8000/api/calendar/activities?start=${startStringUTC}&end=${endStringUTC}&userId=${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching week's events: ", error);
+        throw error;
+    }
+}
+
 // convert startDate and endDate to UTC time string, and get events in that range
 export async function getActivitiesInRange(startDate, endDate, userId) {
     const startStringUTC = new Date(startDate.setHours(0, 0, 0, 0)).toISOString();

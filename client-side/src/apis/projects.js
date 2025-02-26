@@ -34,3 +34,14 @@ export async function addActivityToProject(projectId, activityId) {
         throw error.response.data;
     }
 }
+
+// Get project details by ID
+export async function getProjectDetails(projectId) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/projects/${projectId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching project details: ", error);
+        throw error;
+    }
+}

@@ -5,48 +5,127 @@
   </div>
 
   <!-- Buttons Section -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-11/12 max-w-3xl mx-auto">
-    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
-      Calendario
-    </a>
-    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
-      Centro Notifiche
-    </a>
-    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
-      Chat
-    </a>
-    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
-      Progetti
-    </a>
-    <a href="../Pomodoro/pomodoro.html" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
+  <div class="flex gap-6 w-full justify-center px-10 flex-col sm:flex-row items-start">
+    <!-- Calendar -->
+    <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
+      <a href="/calendar">Calendar</a>
+      <div class="w-full p-1 bg-third mt-2">Upcoming events</div>
+      <div class="flex w-full justify-around">
+        <button class="w-full p-1" :class="{'bg-third': previewCalToday}" @click="toggleTodayCalPreview">Today</button>
+        <button class="w-full p-1" :class="{'bg-third': previewCalWeek}" @click="toggleWeekCalPreview">Week</button>
+      </div>
+      <div class="mt-2 flex flex-col">
+        <div v-for="event in calendarPreviewEvents" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
+          {{ event.title }} (<span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}&nbsp;</span>{{ new Date(event.startDate).getHours() }}.{{ new Date(event.startDate).getMinutes() }} - <span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(event.endDate).getHours() }}.{{ new Date(event.endDate).getMinutes() }})
+        </div>
+      </div>
+    </div>
+    <!-- Projects -->
+    <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
+      <a href="/projects.html">Projects</a>
+      <div class="w-full p-1 bg-third mt-2">Expiring activities</div>
+      <div class="flex w-full justify-around">
+        <button class="w-full p-1" :class="{'bg-third': previewProjectsToday}" @click="toggleTodayProjectsPreview">Today</button>
+        <button class="w-full p-1" :class="{'bg-third': previewProjectsWeek}" @click="toggleWeekProjectsPreview">Week</button>
+      </div>
+      <div class="mt-2 flex flex-col">
+        <div v-for="activity in projectsPreviewActivities" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
+          {{ activity.title }} (deadline <span v-show="previewProjectsWeek">{{ new Date(activity.deadline).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(activity.deadline).getHours() }}.{{ new Date(activity.deadline).getMinutes().toString().padStart(2, '0') }} {{ activity.projectName }})
+        </div>
+      </div>
+    </div>
+    <!-- Pomodoro -->
+    <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
       Pomodoro
-    </a>
-    <a href="#" class="bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary transition-all duration-300">
-      Note
-    </a>
+    </div>
+    <!-- Notes -->
+    <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
+      Notes
+    </div>
   </div>
-
-  <a href="#" class="text-secondary hover:text-secondary transition-all duration-300 mt-10 block text-center">
-    <!-- Icona rotellina dentata SVG -->
-    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0,0,256,256" width="48px" height="48px" fill-rule="nonzero">
-      <g fill="#383f51" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal">
-        <g transform="scale(5.33333,5.33333)">
-          <path d="M39.6,27.2c0.1,-0.7 0.2,-1.4 0.2,-2.2c0,-0.8 -0.1,-1.5 -0.2,-2.2l4.5,-3.2c0.4,-0.3 0.6,-0.9 0.3,-1.4l-4.4,-7.4c-0.3,-0.5 -0.8,-0.7 -1.3,-0.4l-5,2.3c-1.2,-0.9 -2.4,-1.6 -3.8,-2.2l-0.5,-5.5c-0.1,-0.5 -0.5,-0.9 -1,-0.9h-8.6c-0.5,0 -1,0.4 -1,0.9l-0.5,5.5c-1.4,0.6 -2.7,1.3 -3.8,2.2l-5,-2.3c-0.5,-0.2 -1.1,0 -1.3,0.4l-4.3,7.4c-0.3,0.5 -0.1,1.1 0.3,1.4l4.5,3.2c-0.1,0.7 -0.2,1.4 -0.2,2.2c0,0.8 0.1,1.5 0.2,2.2l-4.7,3.2c-0.4,0.3 -0.6,0.9 -0.3,1.4l4.3,7.4c0.3,0.5 0.8,0.7 1.3,0.4l5,-2.3c1.2,0.9 2.4,1.6 3.8,2.2l0.5,5.5c0.1,0.5 0.5,0.9 1,0.9h8.6c0.5,0 1,-0.4 1,-0.9l0.5,-5.5c1.4,-0.6 2.7,-1.3 3.8,-2.2l5,2.3c0.5,0.2 1.1,0 1.3,-0.4l4.3,-7.4c0.3,-0.5 0.1,-1.1 -0.3,-1.4zM24,35c-5.5,0 -10,-4.5 -10,-10c0,-5.5 4.5,-10 10,-10c5.5,0 10,4.5 10,10c0,5.5 -4.5,10 -10,10z"></path>
-          <path d="M24,13c-6.6,0 -12,5.4 -12,12c0,6.6 5.4,12 12,12c6.6,0 12,-5.4 12,-12c0,-6.6 -5.4,-12 -12,-12zM24,30c-2.8,0 -5,-2.2 -5,-5c0,-2.8 2.2,-5 5,-5c2.8,0 5,2.2 5,5c0,2.8 -2.2,5 -5,5z"></path>
-        </g>
-      </g>
-    </svg>
-  </a>
 </template>
 
 <script>
 import {useStore} from "vuex";
+import {onMounted, ref} from "vue";
+import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities } from "@/apis/calendar";
+import { getProjectDetails } from "@/apis/projects";
 
 export default {
   setup(){
     const store = useStore()
 
+    const previewCalToday = ref(true)
+    const previewCalWeek = ref(false)
 
+    const calendarPreviewEvents = ref([])
+
+    const toggleTodayCalPreview = async () => {
+      previewCalToday.value = true
+      previewCalWeek.value = false
+      // show today's calendar
+      const todaysEvents = await getTodayEvents(store.state._id)
+      calendarPreviewEvents.value = todaysEvents.filter(e => new Date(e.endDate).getTime() > new Date().getTime())
+      previewCalWeek.value = false
+    }
+
+    const toggleWeekCalPreview = async () => {
+      previewCalToday.value = false
+      previewCalWeek.value = true
+      // show week's calendar
+      const weekEvents = await getWeekEvents(store.state._id)
+      calendarPreviewEvents.value = weekEvents.filter(e => new Date(e.endDate).getTime() > new Date().getTime())
+      previewCalWeek.value = true
+    }
+
+    const previewProjectsToday = ref(true)
+    const previewProjectsWeek = ref(false)
+
+    const projectsPreviewActivities = ref([])
+
+    const toggleTodayProjectsPreview = async () => {
+      previewProjectsToday.value = true
+      previewProjectsWeek.value = false
+      // show activities ending today
+      const todaysActivities = await getTodayActivities(store.state._id)
+      const activitiesWithProjectNames = await Promise.all(todaysActivities.filter(e => new Date(e.deadline).getTime() > new Date().getTime()).filter(e => e.projectData).map(async activity => {
+        const projectDetails = await getProjectDetails(activity.projectData.projectId);
+        return { ...activity, projectName: projectDetails.name };
+      }));
+      projectsPreviewActivities.value = activitiesWithProjectNames;
+      previewProjectsToday.value = true;
+    }
+
+    const toggleWeekProjectsPreview = async () => {
+      previewProjectsToday.value = false
+      previewProjectsWeek.value = true
+      // show activities ending this week
+      const weekActivities = await getWeekActivities(store.state._id)
+      const activitiesWithProjectNames = await Promise.all(weekActivities.filter(e => new Date(e.deadline).getTime() > new Date().getTime()).filter(e => e.projectData).map(async activity => {
+        const projectDetails = await getProjectDetails(activity.projectData.projectId);
+        return { ...activity, projectName: projectDetails.name };
+      }));
+      projectsPreviewActivities.value = activitiesWithProjectNames;
+      previewProjectsWeek.value = true;
+    }
+
+    onMounted(() => {
+      toggleTodayCalPreview()
+      toggleTodayProjectsPreview()
+    })
+
+    return {
+      previewCalToday,
+      previewCalWeek,
+      toggleTodayCalPreview,
+      toggleWeekCalPreview,
+      calendarPreviewEvents,
+      toggleTodayProjectsPreview,
+      toggleWeekProjectsPreview,
+      previewProjectsToday,
+      previewProjectsWeek,
+      projectsPreviewActivities
+    }
   }
 }
 </script>
