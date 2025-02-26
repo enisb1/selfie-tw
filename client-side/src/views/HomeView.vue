@@ -46,7 +46,6 @@
 </template>
 
 <script>
-import { ref } from 'vue';
 import {useStore} from "vuex";
 import {onMounted, ref} from "vue";
 import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities } from "@/apis/calendar";
@@ -55,11 +54,6 @@ import { getProjectDetails } from "@/apis/projects";
 export default {
   setup(){
     const store = useStore()
-    
-
-    return {
-
-    }
 
     const previewCalToday = ref(true)
     const previewCalWeek = ref(false)
