@@ -5,7 +5,7 @@ let zIndexCount = 0;
 
 function createDefaultEventDiv(event, resource) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("event","absolute", "text-white", "p-1", "truncate", "rounded-md", "shadow-md", "opacity-75", "hover:font-bold");
+    eventDiv.classList.add("event","absolute", "text-white", "truncate", "rounded-md", "shadow-md", "opacity-75", "hover:font-bold");
     eventDiv.setAttribute('data-event-id', `event${event._id}`); // this and event class is used to add hover listener on event boxes
 
     const title = document.createElement("p");

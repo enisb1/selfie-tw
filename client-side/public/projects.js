@@ -96,30 +96,30 @@ async function displayToDoActivities(activities) {
                     <span>${activity.title}</span>
                 </div>
                 <!-- users -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
                 </div>
                 <!-- start -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${startString}</span>
                 </div>
                 <!-- deadline -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${deadlineString}</span>
                 </div>
                 <!-- milestone or not-->
-                <div class="w-1/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-1/12 border-l border-secondary truncate">
                     <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
                 </div>
                 <!-- status -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <div class="ml-1">
                         ${activity.projectData.status}
                     </div>
                 </div>
-                <div class="w-1/12 border-l border-secondary">
-                    <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                    <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                <div class="flex pl-1 gap-1 sm:border-l border-secondary">
+                    <button class="w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
+                    <button class="w-6 h-6" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
                 </div>
             `;
             const hr = document.createElement('hr');
@@ -414,7 +414,6 @@ async function addUserToEditedActivityList() {
     else {
         activityToEditError.innerHTML = "User not valid"
     }
-
 }
 
 // add activity form submit
@@ -482,6 +481,19 @@ const endFlatpickr = flatpickr(editedProjectEndElem, {
 
 document.getElementById('editProjectButton').addEventListener('click', () => {
     showEditProjectModal()
+})
+
+document.getElementById('hamburgerMenuButton').addEventListener('click', () => {
+    document.getElementById('hamburgerMenu').classList.toggle('hidden')
+})
+
+window.addEventListener('resize', () => {
+    if (window.innerWidth > 640) {
+        const menu = document.getElementById('hamburgerMenu')
+        if (!menu.classList.contains('hidden')) {
+            menu.classList.add('hidden')
+        }
+    }
 })
 
 const editedProjectUsers = [];
@@ -728,7 +740,6 @@ function goToGanttPage() {
     ganttTitle.classList.add("border-b-4", "border-secondary")
     ritardCalc(currentProject._id, currentProject.start)
     createGrid(currentProject._id, currentProject.start)
-    createSettingsPage(currentProject._id, currentProject.name, currentProject.start, currentProject.description)
 }
 
 // HOME VIEW
@@ -1349,7 +1360,7 @@ async function createGrid(projectId, projectStart) {
             start:"",
             end:"",
             phase:"",
-            prev:"",
+            previous:"",
             id:"",
             title:"",
             owner:""
@@ -1365,13 +1376,14 @@ async function createGrid(projectId, projectStart) {
             activityStructure.start = start;
             activityStructure.phase = activity.projectData.phase;
             activityStructure.end = pStart;
-            activityStructure.prev = activity.projectData.prev;
-            activityStructure.id = activity.projectData._id;
+            activityStructure.previous = activity.projectData.previous;
+            activityStructure.id = activity._id;
             activityStructure.title = activity.title;
             activityStructure.owner = activity.users;
-            dates.push(activityStructure)  
+            dates.push(activityStructure) 
+            
         }    
-
+        
         dates.sort((a, b) => {
             // Ordina per fase in ordine crescente
             const phaseComparison = a.phase.localeCompare(b.phase);
@@ -1380,16 +1392,16 @@ async function createGrid(projectId, projectStart) {
             }
         
             // Se le fasi sono uguali, ordina per sequenza
-            if (a.prev === 'none' && b.prev !== 'none') {
+            if (a.previous === null && b.previous !== null) {
                 return -1;
             }
-            if (a.prev !== 'none' && b.prev === 'none') {
+            if (a.previous !== null && b.previous === null) {
                 return 1;
             }
-            if (a.prev === b.id) {
+            if (a.previous === b.id) {
                 return 1;
             }
-            if (b.prev === a.id) {
+            if (b.previous === a.id) {
                 return -1;
             }
         
@@ -1397,36 +1409,47 @@ async function createGrid(projectId, projectStart) {
             return new Date(a.start) - new Date(b.start);
         });
     })
-        
-        // Costruisci le sequenze basate su prev
+    
+        // Costruisci le sequenze basate su previous
         const dateMap = new Map();
         dates.forEach(date => dateMap.set(date.id, date));
         
+
         dates.forEach(date => {
-            if (date.prev === 'none') {
+            
+            if (date.previous === null ) {
                 sortedDates.push(date);
+            
                 let currentId = date.id;
                 while (true) {
-                    const nextDate = dates.find(d => d.prev === currentId);
+                    
+                    const nextDate = dates.find(d => d.previous === currentId);
                     if (!nextDate) break;
+                    
                     sortedDates.push(nextDate);
                     currentId = nextDate.id;
                 }
-                
-            }
+            }    
+            
         });
-
+        
+    async function getUserNames(userIds) {
+        const users = await window.getUsers(userIds);
+        return users.map(user => user.username).join(", ");
+    }
+    
     
         
-        
-    project.slice().forEach((activity, index) => {
-
+    for (const [index, activity] of project.entries()) {
+    
+        const userNames = await getUserNames(sortedDates[index].owner);
+            
 
         const taskGrid = document.createElement("div");
         taskGrid.classList.add("bg-white", "text-secondary", "font-bold", "grid", "grid-cols-4", "divide-x", "divide-y", "divide-secondary");
         taskGrid.innerHTML = ` 
             <div class="truncate text-center"><span>${sortedDates[index].title}</span></div>
-            <div class="truncate text-center"><span>${sortedDates[index].owner}</span></div>
+            <div class="truncate text-center"><span>${userNames}</span></div>
             <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].start)}</span></div>
             <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].end)}</span></div>
 
@@ -1434,9 +1457,11 @@ async function createGrid(projectId, projectStart) {
         containerFixedGrid.appendChild(taskGrid);
         
         
-    });
+    };
+
+
     const dayGrid = document.createElement("div");
-    dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "divide-x", "divide-white", "overflow-x-scroll");
+    dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "divide-x", "divide-white", "overflow-auto");
 
     
         project.slice().forEach((activity, index) => {
@@ -1511,7 +1536,7 @@ async function createGrid(projectId, projectStart) {
                         
                     }   
                 }
-                
+                //console.log(stato,formatDateToDayMonth(actualyStart),formatDateToDayMonth(d) , hourStart , hour) 
                 
         
                 const hourDiv = document.createElement("div");

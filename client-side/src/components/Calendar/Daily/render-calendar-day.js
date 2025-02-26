@@ -5,7 +5,7 @@ let zIndexCount = 0;
 
 function createDefaultEventDiv(event, resource) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("truncate","absolute", "text-white", "p-1", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
+    eventDiv.classList.add("truncate","absolute", "text-white", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
     title.innerText = resource? `${resource.username} used` : event.title;

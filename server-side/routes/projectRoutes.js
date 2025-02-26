@@ -105,7 +105,7 @@ router.put('/editDeadline/:activityId', async (req, res) => {
         res.status(200).json(updatedActivity);
     } catch (error) {
         res.status(500).json({ message: 'Error updating activity', error: error.message });
-=======
+    }})
 // Update activities with previous activity equal to activityId and status 'waitingActivable'
 router.put("/updateWaitingActivable/:id", async (req, res) => {
     const activityId = req.params.id;
@@ -147,6 +147,19 @@ router.put("/:id", async (req, res) => {
         }
     } catch (error) {
         res.status(500).json({ message: 'Error updating project', error: error.message });
+    }
+});
+
+router.get('/:projectId', async (req, res) => {
+    const { projectId } = req.params;
+    try {
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+        res.json(project);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
 });
 

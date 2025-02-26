@@ -157,30 +157,59 @@ router.put("/activities/:id", async (req,res) => {
     }
 })
 
-// '/api/calendar/events?start=(..)&end=(..)'
-router.get("/events", async (req,res) => {
-    // start: start date string in UTC TIME!
-    // end: end date string in UTC TIME!
-    // dates are stored in UTC time on mongodb, and sent back to client in local time
-    const { start, end } = req.query;
-    const sDate = new Date(start);
-    const eDate = new Date(end);
-    try {
-        // get events that start in the range, or finish in range, or start before and finish after range
-        // the render function for the calendar is going to truncate the dates accordingly
-        const events = await Event.find({
-            $or: [
-                { endDate: { $gte: sDate, $lte: eDate } },  // end in range
-                { startDate: { $gte: sDate, $lte: eDate } }, // start in range
-                { startDate: { $lte: sDate }, endDate: { $gte: eDate } } // (spanning the entire range)
-            ]
-        });
-        
-        res.json(events);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching events' });
-    }
-})
+// '/api/calendar/events?start=(..)&end=(..)?userId=(..)'
+router.get("/events", async (req, res) => {
+  // start: start date string in UTC TIME!
+  // end: end date string in UTC TIME!
+  // dates are stored in UTC time on mongodb, and sent back to client in local time
+  const { start, end, userId } = req.query;
+  const sDate = new Date(start);
+  const eDate = new Date(end);
+  try {
+      // get events that start in the range, or finish in range, or start before and finish after range
+      // and include the current user in the users field
+      const events = await Event.find({
+          $and: [
+              {
+                  $or: [
+                      { endDate: { $gte: sDate, $lte: eDate } },  // end in range
+                      { startDate: { $gte: sDate, $lte: eDate } }, // start in range
+                      { startDate: { $lte: sDate }, endDate: { $gte: eDate } } // (spanning the entire range)
+                  ]
+              },
+              { users: userId } // check if userId is in the users field
+          ]
+      });
+      
+      res.json(events);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching events' });
+  }
+});
+
+// '/api/calendar/activities?start=(..)&end=(..)&userId=(..)'
+router.get("/activities", async (req, res) => {
+  // start: start date string in UTC TIME!
+  // end: end date string in UTC TIME!
+  // dates are stored in UTC time on mongodb, and sent back to client in local time
+  const { start, end, userId } = req.query;
+  const sDate = new Date(start);
+  const eDate = new Date(end);
+  try {
+      // get activities that have deadline in the range, include the current user in the users field, and have projectData set to true
+      const activities = await Activity.find({
+          $and: [
+              { deadline: { $gte: sDate, $lte: eDate } },  // deadline in range
+              { users: userId }, // check if userId is in the users field
+              { projectData: { $exists: true, $ne: null } } // check if projectData is true (exists and not null)
+          ]
+      });
+      
+      res.json(activities);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching activities' });
+  }
+});
 
 router.get("/resourcesEvents", async (req,res) => {
     try {
