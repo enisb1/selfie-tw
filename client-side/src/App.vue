@@ -25,8 +25,6 @@
           <router-link class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Notes</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Settings</router-link>
-          <!-- TODO: put inside of settings instead of navbar -->
-          <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
         </div>
       </div>
 
@@ -40,7 +38,6 @@
           <li class="mb-2"><a href="#" class="text-white block">Pomodoro</a></li>
           <li class="mb-2"><a href="#" class="text-white block">Notes</a></li>
           <li><a href="#" class="text-white block">Settings</a></li>
-          <li class="mb-2"><router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link></li>
         </ul>
       </div>
     </nav>
