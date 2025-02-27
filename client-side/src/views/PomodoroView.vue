@@ -177,6 +177,8 @@
 <script>
 import {ref, onMounted, watch} from 'vue'
 import Modal from "@/components/Modal.vue";
+import { postSettingsPom } from "@/apis/pomodoro";
+import { useStore } from 'vuex';
 
 
 export default {
@@ -209,6 +211,8 @@ export default {
         const mstudy = ref()
         const side = ref("A")
         const cicleState = ref("STUDY")
+        const store = useStore()
+        const user = ref("")
 
         const mRelax = ref()
         const mStudy = ref()
@@ -225,6 +229,7 @@ export default {
             minSetStudy.value = minuteStudy.value
             numSetCycle.value = numCicli.value
             time.value = formatTime(minuteStudy.value)
+            user.value = store.state.username
         })
 
         const saveCicle = (index) => {
@@ -248,6 +253,8 @@ export default {
                         study: 30
                     }
                 ]
+            console.log(user, minSetStudy, minSetRelax, numSetCycle)
+            postSettingsPom(minSetStudy, minSetRelax, numSetCycle, user)
         }
 
 
@@ -485,6 +492,7 @@ export default {
             }
             nCicle.value = numSetCycle.value
             minutesNumber.value = ""
+            postSettingsPom(minSetStudy, minSetRelax, numSetCycle, user)
         }
 
 
@@ -531,7 +539,9 @@ export default {
             minSetStudy,
             numSetCycle,
             saveCicleCustom,
-            nextStage
+            nextStage,
+            store,
+            user
     }
 
 }}

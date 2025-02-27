@@ -36,11 +36,36 @@
     </div>
     <!-- Pomodoro -->
     <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
-      Pomodoro
+      <a href="/pomodoro">Pomodoro</a>
+      <div class="w-full p-1 bg-third mt-2">Last settings</div>
+      <div class="mt-2 flex">
+        <div class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
+        Study: {{ workTime/60 }} minutes <br>
+        Relax: {{ relaxTime/60 }} minutes <br>
+        Cycle: {{ numCycle }} minutes
+        </div>
+      </div>
     </div>
     <!-- Notes -->
     <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
-      Notes
+      <a href="/notes">Notes</a>
+      <div class="w-full p-1 bg-third mt-2">Last modified</div>
+      <div class="flex w-full justify-around">
+        <button class="w-full p-1" :class="{'bg-third': previewNote}" @click="toggleNotePreview">Note</button>
+        <button class="w-full p-1" :class="{'bg-third': previewTask}" @click="toggleTaskPreview">Task</button>
+      </div>
+      <div class="mt-2 flex">
+        <div v-show="previewNote" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
+          {{ lastNote.title }} <br>
+          <!--{{ lastNote.body }}
+          <span v-if="notes.length === 0">No notes</span>-->
+        </div>
+        <div v-show="previewTask" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
+          {{ lastTask.title }} <br>
+          <!--{{ lastTask.body }}
+          <span v-if="tasks.length === 0">No tasks</span>-->
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -50,6 +75,8 @@ import {useStore} from "vuex";
 import {onMounted, ref} from "vue";
 import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities } from "@/apis/calendar";
 import { getProjectDetails } from "@/apis/projects";
+import { getNoteUser, getUserSelectNote } from "@/apis/note";
+import { getSettingsPomUser } from "@/apis/pomodoro";
 
 export default {
   setup(){
@@ -109,9 +136,97 @@ export default {
       previewProjectsWeek.value = true;
     }
 
+    ///////////////////////////////////////////////////////////
+    const previewNote = ref(true)
+    const previewTask = ref(false)
+    const noteTask = ref()
+    const notes = ref()
+    const tasks = ref()
+    const publicNotes = ref()
+    const selectNotes = ref()
+    const username = store.state.username
+    const lastNote = ref([])
+    const lastTask = ref([])
+
+    const formatDate = (date) => {
+            if (!date) return '';
+            return date.toLocaleString('it-IT', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false // (12 hour format)
+            });
+        }
+
+    const toggleNotePreview = async () => {
+      previewNote.value = true
+      previewTask.value = false
+    
+      const fetchNotes = await getNoteUser(username, 'privateAccess');
+      noteTask.value = fetchNotes;
+                
+      const fetchNotesPublicNotes = await getNoteUser('', 'publicAccess');
+      publicNotes.value = fetchNotesPublicNotes;
+                
+      const fetchNotesSelectNotes = await getUserSelectNote(username, 'selectAccess');
+      selectNotes.value = fetchNotesSelectNotes;
+                
+      noteTask.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
+
+      notes.value = noteTask.value.filter(note => note.type === "Note")
+      
+      notes.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+
+      lastNote.value.title = notes.value[0].title
+      lastNote.value.body = notes.value[0].bodyNote
+    }
+
+    const toggleTaskPreview = async () => {
+      previewNote.value = false
+      previewTask.value = true
+      
+      const fetchNotes = await getNoteUser(username, 'privateAccess');
+      noteTask.value = fetchNotes;
+                
+      const fetchNotesPublicNotes = await getNoteUser('', 'publicAccess');
+      publicNotes.value = fetchNotesPublicNotes;
+                
+      const fetchNotesSelectNotes = await getUserSelectNote(username, 'selectAccess');
+      selectNotes.value = fetchNotesSelectNotes;
+                
+      noteTask.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
+
+      console.log(noteTask.value)
+
+      tasks.value = noteTask.value.filter(task => task.type === "Task")
+      
+      tasks.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+
+      lastTask.value.title = tasks.value[0].title
+      lastTask.value.body = tasks.value[0].bodyTask 
+    }
+
+    ///////////////////////////////////////////////////////
+    const settingsPom = ref()
+    const workTime = ref()
+    const relaxTime = ref()
+    const numCycle = ref()
+    const togglePomPreview = async () => {
+      settingsPom.value = await getSettingsPomUser(username)
+      settingsPom.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+      workTime.value = settingsPom.value[0].workTime
+      relaxTime.value = settingsPom.value[0].relaxTime
+      numCycle.value = settingsPom.value[0].cycleNum
+    }
+
+
     onMounted(() => {
       toggleTodayCalPreview()
       toggleTodayProjectsPreview()
+      toggleNotePreview()
+      togglePomPreview()
     })
 
     return {
@@ -124,7 +239,25 @@ export default {
       toggleWeekProjectsPreview,
       previewProjectsToday,
       previewProjectsWeek,
-      projectsPreviewActivities
+      projectsPreviewActivities,
+      previewNote,
+      previewTask,
+      toggleNotePreview,
+      toggleTaskPreview,
+      username,
+      noteTask,
+      notes,
+      tasks,
+      publicNotes,
+      selectNotes,
+      formatDate,
+      lastNote,
+      lastTask,
+      settingsPom,
+      togglePomPreview,
+      workTime,
+      relaxTime,
+      numCycle
     }
   }
 }
