@@ -577,15 +577,20 @@ document.getElementById('editProjectForm').addEventListener('submit', async func
         newProject.start = startValue
         newProject.end = endValue
         newProject.members = newProject.members.concat(editedProjectIds)
-        console.log(newProject.members)
         await window.editProject(newProject._id, newProject)
         currentProject = newProject
-        console.log(currentProject)
         projectViewName.innerHTML = currentProject.name
         updateSettingsPage()
         closeEditProjectModal()
     }
 });
+
+document.getElementById('deleteProjectButton').addEventListener('click', async () => {
+    await window.deleteProject(currentProject._id)
+    updateProjects()
+    goToHomeView()
+});
+
 
 async function showEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
@@ -712,9 +717,6 @@ async function updateSettingsPage() {
 }
 
 document.getElementById('leaveProjectButton').addEventListener('click', async () => {
-    // se è il capo progetto riassegna field owner del progetto ad un random tra i membri del progetto
-    // altrimenti cancella l'utente dai membri del progetto e da tutte le attività di cui fa parte
-    console.log('si')
     // is owner of project
     if (currentProject.owner == state._id) {
         if (currentProject.members.length == 1) {
@@ -722,21 +724,17 @@ document.getElementById('leaveProjectButton').addEventListener('click', async ()
             await window.deleteProject(currentProject._id)
         }
         else if (currentProject.members.length > 1) {
-            console.log('2')
             // assign random member to be the owner
             const newProject = structuredClone(currentProject)
             newProject.members = newProject.members.filter(m => m != state._id)
             const newOwner = newProject.members[Math.floor(Math.random() * newProject.members.length)] // random member
             newProject.owner = newOwner
-            console.log(newProject.members)
-            console.log(newOwner)
             await window.editProject(newProject._id, newProject)
             currentProject = newProject
             updateSettingsPage()
         }
     }
     else {  // not the owner
-        console.log('3')
         // cancella utente dai membri del progetto e da ogni activity del progetto di cui fa parte
         const newProject = structuredClone(currentProject)
         newProject.members = newProject.members.filter(m => m != state._id)
@@ -766,6 +764,13 @@ function goToSettingsPage() {
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
+    console.log(currentProject.owner)
+    if (currentProject.owner != state._id) {
+        document.getElementById('deleteProjectButton').classList.add('hidden')
+    }
+    else {
+        document.getElementById('deleteProjectButton').classList.remove('hidden')
+    }
     updateSettingsPage()
 }
 
