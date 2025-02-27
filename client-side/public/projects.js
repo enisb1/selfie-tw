@@ -524,6 +524,7 @@ async function addUserToEditedProjectList() {
         editedProjectIds.push(user_id)
         userToAddInput.value = ''
         updateEditedProjectUsersInput()
+        document.getElementById("editedProjectError").innerHTML = ""
     } else {
         document.getElementById("editedProjectError").innerHTML = "User doesn't exist or is already in the project"
     }
@@ -859,22 +860,11 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
         }
         else {
             const selectedUsersIds = newProjectIds.concat(state._id)
-            const milestoneActivityProjectData = {
-                projectId: null,
-                isMilestone: true,
-                status: 'activable'
-            }
-            const finalMilestoneName = document.getElementById("finalMilestoneName").value
             const newProjectName = document.getElementById("newProjectName").value
             const newProjectDescription = document.getElementById("newProjectDescription").value
-            // create milestone activity
-            const milestoneActivity = await postActivity(finalMilestoneName,  
-                newProjectEndDate, selectedUsersIds, milestoneActivityProjectData)
             // create project
-            const createdProject = await createProject(newProjectName, newProjectDescription, 
-                newProjectStartDate, newProjectEndDate, state._id, selectedUsersIds, [milestoneActivity._id])
-            // update milestone activity with created project ids
-            await updateActivityProjectId(milestoneActivity._id, createdProject._id)
+            await createProject(newProjectName, newProjectDescription, 
+                newProjectStartDate, newProjectEndDate, state._id, selectedUsersIds, [])
             createProjectError.innerHTML = ''
             closeCreateProjectModal()
             updateProjects()
@@ -901,6 +891,7 @@ function showCreateProjectModal() {
         newProjectUsers.length = 0
         newProjectIds.length = 0
         document.getElementById('createProjectForm').reset();
+        document.getElementById('createProjectError').innerHTML = ''
     }
 }
 
@@ -920,11 +911,15 @@ async function addUserToNewProjectList() {
         exists = existsObject.exists
         user_id = existsObject.id
     }
-    if (exists && currentProject.members.includes(user_id)) {
+    if (exists) {
         newProjectUsers.push(userToAddInput.value)
         newProjectIds.push(user_id)
         userToAddInput.value = ''
+        document.getElementById("createProjectError").innerHTML = ""
         updateNewProjectUsersInput()
+    }
+    else {
+        document.getElementById("createProjectError").innerHTML = "User doesn't exist"
     }
 }
 
@@ -1089,7 +1084,11 @@ async function addUserToNewActivityList() {
         newActivityUsers.push(userToAddInput.value)
         newActivityIds.push(user_id)
         userToAddInput.value = ''
+        document.getElementById("activityToAddError").innerHTML = ''
         updateNewActivityUsersInput()
+    }
+    else {
+        document.getElementById("activityToAddError").innerHTML = "User doesn't exist"
     }
 }
 
