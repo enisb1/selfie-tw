@@ -118,7 +118,7 @@
           case 'message':
             return '📩';
           case 'reminder':
-            return '🚨';
+            return '🔔';
           case 'calendar':
             return '📅';
           case 'invite':

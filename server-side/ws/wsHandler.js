@@ -1,5 +1,4 @@
 import {WebSocket,WebSocketServer} from 'ws';
-import nodemailer from 'nodemailer';
 
 export class wsHandler{
     constructor(server){

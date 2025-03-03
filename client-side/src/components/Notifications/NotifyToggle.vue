@@ -42,6 +42,8 @@
         icon.value = '📨';
       } else if (props.type === 'pomodoro') {
         icon.value = '🍅';
+      } else {
+        icon.value = 'ℹ️';
       }
 
       return {
