@@ -128,12 +128,12 @@ router.put("/updateWaitingActivable/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
     const projectId = req.params.id;
-    const { name, description, start, end, users } = req.body;
+    const { name, description, start, end, owner, members } = req.body;
 
     try {
         const updatedProject = await Project.findByIdAndUpdate(
             projectId,
-            { name, description, start, end, users },
+            { name, description, start, end, owner, members },
             { new: true }
         );
 
@@ -160,6 +160,28 @@ router.get('/:projectId', async (req, res) => {
         res.json(project);
     } catch (error) {
         res.status(500).json({ error: error.message });
+    }
+});
+
+// Delete project and its activities by project ID
+router.delete('/:projectId', async (req, res) => {
+    const { projectId } = req.params;
+    try {
+        // Find the project by ID
+        const project = await Project.findById(projectId);
+        if (!project) {
+            return res.status(404).json({ error: 'Project not found' });
+        }
+
+        // Delete all activities associated with the project
+        await Activity.deleteMany({ _id: { $in: project.activities } });
+
+        // Delete the project
+        await Project.findByIdAndDelete(projectId);
+
+        res.json({ message: 'Project and its activities deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error deleting project and its activities' });
     }
 });
 

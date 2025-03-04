@@ -524,6 +524,7 @@ async function addUserToEditedProjectList() {
         editedProjectIds.push(user_id)
         userToAddInput.value = ''
         updateEditedProjectUsersInput()
+        document.getElementById("editedProjectError").innerHTML = ""
     } else {
         document.getElementById("editedProjectError").innerHTML = "User doesn't exist or is already in the project"
     }
@@ -533,8 +534,8 @@ function showEditProjectModal() {
     const modal = document.getElementById('editProjectModal');
     if (modal) {
         document.getElementById('editProjectForm').reset();
-        newProjectUsers.length = 0
-        newProjectIds.length = 0
+        editedProjectUsers.length = 0
+        editedProjectIds.length = 0
         document.getElementById('editedProjectName').value = currentProject.name
         document.getElementById('editedProjectDescription').value = currentProject.description
         document.getElementById('editedProjectError').innerHTML = ''
@@ -584,6 +585,13 @@ document.getElementById('editProjectForm').addEventListener('submit', async func
         closeEditProjectModal()
     }
 });
+
+document.getElementById('deleteProjectButton').addEventListener('click', async () => {
+    await window.deleteProject(currentProject._id)
+    updateProjects()
+    goToHomeView()
+});
+
 
 async function showEditActivityModal() {
     const modal = document.getElementById('editActivityModal');
@@ -706,8 +714,48 @@ async function updateSettingsPage() {
     document.getElementById('settingsProjectOwner').innerHTML = owner.username
     // setting users
     const users = await window.getUsers(currentProject.members)
-    document.getElementById('settingsProjectUsers').innerHTML = users.filter(u => u._id != owner._id).map(u => u.username).join(", ")
+    document.getElementById('settingsProjectUsers').innerHTML = users.map(u => u.username).join(", ")
 }
+
+document.getElementById('leaveProjectButton').addEventListener('click', async () => {
+    // is owner of project
+    if (currentProject.owner == state._id) {
+        if (currentProject.members.length == 1) {
+            // delete current project and go back to home
+            await window.deleteProject(currentProject._id)
+        }
+        else if (currentProject.members.length > 1) {
+            // assign random member to be the owner
+            const newProject = structuredClone(currentProject)
+            newProject.members = newProject.members.filter(m => m != state._id)
+            const newOwner = newProject.members[Math.floor(Math.random() * newProject.members.length)] // random member
+            newProject.owner = newOwner
+            await window.editProject(newProject._id, newProject)
+            currentProject = newProject
+            updateSettingsPage()
+        }
+    }
+    else {  // not the owner
+        // cancella utente dai membri del progetto e da ogni activity del progetto di cui fa parte
+        const newProject = structuredClone(currentProject)
+        newProject.members = newProject.members.filter(m => m != state._id)
+        await window.editProject(newProject._id, newProject)
+        for (const activity of newProject.activities) {
+            if (activity.users.includes(state._id)) {
+                const newActivity = structuredClone(activity)
+                newActivity.users = newActivity.users.filter(u => u != state._id)
+                await window.editActivity(newActivity._id, newActivity)
+            }
+        }
+        currentProject = newProject
+        // cancella dalle activity del progetto di cui fa parte
+        updateSettingsPage()
+    }
+
+    updateProjects()
+    goToHomeView()
+})
+
 
 function goToSettingsPage() {
     settingsPage.classList.remove("hidden")
@@ -717,6 +765,13 @@ function goToSettingsPage() {
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
+    console.log(currentProject.owner)
+    if (currentProject.owner != state._id) {
+        document.getElementById('deleteProjectButton').classList.add('hidden')
+    }
+    else {
+        document.getElementById('deleteProjectButton').classList.remove('hidden')
+    }
     updateSettingsPage()
 }
 
@@ -805,22 +860,11 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
         }
         else {
             const selectedUsersIds = newProjectIds.concat(state._id)
-            const milestoneActivityProjectData = {
-                projectId: null,
-                isMilestone: true,
-                status: 'activable'
-            }
-            const finalMilestoneName = document.getElementById("finalMilestoneName").value
             const newProjectName = document.getElementById("newProjectName").value
             const newProjectDescription = document.getElementById("newProjectDescription").value
-            // create milestone activity
-            const milestoneActivity = await postActivity(finalMilestoneName,  
-                newProjectEndDate, selectedUsersIds, milestoneActivityProjectData)
             // create project
-            const createdProject = await createProject(newProjectName, newProjectDescription, 
-                newProjectStartDate, newProjectEndDate, state._id, selectedUsersIds, [milestoneActivity._id])
-            // update milestone activity with created project ids
-            await updateActivityProjectId(milestoneActivity._id, createdProject._id)
+            await createProject(newProjectName, newProjectDescription, 
+                newProjectStartDate, newProjectEndDate, state._id, selectedUsersIds, [])
             createProjectError.innerHTML = ''
             closeCreateProjectModal()
             updateProjects()
@@ -847,6 +891,7 @@ function showCreateProjectModal() {
         newProjectUsers.length = 0
         newProjectIds.length = 0
         document.getElementById('createProjectForm').reset();
+        document.getElementById('createProjectError').innerHTML = ''
     }
 }
 
@@ -866,11 +911,15 @@ async function addUserToNewProjectList() {
         exists = existsObject.exists
         user_id = existsObject.id
     }
-    if (exists && currentProject.members.includes(user_id)) {
+    if (exists) {
         newProjectUsers.push(userToAddInput.value)
         newProjectIds.push(user_id)
         userToAddInput.value = ''
+        document.getElementById("createProjectError").innerHTML = ""
         updateNewProjectUsersInput()
+    }
+    else {
+        document.getElementById("createProjectError").innerHTML = "User doesn't exist"
     }
 }
 
@@ -1035,7 +1084,11 @@ async function addUserToNewActivityList() {
         newActivityUsers.push(userToAddInput.value)
         newActivityIds.push(user_id)
         userToAddInput.value = ''
+        document.getElementById("activityToAddError").innerHTML = ''
         updateNewActivityUsersInput()
+    }
+    else {
+        document.getElementById("activityToAddError").innerHTML = "User doesn't exist"
     }
 }
 

@@ -312,6 +312,24 @@ async function updateActivityDeadline(activityId, newDeadline) {
     }
 }
 
+async function deleteProject(projectId) {
+    try {
+        const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+        return data; // Return the response data
+    } catch (error) {
+        console.error("Error deleting project: ", error);
+        throw error;
+    }
+}
+
 // adding methods to window to make them accessible globally
 window.userExists = userExists;
 window.postActivity = postActivity;
@@ -328,3 +346,4 @@ window.updateActivityDeadline = updateActivityDeadline;
 window.deleteActivity = deleteActivity;
 window.updateWaitingActivable = updateWaitingActivable;
 window.editProject = editProject;
+window.deleteProject = deleteProject;
