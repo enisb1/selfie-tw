@@ -9,6 +9,7 @@ import http from "node:http";
 import mongoose from 'mongoose';
 import {wsHandler} from "./ws/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
+import pomodoroRoutes from './routes/pomodoroRoutes.js'
 //import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
 import projectRoutes from './routes/projectRoutes.js'
@@ -35,6 +36,7 @@ app.use("/api/calendar", calendarRoutes)
 app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
+app.use("/api/pomodoro", pomodoroRoutes)
 //app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
 app.use("/api/projects", projectRoutes)
