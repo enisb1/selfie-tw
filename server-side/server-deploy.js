@@ -7,12 +7,12 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import http from "node:http";
 import mongoose from 'mongoose';
-import {wsHandler} from "./ws/wsHandler.js";
+import {wsHandler} from "./services/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 //import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
-import {AgendaHandler} from "./agenda/agendaHandler.js";
-import {Mailer} from "./ws/mailer.js";
+import {AgendaHandler} from "./services/agendaHandler.js";
+import {Mailer} from "./services/mailer.js";
 
 const app = express();
 const PORT = 8000;

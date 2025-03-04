@@ -6,7 +6,7 @@ import mongoose, { mongo } from 'mongoose';
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
-import {Message} from "../ws/wsHandler.js";
+import {Message} from "../services/wsHandler.js";
 import {agendaHandler} from "../server-deploy.js";
 
 const router = Router();

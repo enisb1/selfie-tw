@@ -1,6 +1,6 @@
 import Router from 'express';
 import Notification from "../models/Notification.js";
-import {Message} from "../ws/wsHandler.js";
+import {Message} from "../services/wsHandler.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import Activity from "../models/Activity.js";
 import Event from '../models/Event.js'

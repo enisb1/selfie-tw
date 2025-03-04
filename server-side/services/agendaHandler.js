@@ -1,7 +1,7 @@
 import Agenda from "agenda";
 import Notification from "../models/Notification.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
-import {Message} from "../ws/wsHandler.js";
+import {Message} from "./wsHandler.js";
 import User from "../models/User.js";
 import Activity from "../models/Activity.js";
 
