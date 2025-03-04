@@ -1272,14 +1272,6 @@ video {
   max-width: 20rem;
 }
 
-.max-w-20 {
-  max-width: 5rem;
-}
-
-.max-w-full {
-  max-width: 100%;
-}
-
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -2038,6 +2030,10 @@ video {
 
 .pl-10 {
   padding-left: 2.5rem;
+}
+
+.pl-4 {
+  padding-left: 1rem;
 }
 
 .pl-6 {
