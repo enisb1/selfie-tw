@@ -357,8 +357,7 @@ export default {
         }
 
         onMounted(async () => {
-            console.log(props.eventObject.resources)
-            if (props.eventObject.resources.length > 0) {
+            if (props.eventObject.resources && props.eventObject.resources.length > 0) {
                 const resourcesObjects = await getResourcesFromIds(props.eventObject.resources)
                 if (resourcesObjects.length > 0) {
                     resourcesUsernames.value = resourcesObjects.map(r => r.username).join(", ")

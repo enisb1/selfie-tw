@@ -147,8 +147,9 @@
                     </div>
                 </div> 
             </div>
-            <div class="flex justify-center">
-                <button @click="saveCicleCustom" class="bg-secondary text-white font-semibold rounded-xl p-2 w-24">Save</button>
+            <div class="flex justify-center gap-2">
+                <button @click="saveCicleCustom" class="bg-secondary text-white font-semibold rounded-xl p-2">Save</button>
+                <button @click="togglePomodoroEventModal" class="bg-secondary text-white font-semibold rounded-xl p-2">Create event</button>
             </div>
             <div class="mt-4">
                 <label for="">Total Time
@@ -170,6 +171,44 @@
             </div>
         </div>
     </Modal>
+
+    <Modal v-show="showPomodoroEventModal" @close="togglePomodoroEventModal">
+        <header>
+            <div class="flex items-center justify-between flex-row">
+                <p class="font-bold">Add pomodoro event</p>
+                <button type="button" @click="togglePomodoroEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
+                src="../images/x.png" alt="Croce"></button>
+            </div>
+            <hr style="border-color: black"/>
+        </header>
+        <form @submit.prevent="addPomodoroEvent">
+            <!-- studying cycle recap -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Studying cycle to add</p>
+                <div class="bg-secondary p-2 rounded-md">
+                    <p class="text-white">Study: {{ minSetStudy/60 }}</p>
+                    <p class="text-white">Relax: {{ minSetRelax/60 }}</p>
+                    <p class="text-white">Cycles: {{ numSetCycle }}</p>
+                </div>
+            </div>
+
+            <!-- title -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Title</p>
+                <input class="border border-third" type="text" maxlength="20" required v-model="pomodoroEventTitle">
+            </div>
+
+            <!-- start -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Start of cycle</p>
+                <DatePicker class="mt-px inline-block w-auto" v-model="pomodoroEventStartDate" 
+                    :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+            </div>
+
+            <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
+        </form>
+    </Modal>
   
 </template>
 
@@ -179,16 +218,19 @@ import {ref, onMounted, watch} from 'vue'
 import Modal from "@/components/Modal.vue";
 import { postSettingsPom } from "@/apis/pomodoro";
 import { useStore } from 'vuex';
-
+import DatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+import { postEvent } from '@/apis/calendar';
 
 export default {
 
     components:{
-        Modal
+        Modal,
+        DatePicker
     },
 
     setup(){
-
+        const store = useStore()
         const cicles = ref([
             {
                 relax: 5,
@@ -196,6 +238,46 @@ export default {
                 study: 30
             }
         ])
+
+        // POMODORO EVENT
+        const togglePomodoroEventModal = () => {
+            if (showPomodoroEventModal.value) {
+                showPomodoroEventModal.value = false
+            }
+            else {
+                showMenu.value = false
+                pomodoroEventTitle.value = ''
+                pomodoroEventStartDate.value = null
+                showPomodoroEventModal.value = true
+                console.log(minSetRelax.value, minSetStudy.value, numSetCycle.value)
+            }
+        }
+        const showPomodoroEventModal = ref(false)
+
+        const addPomodoroEvent = async () => {
+            const endDate = new Date(pomodoroEventStartDate.value)
+            endDate.setSeconds(endDate.getSeconds() + (minSetStudy.value + minSetRelax.value) * numSetCycle.value)
+            await postEvent(pomodoroEventTitle.value, null, pomodoroEventStartDate.value, endDate, 'none', null, 
+                null, '#b01e1e', [store.state._id], [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: numSetCycle.value})
+            togglePomodoroEventModal()
+        }
+
+        const formatDate = (date) => {
+        if (!date) return '';
+        return date.toLocaleString('it-IT', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
+        });
+        }
+        const startTime = ref({ hours: 12, minutes: 30 })
+
+        const pomodoroEventStartDate = ref()
+        const pomodoroEventTitle = ref()
+        // --- end pomodoro event ---
 
         const audio = new Audio("/soundbutton.mp3")
         const audioReset = new Audio("/soundReset.mp3")
@@ -211,7 +293,6 @@ export default {
         const mstudy = ref()
         const side = ref("A")
         const cicleState = ref("STUDY")
-        const store = useStore()
         const user = ref("")
 
         const mRelax = ref()
@@ -541,7 +622,14 @@ export default {
             saveCicleCustom,
             nextStage,
             store,
-            user
+            user,
+            togglePomodoroEventModal,
+            showPomodoroEventModal,
+            formatDate,
+            startTime,
+            pomodoroEventStartDate,
+            pomodoroEventTitle,
+            addPomodoroEvent
     }
 
 }}
