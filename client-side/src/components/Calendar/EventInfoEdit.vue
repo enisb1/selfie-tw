@@ -36,7 +36,7 @@
             </div>
 
             <!-- frequency -->
-            <div class="mt-4">
+            <div class="mt-4" v-show="!eventObject.pomodoroSettings">
                 <p class="font-semibold text-base">Frequency</p>
                 <p v-show="eventObject.frequency != 'none'"> {{ eventObject.frequency }} frequency {{ eventObject.repetitionNumber ? `repeating ${eventObject.repetitionNumber} times` :
                     `until ${new Date(eventObject.repetitionDate).toLocaleDateString
@@ -45,9 +45,17 @@
             </div>
 
             <!-- resources -->
-            <div class="mt-4">
+            <div class="mt-4" v-show="!eventObject.pomodoroSettings">
                 <p class="font-semibold text-base">Resources</p>
                 <p>{{ resourcesUsernames }}</p>
+            </div>
+
+            <!-- pomodoro settings -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Pomodoro settings</p>
+                <p>Study: {{ eventObject.pomodoroSettings.minStudy }} minutes</p>
+                <p>Relax: {{ eventObject.pomodoroSettings.minRelax }} minutes</p>
+                <p>Cycles: {{ eventObject.pomodoroSettings.cycles }}</p>
             </div>
         </div>
 
@@ -150,7 +158,10 @@
         <div class="flex justify-evenly">
             <!-- delete button -->
             <button v-show="showInfoEvent" @click="deleteEventObject" type="button" class="w-full mt-4 rounded-md 
-                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <!-- start pomodoro button -->
+            <button v-show="showInfoEvent" @click="startPomodoro" type="button" class="w-full mt-4 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Start pomodoro</button> 
         </div>
     </div>
 </template>
@@ -163,6 +174,7 @@ import { editEvent, deleteEvent, getResourcesFromIds } from '@/apis/calendar';
 import { computed } from 'vue';
 import { exportEventToICS } from './export-events';
 import EventExportModal from './EventExport.vue';
+import { useRouter } from 'vue-router';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
@@ -356,6 +368,16 @@ export default {
             showEventExport.value = true
         }
 
+        const router = useRouter();
+        const startPomodoro = () => {
+            router.push({
+                name: 'pomodoro',
+                query: {study: props.eventObject.pomodoroSettings.minStudy, 
+                    relax: props.eventObject.pomodoroSettings.minRelax, 
+                    cycles: props.eventObject.pomodoroSettings.cycles}
+            })
+        }
+
         onMounted(async () => {
             if (props.eventObject.resources && props.eventObject.resources.length > 0) {
                 const resourcesObjects = await getResourcesFromIds(props.eventObject.resources)
@@ -403,7 +425,8 @@ export default {
             toggleShowEventExportOn,
             toggleShowInfo,
             toggleShowEdit,
-            showInfoEvent
+            showInfoEvent,
+            startPomodoro
         }
     }
 }
