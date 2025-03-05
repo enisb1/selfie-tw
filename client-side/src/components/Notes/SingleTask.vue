@@ -38,6 +38,7 @@
       <h3 class="font-semibold text-lg text-secondary"> {{ task.title }} </h3>
   </label>
   </div>
+<span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
 <img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3 mr-4">
 <Modal @click.self="openExiparation" v-show="exiparationVisible">
             <div class="h-full w-full flex justify-between items-center">
@@ -77,13 +78,35 @@ export default {
         exiparationVisible.value = false
       }
 
-      
+      function formatISODate(isoDateString) {
+        const date = new Date(isoDateString);
+
+        // Aggiungere un'ora
+        date.setUTCHours(date.getUTCHours() + 1);
+
+        // Estrarre ore e minuti
+        const hours = date.getUTCHours().toString().padStart(2, '0'); // Ora in formato 24 ore
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+        // Giorno
+        const day = date.getUTCDate();
+
+        // Mese (in formato abbreviato)
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const month = monthNames[date.getUTCMonth()];
+
+        // Anno
+        const year = date.getUTCFullYear();
+
+        return `${hours}:${minutes} ${day} ${month} ${year}`;
+     }
 
         
       return{
         openExiparation,
         exiparationVisible,
-        saveExpiration
+        saveExpiration,
+        formatISODate
       }
     }
 

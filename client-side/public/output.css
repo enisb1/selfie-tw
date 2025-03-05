@@ -828,6 +828,10 @@ video {
   margin-right: -0.25rem;
 }
 
+.-mb-4 {
+  margin-bottom: -1rem;
+}
+
 .mb-1 {
   margin-bottom: 0.25rem;
 }
@@ -1534,6 +1538,10 @@ video {
 
 .overflow-y-scroll {
   overflow-y: scroll;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
 }
 
 .truncate {
