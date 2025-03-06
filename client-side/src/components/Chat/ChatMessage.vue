@@ -18,7 +18,7 @@
     </p>
     <!-- Time -->
     <span class="block mt-2 text-xs" :class="yourMessage ? 'text-gray-200' : 'text-gray-500'">
-      {{ time}}
+      {{ formatDate(time)}}
     </span>
   </div>
 </template>
@@ -32,7 +32,8 @@ export default {
   props: {
     message: {
       type: String,
-      required: true
+      required: true,
+      default: ""
     },
     sender: {
       type: String,
@@ -50,11 +51,25 @@ export default {
       return props.sender === store.state.username
     })
 
+    const formatDate = (date) => {
+      if (!date) return '';
+      return date.toLocaleString('it-IT', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
     return {
       message: props.message,
       sender: props.sender,
       time: props.time,
-      yourMessage
+      yourMessage,
+      formatDate
     }
   }
 }
@@ -62,24 +77,4 @@ export default {
 </script>
 
 <style>
-.self-start{
-  align-self: flex-start;
-}
-
-.self-end{
-  align-self: flex-end;
-}
-
-.flex-col{
-  flex-direction: column;
-}
-
-.z-10{
-  z-index: 10;
-}
-
-.backdrop-blur-pp{
-  filter: blur(24px)
-}
-
 </style>

@@ -7,7 +7,7 @@
         <ChatMessage
             :message="message.message"
             :sender="message.sender"
-            :time="message.time"
+            :time="new Date(message.time)"
         />
       </li>
     </ul>
@@ -64,7 +64,6 @@ export default {
     const messagesContainer = useTemplateRef('messagesContainer')
 
     const scrollToBottom = () => {
-      console.log(messagesContainer)
       if (messagesContainer.value) {
         nextTick(() => {
           messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight;
@@ -124,28 +123,4 @@ export default {
 </script>
 
 <style>
-
-
-
-.self-start{
-    align-self: flex-start;
-}
-
-.self-end{
-    align-self: flex-end;
-}
-
-.flex-col{
-    flex-direction: column;
-}
-
-.z-10{
-    z-index: 10;
-}
-
-.backdrop-blur-pp{
-    filter: blur(24px)
-}
-
-
 </style>
