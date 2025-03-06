@@ -239,16 +239,9 @@
                         </button>
                         <button type="button" :class="{ 'bg-third text-white': inLength, 'bg-fourth': !inLength }"
                             @mouseenter="inButtonLength" @mouseleave="inButtonLength" @click="changeFilterLength"
-                            class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
+                            class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg col-span-2">
                             <img class="w-5" :src="inLength ? hoverImgLength : defaultImgLength" alt="filtroLunghezza">
                             Length
-                        </button>
-                        <button type="button" :class="{ 'bg-third text-white': inCategory, 'bg-fourth': !inCategory }"
-                            @mouseenter="inButtonCategory" @mouseleave="inButtonCategory" @click="changeFilterCategory"
-                            class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
-                            <img class="w-5" :src="inCategory ? hoverImgCategory : defaultImgCategory"
-                                alt="filtroCategoria">
-                            Category
                         </button>
                     </div>
                 </form> 
@@ -268,7 +261,7 @@
     <div v-if="editorVisible" class="absolute top-0 h-full w-full">
         <div>
             <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
-            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @add-expiration-task="saveExpiration"/>
+            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote"/>
         </div>
     </div>
 
@@ -490,15 +483,7 @@ export default {
             })
         }
 
-        const saveExpiration = (taskExpiration) => {
-            taskBody.value.push({
-                expiration : taskExpiration
-            })
-            
-        }
 
-
-        
         const filter = ref("")
         const toggleFilter = computed(() => {
             let filteredNotes = [...notes.value];
@@ -868,10 +853,7 @@ export default {
             fetchUsers,
             userSelected,
             currentSelect,
-            saveExpiration,
-            
-            
-            
+             
         };
 }}
 </script>

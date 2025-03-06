@@ -41,10 +41,11 @@
 <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
 <img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3 mr-4">
 <Modal @click.self="openExiparation" v-show="exiparationVisible">
-            <div class="h-full w-full flex justify-between items-center">
-                <div class="font-bold text-secondary">Select expiration date:</div>
-                <div><DatePicker class="mt-px inline-block w-auto"  v-model="task.expiration"></DatePicker></div>
-                <div><button @click="saveExpiration(task.expiration)" class="p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
+            <div class="h-full w-full
+                        md:flex md:justify-between md:items-center">
+                <div class="w-auto font-bold text-secondary text-center mb-4">Select expiration date:</div>
+                <div><DatePicker class="relative left-1/2 -translate-x-1/2 mt-px inline-block w-auto mb-4"  v-model="task.expiration"></DatePicker></div>
+                <div><button @click="saveExpiration()" class="relative left-1/2 -translate-x-1/2 p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
             </div>
         </Modal>
 </div>
@@ -73,8 +74,7 @@ export default {
             exiparationVisible.value = !exiparationVisible.value
         }
 
-      const saveExpiration = (taskExpiration) => {
-        emit('save-expiration', taskExpiration)
+      const saveExpiration = () => {
         exiparationVisible.value = false
       }
 

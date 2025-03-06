@@ -3,10 +3,7 @@
     <div class="absolute bottom-0 h-full w-full bg-white">
         <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                {{  }} 
-            </span> -->
-            <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+            <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 Author: {{ note.user }} 
                 Access: {{ note.access }} 
             </span>
@@ -18,25 +15,19 @@
         </div>
         <div v-else-if="note.format == 'markdownNote' || noteFormat == 'markdownNote'" class="p-4 z-10">
             <button @click="toggleSave(localNoteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
-            </span> -->
-            <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+            <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 Author: {{ note.user }} 
                 Access: {{ note.access }} 
             </span>
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
             <textarea v-model="localNoteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
                         class="w-full"></textarea>
-            <div v-html="convertedMarkdown" class="fixed bottom-0 left-0 p-4 top-2/3 mt-4 overflow-y-scroll w-full overflow-auto whitespace-normal"></div>
+            <div v-html="convertedMarkdown" class="fixed bottom-0 left-0 p-4 top-2/3 mt-4 w-full overflow-auto whitespace-normal"></div>
         </div>
 
         <div v-else class="p-4 z-10">
             <button @click="toggleEditorTask(note._id,taskBody)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
-            <!--<span class="fixed top-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                {{ format(note.updatedAt, 'dd MMMM yyyy HH:mm') }} 
-            </span> -->
-            <span class="fixed bottom-4 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
+            <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
                 Author: {{ note.user }} 
                 Access: {{ note.access }} 
             </span>
@@ -56,7 +47,7 @@
             <div class="absolute w-full top-0 bottom-72 overflow-scroll">
                 <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
                     <div v-for="task in taskBody" :key="task.id">
-                        <SingleTask :task="task" @save-expiration="saveExpiration"/>
+                        <SingleTask :task="task"/>
                     </div>
                 </div>
             </div>
@@ -107,6 +98,7 @@ export default {
         const taskTitleInput = ref("")
         const addTask = (taskTitle, taskdone, id) => {
             taskTitle = taskTitleInput.value
+            if(taskTitle === "") return   
             emit('add-task',taskTitle,taskdone, id)
             taskTitleInput.value = ""
         }
@@ -119,9 +111,7 @@ export default {
 
         
     
-        const saveExpiration = (taskExpiration) => {
-            emit('add-expiration-task', taskExpiration)
-        }
+        
 
         return{
             toggleSave,
@@ -137,7 +127,6 @@ export default {
             taskTitleInput,
             convertedMarkdown,
             format,
-            saveExpiration,
             localNoteBody
         }
 
