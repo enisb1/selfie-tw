@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@sinonjs/fake-timers": "^14.0.0",
     "@vue/cli": "^5.0.8",
     "agenda": "^5.0.0",
     "axios": "^1.7.7",

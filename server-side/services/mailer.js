@@ -21,7 +21,7 @@ export class Mailer {
             text: message
         };
         try {
-            const info = await this.transporter.sendMail(mailOptions);
+            await this.transporter.sendMail(mailOptions);
         } catch (error) {
             console.error('Errore invio della mail:', error);
         }
@@ -31,16 +31,14 @@ export class Mailer {
         const user = await User.findOne({username: username});
 
         if (user) {
-            console.log(user.email);
             return user.email;
-        }
+        }else return "";
     }
 
     async getEmailFromUserId(userID){
         const user = await User.findById(userID);
         if (user) {
-            console.log(user.email);
             return user.email;
-        }
+        }else return "";
     }
 }

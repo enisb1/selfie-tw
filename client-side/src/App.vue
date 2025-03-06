@@ -17,7 +17,7 @@
         
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div  class="hidden lg:flex space-x-6">
-          <router-link v-show="store.state.isAdmin"class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
+          <router-link v-show="store.state.isAdmin" class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Notifications Centre</router-link>
           <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
@@ -27,6 +27,7 @@
           <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Settings</router-link>
           <!-- TODO: put inside of settings instead of navbar -->
           <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
+          <button @click="triggerModal" class="text-white hover:text-accent">Time Machine</button>
         </div>
       </div>
 
@@ -46,6 +47,37 @@
     </nav>
 
     <router-view/>
+
+    <Modal v-if="showModal" @close="triggerModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+
+        <h1 class="text-xl font-semibold text-gray-800">Current Date</h1>
+        <h1 class="text-lg text-gray-600 mt-1">{{ formatDate(currentDate) }}</h1>
+
+        <div class="mt-4">
+          <DatePicker
+              class="mt-2 w-full border border-gray-300 rounded-lg p-2"
+              v-model="dateSelector"
+              :format="formatDate"
+              minutes-increment="1">
+          </DatePicker>
+        </div>
+
+        <div class="mt-6 flex justify-between gap-4">
+          <button
+              @click="setNewDate(dateSelector)"
+              class="w-full bg-blue-600 text-white py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
+            Set New Date
+          </button>
+
+          <button
+              @click="rollBackDate"
+              class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg shadow-md hover:bg-gray-400 transition">
+            Reset Date
+          </button>
+        </div>
+    </Modal>
+
+
   </div>
 </template>
 
@@ -53,8 +85,13 @@
 import {ref} from 'vue'
 import {useStore} from "vuex";
 import {useRouter} from "vue-router";
+import Modal from "@/components/Modal.vue";
+import DatePicker from "@vuepic/vue-datepicker";
+import { rollBackTime, setNewGlobalTime} from "@/apis/time";
+import {rollBackClientTime, setClientGlobalTime} from "../script/timeMachine";
 
 export default {
+  components: {DatePicker, Modal},
   setup() {
     // hamburger menu
     const hamburgerMenuOpened = ref(false)
@@ -74,10 +111,55 @@ export default {
       store.commit('connect')
     }
 
+    const formatDate = (date) => {
+      if (!date) return '';
+      return date.toLocaleString('it-IT', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      });
+    }
+
+    const currentDate = ref(new Date())
+    setInterval(async () => {
+      currentDate.value = new Date()
+    }, 1000)
+
+    const setNewDate = (date) => {
+      setNewGlobalTime(date)
+      setClientGlobalTime(new Date(date))
+    }
+
+    const rollBackDate = () => {
+      rollBackTime()
+      rollBackClientTime()
+    }
+
+    const dateSelector = ref(new Date())
+
+    const showModal = ref(false)
+    const triggerModal = () => {
+      showModal.value = !showModal.value
+    }
+
+    const format = (date) => {
+      return date
+    }
     return {
       hamburgerMenuOpened,
       toggleHamburgerMenu,
-      store
+      store,
+      formatDate,
+      currentDate,
+      dateSelector,
+      setNewDate,
+      rollBackDate,
+      showModal,
+      triggerModal
     }
   }
 }
