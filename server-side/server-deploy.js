@@ -13,6 +13,8 @@ import noteRoutes from './routes/noteRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
 import {AgendaHandler} from "./services/agendaHandler.js";
 import {Mailer} from "./services/mailer.js";
+import {TimeMachineController} from "./services/timeMachine.js";
+import timeRoutes from './routes/timeMachineRoutes.js'
 
 const app = express();
 const PORT = 8000;
@@ -54,6 +56,7 @@ app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
 //app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/time", timeRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -73,6 +76,9 @@ export const mailer = new Mailer();
 
 // Create a WebSocket server
 export const wsConnectionHandler = new wsHandler({ server });
+
+export const timeMachineController = new TimeMachineController();
+
 
 // start server
 server.listen(PORT, () => {

@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@sinonjs/fake-timers": "^9.1.2",
     "@vue/cli": "^5.0.8",
     "@vuepic/vue-datepicker": "^9.0.3",
     "axios": "^1.7.7",
@@ -21,6 +22,9 @@
     "passport-local": "^1.0.0",
     "rrule": "^2.8.1",
     "tailwindcss": "^3.4.13",
+    "timers": "^0.1.1",
+    "timers-browserify": "^2.0.12",
+    "util": "^0.12.5",
     "vue": "^3.2.13",
     "vue-multiselect": "^3.1.0",
     "vue-router": "^4.0.3",
