@@ -1,6 +1,6 @@
 <template>
 <div class="flex justify-between items-center">
-  <div class="inline-flex items-center">
+  <div class="w-2/3 inline-flex items-center">
   <label
     class="relative flex cursor-pointer items-center rounded-full p-3"
     for="ripple-on"
@@ -34,11 +34,11 @@
       </svg>
     </span>
   </label>
-  <label class="cursor-pointer text-slate-600 text-sm" for="ripple-on">
-      <h3 class="font-semibold text-lg text-secondary"> {{ task.title }} </h3>
+  <label class="w-3/4 cursor-pointer text-slate-600 text-sm" for="ripple-on">
+      <h3 class="font-semibold text-lg text-secondary truncate"> {{ task.title }} </h3>
   </label>
   </div>
-<span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
+  <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
 <img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3 mr-4">
 <Modal @click.self="openExiparation" v-show="exiparationVisible">
             <div class="h-full w-full
@@ -84,10 +84,6 @@ export default {
         // Aggiungere un'ora
         date.setUTCHours(date.getUTCHours() + 1);
 
-        // Estrarre ore e minuti
-        const hours = date.getUTCHours().toString().padStart(2, '0'); // Ora in formato 24 ore
-        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-
         // Giorno
         const day = date.getUTCDate();
 
@@ -98,7 +94,7 @@ export default {
         // Anno
         const year = date.getUTCFullYear();
 
-        return `${hours}:${minutes} ${day} ${month} ${year}`;
+        return `${day} ${month} ${year}`;
      }
 
         
