@@ -44,7 +44,7 @@
             <div class="h-full w-full
                         md:flex md:justify-between md:items-center">
                 <div class="w-auto font-bold text-secondary text-center mb-4">Select expiration date:</div>
-                <div><DatePicker class="relative left-1/2 -translate-x-1/2 mt-px inline-block w-auto mb-4"  v-model="expirationTask"></DatePicker></div>
+                <div><DatePicker class="relative left-1/2 -translate-x-1/2 mt-px inline-block w-auto mb-4"  v-model="expirationTask" :format="formatDate" minutes-increment="5" :start-time="startTime"></DatePicker></div>
                 <div><button @click="saveExpiration(expirationTask)" class="relative left-1/2 -translate-x-1/2 p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
             </div>
         </Modal>
@@ -77,11 +77,26 @@ export default {
         }
 
       const saveExpiration = (expirationTask) => {
-        console.log(expirationTask)
-        props.task.expiration = expirationTask
+        if (!expirationTask)
+          props.task.expiration = undefined
+        else
+          props.task.expiration = expirationTask
         emit('saveExpiration',expirationTask)
         exiparationVisible.value = false
       }
+
+      const formatDate = (date) => {
+        if (!date) return '';
+        return date.toLocaleString('it-IT', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false // (12 hour format)
+        });
+      }
+      const startTime = ref({ hours: 12, minutes: 30 })
 
       function formatISODate(isoDateString) {
         const date = new Date(isoDateString);
@@ -112,7 +127,9 @@ export default {
         exiparationVisible,
         saveExpiration,
         formatISODate,
-        expirationTask
+        expirationTask,
+        formatDate,
+        startTime
       }
     }
 
