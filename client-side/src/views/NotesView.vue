@@ -261,7 +261,7 @@
     <div v-if="editorVisible" class="absolute top-0 h-full w-full">
         <div>
             <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
-            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote"/>
+            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @saveExpiration="saveExpiration"/>
         </div>
     </div>
 
@@ -272,7 +272,7 @@
 </template>
 
 <script>
-import { onMounted, onBeforeMount, ref, computed } from 'vue';
+import { onMounted, onBeforeMount, ref, computed, watch } from 'vue';
 import defaultImgDate from "../images/filtrodata.png"
 import hoverImgDate from "../images/filtrodatab.png"
 import defaultImgTitle from "../images/filtrotitolo.png"
@@ -473,7 +473,6 @@ export default {
 
 
         const tasks = ref([])
-        
         const taskDone = ref(false)
         
         //Add Task to single TaskNote
@@ -483,6 +482,13 @@ export default {
             })
         }
 
+        const saveExpiration = async (index,noteId,expirationTask) => {
+            const noteUp = await getNoteById(noteId)
+            noteUp.bodyTask[index].expiration = expirationTask
+            await editNote(noteId, noteUp) 
+        }
+
+        
 
         const filter = ref("")
         const toggleFilter = computed(() => {
@@ -853,7 +859,7 @@ export default {
             fetchUsers,
             userSelected,
             currentSelect,
-             
+            saveExpiration,
         };
 }}
 </script>

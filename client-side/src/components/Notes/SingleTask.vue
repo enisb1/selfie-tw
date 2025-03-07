@@ -44,8 +44,8 @@
             <div class="h-full w-full
                         md:flex md:justify-between md:items-center">
                 <div class="w-auto font-bold text-secondary text-center mb-4">Select expiration date:</div>
-                <div><DatePicker class="relative left-1/2 -translate-x-1/2 mt-px inline-block w-auto mb-4"  v-model="task.expiration"></DatePicker></div>
-                <div><button @click="saveExpiration()" class="relative left-1/2 -translate-x-1/2 p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
+                <div><DatePicker class="relative left-1/2 -translate-x-1/2 mt-px inline-block w-auto mb-4"  v-model="expirationTask"></DatePicker></div>
+                <div><button @click="saveExpiration(expirationTask)" class="relative left-1/2 -translate-x-1/2 p-2 rounded-2xl text-white bg-secondary font-bold">Save expiration</button></div>
             </div>
         </Modal>
 </div>
@@ -53,7 +53,7 @@
 
 <script>
 
-import {ref} from 'vue';
+import {ref, watch} from 'vue';
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
 
@@ -68,13 +68,18 @@ export default {
     
 
     setup(props, {emit}){
+
+      const expirationTask = ref(props.task.expiration)
       
       const exiparationVisible = ref(false)
         const openExiparation = () => {
             exiparationVisible.value = !exiparationVisible.value
         }
 
-      const saveExpiration = () => {
+      const saveExpiration = (expirationTask) => {
+        console.log(expirationTask)
+        props.task.expiration = expirationTask
+        emit('saveExpiration',expirationTask)
         exiparationVisible.value = false
       }
 
@@ -97,12 +102,17 @@ export default {
         return `${day} ${month} ${year}`;
      }
 
+     watch(() => props.task.expiration, (newVal) => {
+      expirationTask.value = newVal;
+    });
+
         
       return{
         openExiparation,
         exiparationVisible,
         saveExpiration,
-        formatISODate
+        formatISODate,
+        expirationTask
       }
     }
 

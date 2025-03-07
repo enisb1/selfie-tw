@@ -46,8 +46,8 @@
             <div class="relative h-screen w-full">
             <div class="absolute w-full top-0 bottom-72 overflow-scroll">
                 <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
-                    <div v-for="task in taskBody" :key="task.id">
-                        <SingleTask :task="task"/>
+                    <div v-for="(task, index) in taskBody" :key="task.id">
+                        <SingleTask :task="task" @saveExpiration="saveExpiration(index, note._id, $event)"/>
                     </div>
                 </div>
             </div>
@@ -109,6 +109,10 @@ export default {
             emit('add-tasknote', id, body)
         }
 
+        const saveExpiration = (index,noteId,expirationTask) => {
+            emit('saveExpiration',index,noteId,expirationTask)
+        }
+
         
     
         
@@ -127,7 +131,8 @@ export default {
             taskTitleInput,
             convertedMarkdown,
             format,
-            localNoteBody
+            localNoteBody,
+            saveExpiration
         }
 
     },
