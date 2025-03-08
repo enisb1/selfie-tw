@@ -1,9 +1,9 @@
 <template>
     <div class="flex flex-col">
         <!-- Modify and go back button (note: cannot edit activity if it's DONE)-->
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/edit.png" alt="edit"></button>
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/returnButton.png" alt="edit"></button>
 
         <!-- Activity info-->
@@ -55,7 +55,7 @@
         <!-- buttons -->
         <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
             <!-- delete button -->
-            <button @click="deleteActivityObject" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+            <button v-if="!activityObject.expiringTask" @click="deleteActivityObject" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
             <!-- delete composite -->
             <button v-if="activityObject.compositeActivity" @click="deleteCompositeActivity()" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 

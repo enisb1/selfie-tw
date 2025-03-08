@@ -145,6 +145,7 @@ import Modal from '@/components/Modal.vue'
 import EventInfoEdit from '../EventInfoEdit.vue'
 import ActivityInfoEdit from '../ActivityInfoEdit.vue'
 import { useStore } from 'vuex'
+import { getExpiringTasksInRange } from '@/apis/note.js'
 
 export default {
     emits: ['updateAllCalendars'],
@@ -214,7 +215,9 @@ export default {
                     || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
                 })
                 // fetch activities
-                const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
+                let activities = await getActivitiesInRange(startDate, endDate, store.state._id)
+                const activitiesFromExpiringTasks = await getExpiringTasksInRange(startDate, endDate, store.state.username)
+                activities = activities.concat(activitiesFromExpiringTasks)
                 // update calendar
                 schedulesForDay.value = updateSchedules(events, activities, startDate, endDate)
             }
