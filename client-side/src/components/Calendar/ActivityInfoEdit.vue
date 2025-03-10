@@ -1,9 +1,9 @@
 <template>
     <div class="flex flex-col">
         <!-- Modify and go back button (note: cannot edit activity if it's DONE)-->
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/edit.png" alt="edit"></button>
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/returnButton.png" alt="edit"></button>
 
         <!-- Activity info-->

@@ -225,6 +225,7 @@ import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 import { useStore } from 'vuex';
+import { getExpiringTasksInRange } from '@/apis/note';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -298,7 +299,9 @@ export default {
             })
 
             // fetch activities
-            const activities = await getActivitiesInRange(startDate, endDate, store.state._id)
+            let activities = await getActivitiesInRange(startDate, endDate, store.state._id)
+            const activitiesFromExpiringTasks = await getExpiringTasksInRange(startDate, endDate, store.state.username)
+            activities = activities.concat(activitiesFromExpiringTasks)
 
             // render calendar view
             renderCalendar(events.value, activities, false)

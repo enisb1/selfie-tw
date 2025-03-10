@@ -1516,7 +1516,7 @@ async function createGrid(projectId, projectStart) {
 
 
     const dayGrid = document.createElement("div");
-    dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "divide-x", "divide-white", "overflow-auto");
+    dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "divide-x", "divide-white", "overflow-auto", "overflow-y-hidden", "pb-4", "-mb-4");
 
     
         project.slice().forEach((activity, index) => {
@@ -1601,7 +1601,7 @@ async function createGrid(projectId, projectStart) {
                         
                     }   
                 }
-                //console.log(stato,formatDateToDayMonth(actualyStart),formatDateToDayMonth(d) , hourStart , hour) 
+                
                 
         
                 const hourDiv = document.createElement("div");

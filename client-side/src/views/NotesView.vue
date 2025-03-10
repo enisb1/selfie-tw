@@ -239,16 +239,9 @@
                         </button>
                         <button type="button" :class="{ 'bg-third text-white': inLength, 'bg-fourth': !inLength }"
                             @mouseenter="inButtonLength" @mouseleave="inButtonLength" @click="changeFilterLength"
-                            class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
+                            class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg col-span-2">
                             <img class="w-5" :src="inLength ? hoverImgLength : defaultImgLength" alt="filtroLunghezza">
                             Length
-                        </button>
-                        <button type="button" :class="{ 'bg-third text-white': inCategory, 'bg-fourth': !inCategory }"
-                            @mouseenter="inButtonCategory" @mouseleave="inButtonCategory" @click="changeFilterCategory"
-                            class="font-semibold flex flex-col items-center p-2 m-2 rounded-lg">
-                            <img class="w-5" :src="inCategory ? hoverImgCategory : defaultImgCategory"
-                                alt="filtroCategoria">
-                            Category
                         </button>
                     </div>
                 </form> 
@@ -268,7 +261,7 @@
     <div v-if="editorVisible" class="absolute top-0 h-full w-full">
         <div>
             <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
-            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @add-expiration-task="saveExpiration"/>
+            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @saveExpiration="saveExpiration" @deleteTask="deleteTask"/>
         </div>
     </div>
 
@@ -279,7 +272,7 @@
 </template>
 
 <script>
-import { onMounted, onBeforeMount, ref, computed } from 'vue';
+import { onMounted, onBeforeMount, ref, computed, watch } from 'vue';
 import defaultImgDate from "../images/filtrodata.png"
 import hoverImgDate from "../images/filtrodatab.png"
 import defaultImgTitle from "../images/filtrotitolo.png"
@@ -467,20 +460,15 @@ export default {
         const uploadTask = async (body,id) => {
             console.log(id)
             const noteUp = await getNoteById(id)
-
             taskBody.value = body
             noteUp.bodyTask = taskBody.value 
-
             await editNote(id, noteUp)
-            
+            taskBody.value = [] 
             loadNotesUser()
         }
 
 
-
-
         const tasks = ref([])
-        
         const taskDone = ref(false)
         
         //Add Task to single TaskNote
@@ -490,15 +478,21 @@ export default {
             })
         }
 
-        const saveExpiration = (taskExpiration) => {
-            taskBody.value.push({
-                expiration : taskExpiration
-            })
-            
+        const saveExpiration = async (index,noteId,expirationTask) => {
+            const noteUp = await getNoteById(noteId)
+            noteUp.bodyTask[index].expiration = expirationTask
+            await editNote(noteId, noteUp) 
         }
 
+        const deleteTask = async (index,noteId) => {
+            const noteUp = await getNoteById(noteId)
+            noteUp.bodyTask.splice(index, 1)
+            taskBody.value.splice(index, 1)
+            await editNote(noteId, noteUp)
+        }
 
         
+
         const filter = ref("")
         const toggleFilter = computed(() => {
             let filteredNotes = [...notes.value];
@@ -869,9 +863,7 @@ export default {
             userSelected,
             currentSelect,
             saveExpiration,
-            
-            
-            
+            deleteTask
         };
 }}
 </script>

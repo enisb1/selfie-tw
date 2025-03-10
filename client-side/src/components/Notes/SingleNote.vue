@@ -1,8 +1,8 @@
 <template>
    <div class="h-32 rounded-r-xl rounded-bl-xl border-4 bg-white border-third shadow-2xl overflow-hidden">
-            <h5 @click.self="openNote(note._id)" :class="{'bg-fourth cursor-pointer':note.format == 'normalNote'|| 'markdownNote', 'text-secondary cursor-pointer':note.format == 'normalNote' || 'markdownNote', 'bg-secondary cursor-pointer':note.format == 'Task', 'text-white cursor-pointer':note.format == 'Task'}"  
+            <h5 :class="{'bg-fourth cursor-pointer':note.format == 'normalNote'|| 'markdownNote', 'text-secondary cursor-pointer':note.format == 'normalNote' || 'markdownNote', 'bg-secondary cursor-pointer':note.format == 'Task', 'text-white cursor-pointer':note.format == 'Task'}"  
                  class="p-1 h-1/4 m-1 font-medium flex items-center justify-between"> 
-                 {{note.title}}
+                 <div @click.self="openNote(note._id)" class="w-3/4 truncate">{{note.title}}</div>
                  <span class="flex justify-between items-center">
                     <button @click="deleteNoteView(note._id)" class="mx-1"><img class="w-4" src="@/images/deleteWhite.png" alt="deleteIcon"></button>
                     <button @click="duplicateNote(note._id)"><img class="w-4" src="@/images/duplicateWhite.png" alt="duplicateIcon"></button>
@@ -14,7 +14,7 @@
                 <ul>
                     <li class="flex py-1" v-for="(task, index) in note.bodyTask" :key="index"> 
                          <label class="flex items-center cursor-pointer relative">
-                                <input defaultChecked type="checkbox" value="privateAccess" class="peer h-5 w-5 cursor-pointer transition-all 
+                                <input type="checkbox" value="privateAccess" class="peer h-5 w-5 cursor-pointer transition-all 
                                        appearance-none rounded bg-slate-100 shadow hover:shadow-md border
                                        border-slate-300 checked:bg-secondary checked:border-secondary" 
                                        id="check-custom-style" v-model="task.done" disabled/>

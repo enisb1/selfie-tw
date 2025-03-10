@@ -16,6 +16,29 @@ router.post('/addNote', async (req, res) => {
     }
 });
 
+// Get tasks with expiration in a certain range and filter by username
+router.get('/tasks', async (req, res) => {
+    const { start, end, username } = req.query;
+    
+    try {
+        const notes = await Note.find({
+            $and: [
+                { 'bodyTask.expiration': { $gte: start, $lte: end } },
+                { $or: [{ user: username }, { userListAccess: username }] }
+            ]
+        });
+
+        const tasks = notes.flatMap(note => 
+            note.bodyTask.filter(task => 
+                task.expiration >= start && task.expiration <= end
+            )
+        );
+
+        res.json(tasks);
+    } catch (error) {
+        res.status(500).json({ error: 'Error fetching tasks' });
+    }
+});
 
 router.delete('/deleteNote/:id', async (req, res) => {
     const noteId = req.params.id;

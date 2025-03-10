@@ -310,9 +310,19 @@ export function renderCalendar(events, activities, isResource) {
     }
 
     if (!isResource) {
-       // render activities
-        for (const activity of activities) 
-            addActivity(activity) 
+        // render activities
+        for (let activity of activities) {
+            // mapping expiring task to activity object fields
+            if (activity.expiration) {
+                activity = {
+                    title: activity.title? activity.title : "",
+                    deadline: activity.expiration,
+                    isDone: activity.done,
+                    expiringTask: true
+                }
+            }
+            addActivity(activity)
+        }
     }
     
 }
