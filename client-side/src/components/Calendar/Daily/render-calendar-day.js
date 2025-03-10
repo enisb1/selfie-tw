@@ -61,6 +61,8 @@ function addEvent(eventToAdd, startDate, endDate, resource) {
     let eventToAddMEnd = endDate.getMinutes();
     if (eventToAddMEnd == 59)   // this only happens when event endDate is truncated to 23.59
         eventToAddMEnd = 60;    // 59 is not valid for the calculations since minutes are displayed in hops of 5
+    if (eventToAddMEnd % 5 != 0)    // round minutes to the nearest 5 (could happen for pomodoro events)
+        eventToAddMEnd = Math.ceil(eventToAddMEnd/5)*5;
     // add startInMinutes and endInMinutes to event's prototype (will be used in calculations)
     eventToAdd.startInMinutes = eventToAddHStart*60 + eventToAddMStart;
     eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd;

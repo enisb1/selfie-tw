@@ -26,6 +26,12 @@
                 <p class="font-semibold text-base">Composite Activity Name</p>
                 <p> {{ activityObject.compositeActivity.groupName }}</p>
             </div>
+
+            <!-- participants -->
+            <div class="mt-4" v-show="activityObject.users.length > 0">
+                <p class="font-semibold text-base">Participants</p>
+                <p>{{ participants.join(', ') }}</p>
+            </div>
         </div>
 
         <!-- Edit activity form -->
@@ -55,10 +61,13 @@
         <!-- buttons -->
         <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
             <!-- delete button -->
-            <button v-if="!activityObject.expiringTask" @click="deleteActivityObject" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+            <button @click="deleteActivityObject" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <!-- delete for you button -->
+            <button v-show="activityObject.users.length > 1" @click="deleteUserFromActivity" type="button" class="w-1/3 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete for you</button>
             <!-- delete composite -->
-            <button v-if="activityObject.compositeActivity" @click="deleteCompositeActivity()" type="button" class="min-w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+            <button v-if="activityObject.compositeActivity" @click="deleteCompositeActivity()" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete composite</button> 
         </div>
     </div>
@@ -67,8 +76,10 @@
 <script>
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { editActivity, deleteActivitiesByGroup, deleteActivity } from '@/apis/calendar';
+import { getUsers } from '@/apis/users';
+import { useStore } from 'vuex';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
@@ -79,9 +90,11 @@ export default {
         activityObject : Object
     },
     setup(props, {emit}) {
+        const store = useStore()
         // edit activity
         const showEditActivity = ref(false)
         const editedActivityTitle = ref()
+        const participants = ref(['You'])
         const editedActivityDeadline = ref()
         const toggleEditActivity = () => {
             // if it's about to be toggled on update data inside
@@ -136,6 +149,24 @@ export default {
             emit('close')
         }
 
+        const deleteUserFromActivity = async () => {
+            // create updatedActivity object
+            const updatedActivity = structuredClone(props.activityObject)
+            updatedActivity.users = updatedActivity.users.filter(u => u._id != store.state._id)
+            await editActivity(props.activityObject._id, updatedActivity)
+            emit('updateAllCalendars')
+            emit('close')
+        }
+
+        onMounted(async () => {
+            const remainingUsers = props.activityObject.users.filter(u => u != store.state._id)
+            if (remainingUsers.length > 0) {
+                const participatingUsers = await getUsers(remainingUsers)
+                participants.value = participants.value.concat(participatingUsers.map(u => u.username))
+            }
+            
+        })
+
         return {
             showEditActivity,
             toggleEditActivity,
@@ -145,7 +176,9 @@ export default {
             deleteActivityObject,
             applyEdits,
             setActivityDone,
-            deleteCompositeActivity
+            deleteCompositeActivity,
+            participants,
+            deleteUserFromActivity
         }
     }
 }
