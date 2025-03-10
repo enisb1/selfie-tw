@@ -39,7 +39,10 @@
   </label>
   </div>
   <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
-<img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3 mr-4">
+  <div class="flex items-center">
+      <img @click="deleteTask" src="@/images/deletesecondary.png" alt="delete" class="w-3 mr-4">
+      <img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3">
+  </div>
 <Modal @click.self="openExiparation" v-show="exiparationVisible">
             <div class="h-full w-full
                         md:flex md:justify-between md:items-center">
@@ -121,6 +124,12 @@ export default {
       expirationTask.value = newVal;
     });
 
+    const deleteTask = () => {
+        emit('deleteTask', props.task) 
+      }
+   
+  
+
         
       return{
         openExiparation,
@@ -129,7 +138,8 @@ export default {
         formatISODate,
         expirationTask,
         formatDate,
-        startTime
+        startTime,
+        deleteTask
       }
     }
 

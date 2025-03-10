@@ -261,7 +261,7 @@
     <div v-if="editorVisible" class="absolute top-0 h-full w-full">
         <div>
             <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
-            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @saveExpiration="saveExpiration"/>
+            @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @saveExpiration="saveExpiration" @deleteTask="deleteTask"/>
         </div>
     </div>
 
@@ -460,16 +460,12 @@ export default {
         const uploadTask = async (body,id) => {
             console.log(id)
             const noteUp = await getNoteById(id)
-
             taskBody.value = body
             noteUp.bodyTask = taskBody.value 
-
             await editNote(id, noteUp)
-            
+            taskBody.value = [] 
             loadNotesUser()
         }
-
-
 
 
         const tasks = ref([])
@@ -486,6 +482,13 @@ export default {
             const noteUp = await getNoteById(noteId)
             noteUp.bodyTask[index].expiration = expirationTask
             await editNote(noteId, noteUp) 
+        }
+
+        const deleteTask = async (index,noteId) => {
+            const noteUp = await getNoteById(noteId)
+            noteUp.bodyTask.splice(index, 1)
+            taskBody.value.splice(index, 1)
+            await editNote(noteId, noteUp)
         }
 
         
@@ -860,6 +863,7 @@ export default {
             userSelected,
             currentSelect,
             saveExpiration,
+            deleteTask
         };
 }}
 </script>

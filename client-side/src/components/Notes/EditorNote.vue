@@ -47,7 +47,7 @@
             <div class="absolute w-full top-0 bottom-72 overflow-scroll">
                 <div class="grid grid-cols-1 gap-2 py-2 lg:grid-cols-3">
                     <div v-for="(task, index) in taskBody" :key="task.id">
-                        <SingleTask :task="task" @saveExpiration="saveExpiration(index, note._id, $event)"/>
+                        <SingleTask :task="task" @saveExpiration="saveExpiration(index, note._id, $event)" @deleteTask="deleteTask(index, note._id)"/>
                     </div>
                 </div>
             </div>
@@ -66,6 +66,7 @@ import SingleTask from '@/components/Notes/SingleTask.vue';
 import { format } from 'date-fns'
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
+import { getNoteById, editNote } from '@/apis/note'
 
 export default {
     props: ['note','noteFormat','noteTitle', 'noteBody', 'task','taskBody'],
@@ -88,7 +89,6 @@ export default {
             convertedMarkdown.value = marked(newVal)
             console.log("modi")
         })
-
     
         const toggleSave = (noteBody,id) => {
             emit('save-note',noteBody,id)
@@ -113,9 +113,14 @@ export default {
             emit('saveExpiration',index,noteId,expirationTask)
         }
 
+        const deleteTask = async (index,noteId) => {
+            emit('deleteTask',index,noteId)
+        }
         
-    
-        
+        watch(() => taskBody.value, (newVal) => {
+            taskBody.value = newVal
+            console.log(newVal)
+        })
 
         return{
             toggleSave,
@@ -132,7 +137,8 @@ export default {
             convertedMarkdown,
             format,
             localNoteBody,
-            saveExpiration
+            saveExpiration,
+            deleteTask
         }
 
     },
