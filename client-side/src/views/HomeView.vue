@@ -38,11 +38,11 @@
     <div class="w-full bg-secondary text-white font-bold py-4 px-6 rounded-lg shadow-lg text-center hover:bg-secondary">
       <a href="/pomodoro">Pomodoro</a>
       <div class="w-full p-1 bg-third mt-2">Last settings</div>
-      <div class="mt-2 flex">
+      <div class="mt-2 flex" v-if="workTime && relaxTime && numCycle">
         <div class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-        Study: {{ workTime/60 }} minutes <br>
-        Relax: {{ relaxTime/60 }} minutes <br>
-        Cycle: {{ numCycle }} minutes
+          Study: {{ workTime/60 }} minutes <br>
+          Relax: {{ relaxTime/60 }} minutes <br>
+          Cycle: {{ numCycle }} minutes
         </div>
       </div>
     </div>
@@ -56,14 +56,10 @@
       </div>
       <div class="mt-2 flex">
         <div v-show="previewNote" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-          {{ lastNote.title }} <br>
-          <!--{{ lastNote.body }}
-          <span v-if="notes.length === 0">No notes</span>-->
+          {{ lastNote.title? lastNote.title : 'No notes found' }} <br>
         </div>
         <div v-show="previewTask" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-          {{ lastTask.title }} <br>
-          <!--{{ lastTask.body }}
-          <span v-if="tasks.length === 0">No tasks</span>-->
+          {{ lastTask.title? lastTask.title : 'No tasks found' }} <br>
         </div>
       </div>
     </div>
@@ -176,11 +172,11 @@ export default {
       noteTask.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
 
       notes.value = noteTask.value.filter(note => note.type === "Note")
-      
-      notes.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
-
-      lastNote.value.title = notes.value[0].title
-      lastNote.value.body = notes.value[0].bodyNote
+      if (notes.value.length > 0) {
+        notes.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+        lastNote.value.title = notes.value[0].title
+        lastNote.value.body = notes.value[0].bodyNote
+      }
     }
 
     const toggleTaskPreview = async () => {
@@ -198,14 +194,12 @@ export default {
                 
       noteTask.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
 
-      console.log(noteTask.value)
-
       tasks.value = noteTask.value.filter(task => task.type === "Task")
-      
-      tasks.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
-
-      lastTask.value.title = tasks.value[0].title
-      lastTask.value.body = tasks.value[0].bodyTask 
+      if (tasks.value.length > 0) {
+        tasks.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+        lastTask.value.title = tasks.value[0].title
+        lastTask.value.body = tasks.value[0].bodyTask 
+      }
     }
 
     ///////////////////////////////////////////////////////
@@ -215,10 +209,12 @@ export default {
     const numCycle = ref()
     const togglePomPreview = async () => {
       settingsPom.value = await getSettingsPomUser(username)
-      settingsPom.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
-      workTime.value = settingsPom.value[0].workTime
-      relaxTime.value = settingsPom.value[0].relaxTime
-      numCycle.value = settingsPom.value[0].cycleNum
+      if (settingsPom.value.length > 0) {
+        settingsPom.value.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
+        workTime.value = settingsPom.value[0].workTime
+        relaxTime.value = settingsPom.value[0].relaxTime
+        numCycle.value = settingsPom.value[0].cycleNum
+      }
     }
 
 

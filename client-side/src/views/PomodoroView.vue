@@ -107,7 +107,7 @@
                 <div>
                     Study
                     <div class="flex justify-center items-center gap-2">
-                        <div>{{minSetStudy/60}}</div> 
+                        <div>{{minSetStudy/60}}'</div> 
                         <div class="grid grid-cols-1">
                             <button @click="increaseStudy">
                                 <img class="w-3" src="@/images/arrowup.png" alt="arrowUp">
@@ -121,7 +121,7 @@
                 <div>
                     Relax
                     <div class="flex justify-center items-center gap-2">
-                        <div>{{minSetRelax/60}}</div> 
+                        <div>{{minSetRelax/60}}'</div> 
                         <div class="grid grid-cols-1">
                             <button @click="increaseRelax">
                                 <img class="w-3" src="@/images/arrowup.png" alt="arrowUp">
@@ -163,8 +163,8 @@
                 <div class="mt-2" v-for="(cicle,index) in cicles" :key="index">
                     <div @click="saveCicle(index)" class="w-full p-2 my-1 rounded-lg flex justify-center gap-8 text-center font-semibold"
                                                   :class="{'bg-white text-secondary': index==0, 'bg-secondary text-white': index!==0}">
-                        <div class="w-1/3">Study:<br> {{ cicle.study }}" </div>
-                        <div class="w-1/3">Relax:<br> {{cicle.relax}}" </div>
+                        <div class="w-1/3">Study:<br> {{ cicle.study }}' </div>
+                        <div class="w-1/3">Relax:<br> {{cicle.relax}}' </div>
                         <div class="w-1/3">Cycles:<br> {{cicle.ncicle}}</div>
                     </div>
                 </div>
@@ -175,7 +175,7 @@
     <Modal v-show="showPomodoroEventModal" @close="togglePomodoroEventModal">
         <header>
             <div class="flex items-center justify-between flex-row">
-                <p class="font-bold">Add pomodoro event</p>
+                <p class="font-bold text-truncate text-lg">Add pomodoro event</p>
                 <button type="button" @click="togglePomodoroEventModal"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="../images/x.png" alt="Croce"></button>
             </div>
@@ -185,10 +185,10 @@
             <!-- studying cycle recap -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Studying cycle to add</p>
-                <div class="bg-secondary p-2 rounded-md">
-                    <p class="text-white">Study: {{ minSetStudy/60 }}</p>
-                    <p class="text-white">Relax: {{ minSetRelax/60 }}</p>
-                    <p class="text-white">Cycles: {{ numSetCycle }}</p>
+                <div class="rounded-md">
+                    <p>Study: {{ minSetStudy/60 }}</p>
+                    <p>Relax: {{ minSetRelax/60 }}</p>
+                    <p>Cycles: {{ numSetCycle }}</p>
                 </div>
             </div>
 
