@@ -10,13 +10,13 @@
       <div class="flex-1 space-y-2">
         <h2 class="text-lg font-semibold text-secondary">{{ title }}</h2>
         <p class="text-sm text-secondary">{{ text }}</p>
-        <span class="text-xs text-fourth block">{{ time }}</span>
+        <span class="text-xs text-secondary block">{{ formatDate(new Date(time)) }}</span>
       </div>
 
       <button 
         @click.stop="$emit('remove')" 
         class="ml-auto text-fourth hover:text-third transition-colors text-xl"
-        aria-label="Chiudi notifica"
+        aria-label="Close notification"
       >
         ✕
       </button>
@@ -46,8 +46,22 @@
         icon.value = 'ℹ️';
       }
 
+      const formatDate = (date) => {
+        if (!date) return '';
+        return date.toLocaleString('it-IT', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        });
+      }
+
       return {
-        icon
+        icon,
+        formatDate
       }
     },
     name: "NotifyToggle",

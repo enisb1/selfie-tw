@@ -34,7 +34,7 @@ export async function sendNotification(sender,receiver,text) {
             receiver: receiver,
             time: new Date(),
             read: false,
-            title: "Messaggio da "+sender,
+            title: "Message from "+sender,
             text: text,
             type: "message"
         });
