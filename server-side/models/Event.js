@@ -16,6 +16,11 @@ const eventSchema = new mongoose.Schema({
     notify30Before: Boolean,
     notify1HourBefore: Boolean,
     notify1DayBefore: Boolean,
+    pomodoroSettings: {
+        minStudy: Number,
+        minRelax: Number,
+        cycles: Number
+    }
 });
 
 // model created from schema

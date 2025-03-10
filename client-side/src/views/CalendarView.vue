@@ -77,7 +77,7 @@
       <!-- location -->
       <div class="mt-4">
         <p class="font-semibold text-base">Location</p>
-        <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddLocation">
+        <input class="border border-third" type="text" maxlength="30" v-model="eventToAddLocation">
       </div>
       
       <div class="flex flex-col sm:flex-row">
