@@ -35,6 +35,16 @@ export function updateSchedules(events, activities, rangeStartDate, rangeEndDate
     // ADD ACTIVITIES
     if (activities) {
         activities.forEach(a => {
+            // mapping expiring task to activity object fields
+            if (a.expiration) {
+                a = {
+                    title: a.title? a.title : "",
+                    deadline: a.expiration,
+                    isDone: a.done,
+                    users: a.users,
+                    expiringTask: true
+                }
+            }
             const deadline = new Date(a.deadline)
             if (eventsByDay[deadline.getDate()])
                 eventsByDay[deadline.getDate()].push(a)

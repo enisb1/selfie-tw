@@ -93,3 +93,13 @@ export async function getUserIdsByEmails(emails) {
         throw error.response.data;
     }
 }
+
+export async function checkUsernameResourcesUsers(username) {
+    try {
+        const response = await axios.get(`http://localhost:8000/api/login/checkUsernameResourcesUsers/${username}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error checking username:', error);
+        throw error;
+    }
+}

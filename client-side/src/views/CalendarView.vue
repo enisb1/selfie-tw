@@ -77,7 +77,7 @@
       <!-- location -->
       <div class="mt-4">
         <p class="font-semibold text-base">Location</p>
-        <input class="border border-third" type="text" maxlength="30" required v-model="eventToAddLocation">
+        <input class="border border-third" type="text" maxlength="30" v-model="eventToAddLocation">
       </div>
       
       <div class="flex flex-col sm:flex-row">
@@ -189,17 +189,43 @@
     <!-- ADD ACTIVITY FORM -->
     <form @submit.prevent="addActivity" v-show="inAddActivity">
       <div class="flex flex-col">
+        <!-- is group activity -->
+        <div class="mt-4">
+          <p class="font-semibold text-base">Group activity</p>
+          <input class="border border-third" type="checkbox" v-model="isCompositeActivity">
+        </div>
+
+        <div class="mt-4" :class="{ 'hidden': !isCompositeActivity }">
+          <p class="font-semibold text-base">Group activity title</p>
+          <input class="border border-third" type="text" maxlength="20" :required="isCompositeActivity" v-model="compositeActivityTitle">
+        </div>
+
         <!-- title -->
         <div class="mt-4">
-          <p class="font-semibold text-base">Title</p>
-          <input class="border border-third" type="text" maxlength="20" required v-model="activityToAddTitle">
+          <p class="font-semibold text-base">{{ isCompositeActivity? 'Subactivity title' : 'Title' }}</p>
+          <input class="border border-third" type="text" maxlength="20" :required="!isCompositeActivity" v-model="activityToAddTitle">
         </div>
 
         <!-- deadline -->
         <div class="mt-4">
-          <p class="font-semibold text-base">Deadline</p>
+          <p class="font-semibold text-base">{{ isCompositeActivity? 'Subactivity deadline' : 'Deadline' }}</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
-            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+            :format="formatDate" minutes-increment="5" :start-time="startTime" :required="!isCompositeActivity"></DatePicker>
+        </div>
+        
+        <div class="flex mt-4" :class="{ 'hidden': !isCompositeActivity }">
+          <button type="button" @click="addSubact()" class="bg-secondary px-3 py-2 text-md font-semibold 
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Add subactivity</button>
+          <button type="button" @click="clearSubact()" class="ml-2 bg-secondary px-3 py-2 text-md font-semibold 
+          text-white shadow-sm ring-1 ring-inset ring-gray-300">Clear</button>
+        </div>
+
+        <!-- list of subactivities added -->
+        <div class="flex flex-col">
+          <div v-for="(subact, index) in subactivitiesToAdd" :key="index" class="mt-4">
+            <p><span class="font-semibold mt-4">Added:</span> {{ subact.title }}</p>
+            <p><span class="font-semibold mt-4">Deadline:</span> {{ new Date(subact.deadline).toLocaleDateString('it-IT', infoDateFormat) }}</p>
+          </div>
         </div>
 
         <!-- invite users -->
@@ -211,6 +237,9 @@
             :preserve-search="true" track-by="username" :preselect-first="true">
           </Multiselect>
         </div>
+
+        <div class="bg-red-400 text-white font-bold mt-2 
+          inline px-2 text-center mx-auto">{{ activityToAddError }}</div>
       </div>
 
       <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
@@ -253,6 +282,7 @@ import { getAllUsers } from '@/apis/users';
 import { getUnavailableRepeatedDates } from '@/components/Calendar/repeated-dates';
 import { getEventsFromIcsString } from '@/components/Calendar/import-events';
 import { getAllEventsInstances } from '@/components/Calendar/repeated-events';
+import { postSubacts } from '@/apis/calendar';
 
 export default {
   components: {
@@ -324,6 +354,9 @@ export default {
       notify30Before.value = false
       notify1HourBefore.value = false
       notify1DayBefore.value = false
+      isCompositeActivity.value = false
+      compositeActivityTitle.value = ''
+      subactivitiesToAdd.value = []
       updateUsersOptions()
     }
     // add event modal data
@@ -500,9 +533,24 @@ export default {
     const addActivity = async () => {
       // newActivitySelectedUsers contains the users to invite
       // TODO: invite them!
-      await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
-      updateAllCalendars()
-      toggleAddModal()
+      if (!isCompositeActivity.value) {
+        if (activityToAddDeadline.value.getTime() <= new Date().getTime())
+          activityToAddError.value = "Deadline must be greater than current date"
+        else {
+          await postActivity(activityToAddTitle.value, activityToAddDeadline.value, [store.state._id])
+          updateAllCalendars()
+          toggleAddModal()
+        }
+      }
+      else if (subactivitiesToAdd.value.length <= 0) {
+        activityToAddError.value = "At least one subactivity is required"
+      }
+      else {
+        //TODO: in postSubacts metti solo l'user corrente come partecipante e INVITA ALTRI UTENTI alla compositeActivity
+        await postSubacts(compositeActivityTitle.value, subactivitiesToAdd.value, newActivitySelectedUsers.value.concat([store.state._id]))
+        updateAllCalendars()
+        toggleAddModal()
+      }
     }
 
     // resources
@@ -535,6 +583,42 @@ export default {
     onMounted(() => {
       updateUsersOptions()
     })
+
+    // Group activity
+    const isCompositeActivity = ref(false)
+    const compositeActivityTitle = ref('')
+    const subactivitiesToAdd = ref([])
+
+    const addSubact = () => {
+      if (activityToAddTitle.value && activityToAddDeadline.value) {
+        if (activityToAddDeadline.value.getTime() <= new Date().getTime())
+          activityToAddError.value = "Deadline must be greater than current date"
+        else {
+          subactivitiesToAdd.value.push({ title: activityToAddTitle.value, deadline: activityToAddDeadline.value })
+          activityToAddTitle.value = ''
+          activityToAddDeadline.value = null
+          activityToAddError.value = ""
+        }
+      }
+      else {
+        activityToAddError.value = "Title and deadline are required"
+      }
+    }
+
+    const clearSubact = () => {
+      subactivitiesToAdd.value = []
+    }
+
+    const activityToAddError = ref('')
+
+    const infoDateFormat = {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false // (12 hour format)
+    }
 
     return {
       calendarToShow,
@@ -588,7 +672,14 @@ export default {
       selectInImportEvent,
       importEvent,
       newActivitySelectedUsers,
-      selectFrequency
+      selectFrequency,
+      isCompositeActivity,
+      compositeActivityTitle,
+      subactivitiesToAdd,
+      activityToAddError,
+      addSubact,
+      clearSubact,
+      infoDateFormat
     }
   }
 }

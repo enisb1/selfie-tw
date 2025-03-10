@@ -5,7 +5,7 @@ let zIndexCount = 0;
 
 function createDefaultEventDiv(event, resource) {
     const eventDiv = document.createElement("div");
-    eventDiv.classList.add("truncate","absolute", "text-white", "p-1", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
+    eventDiv.classList.add("truncate","absolute", "text-white", "rounded-md", "shadow-md", "opacity-75", "hover:opacity-100", "hover:font-bold");
     
     const title = document.createElement("p");
     title.innerText = resource? `${resource.username} used` : event.title;
@@ -61,6 +61,8 @@ function addEvent(eventToAdd, startDate, endDate, resource) {
     let eventToAddMEnd = endDate.getMinutes();
     if (eventToAddMEnd == 59)   // this only happens when event endDate is truncated to 23.59
         eventToAddMEnd = 60;    // 59 is not valid for the calculations since minutes are displayed in hops of 5
+    if (eventToAddMEnd % 5 != 0)    // round minutes to the nearest 5 (could happen for pomodoro events)
+        eventToAddMEnd = Math.ceil(eventToAddMEnd/5)*5;
     // add startInMinutes and endInMinutes to event's prototype (will be used in calculations)
     eventToAdd.startInMinutes = eventToAddHStart*60 + eventToAddMStart;
     eventToAdd.endInMinutes = eventToAddHEnd*60 + eventToAddMEnd;
@@ -263,8 +265,19 @@ export function renderCalendar(events, activities, day, isResource) {
 
     if (!isResource) {
         // render activities
-        for (const activity of activities) 
+        for (let activity of activities) {
+            // mapping expiring task to activity object fields
+            if (activity.expiration) {
+                activity = {
+                    title: activity.title? activity.title : "",
+                    deadline: activity.expiration,
+                    isDone: activity.done,
+                    users: activity.users,
+                    expiringTask: true
+                }
+            }
             addActivity(activity)
+        }
     }
     
 }

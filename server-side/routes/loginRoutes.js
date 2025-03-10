@@ -2,7 +2,7 @@ import Router from 'express';
 import User from '../models/User.js'
 import bcrypt from 'bcrypt';
 import passport from 'passport';
-
+import Resource from '../models/Resource.js';
 
 const router = Router();
 
@@ -178,5 +178,41 @@ router.post('/getUserIdsByEmails', async (req, res) => {
     }
 });
 
+// Check if a user exists by username
+router.get('/userExists/:username', async (req, res) => {
+    const { username } = req.params;
+
+    try {
+        const user = await User.findOne({ username: username });
+        if (user) {
+            res.status(200).json({ exists: true, id: user._id });
+        } else {
+            res.status(200).json({ exists: false, id: null });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error checking user existence', error: error.message });
+    }
+});
+
+// Check if a resource or user exists by username
+router.get("/checkUsernameResourcesUsers/:username", async (req, res) => {
+    const username = req.params.username;
+
+    try {
+        const resource = await Resource.findOne({ username });
+        const user = await User.findOne({ username });
+
+        if (resource || user) {
+            res.status(200).json({
+                exists: true,
+                type: resource ? 'resource' : 'user'
+            });
+        } else {
+            res.status(200).json({ exists: false });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error checking username', error: error.message });
+    }
+});
 
 export default router;

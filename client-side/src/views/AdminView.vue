@@ -12,7 +12,7 @@
     </div>
 
     <Modal v-show="showAddResourceModal" @close="toggleAddResourceModal">
-        <form @submit.prevent="addResource">
+        <form @submit.prevent="addResource" class="flex flex-col">
             <header>
                 <div class="flex items-center justify-between flex-row">
                     <p class="font-bold text-secondary">Add resource</p>
@@ -27,6 +27,9 @@
                 <input class="border border-third" type="text" maxlength="30" required v-model="resourceToAddUsername">
             </div>
 
+            <div class="bg-red-400 text-white font-bold mt-2 
+                  inline px-2 text-center mx-auto">{{ errorValue }}</div>
+
             <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Add</button>
         </form>
@@ -38,6 +41,7 @@ import { onMounted } from 'vue';
 import { ref } from 'vue';
 import { getResources, postResource, deleteResource } from '@/apis/calendar';
 import Modal from '@/components/Modal.vue';
+import { checkUsernameResourcesUsers } from '@/apis/users';
 
 export default {
     components : {
@@ -53,14 +57,24 @@ export default {
         const toggleAddResourceModal = () => {
             resourceToAddUsername.value = ''
             showAddResourceModal.value = !showAddResourceModal.value
+            errorValue.value = ''
         }
 
         const resourceToAddUsername = ref()
+        const errorValue = ref('')
 
+        // need to check if username is already used by other users or resources, since this
+        // could create a conflict
         const addResource = async () => {
-            await postResource(resourceToAddUsername.value)
-            toggleAddResourceModal()
-            updateResources()
+            const usernameExists = await checkUsernameResourcesUsers(resourceToAddUsername.value)
+            if (!usernameExists.exists) {
+                await postResource(resourceToAddUsername.value)
+                toggleAddResourceModal()
+                updateResources()
+            }
+            else {
+                errorValue.value = 'Username already exists'
+            }
         }
 
         const onDeleteResource = async (resourceId) => {
@@ -78,7 +92,8 @@ export default {
             toggleAddResourceModal,
             addResource,
             resourceToAddUsername,
-            onDeleteResource
+            onDeleteResource,
+            errorValue
         }
     }
 }

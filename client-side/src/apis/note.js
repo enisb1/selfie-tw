@@ -10,6 +10,25 @@ export async function postNote(title, bodyNote, bodyTask, category, format, acce
     })
 }
 
+// Get tasks with expiration in a certain range and filter by username
+export async function getExpiringTasksInRange(startDate, endDate, username) {
+    const startStringUTC = new Date(startDate).toISOString();
+    const endStringUTC = new Date(endDate).toISOString();
+    try {
+        const response = await axios.get(`http://localhost:8000/api/note/tasks`, {
+            params: {
+                start: startStringUTC,
+                end: endStringUTC,
+                username: username
+            }
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching tasks: ", error);
+        throw error;
+    }
+}
+
 export async function deleteNote(noteId) {
     
     await axios.delete(`http://localhost:8000/api/note/deleteNote/${noteId}`)

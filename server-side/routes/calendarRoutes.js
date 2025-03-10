@@ -2,6 +2,7 @@ import Router from 'express';
 import Event from '../models/Event.js'
 import Activity from '../models/Activity.js'
 import Resource from '../models/Resource.js';
+import Project from '../models/Project.js';
 import mongoose, { mongo } from 'mongoose';
 
 const router = Router();
@@ -22,12 +23,35 @@ router.post("/addEvent", async (req, res) => {
 router.post("/addActivity", async (req, res) => {
     try {
         const activity = new Activity(req.body);
-        await activity.save();
-        res.status(201).json({ message: 'Data saved successfully' });
+        const savedActivity = await activity.save();
+        res.status(201).json(savedActivity);
     }catch (error) {
+        console.log(error)
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });
     }
+});
+
+// Update an activity to add a project ID
+router.put('/updateActivityProjectId/:id', async (req, res) => {
+  const { id } = req.params;
+  const { projectId } = req.body;
+
+  try {
+      const updatedActivity = await Activity.findByIdAndUpdate(
+          id,
+          { 'projectData.projectId': projectId },
+          { new: true }
+      );
+
+      if (!updatedActivity) {
+          return res.status(404).json({ message: 'Activity not found' });
+      }
+
+      res.status(200).json(updatedActivity);
+  } catch (error) {
+      res.status(500).json({ message: 'Error updating activity', error: error.message });
+  }
 });
 
 // retrieve all events from db (//TODO: if not used delete this)
@@ -63,21 +87,54 @@ router.get("/activities", async (req,res) => {
     }
 })
 
-// delete activity given id
-router.delete("/activities/:id", async (req, res) => {
-    const activityId = req.params.id;
-    try {
-        const result = await Activity.findByIdAndDelete(activityId);
+// Get all activities by array of IDs
+router.post('/getActivitiesByIds', async (req, res) => {
+  const { activityIds } = req.body;
 
-        if (result) {
-            res.status(200).json({ message: 'Activity deleted successfully', activity: result });
-        } else {
-            res.status(404).json({ message: 'Activity not found' });
-        }
-    } catch (error) {
-        res.status(500).json({ message: 'Error deleting activity', error: error.message });
-    }
-})
+  try {
+      const activities = await Activity.find({ _id: { $in: activityIds } });
+      res.status(200).json(activities);
+  } catch (error) {
+      res.status(500).json({ message: 'Error fetching activities', error: error.message });
+  }
+});
+
+// delete activity given id
+//TODO: delete these activities from project activities as well (check if project activities are needed, else delete)
+router.delete("/activities/:id", async (req, res) => {
+  const activityId = req.params.id;
+  try {
+      // Delete the specified activity
+      const result = await Activity.findByIdAndDelete(activityId);
+
+      if (result) {
+          // Update activities that have the deleted activity's ID as the 'previous' field in projectData
+          const relatedActivities = await Activity.updateMany(
+              { 'projectData.previous': activityId },
+              { $set: { 'projectData.previous': null } }
+          );
+
+          // Remove the activity from the project's 'activities' field
+          const projectId = result.projectData.projectId;
+          const projectUpdateResult = await Project.findByIdAndUpdate(
+              projectId,
+              { $pull: { activities: activityId } },
+              { new: true }
+          );
+
+          res.status(200).json({
+              message: 'Activity deleted successfully',
+              activity: result,
+              relatedActivitiesUpdated: relatedActivities.nModified,
+              projectUpdateResult: projectUpdateResult
+          });
+      } else {
+          res.status(404).json({ message: 'Activity not found' });
+      }
+  } catch (error) {
+      res.status(500).json({ message: 'Error deleting activity', error: error.message });
+  }
+});
 
 // edit activity given id
 router.put("/activities/:id", async (req,res) => {
@@ -100,30 +157,59 @@ router.put("/activities/:id", async (req,res) => {
     }
 })
 
-// '/api/calendar/events?start=(..)&end=(..)'
-router.get("/events", async (req,res) => {
-    // start: start date string in UTC TIME!
-    // end: end date string in UTC TIME!
-    // dates are stored in UTC time on mongodb, and sent back to client in local time
-    const { start, end } = req.query;
-    const sDate = new Date(start);
-    const eDate = new Date(end);
-    try {
-        // get events that start in the range, or finish in range, or start before and finish after range
-        // the render function for the calendar is going to truncate the dates accordingly
-        const events = await Event.find({
-            $or: [
-                { endDate: { $gte: sDate, $lte: eDate } },  // end in range
-                { startDate: { $gte: sDate, $lte: eDate } }, // start in range
-                { startDate: { $lte: sDate }, endDate: { $gte: eDate } } // (spanning the entire range)
-            ]
-        });
-        
-        res.json(events);
-    } catch (error) {
-        res.status(500).json({ error: 'Error fetching events' });
-    }
-})
+// '/api/calendar/events?start=(..)&end=(..)?userId=(..)'
+router.get("/events", async (req, res) => {
+  // start: start date string in UTC TIME!
+  // end: end date string in UTC TIME!
+  // dates are stored in UTC time on mongodb, and sent back to client in local time
+  const { start, end, userId } = req.query;
+  const sDate = new Date(start);
+  const eDate = new Date(end);
+  try {
+      // get events that start in the range, or finish in range, or start before and finish after range
+      // and include the current user in the users field
+      const events = await Event.find({
+          $and: [
+              {
+                  $or: [
+                      { endDate: { $gte: sDate, $lte: eDate } },  // end in range
+                      { startDate: { $gte: sDate, $lte: eDate } }, // start in range
+                      { startDate: { $lte: sDate }, endDate: { $gte: eDate } } // (spanning the entire range)
+                  ]
+              },
+              { users: userId } // check if userId is in the users field
+          ]
+      });
+      
+      res.json(events);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching events' });
+  }
+});
+
+// '/api/calendar/activities?start=(..)&end=(..)&userId=(..)'
+router.get("/activities", async (req, res) => {
+  // start: start date string in UTC TIME!
+  // end: end date string in UTC TIME!
+  // dates are stored in UTC time on mongodb, and sent back to client in local time
+  const { start, end, userId } = req.query;
+  const sDate = new Date(start);
+  const eDate = new Date(end);
+  try {
+      // get activities that have deadline in the range, include the current user in the users field, and have projectData set to true
+      const activities = await Activity.find({
+          $and: [
+              { deadline: { $gte: sDate, $lte: eDate } },  // deadline in range
+              { users: userId }, // check if userId is in the users field
+              { projectData: { $exists: true, $ne: null } } // check if projectData is true (exists and not null)
+          ]
+      });
+      
+      res.json(activities);
+  } catch (error) {
+      res.status(500).json({ error: 'Error fetching activities' });
+  }
+});
 
 router.get("/resourcesEvents", async (req,res) => {
     try {
@@ -298,5 +384,23 @@ router.delete("/resources/:id", async (req, res) => {
     return res.status(500).send({ error: "Internal server error" });
   }
 })
+
+// Delete activities by groupName and groupId
+router.delete("/deleteByGroup", async (req, res) => {
+  const { groupName, groupId } = req.body;
+
+  try {
+      const result = await Activity.deleteMany(
+          { 'compositeActivity.groupName': groupName, 'compositeActivity.groupId': groupId }
+      );
+
+      res.status(200).json({
+          message: 'Activities deleted successfully',
+          deletedCount: result.deletedCount
+      });
+  } catch (error) {
+      res.status(500).json({ message: 'Error deleting activities', error: error.message });
+  }
+});
 
 export default router;
