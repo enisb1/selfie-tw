@@ -301,6 +301,7 @@ export default {
             // fetch activities
             let activities = await getActivitiesInRange(startDate, endDate, store.state._id)
             const activitiesFromExpiringTasks = await getExpiringTasksInRange(startDate, endDate, store.state.username)
+            activitiesFromExpiringTasks.forEach(a => a.users = [store.state._id])
             activities = activities.concat(activitiesFromExpiringTasks)
 
             // render calendar view

@@ -272,6 +272,7 @@ export function renderCalendar(events, activities, day, isResource) {
                     title: activity.title? activity.title : "",
                     deadline: activity.expiration,
                     isDone: activity.done,
+                    users: activity.users,
                     expiringTask: true
                 }
             }

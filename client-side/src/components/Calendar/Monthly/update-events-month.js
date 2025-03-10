@@ -41,6 +41,7 @@ export function updateSchedules(events, activities, rangeStartDate, rangeEndDate
                     title: a.title? a.title : "",
                     deadline: a.expiration,
                     isDone: a.done,
+                    users: a.users,
                     expiringTask: true
                 }
             }

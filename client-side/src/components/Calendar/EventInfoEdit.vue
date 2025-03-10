@@ -59,7 +59,7 @@
             </div>
 
             <!-- participants -->
-            <div class="mt-4" v-show="eventObject.users.length > 0">
+            <div class="mt-4">
                 <p class="font-semibold text-base">Participants</p>
                 <p>{{ participants.join(', ') }}</p>
             </div>
@@ -407,7 +407,6 @@ export default {
                 const participatingUsers = await getUsers(remainingUsers)
                 participants.value = participants.value.concat(participatingUsers.map(u => u.username))
             }
-            
             
             if (props.eventObject.resources && props.eventObject.resources.length > 0) {
                 const resourcesObjects = await getResourcesFromIds(props.eventObject.resources)

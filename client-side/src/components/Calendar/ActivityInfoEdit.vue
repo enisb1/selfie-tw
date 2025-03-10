@@ -28,7 +28,7 @@
             </div>
 
             <!-- participants -->
-            <div class="mt-4" v-show="activityObject.users.length > 0">
+            <div class="mt-4">
                 <p class="font-semibold text-base">Participants</p>
                 <p>{{ participants.join(', ') }}</p>
             </div>
@@ -64,8 +64,6 @@
             <button @click="deleteActivityObject" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
             <!-- delete for you button -->
-            <button v-show="activityObject.users.length > 1" @click="deleteUserFromActivity" type="button" class="w-1/3 rounded-md 
-                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete for you</button>
             <!-- delete composite -->
             <button v-if="activityObject.compositeActivity" @click="deleteCompositeActivity()" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete composite</button> 
@@ -164,7 +162,6 @@ export default {
                 const participatingUsers = await getUsers(remainingUsers)
                 participants.value = participants.value.concat(participatingUsers.map(u => u.username))
             }
-            
         })
 
         return {
