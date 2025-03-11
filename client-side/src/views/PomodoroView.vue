@@ -233,7 +233,6 @@ import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import {checkUsername} from "@/apis/users";
 import { postSettingsPom } from "@/apis/pomodoro";
-import { useStore } from 'vuex';
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { postEvent } from '@/apis/calendar';
@@ -671,7 +670,7 @@ export default {
             showShare,
             showShareTrigger,
             receiver,
-            shareError
+            shareError,
             store,
             user,
             togglePomodoroEventModal,

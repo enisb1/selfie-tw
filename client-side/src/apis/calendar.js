@@ -126,6 +126,7 @@ export async function postActivity(title, deadline, userIds, myId, compositeActi
         console.log(data);
         return data.data;
     })
+}
 
 // post subactivities of groupActivity to db
 export async function postSubacts(compositeActivityTitle, subactivities, users) {
