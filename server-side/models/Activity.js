@@ -1,11 +1,34 @@
 import mongoose from 'mongoose';
 
-// schema
+const projectDataSchema = new mongoose.Schema({
+    startDate: Date,
+    projectId: String,
+    isMilestone: Boolean,
+    phase: String,
+    status: String,
+    contracts: Boolean,  // true -> contracts if delay happens, false -> translates
+    previous: String,    // id of previous activity (synced)
+    input: String,
+    output: String
+});
+
 const activitySchema = new mongoose.Schema({
     title: String,
     deadline: Date,
     isDone: Boolean,
-    users: [String]
+    users: [String],
+    description: String,
+    compositeActivity: {
+        type: {
+            groupName: String,
+            groupId: String
+        },
+        default: null
+    },
+    projectData: {
+        type: projectDataSchema,
+        default: null, // not part of a project
+    }
 });
 
 // model created from schema

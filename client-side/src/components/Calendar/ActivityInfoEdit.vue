@@ -1,9 +1,9 @@
 <template>
     <div class="flex flex-col">
         <!-- Modify and go back button (note: cannot edit activity if it's DONE)-->
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/edit.png" alt="edit"></button>
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/returnButton.png" alt="edit"></button>
 
         <!-- Activity info-->
@@ -19,6 +19,18 @@
             <div class="mt-4">
                 <p class="font-semibold text-base">Done</p>
                 <p> {{ activityObject.isDone? 'yes' : 'no' }}</p>
+            </div>
+
+            <!-- name of composite activity if available-->
+            <div class="mt-4" v-if="activityObject.compositeActivity">
+                <p class="font-semibold text-base">Composite Activity Name</p>
+                <p> {{ activityObject.compositeActivity.groupName }}</p>
+            </div>
+
+            <!-- participants -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Participants</p>
+                <p>{{ participants.join(', ') }}</p>
             </div>
         </div>
 
@@ -38,19 +50,23 @@
             </div>
             
             <div class="flex justify-evenly">
-                <button v-show="showEditActivity" type="submit" class="w-full mt-4 rounded-md bg-green-700 px-3 
+                <!-- done button -->
+                <button v-show="!activityObject.isDone" @click="setActivityDone" type="button" class="min-w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
+                    text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
+                <button v-show="showEditActivity" type="submit" class="min-w-1/3 mt-4 rounded-md bg-green-700 px-3 
                     py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Apply</button>
             </div>
         </form>
 
         <!-- buttons -->
         <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
-            <!-- done button -->
-            <button v-show="!activityObject.isDone" @click="setActivityDone" type="button" class="w-1/3 mt-4 rounded-md bg-green-700 px-3 py-2 text-md font-semibold 
-                text-white shadow-sm ring-1 ring-inset ring-gray-300">Done</button> 
             <!-- delete button -->
             <button @click="deleteActivityObject" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <!-- delete for you button -->
+            <!-- delete composite -->
+            <button v-if="activityObject.compositeActivity" @click="deleteCompositeActivity()" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete composite</button> 
         </div>
     </div>
 </template>
@@ -58,9 +74,10 @@
 <script>
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
-import { ref } from 'vue';
-import { deleteActivity } from '@/apis/calendar';
-import { editActivity } from '@/apis/calendar';
+import { onMounted, ref } from 'vue';
+import { editActivity, deleteActivitiesByGroup, deleteActivity } from '@/apis/calendar';
+import { getUsers } from '@/apis/users';
+import { useStore } from 'vuex';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
@@ -71,9 +88,11 @@ export default {
         activityObject : Object
     },
     setup(props, {emit}) {
+        const store = useStore()
         // edit activity
         const showEditActivity = ref(false)
         const editedActivityTitle = ref()
+        const participants = ref(['You'])
         const editedActivityDeadline = ref()
         const toggleEditActivity = () => {
             // if it's about to be toggled on update data inside
@@ -120,6 +139,31 @@ export default {
             emit('close')
         }
 
+        const deleteCompositeActivity = async () => {
+            console.log(props.activityObject)
+            await deleteActivitiesByGroup(props.activityObject.compositeActivity.groupName, 
+                props.activityObject.compositeActivity.groupId)
+            emit('updateAllCalendars')
+            emit('close')
+        }
+
+        const deleteUserFromActivity = async () => {
+            // create updatedActivity object
+            const updatedActivity = structuredClone(props.activityObject)
+            updatedActivity.users = updatedActivity.users.filter(u => u._id != store.state._id)
+            await editActivity(props.activityObject._id, updatedActivity)
+            emit('updateAllCalendars')
+            emit('close')
+        }
+
+        onMounted(async () => {
+            const remainingUsers = props.activityObject.users.filter(u => u != store.state._id)
+            if (remainingUsers.length > 0) {
+                const participatingUsers = await getUsers(remainingUsers)
+                participants.value = participants.value.concat(participatingUsers.map(u => u.username))
+            }
+        })
+
         return {
             showEditActivity,
             toggleEditActivity,
@@ -128,7 +172,10 @@ export default {
             formatDate,
             deleteActivityObject,
             applyEdits,
-            setActivityDone
+            setActivityDone,
+            deleteCompositeActivity,
+            participants,
+            deleteUserFromActivity
         }
     }
 }

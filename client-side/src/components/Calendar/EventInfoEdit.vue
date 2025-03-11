@@ -16,7 +16,7 @@
         <!-- Event info -->
         <div v-show="showInfoEvent">
             <!-- location -->
-            <div class="mt-4">
+            <div class="mt-4" v-show="eventObject.location">
                 <p class="font-semibold text-base">Location</p>
                 <p> {{ eventObject.location }} </p>
             </div>
@@ -36,7 +36,7 @@
             </div>
 
             <!-- frequency -->
-            <div class="mt-4">
+            <div class="mt-4" v-show="eventObject.frequency != 'none'">
                 <p class="font-semibold text-base">Frequency</p>
                 <p v-show="eventObject.frequency != 'none'"> {{ eventObject.frequency }} frequency {{ eventObject.repetitionNumber ? `repeating ${eventObject.repetitionNumber} times` :
                     `until ${new Date(eventObject.repetitionDate).toLocaleDateString
@@ -45,9 +45,23 @@
             </div>
 
             <!-- resources -->
-            <div class="mt-4">
+            <div class="mt-4" v-show="eventObject.resources.length > 0">
                 <p class="font-semibold text-base">Resources</p>
                 <p>{{ resourcesUsernames }}</p>
+            </div>
+
+            <!-- pomodoro settings -->
+            <div class="mt-4" v-if="eventObject.pomodoroSettings">
+                <p class="font-semibold text-base">Pomodoro settings</p>
+                <p>Study: {{ eventObject.pomodoroSettings.minStudy }} minutes</p>
+                <p>Relax: {{ eventObject.pomodoroSettings.minRelax }} minutes</p>
+                <p>Cycles: {{ eventObject.pomodoroSettings.cycles }}</p>
+            </div>
+
+            <!-- participants -->
+            <div class="mt-4">
+                <p class="font-semibold text-base">Participants</p>
+                <p>{{ participants.join(', ') }}</p>
             </div>
         </div>
 
@@ -62,7 +76,7 @@
             <!-- location -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Location</p>
-                <input class="border border-third" type="text" maxlength="30" required v-model="editedEventLocation">
+                <input class="border border-third" type="text" maxlength="30" v-model="editedEventLocation">
             </div>
             
             <div class="flex flex-col sm:flex-row">
@@ -132,8 +146,8 @@
 
             <!-- color picker -->
             <div class="mt-4">
-            <p class="font-semibold text-base">Event color</p>
-            <input type="color" value="#3C4F76" v-model="editedEventColor">
+                <p class="font-semibold text-base">Event color</p>
+                <input type="color" value="#3C4F76" v-model="editedEventColor">
             </div>
 
             <div v-show="showAddError" class="bg-red-400 text-white font-bold mt-2 
@@ -147,10 +161,16 @@
             </div>   
         </form>
 
-        <div class="flex justify-evenly">
+        <div class="flex justify-evenly gap-2 mt-4">
             <!-- delete button -->
-            <button v-show="showInfoEvent" @click="deleteEventObject" type="button" class="w-full mt-4 rounded-md 
-                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button> 
+            <button v-show="showInfoEvent" @click="deleteEventObject" type="button" class="w-1/3 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <!-- delete for you button -->
+            <button v-show="showInfoEvent && eventObject.users.length > 1" @click="deleteUserFromEvent" type="button" class="w-1/3 rounded-md 
+                bg-red-500 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete for you</button>
+            <!-- start pomodoro button -->
+            <button v-show="showInfoEvent && eventObject.pomodoroSettings" @click="startPomodoro" type="button" class="w-1/3 rounded-md 
+                bg-secondary px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Start pomodoro</button> 
         </div>
     </div>
 </template>
@@ -163,6 +183,9 @@ import { editEvent, deleteEvent, getResourcesFromIds } from '@/apis/calendar';
 import { computed } from 'vue';
 import { exportEventToICS } from './export-events';
 import EventExportModal from './EventExport.vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
+import { getUsers } from '@/apis/users';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
@@ -174,8 +197,10 @@ export default {
         eventObject : Object
     },
     setup(props, { emit }) {
+        const store = useStore()
         const showEditEvent = ref(false)
         const showInfoEvent = ref(true)
+        const participants = ref(['You'])
         const editedEventTitle = ref()
         const editedEventLocation = ref()
         const editedEventColor = ref()
@@ -229,7 +254,7 @@ export default {
             showEditEvent.value = !showEditEvent.value
         }*/
 
-        const toggleShowInfo = () => {
+        const toggleShowInfo = async () => {
             if (showEditEvent.value) {
                 showEditEvent.value = false
             }
@@ -237,7 +262,6 @@ export default {
                 showEventExport.value = false
             }
             showInfoEvent.value = true
-
         }
 
         // frequency
@@ -327,7 +351,7 @@ export default {
             else {
                 // create updatedEvent object
                 const updatedEvent = structuredClone(props.eventObject)
-                if (updatedEvent.repetitionDate)
+                if (editedEventRepDate.value)
                     updatedEvent.repetitionDate = new Date(new Date(editedEventRepDate.value).setHours(23,59,59,999))
                 updatedEvent.title = editedEventTitle.value
                 updatedEvent.location = editedEventLocation.value
@@ -356,9 +380,35 @@ export default {
             showEventExport.value = true
         }
 
+        const router = useRouter();
+        const startPomodoro = () => {
+            router.push({
+                name: 'pomodoro',
+                query: {study: props.eventObject.pomodoroSettings.minStudy, 
+                    relax: props.eventObject.pomodoroSettings.minRelax, 
+                    cycles: props.eventObject.pomodoroSettings.cycles}
+            })
+        }
+
+        const deleteUserFromEvent = async () => {
+            // create updatedEvent object
+            const updatedEvent = structuredClone(props.eventObject)
+            updatedEvent.users = updatedEvent.users.filter(u => u._id != store.state._id)
+            await editEvent(props.eventObject._id, updatedEvent)
+            emit('updateAllCalendars')
+            emit('close')
+            showAddError.value = false
+        }
+
         onMounted(async () => {
-            console.log(props.eventObject.resources)
-            if (props.eventObject.resources.length > 0) {
+            console.log(props.eventObject.users)
+            const remainingUsers = props.eventObject.users.filter(u => u != store.state._id)
+            if (remainingUsers.length > 0) {
+                const participatingUsers = await getUsers(remainingUsers)
+                participants.value = participants.value.concat(participatingUsers.map(u => u.username))
+            }
+            
+            if (props.eventObject.resources && props.eventObject.resources.length > 0) {
                 const resourcesObjects = await getResourcesFromIds(props.eventObject.resources)
                 if (resourcesObjects.length > 0) {
                     resourcesUsernames.value = resourcesObjects.map(r => r.username).join(", ")
@@ -404,7 +454,10 @@ export default {
             toggleShowEventExportOn,
             toggleShowInfo,
             toggleShowEdit,
-            showInfoEvent
+            showInfoEvent,
+            startPomodoro,
+            deleteUserFromEvent,
+            participants
         }
     }
 }

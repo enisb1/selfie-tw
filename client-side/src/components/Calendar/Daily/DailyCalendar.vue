@@ -101,7 +101,7 @@
     <Modal v-if="showScheduleModal" @close="toggleScheduleInfoOff">
         <header>
             <div class="flex items-center justify-between flex-row font-bold">
-                <p class="text-truncate text-lg"> '{{ scheduleObject.title }}'</p>
+                <p class="text-truncate text-lg"> '{{ scheduleObject.title }}' {{ scheduleObject.pomodoroSettings? '&#127813' : '' }}</p>
                 <button type="button" @click="toggleScheduleInfoOff"><img class="w-4 h-4 mr-2 hover:border-2 border-secondary"
                 src="../../../images/x.png" alt="Croce"></button>
             </div>
@@ -170,6 +170,7 @@ import Modal from '@/components/Modal.vue';
 import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 import { useStore } from 'vuex';
+import { getExpiringTasksInRange } from '@/apis/note.js';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -219,6 +220,9 @@ export default {
 
                 // fetch activities
                 activities.value = await getActivitiesInRange(startDate, endDate, store.state._id)
+                const activitiesFromExpiringTasks = await getExpiringTasksInRange(startDate, endDate, store.state.username)
+                activitiesFromExpiringTasks.forEach(a => a.users = [store.state._id])
+                activities.value = activities.value.concat(activitiesFromExpiringTasks)
 
                 renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value, false);
             }
