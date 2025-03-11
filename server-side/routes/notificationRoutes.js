@@ -40,7 +40,7 @@ router.post("/getNotifications", async (req, res) => {
 
 router.post("/getNewNotifications", async (req, res) => {
     try {
-        const notifications = await Notification.find({ receiver : req.body.receiver , read: false});
+        const notifications = await Notification.find({ receiver: req.body.receiver, read: false }).sort({ time: -1 });
         res.status(200).json({ message: 'New notifications found', data: notifications});
     } catch (error) {
         console.error('Error fetching data:', error);
