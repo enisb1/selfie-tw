@@ -51,7 +51,7 @@ export class wsHandler{
             connection.send(JSON.stringify(message));
         });
     }
-    sendPushNotification(message){
+    async sendPushNotification(message){
         const connections = this.userConnections.get(message.to) || [];
         connections.forEach(connection => {
             connection.send(JSON.stringify(message));

@@ -7,11 +7,15 @@ import { fileURLToPath } from 'url';
 import cors from 'cors';
 import http from "node:http";
 import mongoose from 'mongoose';
-import {wsHandler} from "./ws/wsHandler.js";
+import {wsHandler} from "./services/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 import pomodoroRoutes from './routes/pomodoroRoutes.js'
 //import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
+import {AgendaHandler} from "./services/agendaHandler.js";
+import {Mailer} from "./services/mailer.js";
+import {TimeMachineController} from "./services/timeMachine.js";
+import timeRoutes from './routes/timeMachineRoutes.js'
 import projectRoutes from './routes/projectRoutes.js'
 
 const app = express();
@@ -31,6 +35,22 @@ mongoose.connect(mongouri)
         console.error('Error connecting to MongoDB', err);
     });
 
+export const agendaHandler = new AgendaHandler(mongouri);
+
+await agendaHandler.start();
+await agendaHandler.defineJobs();
+
+process.on('SIGTERM', async () => {
+    await agendaHandler.stop();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    await agendaHandler.stop();
+    process.exit(0);
+});
+
+
 // routing
 app.use("/api/calendar", calendarRoutes)
 app.use("/api/login", loginRoutes)
@@ -39,6 +59,7 @@ app.use("/api/note", noteRoutes)
 app.use("/api/pomodoro", pomodoroRoutes)
 //app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
+app.use("/api/time", timeRoutes)
 app.use("/api/projects", projectRoutes)
 
 //https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
@@ -55,7 +76,13 @@ app.get('*', (req, res) => {
 // Create an HTTP server and attach the Express app
 const server = http.createServer(app);
 
+export const mailer = new Mailer();
+
+// Create a WebSocket server
 export const wsConnectionHandler = new wsHandler({ server });
+
+export const timeMachineController = new TimeMachineController();
+
 
 // start server
 server.listen(PORT, () => {

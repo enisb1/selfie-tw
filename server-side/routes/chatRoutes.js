@@ -1,6 +1,6 @@
 import Router from 'express';
 import ChatMessage from "../models/ChatMessage.js";
-import {Message} from "../ws/wsHandler.js";
+import {Message} from "../services/wsHandler.js";
 import {wsConnectionHandler} from "../server-deploy.js";
 
 const router = Router();

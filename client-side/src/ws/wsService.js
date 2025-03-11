@@ -1,5 +1,3 @@
-import {useStore} from "vuex";
-
 
 export class Message {
     constructor(from, to, type, data) {
@@ -14,7 +12,6 @@ export class WebSocketService {
 
     connect(store) {
         this.store = store;
-        console.log("connecting "+this.store.state.username);
         this.socket = new WebSocket(`ws://localhost:8000/?username=${this.store.state.username}`);
         this.socket.onmessage = this.handleMessage.bind(this);
         this.socket.onclose = this.disconnect.bind(this);
@@ -25,7 +22,6 @@ export class WebSocketService {
     disconnect() {
         if (this.socket) {
             this.socket.close();
-            console.log("disconnecting "+this.store.state.username);
             this.store.state.ws = null;
             this.socket = null;
         }
@@ -42,7 +38,6 @@ export class WebSocketService {
 
     async handleMessage(event) {
         const parsedMessage = JSON.parse(event.data);
-        console.log("é arrivato un nuovo messaggio",parsedMessage);
         switch (parsedMessage.type) {
             case 'notification':
                 this.addNotification(parsedMessage.data);

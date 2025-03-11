@@ -4,6 +4,11 @@ import Activity from '../models/Activity.js'
 import Resource from '../models/Resource.js';
 import Project from '../models/Project.js';
 import mongoose, { mongo } from 'mongoose';
+import User from "../models/User.js";
+import Notification from "../models/Notification.js";
+import {mailer, wsConnectionHandler} from "../server-deploy.js";
+import {Message} from "../services/wsHandler.js";
+import {agendaHandler} from "../server-deploy.js";
 
 const router = Router();
 
@@ -11,8 +16,27 @@ const router = Router();
 
 router.post("/addEvent", async (req, res) => {
     try {
-        const event = new Event(req.body);
+        const event = new Event(
+            {
+                title: req.body.title,
+                location: req.body.location,
+                startDate: req.body.startDate,
+                endDate: req.body.endDate,
+                frequency: req.body.frequency,
+                repetitionNumber: req.body.repetitionNumber,
+                repetitionDate: req.body.repetitionDate,
+                color: req.body.color,
+                users: [req.body.creator],
+                resources: req.body.resources,
+                notify15Before: req.body.notify15Before,
+                notify30Before: req.body.notify30Before,
+                notify1HourBefore: req.body.notify1HourBefore,
+                notify1DayBefore: req.body.notify1DayBefore
+            }
+        );
         await event.save();
+        await sendEventNotificationToUsers(event, req.body.users, req.body.creator);
+        await agendaHandler.scheduleEventNotifications(event);
         res.status(201).json({ message: 'Data saved successfully' });
     }catch (error) {
         console.error('Error saving data:', error);
@@ -20,17 +44,74 @@ router.post("/addEvent", async (req, res) => {
     }
 });
 
+//TODO: sposta questa funzione da qui
+async function sendEventNotificationToUsers(event, users, creator) {
+    for (const userId of users) {
+        const user = await User.findOne({_id: userId});
+        const notification = new Notification({
+            sender: creator,
+            receiver: user.username,
+            time: new Date(),
+            read: false,
+            title: event.title,
+            text: `You have been invited to the event: ${event.title}`,
+            type: "invite",
+            data: {
+                type: "event",
+                id: event._id,
+                status: "pending"
+            }
+        });
+        await notification.save();
+        await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+    }
+}
+
 router.post("/addActivity", async (req, res) => {
     try {
-        const activity = new Activity(req.body);
-        const savedActivity = await activity.save();
-        res.status(201).json(savedActivity);
+        const activity = new Activity({
+            title: req.body.title,
+            deadline: req.body.deadline,
+            isDone: false,
+            users: [req.body.creator],
+            compositeActivity: req.body.compositeActivity,
+            projectData: req.body.projectData
+            }
+        );
+        await activity.save();
+        await sendActivityNotificationToUsers(activity, req.body.users, req.body.creator);
+        await agendaHandler.scheduleActivityNotifications(activity);
+        res.status(201).json({ message: 'Data saved successfully', data: activity });
     }catch (error) {
         console.log(error)
         console.error('Error saving data:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+// TODO: magari sposta questa funzione da qui
+async function sendActivityNotificationToUsers(activity, users,creator) {
+    for (const userId of users) {
+        const user = await User.findOne({_id: userId});
+        const notification = new Notification({
+            sender: creator,
+            receiver: user.username,
+            time: new Date(),
+            read: false,
+            title: activity.title,
+            text: `You have been invited to the activity: ${activity.title}`,
+            type: "invite",
+            data: {
+                type: "activity",
+                id: activity._id,
+                status: "pending"
+            }
+        });
+        await notification.save();
+        await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+        await mailer.sendMail(`You have been invited to the activity: ${activity.title}`, user.email,activity.title);
+    }
+}
 
 // Update an activity to add a project ID
 router.put('/updateActivityProjectId/:id', async (req, res) => {
@@ -108,6 +189,8 @@ router.delete("/activities/:id", async (req, res) => {
       const result = await Activity.findByIdAndDelete(activityId);
 
       if (result) {
+          await agendaHandler.dropSheduledActivityNotifications(activityId);
+        
           // Update activities that have the deleted activity's ID as the 'previous' field in projectData
           const relatedActivities = await Activity.updateMany(
               { 'projectData.previous': activityId },
@@ -140,7 +223,7 @@ router.delete("/activities/:id", async (req, res) => {
 router.put("/activities/:id", async (req,res) => {
     const activityId = req.params.id;
     const updatedData = req.body;
-    
+
     try {
         const updatedActivity = await Activity.findByIdAndUpdate(activityId, updatedData, {
           new: true, // return updated activity
@@ -148,6 +231,8 @@ router.put("/activities/:id", async (req,res) => {
         });
     
         if (updatedActivity) {
+            await agendaHandler.dropSheduledActivityNotifications(activityId);
+            await agendaHandler.scheduleActivityNotifications(updatedActivity);
           res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
         } else {
           res.status(404).json({ message: 'Activity not found' });
@@ -266,6 +351,7 @@ router.delete("/events/:id", async (req, res) => {
         const result = await Event.findByIdAndDelete(eventId);
 
         if (result) {
+            await agendaHandler.dropSheduledEventNotifications(eventId);
             res.status(200).json({ message: 'Event deleted successfully', event: result });
         } else {
             res.status(404).json({ message: 'Event not found' });
@@ -286,9 +372,11 @@ router.put("/events/:id", async (req,res) => {
         });
     
         if (updatedEvent) {
-          res.status(200).json({ message: 'Event updated successfully', event: updatedEvent });
+            await agendaHandler.dropSheduledEventNotifications(eventId);
+            await agendaHandler.scheduleEventNotifications(updatedEvent);
+            res.status(200).json({ message: 'Event updated successfully', event: updatedEvent });
         } else {
-          res.status(404).json({ message: 'Event not found' });
+            res.status(404).json({ message: 'Event not found' });
         }
     } catch (error) {
         res.status(500).json({ message: 'Error updating event', error: error.message });

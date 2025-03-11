@@ -37,21 +37,7 @@ router.post("/addUser", async (req, res) => {
     }
 });
 
-/*
-router.post("/passwordCheck", passport.authenticate('local'),
-    async (req, res) => {
-        try {
-            const { username, password } = req.body;
-            const user = await User.findOne({ username: req.body.username })
-            res.status(200).json(user);
-        } catch (error) {
-            console.error('Error checking password:', error);
-            res.status(500).json({ message: 'Server error' });
-        }
 
-
-});
-*/
 router.post("/passwordCheck",
     async (req, res) => {
         try {

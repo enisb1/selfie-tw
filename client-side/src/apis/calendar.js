@@ -104,11 +104,11 @@ export async function getResourcesEvents() {
 }
 
 // post event to db
-export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users, resources,
+export async function postEvent(title, location, start, end, frequency, repetitionNumber, repetitionDate, color, users, creator, resources,
     notify15Before, notify30Before, notify1HourBefore, notify1DayBefore, pomodoroSettings) {
     await axios.post('http://localhost:8000/api/calendar/addEvent', {"title": title, "location": location, "startDate": start,
         "endDate": end, "frequency": frequency, "repetitionNumber":repetitionNumber, 
-        "repetitionDate": repetitionDate, "color": color, "users": users, "resources": resources,
+        "repetitionDate": repetitionDate, "color": color, "users": users, "creator": creator, "resources": resources,
         "notify15Before": notify15Before, "notify30Before": notify30Before, "notify1HourBefore": notify1HourBefore, 
         "notify1DayBefore": notify1DayBefore, "pomodoroSettings": pomodoroSettings}
     )
@@ -118,16 +118,14 @@ export async function postEvent(title, location, start, end, frequency, repetiti
 }
 
 // post activity to db
-export async function postActivity(title, deadline, userIds, compositeActivity, projectData) {
-    try {
-        const response = await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
-            "isDone": false, "users": userIds, "compositeActivity": compositeActivity,"projectData": projectData}
-        );
-        return response.data; // Return the response data, which includes the activity ID
-    } catch (error) {
-        throw error.response.data;
-    }
-}
+export async function postActivity(title, deadline, userIds, myId, compositeActivity, projectData) {
+    await axios.post('http://localhost:8000/api/calendar/addActivity', {"title": title, "deadline": deadline, 
+        "isDone": false, "users": userIds, "creator": myId, "compositeActivity": compositeActivity, "projectData": projectData}
+    )
+    .then(({data}) => {
+        console.log(data);
+        return data.data;
+    })
 
 // post subactivities of groupActivity to db
 export async function postSubacts(compositeActivityTitle, subactivities, users) {
