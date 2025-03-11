@@ -189,7 +189,7 @@ router.delete("/activities/:id", async (req, res) => {
       const result = await Activity.findByIdAndDelete(activityId);
 
       if (result) {
-          await agendaHandler.dropSheduledActivityNotifications(activityId);
+          await agendaHandler.dropScheduledActivityNotifications(activityId);
         
           // Update activities that have the deleted activity's ID as the 'previous' field in projectData
           const relatedActivities = await Activity.updateMany(
@@ -231,7 +231,7 @@ router.put("/activities/:id", async (req,res) => {
         });
     
         if (updatedActivity) {
-            await agendaHandler.dropSheduledActivityNotifications(activityId);
+            await agendaHandler.dropScheduledActivityNotifications(activityId);
             await agendaHandler.scheduleActivityNotifications(updatedActivity);
           res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
         } else {
@@ -351,7 +351,7 @@ router.delete("/events/:id", async (req, res) => {
         const result = await Event.findByIdAndDelete(eventId);
 
         if (result) {
-            await agendaHandler.dropSheduledEventNotifications(eventId);
+            await agendaHandler.dropScheduledEventNotifications(eventId);
             res.status(200).json({ message: 'Event deleted successfully', event: result });
         } else {
             res.status(404).json({ message: 'Event not found' });
@@ -372,7 +372,7 @@ router.put("/events/:id", async (req,res) => {
         });
     
         if (updatedEvent) {
-            await agendaHandler.dropSheduledEventNotifications(eventId);
+            await agendaHandler.dropScheduledEventNotifications(eventId);
             await agendaHandler.scheduleEventNotifications(updatedEvent);
             res.status(200).json({ message: 'Event updated successfully', event: updatedEvent });
         } else {

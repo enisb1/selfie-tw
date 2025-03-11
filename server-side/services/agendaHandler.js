@@ -158,12 +158,28 @@ export class AgendaHandler {
         }
     }
 
-    async dropSheduledActivityNotifications(activityId){
+    async dropScheduledActivityNotifications(activityId){
         await this.agenda.cancel({name: 'activity notification', 'data.activityId': activityId});
     }
 
-    async dropSheduledEventNotifications(eventId){
+    async dropScheduledEventNotifications(eventId){
         await this.agenda.cancel({name: 'event notification', 'data.event._id': eventId});
+    }
+
+    async disablePastScheduledNotifications(date){
+        const jobs = await this.agenda.jobs({ nextRunAt: { $lt: new Date(date) } });
+        for (let job of jobs) {
+            job.attrs.disabled = true;
+            await job.save();
+        }
+    }
+
+    async enableFutureScheduledNotifications(date){
+        const jobs = await this.agenda.jobs({ nextRunAt: { $gt: new Date(date) } });
+        for (let job of jobs) {
+            job.attrs.disabled = false;
+            await job.save();
+        }
     }
 
 }
