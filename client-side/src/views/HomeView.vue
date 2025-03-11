@@ -16,7 +16,7 @@
       </div>
       <div class="mt-2 flex flex-col">
         <div v-for="event in calendarPreviewEvents" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-          {{ event.title }} (<span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}&nbsp;</span>{{ new Date(event.startDate).getHours() }}.{{ new Date(event.startDate).getMinutes() }} - <span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(event.endDate).getHours() }}.{{ new Date(event.endDate).getMinutes() }})
+          {{ event.title }} (<span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}&nbsp;</span>{{ new Date(event.startDate).getHours().toString().padStart(2, '0') }}.{{ new Date(event.startDate).getMinutes().toString().padStart(2, '0') }} - <span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(event.endDate).getHours().toString().padStart(2, '0') }}.{{ new Date(event.endDate).getMinutes().toString().padStart(2, '0') }})
         </div>
       </div>
     </div>
@@ -30,7 +30,7 @@
       </div>
       <div class="mt-2 flex flex-col">
         <div v-for="activity in projectsPreviewActivities" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-          {{ activity.title }} (deadline <span v-show="previewProjectsWeek">{{ new Date(activity.deadline).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(activity.deadline).getHours() }}.{{ new Date(activity.deadline).getMinutes().toString().padStart(2, '0') }} {{ activity.projectName }})
+          {{ activity.title }} (deadline <span v-show="previewProjectsWeek">{{ new Date(activity.deadline).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(activity.deadline).getHours().toString().padStart(2, '0') }}.{{ new Date(activity.deadline).getMinutes().toString().padStart(2, '0') }} {{ activity.projectName }})
         </div>
       </div>
     </div>

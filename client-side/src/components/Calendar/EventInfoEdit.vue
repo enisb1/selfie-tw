@@ -384,8 +384,8 @@ export default {
         const startPomodoro = () => {
             router.push({
                 name: 'pomodoro',
-                query: {study: props.eventObject.pomodoroSettings.minStudy, 
-                    relax: props.eventObject.pomodoroSettings.minRelax, 
+                query: {study: props.eventObject.pomodoroSettings.minStudy*60, 
+                    relax: props.eventObject.pomodoroSettings.minRelax*60, 
                     cycles: props.eventObject.pomodoroSettings.cycles}
             })
         }
