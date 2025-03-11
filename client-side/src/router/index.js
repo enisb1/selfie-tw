@@ -60,6 +60,10 @@ const routes = [
     path: '/settings',
     name: 'settings',
     component: SettingsView
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
   }
 ]
 
