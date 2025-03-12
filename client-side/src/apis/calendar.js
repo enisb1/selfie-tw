@@ -259,3 +259,12 @@ export async function deleteActivitiesByGroup(groupName, groupId) {
         throw error;
     }
 }
+
+export async function sendExportMail(formData) {
+    try {
+        const response = await axios.post(`http://localhost:8000/api/calendar/export`, formData);
+        return response.data;
+    } catch (error) {
+        return "Error sending email, try later";
+    }
+}

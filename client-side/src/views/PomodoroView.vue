@@ -279,7 +279,7 @@ export default {
             const endDate = new Date(pomodoroEventStartDate.value)
             endDate.setSeconds(endDate.getSeconds() + (minSetStudy.value + minSetRelax.value) * numSetCycle.value)
             await postEvent(pomodoroEventTitle.value, null, pomodoroEventStartDate.value, endDate, 'none', null, 
-                null, '#b01e1e', [store.state._id], [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: numSetCycle.value})
+                null, '#b01e1e', [], store.state._id, [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: numSetCycle.value})
             togglePomodoroEventModal()
         }
 
