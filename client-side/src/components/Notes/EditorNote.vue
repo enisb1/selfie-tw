@@ -1,6 +1,6 @@
 <template>
   <!--NoteEditor-->
-    <div class="absolute bottom-0 h-full w-full bg-white">
+    <div class="absolute bottom-0 h-full w-full bg-white mb-4">
         <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
             <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
