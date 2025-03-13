@@ -254,9 +254,9 @@ export default {
         
         const cicles = ref([
             {
-                relax: relax,
-                ncicle: cycles,
-                study: study
+                relax: 5,
+                ncicle: 5,
+                study: 30
             }
         ])
 
@@ -308,9 +308,9 @@ export default {
         const minutes = ref()
         const time = ref()
         let interval
-        const numCicli = ref(cycles)
-        const minuteStudy = ref(study)
-        const minuteRelax = ref(relax)
+        const numCicli = ref(5)
+        const minuteStudy = ref(1800)
+        const minuteRelax = ref(300)
         const mstudy = ref()
         const side = ref("A")
         const cicleState = ref("STUDY")
@@ -328,12 +328,16 @@ export default {
         const receiver = ref()
 
         onMounted(() => {
-            nCicle.value = numCicli.value
-            mStudy.value = minuteStudy.value
-            minSetRelax.value = minuteRelax.value
-            minSetStudy.value = minuteStudy.value
-            numSetCycle.value = numCicli.value
-            time.value = formatTime(minuteStudy.value)
+            nCicle.value = cycles.value
+            mStudy.value = study.value
+            minSetRelax.value = relax.value
+            minSetStudy.value = study.value
+            numSetCycle.value = cycles.value
+            minuteRelax.value = relax.value
+            minuteStudy.value = study.value
+            numCicli.value = cycles.value
+            console.log(numCicli.value)
+            time.value = formatTime(minSetStudy.value)
             user.value = store.state.username
         })
 
