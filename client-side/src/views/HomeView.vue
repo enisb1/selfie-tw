@@ -42,7 +42,7 @@
         <div class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
           Study: {{ workTime/60 }} minutes <br>
           Relax: {{ relaxTime/60 }} minutes <br>
-          Cycle: {{ numCycle }} minutes
+          Cycle: {{ numCycle }}
         </div>
       </div>
     </div>

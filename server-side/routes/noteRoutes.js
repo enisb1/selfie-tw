@@ -91,7 +91,7 @@ router.put('/editNote/:id', async(req,res) => {
 router.get('/getUserNote', async(req, res) => {
     const username = req.query.user
     const access = req.query.access
-    console.log(access)
+
     try {
         let query = {}
         if(username){
@@ -101,7 +101,7 @@ router.get('/getUserNote', async(req, res) => {
             query.access = access;
         }
         const notes = await Note.find(query) 
-        console.log(notes)
+
         res.status(200).json(notes);
         
     } catch (error) {
