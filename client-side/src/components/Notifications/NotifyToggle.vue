@@ -4,6 +4,7 @@
       
       <div class="flex-shrink-0 bg-third text-white rounded-full w-12 h-12 flex items-center justify-center mr-4">
         <span class="text-2xl font-semibold">{{ icon }}</span>
+
       </div>
 
       
@@ -25,26 +26,27 @@
   </template>
 
   <script>
-  import {ref} from "vue";
+  import {computed} from "vue";
 
   export default {
     setup(props){
 
-      const icon = ref('');
-
-      if (props.type === 'calendar') {
-        icon.value = '📅';
-      } else if (props.type === 'reminder') {
-        icon.value = '🔔';
-      } else if (props.type === 'message') {
-        icon.value = '📩';
-      } else if (props.type === 'invite') {
-        icon.value = '📨';
-      } else if (props.type === 'pomodoro') {
-        icon.value = '🍅';
-      } else {
-        icon.value = 'ℹ️';
-      }
+      const icon = computed(() => {
+        switch (props.type) {
+          case 'message':
+            return '📩';
+          case 'reminder':
+            return '🔔';
+          case 'calendar':
+            return '📅';
+          case 'invite':
+            return '📨';
+          case 'pomodoro':
+            return '🍅';
+          default:
+            return 'ℹ️';
+        }
+      })
 
       const formatDate = (date) => {
         if (!date) return '';
