@@ -164,6 +164,8 @@ function addActivity(activityToAdd) {
     // anticipating deadline to a fake one... the activity will still officially have its normal deadline
     if (activityToAddH == 23 && activityToAddM > 40)
         activityToAddM = 40;
+    if (activityToAddM % 5 != 0)    // round minutes to the nearest 5 (could happen for activities from expiring tasks)
+        activityToAddM = Math.ceil(activityToAddM/5)*5;
     activityToAdd.startInMinutes = activityToAddH*60 + activityToAddM;
     activityToAdd.endInMinutes = activityToAdd.startInMinutes + 20; // spans 20 minutes to have enough space in the grid
 
