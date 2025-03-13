@@ -386,7 +386,9 @@ export default {
                 name: 'pomodoro',
                 query: {study: props.eventObject.pomodoroSettings.minStudy*60, 
                     relax: props.eventObject.pomodoroSettings.minRelax*60, 
-                    cycles: props.eventObject.pomodoroSettings.cycles}
+                    cycles: props.eventObject.pomodoroSettings.cycles,
+                    eventTitle: props.eventObject.title,
+                    eventDate: new Date(props.eventObject.startDate).toISOString()}
             })
         }
 
@@ -401,7 +403,6 @@ export default {
         }
 
         onMounted(async () => {
-            console.log(props.eventObject.users)
             const remainingUsers = props.eventObject.users.filter(u => u != store.state._id)
             if (remainingUsers.length > 0) {
                 const participatingUsers = await getUsers(remainingUsers)

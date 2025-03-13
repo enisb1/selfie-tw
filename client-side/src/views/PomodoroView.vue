@@ -225,7 +225,7 @@
 
 
 <script>
-import {ref, onMounted, watch} from 'vue'
+import {ref, onMounted, watch, onUnmounted} from 'vue'
 import Modal from "@/components/Modal.vue";
 import {sharePomodoroConfig} from "@/apis/notifications";
 import {useStore} from "vuex";
@@ -251,6 +251,14 @@ export default {
         const study = computed(() => Number(route.query.study) || 1800);
         const relax = computed(() => Number(route.query.relax) || 300);
         const cycles = computed(() => Number(route.query.cycles) || 5);
+        const pushedRouteEventTitle = route.query.eventTitle
+        const pushedRouteEventDate = route.query.eventDate
+        //TODO:
+        // metti nella query un parametro per segnare che è un pomodoroEvent
+        // metti un check che quando esci dalla view, onUnMount probabilmente, controlli 
+        // se è un pomodoroEvent e se sì allora fai il post dell'evento al giorno dopo 
+        // con la stessa configurazione e i cicli rimanenti (stesso orario quindi devi
+        // passare anche la Date string nei parametri della query)
         
         const cicles = ref([
             {
@@ -270,7 +278,6 @@ export default {
                 pomodoroEventTitle.value = ''
                 pomodoroEventStartDate.value = null
                 showPomodoroEventModal.value = true
-                console.log(minSetRelax.value, minSetStudy.value, numSetCycle.value)
             }
         }
         const showPomodoroEventModal = ref(false)
@@ -335,6 +342,18 @@ export default {
             numSetCycle.value = numCicli.value
             time.value = formatTime(minuteStudy.value)
             user.value = store.state.username
+        })
+
+        onUnmounted(async () => {
+            // nCicle contiene i cicli rimanenti
+            if (isPressed.value && pushedRouteEventTitle) {    // is pomodoro event
+                const startDate = new Date(pushedRouteEventDate)
+                startDate.setTime(startDate.getTime() + 24 * 60 * 60 * 1000)
+                const endDate = new Date(startDate)
+                endDate.setSeconds(endDate.getSeconds() + (minSetStudy.value + minSetRelax.value) * nCicle.value)
+                await postEvent(pushedRouteEventTitle, null, startDate, endDate, 'none', null, 
+                    null, '#b01e1e', [], store.state._id, [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: nCicle.value})
+            }
         })
 
         const saveCicle = (index) => {
@@ -620,8 +639,6 @@ export default {
             showShare.value = !showShare.value
             shareError.value = ""
         }
-
-
         
         return{
             isPressed,
