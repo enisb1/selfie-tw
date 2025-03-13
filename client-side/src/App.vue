@@ -86,7 +86,7 @@ import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import Modal from "@/components/Modal.vue";
 import DatePicker from "@vuepic/vue-datepicker";
-import { rollBackTime, setNewGlobalTime} from "@/apis/time";
+import {getServerTime, rollBackTime, setNewGlobalTime} from "@/apis/time";
 import {rollBackClientTime, setClientGlobalTime} from "../script/timeMachine";
 
 export default {
@@ -109,6 +109,15 @@ export default {
     }else{
       store.commit('connect')
     }
+
+    const checkTime = async () => {
+      const serverTime = new Date(await getServerTime())
+      if (Math.abs(serverTime - new Date()) > 30000) {
+        setClientGlobalTime(serverTime)
+      }
+    }
+
+    checkTime()
 
     const formatDate = (date) => {
       if (!date) return '';
@@ -145,9 +154,6 @@ export default {
       showModal.value = !showModal.value
     }
 
-    const format = (date) => {
-      return date
-    }
     return {
       hamburgerMenuOpened,
       toggleHamburgerMenu,

@@ -180,6 +180,16 @@ export class AgendaHandler {
             job.attrs.disabled = false;
             await job.save();
         }
+
+        const alreadyRunJobs = await this.agenda.jobs({ lastRunAt: { $exists: true , $gt: new Date(date)} });
+
+        for (let job of alreadyRunJobs) {
+            if (job.attrs.lastRunAt) {
+                job.attrs.nextRunAt = job.attrs.lastRunAt;
+                job.attrs.disabled = false;
+                await job.save();
+            }
+        }
     }
 
 }
