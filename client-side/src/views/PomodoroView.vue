@@ -73,11 +73,15 @@
                          'width': isPressed ? (100*(minuteRelax-mRelax)/minuteRelax)+'%':(100*(minuteRelax-mRelax)/minuteRelax)+'%'}"></div>
             </div>
 
-            <button @click="startTimer" class="absolute left-1/2 -translate-x-1/2 -bottom-24 max-w-40 min-w-36 
-                                               py-1 rounded-2xl w-1/3 font-semibold text-2xl transition-all duration-500" 
+            <div class="absolute left-1/2 -translate-x-1/2 -bottom-24 flex">
+                <button @click="startTimer" class="max-w-40 min-w-36 py-1 rounded-2xl w-1/3 font-semibold text-2xl transition-all duration-500" 
                                        :class="{'transform translate-y-1': isPressed, 'border-b-4 border-white':!isPressed, 'bg-eighth text-secondary': timeStudy, 'bg-seventh text-secondary': !timeStudy}">
-                {{ buttonText }}
-            </button>
+                    {{ buttonText }}
+                </button>
+            </div>
+
+
+            <button></button>
 
         </div>   
     </div>
@@ -236,6 +240,7 @@ import { postSettingsPom } from "@/apis/pomodoro";
 import DatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 import { postEvent } from '@/apis/calendar';
+import { useRouter } from 'vue-router';
 
 export default {
 
@@ -247,6 +252,7 @@ export default {
     setup(){
         const route = useRoute();
         const store = useStore()
+        const router = useRouter()
         
         const study = computed(() => Number(route.query.study) || 1800);
         const relax = computed(() => Number(route.query.relax) || 300);
@@ -334,6 +340,45 @@ export default {
         const showShare = ref(false)
         const receiver = ref()
 
+
+        // --------
+        // Shared alert logic
+        const showLeaveAlert = () => {
+            return confirm('Are you sure you want to leave?');
+        };
+
+        let removeRouteGuard;
+        let beforeUnloadAdded = false;
+
+        // handle navigation outside and inside vue project
+        const addNavigationGuard = () => {
+            // handling navigation inside vue project
+            if (!removeRouteGuard) {
+                removeRouteGuard = router.beforeEach((to, from, next) => {
+                const confirmation = window.confirm('Are you sure you want to leave this page?');
+
+                if (confirmation) {
+                    next(); // Allow navigation
+                } else {
+                    next(false); // Prevent navigation
+                }
+                });
+            }
+            // handling navigation outside vue project (to projects.html)
+            if (!beforeUnloadAdded) {
+                window.addEventListener('beforeunload', handleUnload)
+                beforeUnloadAdded = true
+            }
+            
+        }
+
+        const removeNavigationGuard = () => {
+            window.removeEventListener('beforeunload', handleUnload)
+            beforeUnloadAdded = false
+            if (removeRouteGuard) removeRouteGuard(); //  router.beforeEach returns a function that, when called, 
+                                                      //  removes the guard from the router
+        }
+
         onMounted(() => {
             nCicle.value = numCicli.value
             mStudy.value = minuteStudy.value
@@ -342,10 +387,21 @@ export default {
             numSetCycle.value = numCicli.value
             time.value = formatTime(minuteStudy.value)
             user.value = store.state.username
-        })
+        });
 
-        onUnmounted(async () => {
-            // nCicle contiene i cicli rimanenti
+        // 2. Handle External Navigation (Outside Vue)
+        const handleUnload = (event) => {
+            event.preventDefault();
+            event.returnValue = ''; // triggers the native confirmation dialog
+        };
+
+        onUnmounted(() => {
+            removeNavigationGuard()
+        });
+
+        /*
+        codice da chiamare quando si termina un pomodoro event in corso d'oopera
+        // nCicle contiene i cicli rimanenti
             if (isPressed.value && pushedRouteEventTitle) {    // is pomodoro event
                 const startDate = new Date(pushedRouteEventDate)
                 startDate.setTime(startDate.getTime() + 24 * 60 * 60 * 1000)
@@ -354,7 +410,8 @@ export default {
                 await postEvent(pushedRouteEventTitle, null, startDate, endDate, 'none', null, 
                     null, '#b01e1e', [], store.state._id, [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: nCicle.value})
             }
-        })
+        */
+        // --------
 
         const saveCicle = (index) => {
             showMenu.value = false
@@ -393,6 +450,7 @@ export default {
         const timeStudy = ref(true)
         const startTimer = () => {
             audio.play()
+            addNavigationGuard()
             isPressed.value = !isPressed.value
                 if(timeStudy.value === true){
                     if(isPressed.value === true){
@@ -431,6 +489,7 @@ export default {
                                 clearInterval(interval)
                                 time.value = formatTime(minuteStudy.value)
                                 audioFinish.play()
+                                removeNavigationGuard()
                             }
                             else if(mRelax.value === 0){
                                 isPressed.value = false
@@ -493,10 +552,12 @@ export default {
                 cicli--
                 tempopausatot = minutesNumber.value - (35*cicli)
             } 
-        }
+        }   
 
         const resetCicle = () => {
             audioReset.play()
+            removeNavigationGuard()
+            buttonText.value = "PLAY"
             nCicle.value = numCicli.value
             mStudy.value = minuteStudy.value
             mRelax.value = minuteRelax.value
@@ -516,7 +577,8 @@ export default {
             clearInterval(interval)
             time.value = formatTime(minuteStudy.value)
             buttonText.value = "PLAY"
-            audioFinish.play()    
+            audioFinish.play()
+            removeNavigationGuard()
         }
 
         const skipCicle = () => {
@@ -540,7 +602,7 @@ export default {
                 time.value = formatTime(minuteStudy.value)
                 buttonText.value = "PLAY"
                 audioFinish.play()
-
+                removeNavigationGuard()
             }else{
                 isPressed.value = false
                 audio.play()
