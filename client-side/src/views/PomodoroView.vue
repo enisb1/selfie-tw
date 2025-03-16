@@ -73,16 +73,16 @@
                          'width': isPressed ? (100*(minuteRelax-mRelax)/minuteRelax)+'%':(100*(minuteRelax-mRelax)/minuteRelax)+'%'}"></div>
             </div>
 
-            <div class="absolute left-1/2 -translate-x-1/2 -bottom-24 flex">
-                <button @click="startTimer" class="max-w-40 min-w-36 py-1 rounded-2xl w-1/3 font-semibold text-2xl transition-all duration-500" 
-                                       :class="{'transform translate-y-1': isPressed, 'border-b-4 border-white':!isPressed, 'bg-eighth text-secondary': timeStudy, 'bg-seventh text-secondary': !timeStudy}">
+            <div class="absolute left-1/2 -translate-x-1/2 -bottom-24 flex gap-2">
+                <button @click="startTimer" class="max-w-40 min-w-36 py-1 rounded-2xl w-1/3 font-semibold text-2xl transition-all duration-500"
+                    :class="{'transform translate-y-1': isPressed, 'border-b-4 border-white':!isPressed, 'bg-eighth text-secondary': timeStudy, 'bg-seventh text-secondary': !timeStudy}">
                     {{ buttonText }}
                 </button>
+                <button v-show="isPressed && route.query.eventTitle" @click="endPomodoroEvent" class="max-w-40 min-w-36 py-1 rounded-2xl w-1/3 font-semibold text-2xl transition-all duration-500"
+                    :class="{'transform translate-y-1': isPressed, 'border-b-4 border-white':!isPressed, 'bg-eighth text-secondary': timeStudy, 'bg-seventh text-secondary': !timeStudy}">
+                    End event
+                </button>
             </div>
-
-
-            <button></button>
-
         </div>   
     </div>
     <Modal v-show="currentSettings" @click.self="showCurrentSettings">
@@ -257,14 +257,6 @@ export default {
         const study = computed(() => Number(route.query.study) || 1800);
         const relax = computed(() => Number(route.query.relax) || 300);
         const cycles = computed(() => Number(route.query.cycles) || 5);
-        const pushedRouteEventTitle = route.query.eventTitle
-        const pushedRouteEventDate = route.query.eventDate
-        //TODO:
-        // metti nella query un parametro per segnare che è un pomodoroEvent
-        // metti un check che quando esci dalla view, onUnMount probabilmente, controlli 
-        // se è un pomodoroEvent e se sì allora fai il post dell'evento al giorno dopo 
-        // con la stessa configurazione e i cicli rimanenti (stesso orario quindi devi
-        // passare anche la Date string nei parametri della query)
         
         const cicles = ref([
             {
@@ -311,6 +303,22 @@ export default {
 
         const pomodoroEventStartDate = ref()
         const pomodoroEventTitle = ref()
+
+        const endPomodoroEvent = async () => {
+            const startDate = new Date(route.query.eventDate)
+            startDate.setTime(startDate.getTime() + 24 * 60 * 60 * 1000)
+            const endDate = new Date(startDate)
+            endDate.setSeconds(endDate.getSeconds() + (minSetStudy.value + minSetRelax.value) * nCicle.value)
+            await postEvent(route.query.eventTitle, null, startDate, endDate, 'none', null, 
+                null, '#b01e1e', [], store.state._id, [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: nCicle.value})
+            removeNavigationGuard()
+            resetCicle()
+            numSetCycle.value = 5
+            minSetStudy.value = 1800
+            minSetRelax.value = 300
+            time.value = formatTime(minSetStudy.value)
+            router.push('/pomodoro')
+        }
         // --- end pomodoro event ---
 
         const audio = new Audio("/soundbutton.mp3")
@@ -341,35 +349,30 @@ export default {
         const receiver = ref()
 
 
-        // --------
-        // Shared alert logic
-        const showLeaveAlert = () => {
-            return confirm('Are you sure you want to leave?');
-        };
-
+        // Navigation guard
         let removeRouteGuard;
         let beforeUnloadAdded = false;
 
         // handle navigation outside and inside vue project
         const addNavigationGuard = () => {
-            // handling navigation inside vue project
+            // inside navigation
             if (!removeRouteGuard) {
                 removeRouteGuard = router.beforeEach((to, from, next) => {
                 const confirmation = window.confirm('Are you sure you want to leave this page?');
 
                 if (confirmation) {
-                    next(); // Allow navigation
+                    next(); // allow navigation
                 } else {
-                    next(false); // Prevent navigation
+                    next(false); // prevent
                 }
                 });
             }
-            // handling navigation outside vue project (to projects.html)
+
+            // outside navigation
             if (!beforeUnloadAdded) {
                 window.addEventListener('beforeunload', handleUnload)
                 beforeUnloadAdded = true
             }
-            
         }
 
         const removeNavigationGuard = () => {
@@ -378,6 +381,16 @@ export default {
             if (removeRouteGuard) removeRouteGuard(); //  router.beforeEach returns a function that, when called, 
                                                       //  removes the guard from the router
         }
+
+        // handle external navigation (outside vue project)
+        const handleUnload = (event) => {
+            event.preventDefault();
+            event.returnValue = ''; // triggers the native confirmation dialog
+        };
+
+        onUnmounted(() => {
+            removeNavigationGuard()
+        });
 
         onMounted(() => {
             nCicle.value = cycles.value
@@ -388,34 +401,9 @@ export default {
             minuteRelax.value = relax.value
             minuteStudy.value = study.value
             numCicli.value = cycles.value
-            console.log(numCicli.value)
             time.value = formatTime(minSetStudy.value)
             user.value = store.state.username
         });
-
-        // 2. Handle External Navigation (Outside Vue)
-        const handleUnload = (event) => {
-            event.preventDefault();
-            event.returnValue = ''; // triggers the native confirmation dialog
-        };
-
-        onUnmounted(() => {
-            removeNavigationGuard()
-        });
-
-        /*
-        codice da chiamare quando si termina un pomodoro event in corso d'oopera
-        // nCicle contiene i cicli rimanenti
-            if (isPressed.value && pushedRouteEventTitle) {    // is pomodoro event
-                const startDate = new Date(pushedRouteEventDate)
-                startDate.setTime(startDate.getTime() + 24 * 60 * 60 * 1000)
-                const endDate = new Date(startDate)
-                endDate.setSeconds(endDate.getSeconds() + (minSetStudy.value + minSetRelax.value) * nCicle.value)
-                await postEvent(pushedRouteEventTitle, null, startDate, endDate, 'none', null, 
-                    null, '#b01e1e', [], store.state._id, [], false, false, false, false, {minStudy: minSetStudy.value/60, minRelax: minSetRelax.value/60, cycles: nCicle.value})
-            }
-        */
-        // --------
 
         const saveCicle = (index) => {
             showMenu.value = false
@@ -762,7 +750,9 @@ export default {
             startTime,
             pomodoroEventStartDate,
             pomodoroEventTitle,
-            addPomodoroEvent
+            addPomodoroEvent,
+            endPomodoroEvent,
+            route
     }
 
 }}
