@@ -28,10 +28,10 @@
         <div class="flex mt-4 gap-2">
             <button @click="toggleUnavailableModal" class="rounded-md bg-secondary
                 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Set unavailability</button>
-            <button @click="toggleUnavailableModal" class="rounded-md bg-secondary
-                px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">
-                <router-link class="text-white hover:text-accent" :to="{ name: 'login'}">Logout</router-link>
-            </button>
+            <router-link @click="toggleUnavailableModal" class="rounded-md bg-secondary
+                px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:text-accent" :to="{ name: 'login'}">
+                Logout
+            </router-link>
         </div>
     </div>
 

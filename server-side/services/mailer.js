@@ -27,6 +27,22 @@ export class Mailer {
         }
     }
 
+    async sendMailWithAttachments(to, subject, text, attachments) {
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: to,
+            subject: subject,
+            text: text,
+            attachments: attachments,
+        };
+    
+        try {
+            await this.transporter.sendMail(mailOptions);
+        } catch (error) {
+            console.error('Failed to send email:', error);
+        }
+    }
+
     async getEmailFromUsername(username){
         const user = await User.findOne({username: username});
 
