@@ -215,7 +215,7 @@
                 <!-- TODO: change to textbox for better input quality -->
                 <div class="mt-4">
                   <p class="font-semibold text-base">Description</p>
-                  <input id="editedProjectDescription" class="border border-third" type="text" maxlength="30" required>
+                  <input id="editedProjectDescription" class="border border-third" type="text" required>
                 </div>
         
                 <div class="flex flex-col sm:flex-row">
@@ -276,7 +276,7 @@
                   <!-- TODO: change to textbox for better input quality -->
                   <div class="mt-4">
                     <p class="font-semibold text-base">Description</p>
-                    <input id="newProjectDescription" class="border border-third" type="text" maxlength="30" required>
+                    <input id="newProjectDescription" class="border border-third" type="text" required>
                   </div>
           
                   <div class="flex flex-col sm:flex-row">
@@ -381,7 +381,7 @@
                     <input id="activityToAddIsMilestone" type="checkbox">
                   </div>
 
-                  <div class="mt-4">
+                  <div class="mt-4" id="activityToAddContractsDiv">
                     <p class="font-semibold text-base">Contract else translate if previous activity is overdue</p>
                     <input id="activityToAddContracts" type="checkbox">
                   </div>
@@ -521,7 +521,7 @@
               </div>
 
               <!-- Contracts -->
-              <div class="mt-4">
+              <div class="mt-4" id="activityToEditContractsDiv">
                 <p class="font-semibold text-base">Contracts if previous activity is overdue</p>
                 <input id="activityToEditContracts" type="checkbox">
               </div>

@@ -91,6 +91,27 @@ router.post("/addActivity", async (req, res) => {
     }
 });
 
+router.post("/addActivityNoInvite", async (req, res) => {
+    try {
+        const activity = new Activity({
+                title: req.body.title,
+                deadline: req.body.deadline,
+                isDone: false,
+                users: req.body.users,
+                compositeActivity: null,
+                projectData: req.body.projectData
+            }
+        );
+        await activity.save();
+        res.status(201).json({ message: 'Data saved successfully', data: activity });
+    }catch (error) {
+        console.log(error)
+        console.error('Error saving data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+})
+
+
 // TODO: magari sposta questa funzione da qui
 async function sendActivityNotificationToUsers(activity, users,creator) {
     for (const userId of users) {
