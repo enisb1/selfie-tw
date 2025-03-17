@@ -406,7 +406,6 @@ async function addUserToEditedActivityList() {
     }
     // check if it's in current project and if it's NOT contained in current activity (else it would duplicate)
     if (exists && currentProject.members.includes(user_id)) {
-        console.log('here')
         editedActivityUsers.push(userToAddInput.value)
         editedActivityIds.push(user_id)
         userToAddInput.value = ''
@@ -767,7 +766,6 @@ function goToSettingsPage() {
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
-    console.log(currentProject.owner)
     if (currentProject.owner != state._id) {
         document.getElementById('deleteProjectButton').classList.add('hidden')
     }
