@@ -1,5 +1,44 @@
 const state = JSON.parse(sessionStorage.getItem('state'))
 
+// time machine
+const formatDate = (date) => {
+    if (!date) return '';
+    return date.toLocaleString('it-IT', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+}
+const currentDateTimeMachine = document.getElementById('timeMachineCurrentDateValue')
+currentDateTimeMachine.innerHTML = formatDate(new Date())
+setInterval(async () => {
+    currentDateTimeMachine.innerHTML = formatDate(new Date())
+}, 1000)
+
+function showTimeMachineModal() {
+    const modal = document.getElementById('timeMachineModal');
+    if (modal) {
+        modal.open()
+    }
+}
+
+document.getElementById('openTimeMachineButton').addEventListener('click', () => {
+    showTimeMachineModal()
+})
+
+const timeMachineDateSelector = document.getElementById('timeMachineDateSelector');
+const dateSelectorFlatpickr = flatpickr(timeMachineDateSelector, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+    minuteIncrement: 1,
+});
+
+// --- end time machine
+
 updateProjects()
 if (!state.isAdmin) {
     document.getElementById('adminNavLink').classList.add('hidden')
