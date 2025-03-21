@@ -68,11 +68,12 @@
 
 <script>
 import {useStore} from "vuex";
-import {onMounted, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities } from "@/apis/calendar";
 import { getProjectDetails } from "@/apis/projects";
 import { getNoteUser, getUserSelectNote } from "@/apis/note";
 import { getSettingsPomUser } from "@/apis/pomodoro";
+import eventBus from "../../script/eventBus";
 
 export default {
   setup(){
@@ -217,13 +218,22 @@ export default {
       }
     }
 
-
-    onMounted(() => {
+    const reloadPageInfo = () => {
       toggleTodayCalPreview()
       toggleTodayProjectsPreview()
       toggleNotePreview()
       togglePomPreview()
+    }
+
+
+    onMounted(() => {
+      reloadPageInfo();
+      eventBus.on('reloadPageInfo', reloadPageInfo);
     })
+
+    onUnmounted(() => {
+      eventBus.off('reloadPageInfo', reloadPageInfo);
+    });
 
     return {
       previewCalToday,

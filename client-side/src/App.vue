@@ -32,7 +32,7 @@
       <!-- Responsive drop down Menu (for mobile) -->
       <div class="lg:hidden border-t border-black w-full" v-show="hamburgerMenuOpened">
         <ul class="pl-4 py-1 bg-secondary">
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" v-show="store.state.isAdmin"class="text-white " :to="{ name: 'admin'}">Admin</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" v-show="store.state.isAdmin" class="text-white " :to="{ name: 'admin'}">Admin</router-link></li>
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'calendar'}">Calendar</router-link></li>
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'notifications'}">Notifications Centre</router-link></li>
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'chat'}">Chat</router-link></li>
@@ -88,6 +88,7 @@ import Modal from "@/components/Modal.vue";
 import DatePicker from "@vuepic/vue-datepicker";
 import {getServerTime, rollBackTime, setNewGlobalTime} from "@/apis/time";
 import {rollBackClientTime, setClientGlobalTime} from "../script/timeMachine";
+import eventBus from "../script/eventBus";
 
 export default {
   components: {DatePicker, Modal},
@@ -140,11 +141,13 @@ export default {
     const setNewDate = (date) => {
       setNewGlobalTime(date)
       setClientGlobalTime(new Date(date))
+      eventBus.emit('reloadPageInfo');
     }
 
     const rollBackDate = () => {
       rollBackTime()
       rollBackClientTime()
+      eventBus.emit('reloadPageInfo');
     }
 
     const dateSelector = ref(new Date())
