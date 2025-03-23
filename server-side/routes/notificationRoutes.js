@@ -4,6 +4,7 @@ import {Message} from "../services/wsHandler.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import Activity from "../models/Activity.js";
 import Event from '../models/Event.js'
+import Project from "../models/Project.js";
 
 const router = Router();
 
@@ -105,8 +106,11 @@ router.post("/acceptInvite", async (req, res) => {
         if (req.body.type === 'event'){
             await Event.updateOne({ _id: req.body.id },{ $push: { users: req.body.userId } });
             await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
-        }else if (req.body.type === 'activity'){
+        } else if (req.body.type === 'activity'){
             await Activity.updateOne({ _id: req.body.id },{ $push: { users: req.body.userId } });
+            await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
+        } else if (req.body.type === 'project'){
+            await Project.updateOne({ _id: req.body.id },{ $push: { members: req.body.userId } });
             await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
         }
 
