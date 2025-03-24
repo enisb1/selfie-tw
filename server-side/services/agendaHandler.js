@@ -43,7 +43,7 @@ export class AgendaHandler {
             const activity = await Activity.findOne({_id: activityId});
             if (activity) {
                 if (activity.isDone) {
-                    return;
+
                 } else {
 
                     let alert_message = '';
@@ -56,9 +56,6 @@ export class AgendaHandler {
                     for (const userid of activity.users) {
                         const user = await User.findById(userid);
                         this.sendPushNotification(user.username, 'Activity deadline', `Activity ${activity.title} deadline ${alert_message}`, 'reminder');
-                        if (job.attrs.data.alert < 3) {
-                            await this.agenda.schedule(new Date(job.attrs.nextRunAt.getTime() + 86400000), 'activity notification', {activityId: activityId, alert: job.attrs.data.alert + 1});
-                        }
                     }
                 }
             }else{
@@ -136,7 +133,9 @@ export class AgendaHandler {
 
     //TODO: funziona da chiamare qunado si crea una activity
     async scheduleActivityNotifications(activity) {
-        await this.agenda.schedule(activity.deadline, 'activity notification', {activityId: activity._id, alert: 0});
+        for (let i = 0; i < 4; i++) {
+            await this.agenda.schedule(new Date(activity.deadline + (i*86400000)), 'activity notification', {activityId: activity._id, alert: i});
+        }
     }
 
     async sendPushNotification(receiver, title, text, type) {
