@@ -42,12 +42,21 @@ import { ref } from 'vue';
 import { getResources, postResource, deleteResource } from '@/apis/calendar';
 import Modal from '@/components/Modal.vue';
 import { checkUsernameResourcesUsers } from '@/apis/users';
+import {useStore} from "vuex";
+import {useRouter} from "vue-router";
 
 export default {
     components : {
         Modal
     },
     setup() {
+
+        const store = useStore()
+        const router = useRouter()
+        if (!store.state.isAdmin) {
+            router.push('/')
+        }
+
         const resources = ref()
         const updateResources = async () => {
             resources.value = await getResources()

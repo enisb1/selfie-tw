@@ -2,20 +2,20 @@
     <div class="bg-primary min-h-screen flex items-center justify-center">
 
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-    <h2 class="text-2xl font-bold text-third mb-6 text-center">Registrati</h2>
+    <h2 class="text-2xl font-bold text-third mb-6 text-center">Sign Up</h2>
 
     <form method="POST" @submit.prevent="register">
-        <!-- Nome -->
+        <!-- name -->
         <div class="mb-4">
-        <label for="nome" class="block text-third text-sm font-bold mb-2">Nome</label>
-        <input v-model:="name" type="text" id="nome" name="nome" required
+        <label for="nome" class="block text-third text-sm font-bold mb-2">Name</label>
+        <input v-model="name" type="text" id="nome" name="nome" required
             class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-third leading-tight focus:outline-none focus:shadow-outline">
         </div>
 
-        <!-- Cognome -->
+        <!-- Surname -->
         <div class="mb-4">
-        <label for="cognome" class="block text-third text-sm font-bold mb-2">Cognome</label>
-        <input v-model="surname" type="text" id="cognome" name="cognome" required
+        <label for="surname" class="block text-third text-sm font-bold mb-2">Surname</label>
+        <input v-model="surname" type="text" id="surname" name="surname" required
             class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-third leading-tight focus:outline-none focus:shadow-outline">
         </div>
 
@@ -47,13 +47,13 @@
             class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-third leading-tight focus:outline-none focus:shadow-outline">
         </div>
 
-        <!-- Bottone Registrati -->
+        <!-- Sign Up -->
         <div class="flex items-center justify-between">
         <button type="submit" class="bg-secondary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-third">
-            Registrati
+          Sign Up
         </button>
 
-        <RouterLink to="/login" class="inline-block align-baseline font-bold text-sm text-accent hover:text-third">Hai già un account? Accedi</RouterLink>
+        <RouterLink to="/login" class="inline-block align-baseline font-bold text-sm text-accent hover:text-third">Already signed in? log in!</RouterLink>
         </div>
     </form>
       <modal v-if="showModal" @close="triggerModal">
@@ -107,7 +107,7 @@
               await router.push({name: 'home'})
             }
           } catch (error) {
-            messageError.value = 'Errore durante la registrazione';
+            messageError.value = 'Error during registration';
             triggerModal()
           }
         }
@@ -135,6 +135,5 @@
  </script>
  
  <style>
-    .bg-accent { background-color: #d1beb0; }
     .text-accent { color: #ab9f9d; }
  </style>

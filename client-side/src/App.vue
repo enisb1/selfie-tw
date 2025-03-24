@@ -17,29 +17,30 @@
         
         <!-- Menu Links TODO: update remaining 'a' elements -->
         <div  class="hidden lg:flex space-x-6">
-          <router-link v-show="store.state.isAdmin" class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'notifications'}">Notifications Centre</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link>
-          <a class="text-white hover:text-accent" href="/projects.html">Projects</a>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'notes'}">Notes</router-link>
-          <router-link class="text-white hover:text-accent" :to="{ name: 'settings'}">Settings</router-link>
-          <button @click="triggerModal" class="text-white hover:text-accent">Time Machine</button>
+          <router-link v-show="store.state.isAdmin" class="text-white " :to="{ name: 'admin'}">Admin</router-link>
+          <router-link class="text-white " :to="{ name: 'calendar'}">Calendar</router-link>
+          <router-link class="text-white " :to="{ name: 'notifications'}">Notifications Centre</router-link>
+          <router-link class="text-white " :to="{ name: 'chat'}">Chat</router-link>
+          <a class="text-white " href="/projects.html">Projects</a>
+          <router-link class="text-white " :to="{ name: 'pomodoro'}">Pomodoro</router-link>
+          <router-link class="text-white " :to="{ name: 'notes'}">Notes</router-link>
+          <router-link class="text-white " :to="{ name: 'settings'}">Settings</router-link>
+          <button @click="triggerModal" class="text-green-900 bg-green-300 border-4 border-green-900 rounded-full pl-2 pr-2 font-bold">Time Machine</button>
         </div>
       </div>
 
       <!-- Responsive drop down Menu (for mobile) -->
       <div class="lg:hidden border-t border-black w-full" v-show="hamburgerMenuOpened">
         <ul class="pl-4 py-1 bg-secondary">
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" v-show="store.state.isAdmin"class="text-white hover:text-accent" :to="{ name: 'admin'}">Admin</router-link></li>
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white hover:text-accent" :to="{ name: 'calendar'}">Calendar</router-link></li>
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white hover:text-accent" :to="{ name: 'notifications'}">Notifications Centre</router-link></li>
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white hover:text-accent" :to="{ name: 'chat'}">Chat</router-link></li>
-          <li class="mb-2"><a class="text-white hover:text-accent" href="/projects.html">Projects</a></li>
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white hover:text-accent" :to="{ name: 'pomodoro'}">Pomodoro</router-link></li>
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white hover:text-accent" :to="{ name: 'notes'}">Notes</router-link></li>
-          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white hover:text-accent" :to="{ name: 'settings'}">Settings</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" v-show="store.state.isAdmin" class="text-white " :to="{ name: 'admin'}">Admin</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'calendar'}">Calendar</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'notifications'}">Notifications Centre</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'chat'}">Chat</router-link></li>
+          <li class="mb-2"><a class="text-white " href="/projects.html">Projects</a></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'pomodoro'}">Pomodoro</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'notes'}">Notes</router-link></li>
+          <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'settings'}">Settings</router-link></li>
+          <li @click="triggerModal" class="text-green-900 bg-green-300 border-4 border-green-900 rounded-full pl-2 pr-2 font-bold">Time Machine</li>
         </ul>
       </div>
     </nav>
@@ -63,14 +64,14 @@
         <div class="mt-6 flex justify-between gap-4">
           <button
               @click="setNewDate(dateSelector)"
-              class="w-full bg-blue-600 text-white py-2 rounded-lg shadow-md hover:bg-blue-700 transition">
-            Set New Date
+              class="w-full bg-green-600 text-green-900 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
+            Set new date
           </button>
 
           <button
               @click="rollBackDate"
               class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg shadow-md hover:bg-gray-400 transition">
-            Reset Date
+            Reset real date
           </button>
         </div>
     </Modal>
@@ -85,8 +86,9 @@ import {useStore} from "vuex";
 import {useRouter} from "vue-router";
 import Modal from "@/components/Modal.vue";
 import DatePicker from "@vuepic/vue-datepicker";
-import { rollBackTime, setNewGlobalTime} from "@/apis/time";
+import {getServerTime, rollBackTime, setNewGlobalTime} from "@/apis/time";
 import {rollBackClientTime, setClientGlobalTime} from "../script/timeMachine";
+import eventBus from "../script/eventBus";
 
 export default {
   components: {DatePicker, Modal},
@@ -109,6 +111,15 @@ export default {
       store.commit('connect')
     }
 
+    const checkTime = async () => {
+      const serverTime = new Date(await getServerTime())
+      if (Math.abs(serverTime - new Date()) > 30000) {
+        setClientGlobalTime(serverTime)
+      }
+    }
+
+    checkTime()
+
     const formatDate = (date) => {
       if (!date) return '';
       return date.toLocaleString('it-IT', {
@@ -130,11 +141,13 @@ export default {
     const setNewDate = (date) => {
       setNewGlobalTime(date)
       setClientGlobalTime(new Date(date))
+      eventBus.emit('reloadPageInfo');
     }
 
     const rollBackDate = () => {
       rollBackTime()
       rollBackClientTime()
+      eventBus.emit('reloadPageInfo');
     }
 
     const dateSelector = ref(new Date())
@@ -144,9 +157,6 @@ export default {
       showModal.value = !showModal.value
     }
 
-    const format = (date) => {
-      return date
-    }
     return {
       hamburgerMenuOpened,
       toggleHamburgerMenu,

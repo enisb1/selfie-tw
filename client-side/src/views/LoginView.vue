@@ -18,10 +18,10 @@
 
          <div class="flex items-center justify-between">
          <button type="submit" class="bg-secondary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-secondary">
-            Accedi
+            Log in
          </button>
 
-         <RouterLink to="/signup" class="inline-block align-baseline font-bold text-sm text-accent hover:text-secondary">Registrati!</RouterLink>
+         <RouterLink to="/signup" class="inline-block align-baseline font-bold text-sm text-accent hover:text-secondary">Sign Up!</RouterLink>
       </div>
       </form>
       </div>
@@ -93,7 +93,5 @@ export default{
 </script>
 
 <style>
-   .bg-accent { background-color: #d1beb0; }
    .text-accent { color: #ab9f9d; }
-   .error { color: #f13535; }
 </style>

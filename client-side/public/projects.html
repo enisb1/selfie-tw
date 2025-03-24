@@ -8,12 +8,21 @@
         <title>Projects</title>
         <link href="./output.css" rel="stylesheet">
         <script src="./modal.js" defer></script>
+        <script src="api/time.js"></script>
         <script src="api/projects.js"></script>
         <script src="./projects.js" defer></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     </head>
     <body>
+        <script>
+            document.addEventListener("DOMContentLoaded",  () =>{
+                if (!sessionStorage.getItem("state")) {
+                    window.location.href = "/login";
+                }
+            });
+
+        </script>
         <noscript>
             <strong>We're sorry but Projects doesn't work properly without JavaScript enabled. 
                 Please enable it to continue.</strong>

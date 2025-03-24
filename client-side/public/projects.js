@@ -907,7 +907,7 @@ document.getElementById('createProjectForm').addEventListener('submit', async fu
             createProjectError.innerHTML = 'End date must be after start date'
         }
         else {
-            const selectedUsersIds = newProjectIds.concat(state._id)
+            const selectedUsersIds = newProjectIds
             const newProjectName = document.getElementById("newProjectName").value
             const newProjectDescription = document.getElementById("newProjectDescription").value
             // create project

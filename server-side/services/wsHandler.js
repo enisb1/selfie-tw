@@ -1,4 +1,4 @@
-import {WebSocket,WebSocketServer} from 'ws';
+import {WebSocketServer} from 'ws';
 
 export class wsHandler{
     constructor(server){
@@ -7,7 +7,6 @@ export class wsHandler{
         this.wss.on('connection', (ws,req) => {
             const params = new URLSearchParams(req.url.split('?')[1]);
             const username = params.get('username');
-            console.log(username+" Connected to server");
             this.handleConnection(ws, username);
         });
     }
@@ -21,7 +20,6 @@ export class wsHandler{
     }
     handleDisconnection(ws, username){
         const connections = this.userConnections.get(username) || [];
-        console.log(username + " disconnected");
         const index = connections.indexOf(ws);
         if (index > -1) {
             connections.splice(index, 1);

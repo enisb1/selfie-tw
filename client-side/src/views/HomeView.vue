@@ -42,7 +42,7 @@
         <div class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
           Study: {{ workTime/60 }} minutes <br>
           Relax: {{ relaxTime/60 }} minutes <br>
-          Cycle: {{ numCycle }} minutes
+          Cycle: {{ numCycle }}
         </div>
       </div>
     </div>
@@ -68,7 +68,8 @@
 
 <script>
 import {useStore} from "vuex";
-import {onMounted, ref} from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
+import eventBus from "../../script/eventBus";
 import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities, getEvents} from "@/apis/calendar";
 import { getProjectDetails } from "@/apis/projects";
 import { getNoteUser, getUserSelectNote } from "@/apis/note";
@@ -255,13 +256,22 @@ export default {
       }
     }
 
-
-    onMounted(() => {
+    const reloadPageInfo = () => {
       toggleTodayCalPreview()
       toggleTodayProjectsPreview()
       toggleNotePreview()
       togglePomPreview()
+    }
+
+
+    onMounted(() => {
+      reloadPageInfo();
+      eventBus.on('reloadPageInfo', reloadPageInfo);
     })
+
+    onUnmounted(() => {
+      eventBus.off('reloadPageInfo', reloadPageInfo);
+    });
 
     return {
       previewCalToday,

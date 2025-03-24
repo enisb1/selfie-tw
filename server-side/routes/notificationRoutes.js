@@ -4,6 +4,7 @@ import {Message} from "../services/wsHandler.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import Activity from "../models/Activity.js";
 import Event from '../models/Event.js'
+import Project from "../models/Project.js";
 
 const router = Router();
 
@@ -40,7 +41,7 @@ router.post("/getNotifications", async (req, res) => {
 
 router.post("/getNewNotifications", async (req, res) => {
     try {
-        const notifications = await Notification.find({ receiver : req.body.receiver , read: false});
+        const notifications = await Notification.find({ receiver: req.body.receiver, read: false }).sort({ time: -1 });
         res.status(200).json({ message: 'New notifications found', data: notifications});
     } catch (error) {
         console.error('Error fetching data:', error);
@@ -105,8 +106,14 @@ router.post("/acceptInvite", async (req, res) => {
         if (req.body.type === 'event'){
             await Event.updateOne({ _id: req.body.id },{ $push: { users: req.body.userId } });
             await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
-        }else if (req.body.type === 'activity'){
+        } else if (req.body.type === 'activity'){
             await Activity.updateOne({ _id: req.body.id },{ $push: { users: req.body.userId } });
+            await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
+        } else if (req.body.type === 'project'){
+            await Project.updateOne({ _id: req.body.id },{ $push: { members: req.body.userId } });
+            await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
+        } else if (req.body.type === 'composite-activity') {
+            await Activity.updateMany({"compositeActivity.groupId": req.body.id}, {$push: {users: req.body.userId}});
             await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
         }
 
