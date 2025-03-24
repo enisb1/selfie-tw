@@ -160,22 +160,25 @@
       </div>
 
       <!-- notifications -->
-      <div class="flex mt-4">
-        <div>
-          <input type="checkbox" v-model="notify15Before" class="mr-2"/>
-          <label class="mr-2">15 minutes before</label>
-        </div>
-        <div>
-          <input type="checkbox" v-model="notify30Before" class="mr-2"/>
-          <label class="mr-2">30 minutes before</label>
-        </div>
-        <div>
-          <input type="checkbox" v-model="notify1HourBefore" class="mr-2"/>
-          <label class="mr-2">1 hour before</label>
-        </div>
-        <div>
-          <input type="checkbox" v-model="notify1DayBefore" class="mr-2"/>
-          <label class="mr-2">1 day before</label>
+      <div class="mt-4">
+        <p class="font-semibold text-base">Notify</p>
+        <div class="flex">
+          <div>
+            <input type="checkbox" v-model="notify15Before" class="mr-2"/>
+            <label class="mr-2">15 minutes before</label>
+          </div>
+          <div>
+            <input type="checkbox" v-model="notify30Before" class="mr-2"/>
+            <label class="mr-2">30 minutes before</label>
+          </div>
+          <div>
+            <input type="checkbox" v-model="notify1HourBefore" class="mr-2"/>
+            <label class="mr-2">1 hour before</label>
+          </div>
+          <div>
+            <input type="checkbox" v-model="notify1DayBefore" class="mr-2"/>
+            <label class="mr-2">1 day before</label>
+          </div>
         </div>
       </div>
 

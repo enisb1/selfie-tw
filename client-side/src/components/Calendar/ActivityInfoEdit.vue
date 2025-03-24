@@ -140,7 +140,6 @@ export default {
         }
 
         const deleteCompositeActivity = async () => {
-            console.log(props.activityObject)
             await deleteActivitiesByGroup(props.activityObject.compositeActivity.groupName, 
                 props.activityObject.compositeActivity.groupId)
             emit('updateAllCalendars')

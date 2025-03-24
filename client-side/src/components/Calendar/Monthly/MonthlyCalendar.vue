@@ -255,7 +255,6 @@ export default {
                     transformedEventsByDay[day] = transformedEvents
                 }
                 schedulesForDay.value = transformedEventsByDay
-                console.log(transformedEventsByDay)
             }
         }
 
