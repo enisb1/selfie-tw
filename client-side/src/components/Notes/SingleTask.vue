@@ -1,6 +1,6 @@
 <template>
 <div class="flex justify-between items-center">
-  <div class="w-2/3 inline-flex items-center">
+  <div class="w-1/2 inline-flex items-center">
   <label
     class="relative flex cursor-pointer items-center rounded-full p-3"
     for="ripple-on"
@@ -40,8 +40,8 @@
   </div>
   <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
   <div class="flex items-center">
-      <img @click="deleteTask" src="@/images/deletesecondary.png" alt="delete" class="w-3 mr-4">
-      <img @click="openExiparation" src="@/images/schedule.png" alt="schedule" class="w-3">
+      <button @click="deleteTask"><img src="@/images/deletesecondary.png" alt="delete" class="w-4 h-4 mr-4"></button>
+      <button @click="openExiparation"><img src="@/images/schedule.png" alt="schedule" class="w-4 h-4"></button>
   </div>
 <Modal @click.self="openExiparation" v-show="exiparationVisible">
             <div class="h-full w-full
@@ -71,7 +71,6 @@ export default {
     
 
     setup(props, {emit}){
-
       const expirationTask = ref(props.task.expiration)
       
       const exiparationVisible = ref(false)
@@ -117,7 +116,11 @@ export default {
         // Anno
         const year = date.getUTCFullYear();
 
-        return `${day} ${month} ${year}`;
+        // Ora e minuti
+        const hours = date.getUTCHours().toString().padStart(2, '0');
+        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+
+        return `${day} ${month} ${year} ${hours}:${minutes}`;
      }
 
      watch(() => props.task.expiration, (newVal) => {

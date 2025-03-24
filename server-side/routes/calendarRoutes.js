@@ -9,6 +9,7 @@ import Notification from "../models/Notification.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import {Message} from "../services/wsHandler.js";
 import {agendaHandler} from "../server-deploy.js";
+import multer from 'multer';
 
 const router = Router();
 
@@ -31,7 +32,8 @@ router.post("/addEvent", async (req, res) => {
                 notify15Before: req.body.notify15Before,
                 notify30Before: req.body.notify30Before,
                 notify1HourBefore: req.body.notify1HourBefore,
-                notify1DayBefore: req.body.notify1DayBefore
+                notify1DayBefore: req.body.notify1DayBefore,
+                pomodoroSettings: req.body.pomodoroSettings
             }
         );
         await event.save();
@@ -88,6 +90,27 @@ router.post("/addActivity", async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
+
+router.post("/addActivityNoInvite", async (req, res) => {
+    try {
+        const activity = new Activity({
+                title: req.body.title,
+                deadline: req.body.deadline,
+                isDone: false,
+                users: req.body.users,
+                compositeActivity: null,
+                projectData: req.body.projectData
+            }
+        );
+        await activity.save();
+        res.status(201).json({ message: 'Data saved successfully', data: activity });
+    }catch (error) {
+        console.log(error)
+        console.error('Error saving data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+})
+
 
 // TODO: magari sposta questa funzione da qui
 async function sendActivityNotificationToUsers(activity, users,creator) {
@@ -520,6 +543,35 @@ router.delete("/deleteByGroup", async (req, res) => {
   } catch (error) {
       res.status(500).json({ message: 'Error deleting activities', error: error.message });
   }
+});
+
+const upload = multer({ storage: multer.memoryStorage() });
+router.post('/export', upload.single('file'), async (req, res) => {
+    try {
+        const { receiver, eventTitle, yahooLink, googleLink, outlookLink } = req.body;
+        const file = req.file;  // formdata's file (uploaded in memory with multer to access its contents)
+        
+        if (!file) {
+            res.status(400).send({ error: 'No file uploaded' });
+            return;
+        }
+        else{
+            const subject = `Export of ${eventTitle}`;
+            const text = `Exported .ics file attached.\n\nAdd event to your calendar by clicking the following links:\nYahoo: ${yahooLink}\nGoogle: ${googleLink}\nOutlook: ${outlookLink}`;
+            const attachments = [{ filename: file.originalname, content: file.buffer }];
+    
+            try {
+                await mailer.sendMailWithAttachments(receiver, subject, text, attachments);
+                res.status(200).send('Email sent!');
+            } catch (error) {
+                res.status(500).send({ error: 'Error sending the email.' });
+            }
+        }
+    } 
+    catch (error) {
+        console.error('Error sending email:', error);
+        res.status(500).json({ error: 'Failed to send email.' });
+    }
 });
 
 export default router;

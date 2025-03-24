@@ -4,7 +4,7 @@
     <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full z-50 relative">
       <div class="container mx-auto flex justify-between items-center p-4">
         <!-- App name (TODO: find a logo and add it) -->
-        <a href="/"  class="text-white text-2xl font-bold">Selfie</a>
+        <router-link :to="{ name: 'home'}" class="text-white text-2xl font-bold">Selfie</router-link>
         
         <!-- Hamburger Menu (for mobile) -->
         <div class="block lg:hidden">

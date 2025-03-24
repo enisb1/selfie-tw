@@ -33,6 +33,10 @@ module.exports = {
         seventh: '#cbbeb5',//
         eighth: '#ddb39b',//
       },
+      maxHeight: {
+        '3/5': '60vh', // 3/5 of the viewport height (used in modal projects)
+        '4/5': '80vh', // 4/5 of the viewport height (used in modal vue)
+      },
     },
   },
   plugins: [],

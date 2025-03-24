@@ -574,9 +574,12 @@ export default {
         const events = await getEventsFromIcsString(icsContent)
         for (const event of events) {
           await postEvent(event.title, event.location, event.startDate, event.endDate, event.frequency, 
-            event.repetitionNumber, event.repetitionDate, '#3c4f76', event.users, store.state._id, false, false, false, false)
+            event.repetitionNumber, event.repetitionDate, '#3c4f76', event.users, store.state._id, [], false, false, false, false, null)
         }
       }
+
+      updateAllCalendars()
+      toggleAddModal()
     };
 
     onMounted(() => {

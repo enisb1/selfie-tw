@@ -33,29 +33,34 @@
                 <!-- App name (TODO: find a logo and add it) -->
                 <a href="/"  class="text-white text-2xl font-bold">Selfie</a>
 
-                <!-- Hamburger Menu (for mobile) -->
-                <div class="block lg:hidden">
-                  <button class="text-white focus:outline-none" id="hamburgerMenuButton">
-                    <svg class="w-6 h-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                      <path fill-rule="evenodd" clip-rule="evenodd" d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"></path>
-                    </svg>
-                  </button>
-                </div>
-                
-                <!-- Menu Links TODO: update remaining 'a' elements -->
-                <div class="hidden lg:flex space-x-6">
-                    <a class="text-white hover:text-accent" href="/admin" id="adminNavLink">Admin</a>
-                    <a class="text-white hover:text-accent" href="/calendar">Calendar</a>
-                    <a class="text-white hover:text-accent" href="/notifications">Notifications Centre</a>
-                    <a class="text-white hover:text-accent" href="/chat">Chat</a>
-                    <a class="text-white hover:text-accent" href="/projects.html">Projects</a>
-                    <a class="text-white hover:text-accent" href="/pomodoro">Pomodoro</a>
-                    <a class="text-white hover:text-accent" href="/notes">Notes</a>
-                    <a class="text-white hover:text-accent" href="/settings">Settings</a>
+                <!-- Hamburger Menu (mobile view) -->
+                <div class="flex justify-between items-center gap-6">
+
+                  <button id="openTimeMachineButton" class="text-green-900 bg-green-300 border-4 border-green-900 rounded-full pl-2 pr-2 font-bold">Time Machine</button>
+                  
+                  <div class="block lg:hidden">
+                    <button class="text-white focus:outline-none" id="hamburgerMenuButton">
+                      <svg class="w-6 h-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"></path>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <!-- Menu Links (PC view) -->
+                  <div class="hidden lg:flex gap-6">
+                      <a class="text-white hover:text-accent" href="/admin" id="adminNavLink">Admin</a>
+                      <a class="text-white hover:text-accent" href="/calendar">Calendar</a>
+                      <a class="text-white hover:text-accent" href="/notifications">Notifications Centre</a>
+                      <a class="text-white hover:text-accent" href="/chat">Chat</a>
+                      <a class="text-white hover:text-accent" href="/projects.html">Projects</a>
+                      <a class="text-white hover:text-accent" href="/pomodoro">Pomodoro</a>
+                      <a class="text-white hover:text-accent" href="/notes">Notes</a>
+                      <a class="text-white hover:text-accent" href="/settings">Settings</a>
+                  </div>
                 </div>
               </div>
 
-              <!-- Responsive drop down Menu (for mobile) -->
+              <!-- Responsive drop down Menu (mobile view) -->
               <div class="hidden border-t border-black w-full" id="hamburgerMenu">
                 <ul class="pl-4 py-1 bg-secondary">
                   <li class="mb-2"><a class="text-white hover:text-accent" href="/admin" id="adminNavLinkDropdown">Admin</a></li>
@@ -224,7 +229,7 @@
                 <!-- TODO: change to textbox for better input quality -->
                 <div class="mt-4">
                   <p class="font-semibold text-base">Description</p>
-                  <input id="editedProjectDescription" class="border border-third" type="text" maxlength="30" required>
+                  <input id="editedProjectDescription" class="border border-third" type="text" required>
                 </div>
         
                 <div class="flex flex-col sm:flex-row">
@@ -285,7 +290,7 @@
                   <!-- TODO: change to textbox for better input quality -->
                   <div class="mt-4">
                     <p class="font-semibold text-base">Description</p>
-                    <input id="newProjectDescription" class="border border-third" type="text" maxlength="30" required>
+                    <input id="newProjectDescription" class="border border-third" type="text" required>
                   </div>
           
                   <div class="flex flex-col sm:flex-row">
@@ -390,7 +395,7 @@
                     <input id="activityToAddIsMilestone" type="checkbox">
                   </div>
 
-                  <div class="mt-4">
+                  <div class="mt-4" id="activityToAddContractsDiv">
                     <p class="font-semibold text-base">Contract else translate if previous activity is overdue</p>
                     <input id="activityToAddContracts" type="checkbox">
                   </div>
@@ -530,7 +535,7 @@
               </div>
 
               <!-- Contracts -->
-              <div class="mt-4">
+              <div class="mt-4" id="activityToEditContractsDiv">
                 <p class="font-semibold text-base">Contracts if previous activity is overdue</p>
                 <input id="activityToEditContracts" type="checkbox">
               </div>
@@ -551,6 +556,26 @@
               </div>
             </div>
           </form>
+        </modal-component>
+
+        <!-- Time machine modal-->
+        <modal-component id="timeMachineModal">
+          <h1 class="text-xl font-semibold text-gray-800">Current Date</h1>
+          <h1 class="text-lg text-gray-600 mt-1" id="timeMachineCurrentDateValue"></h1>
+
+          <div class="mt-4">
+            <input type="date" id="timeMachineDateSelector" placeholder="Select a date to travel to!" required>
+          </div>
+
+          <div class="mt-6 flex justify-between gap-4">
+            <button class="w-full bg-green-600 text-green-900 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
+              Set new date
+            </button>
+
+            <button class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg shadow-md hover:bg-gray-400 transition">
+              Reset real date
+            </button>
+          </div>
         </modal-component>
     </body>
 </html>

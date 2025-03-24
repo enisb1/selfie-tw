@@ -14,7 +14,7 @@ async function userExists(username) {
 // post event to db using fetch
 async function postActivity(title, deadline, userIds, projectData) {
     try {
-        const response = await fetch('http://localhost:8000/api/calendar/addActivity', {
+        const response = await fetch('http://localhost:8000/api/calendar/addActivityNoInvite', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -260,7 +260,6 @@ async function editProject(projectId, projectData) {
         }
 
         const data = await response.json();
-        console.log(data);
         return data; // Return the response data
     } catch (error) {
         console.error(`Error updating project: ${error.message}`);

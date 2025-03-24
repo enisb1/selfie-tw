@@ -222,6 +222,7 @@ export default {
                 activities.value = await getActivitiesInRange(startDate, endDate, store.state._id)
                 const activitiesFromExpiringTasks = await getExpiringTasksInRange(startDate, endDate, store.state.username)
                 activitiesFromExpiringTasks.forEach(a => a.users = [store.state._id])
+                console.log(activitiesFromExpiringTasks)
                 activities.value = activities.value.concat(activitiesFromExpiringTasks)
 
                 renderCalendar(eventsSelectedDay.value, activities.value, selectedDate.value, false);

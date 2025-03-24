@@ -16,7 +16,7 @@
       </div>
       <div class="mt-2 flex flex-col">
         <div v-for="event in calendarPreviewEvents" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-          {{ event.title }} (<span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}&nbsp;</span>{{ new Date(event.startDate).getHours() }}.{{ new Date(event.startDate).getMinutes() }} - <span v-show="previewCalWeek">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(event.endDate).getHours() }}.{{ new Date(event.endDate).getMinutes() }})
+          {{ event.title }} (<span v-show="previewCalWeek || new Date(event.startDate).getDay() < new Date().getDay()">{{ new Date(event.startDate).toLocaleDateString('en-US', { weekday: 'short' }) }}&nbsp;</span>{{ new Date(event.startDate).getHours().toString().padStart(2, '0') }}.{{ new Date(event.startDate).getMinutes().toString().padStart(2, '0') }} - <span v-show="previewCalWeek || new Date(event.endDate).getDay() > new Date().getDay()">{{ new Date(event.endDate).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(event.endDate).getHours().toString().padStart(2, '0') }}.{{ new Date(event.endDate).getMinutes().toString().padStart(2, '0') }})
         </div>
       </div>
     </div>
@@ -30,7 +30,7 @@
       </div>
       <div class="mt-2 flex flex-col">
         <div v-for="activity in projectsPreviewActivities" class="bg-third text-white p-2 rounded-md shadow-md w-full truncate mt-2">
-          {{ activity.title }} (deadline <span v-show="previewProjectsWeek">{{ new Date(activity.deadline).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(activity.deadline).getHours() }}.{{ new Date(activity.deadline).getMinutes().toString().padStart(2, '0') }} {{ activity.projectName }})
+          {{ activity.title }} (deadline <span v-show="previewProjectsWeek">{{ new Date(activity.deadline).toLocaleDateString('en-US', { weekday: 'short' }) }}</span> {{ new Date(activity.deadline).getHours().toString().padStart(2, '0') }}.{{ new Date(activity.deadline).getMinutes().toString().padStart(2, '0') }} {{ activity.projectName }})
         </div>
       </div>
     </div>
@@ -69,11 +69,12 @@
 <script>
 import {useStore} from "vuex";
 import {onMounted, onUnmounted, ref} from "vue";
-import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities } from "@/apis/calendar";
+import eventBus from "../../script/eventBus";
+import { getTodayEvents, getWeekEvents, getTodayActivities, getWeekActivities, getEvents} from "@/apis/calendar";
 import { getProjectDetails } from "@/apis/projects";
 import { getNoteUser, getUserSelectNote } from "@/apis/note";
 import { getSettingsPomUser } from "@/apis/pomodoro";
-import eventBus from "../../script/eventBus";
+import { getAllEventsInstances } from "@/components/Calendar/repeated-events";
 
 export default {
   setup(){
@@ -88,16 +89,53 @@ export default {
       previewCalToday.value = true
       previewCalWeek.value = false
       // show today's calendar
-      const todaysEvents = await getTodayEvents(store.state._id)
+      const eventsFromDB = await getEvents(store.state._id)
+      const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+      const startDate = new Date(new Date().setHours(0,0,0,0));
+      const endDate = new Date(new Date().setHours(23, 59, 59, 999));
+      // filter all events instances getting only those that concern the selected day
+      const todaysEvents = allEventsInstances.filter(e => {
+          const eventEndDate = new Date(e.endDate)
+          const eventStartDate = new Date(e.startDate)
+          return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+          || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+          || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+      })
       calendarPreviewEvents.value = todaysEvents.filter(e => new Date(e.endDate).getTime() > new Date().getTime())
       previewCalWeek.value = false
+    }
+
+    function getWeekRange() {
+      const today = new Date();
+
+      const day = today.getDay();
+      const diffToMonday = day === 0 ? -6 : 1 - day; // difference to previous Monday
+
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() + diffToMonday);
+      startDate.setHours(0, 0, 0, 0);
+
+      const endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
+
+      return { startDate, endDate };
     }
 
     const toggleWeekCalPreview = async () => {
       previewCalToday.value = false
       previewCalWeek.value = true
       // show week's calendar
-      const weekEvents = await getWeekEvents(store.state._id)
+      const eventsFromDB = await getEvents(store.state._id)
+      const allEventsInstances = getAllEventsInstances(eventsFromDB)  // get all instances, including those of repeating events
+      const { startDate, endDate } = getWeekRange();
+      const weekEvents = allEventsInstances.filter(e => {
+          const eventEndDate = new Date(e.endDate)
+          const eventStartDate = new Date(e.startDate)
+          return (eventEndDate.getTime() >= startDate.getTime() && eventEndDate.getTime() <= endDate.getTime()) 
+          || (eventStartDate.getTime() >= startDate.getTime() && eventStartDate.getTime() <= endDate.getTime())
+          || (eventStartDate.getTime() <= startDate.getTime() && eventEndDate.getTime() >= endDate.getTime())
+      })
       calendarPreviewEvents.value = weekEvents.filter(e => new Date(e.endDate).getTime() > new Date().getTime())
       previewCalWeek.value = true
     }

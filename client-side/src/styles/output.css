@@ -1080,6 +1080,14 @@ video {
   max-height: 3rem;
 }
 
+.max-h-3\/5 {
+  max-height: 60vh;
+}
+
+.max-h-4\/5 {
+  max-height: 80vh;
+}
+
 .max-h-40 {
   max-height: 10rem;
 }
@@ -1158,10 +1166,6 @@ video {
 
 .w-2\/12 {
   width: 16.666667%;
-}
-
-.w-2\/3 {
-  width: 66.666667%;
 }
 
 .w-2\/5 {
@@ -1538,10 +1542,6 @@ video {
 
 .overflow-x-scroll {
   overflow-x: scroll;
-}
-
-.overflow-y-scroll {
-  overflow-y: scroll;
 }
 
 .truncate {

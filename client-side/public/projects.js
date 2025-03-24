@@ -1,5 +1,44 @@
 const state = JSON.parse(sessionStorage.getItem('state'))
 
+// time machine
+const formatDate = (date) => {
+    if (!date) return '';
+    return date.toLocaleString('it-IT', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    });
+}
+const currentDateTimeMachine = document.getElementById('timeMachineCurrentDateValue')
+currentDateTimeMachine.innerHTML = formatDate(new Date())
+setInterval(async () => {
+    currentDateTimeMachine.innerHTML = formatDate(new Date())
+}, 1000)
+
+function showTimeMachineModal() {
+    const modal = document.getElementById('timeMachineModal');
+    if (modal) {
+        modal.open()
+    }
+}
+
+document.getElementById('openTimeMachineButton').addEventListener('click', () => {
+    showTimeMachineModal()
+})
+
+const timeMachineDateSelector = document.getElementById('timeMachineDateSelector');
+const dateSelectorFlatpickr = flatpickr(timeMachineDateSelector, {
+    enableTime: true,
+    dateFormat: "Y-m-d H:i",
+    minuteIncrement: 1,
+});
+
+// --- end time machine
+
 updateProjects()
 if (!state.isAdmin) {
     document.getElementById('adminNavLink').classList.add('hidden')
@@ -184,9 +223,9 @@ async function displayInProgressActivities(activities) {
             tenDaysAfterDeadline.setDate(deadlineDate.getDate() + 10)
             let status = activity.projectData.status
             if (new Date(activity.deadline).getTime() < new Date().getTime() &&
-                tenDaysAfterDeadline.getTime() < new Date().getTime())
+                tenDaysAfterDeadline.getTime() < new Date().getTime() && status != 'reactivated')
                 status = 'discarded'
-            else if (new Date(activity.deadline).getTime() < new Date().getTime())
+            else if (new Date(activity.deadline).getTime() < new Date().getTime() && status != 'reactivated')
                 status = 'overdue'
             // Add content to the div
             activityDiv.innerHTML = `
@@ -406,7 +445,6 @@ async function addUserToEditedActivityList() {
     }
     // check if it's in current project and if it's NOT contained in current activity (else it would duplicate)
     if (exists && currentProject.members.includes(user_id)) {
-        console.log('here')
         editedActivityUsers.push(userToAddInput.value)
         editedActivityIds.push(user_id)
         userToAddInput.value = ''
@@ -617,6 +655,9 @@ async function showEditActivityModal() {
         // modify statuses also for other values of status
         const inputContainer = document.getElementById("activityToEditInputContainer")
         const outputContainer = document.getElementById("activityToEditOutputContainer")
+        const deadlineDate = new Date(currentEditedActivity.deadline);
+        let tenDaysAfterDeadline = new Date(deadlineDate);
+        tenDaysAfterDeadline.setDate(deadlineDate.getDate() + 10)
         if (currentEditedActivity.projectData.status == 'waitingActivable') {
             statuses = ['waitingActivable']
             inputContainer.classList.add('hidden')
@@ -626,6 +667,17 @@ async function showEditActivityModal() {
             statuses = ['activable', 'active']
             inputContainer.classList.remove('hidden')
             outputContainer.classList.add('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'active' && new Date(currentEditedActivity.deadline).getTime() < new Date().getTime() &&
+            tenDaysAfterDeadline.getTime() < new Date().getTime()) {
+            statuses = ['discarded', 'done']
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
+        }
+        else if (currentEditedActivity.projectData.status == 'active' && new Date(currentEditedActivity.deadline).getTime() < new Date().getTime()) {
+            statuses = ['overdue', 'done']
+            inputContainer.classList.remove('hidden')
+            outputContainer.classList.remove('hidden')
         }
         else if (currentEditedActivity.projectData.status == 'active') {
             statuses = ['active', 'done']
@@ -637,18 +689,8 @@ async function showEditActivityModal() {
             inputContainer.classList.remove('hidden')
             outputContainer.classList.remove('hidden')
         }
-        else if (currentEditedActivity.projectData.status == 'overdue') {
-            statuses = ['overdue', 'done']
-            inputContainer.classList.remove('hidden')
-            outputContainer.classList.remove('hidden')
-        }
         else if (currentEditedActivity.projectData.status == 'done') {
             statuses = ['done', 'reactivated'] //TODO: reactivated only if you are the project manager
-            inputContainer.classList.add('hidden')
-            outputContainer.classList.add('hidden')
-        } 
-        else if (currentEditedActivity.projectData.status == 'discarded') {
-            statuses = ['discarded']
             inputContainer.classList.add('hidden')
             outputContainer.classList.add('hidden')
         }
@@ -686,6 +728,11 @@ async function showEditActivityModal() {
             updateProjectActivities()
             closeEditActivityModal()
         })
+
+        // hide contracts/translates checkbox if user is no project manager
+        if (currentProject.owner != state._id) {
+            document.getElementById('activityToEditContractsDiv').classList.add('hidden')
+        }
 
         modal.open()
     }
@@ -767,7 +814,6 @@ function goToSettingsPage() {
     settingsTitle.classList.add("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
-    console.log(currentProject.owner)
     if (currentProject.owner != state._id) {
         document.getElementById('deleteProjectButton').classList.add('hidden')
     }
@@ -960,6 +1006,10 @@ async function showAddActivityModal() {
             opt.textContent = activity.title;
             selectElement.appendChild(opt);
         });
+        // hide contracts/translates checkbox if user is no project manager
+        if (currentProject.owner != state._id) {
+            document.getElementById('activityToAddContractsDiv').classList.add('hidden')
+        }
     }
 }
 

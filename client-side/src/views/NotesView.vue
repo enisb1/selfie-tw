@@ -472,10 +472,14 @@ export default {
         const taskDone = ref(false)
         
         //Add Task to single TaskNote
-        const addTask = (tasktitle,taskdone,id) => {
+        const addTask = async (tasktitle,taskdone,id) => {
+            const noteUp = await getNoteById(id)
+            noteUp.bodyTask = taskBody.value
             taskBody.value.push({
                 title: tasktitle
             })
+            noteUp.bodyTask = taskBody.value
+            await editNote(id, noteUp)
         }
 
         const saveExpiration = async (index,noteId,expirationTask) => {
