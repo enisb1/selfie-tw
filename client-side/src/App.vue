@@ -1,36 +1,40 @@
 <template>
 <!--TODO: add bg-light and check if min-h-screen is needed (were previously contained in body) -->
   <div class="min-h-screen bg-primary">
-    <nav v-if="store.state.isLoggedIn"  class="bg-secondary w-full z-50 relative">
+    <nav v-if="store.state.isLoggedIn" class="bg-secondary w-full z-50 relative">
       <div class="container mx-auto flex justify-between items-center p-4">
         <!-- App name (TODO: find a logo and add it) -->
         <router-link :to="{ name: 'home'}" class="text-white text-2xl font-bold">Selfie</router-link>
-        
-        <!-- Hamburger Menu (for mobile) -->
-        <div class="block lg:hidden">
-          <button class="text-white focus:outline-none" @click="toggleHamburgerMenu">
-            <svg class="w-6 h-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <path fill-rule="evenodd" clip-rule="evenodd" d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"></path>
-            </svg>
-          </button>
-        </div>
-        
-        <!-- Menu Links TODO: update remaining 'a' elements -->
-        <div  class="hidden lg:flex space-x-6">
-          <router-link v-show="store.state.isAdmin" class="text-white " :to="{ name: 'admin'}">Admin</router-link>
-          <router-link class="text-white " :to="{ name: 'calendar'}">Calendar</router-link>
-          <router-link class="text-white " :to="{ name: 'notifications'}">Notifications Centre</router-link>
-          <router-link class="text-white " :to="{ name: 'chat'}">Chat</router-link>
-          <a class="text-white " href="/projects.html">Projects</a>
-          <router-link class="text-white " :to="{ name: 'pomodoro'}">Pomodoro</router-link>
-          <router-link class="text-white " :to="{ name: 'notes'}">Notes</router-link>
-          <router-link class="text-white " :to="{ name: 'settings'}">Settings</router-link>
-          <button @click="triggerModal" class="text-green-900 bg-green-300 border-4 border-green-900 rounded-full pl-2 pr-2 font-bold">Time Machine</button>
+
+        <div class="flex justify-between items-center gap-6">
+
+          <button @click="triggerModal" id="openTimeMachineButton" class="text-green-900 bg-green-300 border-4 border-green-900 rounded-full pl-2 pr-2 font-bold">Time Machine</button>
+          
+          <!-- Hamburger Menu (mobile view) -->
+          <div class="block lg:hidden">
+            <button class="text-white focus:outline-none" @click="toggleHamburgerMenu">
+              <svg class="w-6 h-6 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M3 5h18v2H3V5zm0 6h18v2H3v-2zm0 6h18v2H3v-2z"></path>
+              </svg>
+            </button>
+          </div>
+          
+          <!-- Menu Links (PC view) -->
+          <div class="hidden lg:flex gap-6">
+            <router-link v-show="store.state.isAdmin" class="text-white " :to="{ name: 'admin'}">Admin</router-link>
+            <router-link class="text-white " :to="{ name: 'calendar'}">Calendar</router-link>
+            <router-link class="text-white " :to="{ name: 'notifications'}">Notifications Centre</router-link>
+            <router-link class="text-white " :to="{ name: 'chat'}">Chat</router-link>
+            <a class="text-white " href="/projects.html">Projects</a>
+            <router-link class="text-white " :to="{ name: 'pomodoro'}">Pomodoro</router-link>
+            <router-link class="text-white " :to="{ name: 'notes'}">Notes</router-link>
+            <router-link class="text-white " :to="{ name: 'settings'}">Settings</router-link>
+          </div>
         </div>
       </div>
 
-      <!-- Responsive drop down Menu (for mobile) -->
-      <div class="lg:hidden border-t border-black w-full" v-show="hamburgerMenuOpened">
+      <!-- Responsive drop down Menu (mobile view) -->
+      <div class="border-t border-black w-full" v-show="hamburgerMenuOpened">
         <ul class="pl-4 py-1 bg-secondary">
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" v-show="store.state.isAdmin" class="text-white " :to="{ name: 'admin'}">Admin</router-link></li>
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'calendar'}">Calendar</router-link></li>
@@ -40,7 +44,6 @@
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'pomodoro'}">Pomodoro</router-link></li>
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'notes'}">Notes</router-link></li>
           <li class="mb-2"><router-link @click="toggleHamburgerMenu" class="text-white " :to="{ name: 'settings'}">Settings</router-link></li>
-          <li @click="triggerModal" class="text-green-900 bg-green-300 border-4 border-green-900 rounded-full pl-2 pr-2 font-bold">Time Machine</li>
         </ul>
       </div>
     </nav>

@@ -26,8 +26,10 @@
         </div>
 
         <div class="flex mt-4 gap-2">
-            <button @click="toggleUnavailableModal" class="rounded-md bg-secondary
+            <button v-show="!unavailableStart" @click="toggleUnavailableModal" class="rounded-md bg-secondary
                 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Set unavailability</button>
+            <button v-show="unavailableStart" @click="removeUnavailability" class="rounded-md bg-secondary
+                px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300">Remove unavailability</button>
             <router-link @click="toggleUnavailableModal" class="rounded-md bg-secondary
                 px-3 py-2 text-md font-semibold text-white shadow-sm ring-1 ring-inset ring-gray-300 hover:text-accent" :to="{ name: 'login'}">
                 Logout
@@ -244,7 +246,7 @@ export default {
         const errorValue = ref('')
         const setUnavailability = async () => {
             // modify db
-            if (unavailableEndToSet.value.getTime() <= unavailableStartToSet.value.getTime()) {
+            if (unavailableStartToSet.value && unavailableEndToSet.value && unavailableEndToSet.value.getTime() <= unavailableStartToSet.value.getTime()) {
                 errorValue.value = "End date must be after start date"
                 showError.value = true
             }
@@ -272,10 +274,19 @@ export default {
                 
                 showError.value = false
             }
-            toggleUnavailableModal()
+            showUnavailableModal.value = false
         }
 
         const startTime = ref({ hours: 12, minutes: 30 })
+
+        const removeUnavailability = () => {
+            unavailableStartToSet.value = null
+            unavailableEndToSet.value = null
+            unavailableFrequencyToSet.value = 'none'
+            unavailableRepNumberToSet.value = null
+            unavailableRepDateToSet.value = null
+            setUnavailability()
+        }
 
         onMounted(() => {
             updateUserData()
@@ -314,7 +325,8 @@ export default {
             showError,
             errorValue,
             startTime,
-            unavailableDatesOptions
+            unavailableDatesOptions,
+            removeUnavailability
         }
     }
 }
