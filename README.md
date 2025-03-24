@@ -33,5 +33,4 @@ delle revisioni da effettuare per renderla effettivamente di nuovo done\
 disponibile)\
 • done (l'attore ha dichiarato di averla conclusa ed un output è
 disponbile)\
-• discarded (la data di conclusione è passata da molto tempo,
-oppure l'attore ha dichiarato di non volersene più occupare)\
+• discarded (la data di conclusione è passata da molto tempo)\
