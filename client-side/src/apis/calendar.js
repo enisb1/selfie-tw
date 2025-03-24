@@ -129,17 +129,23 @@ export async function postActivity(title, deadline, userIds, myId, compositeActi
 }
 
 // post subactivities of groupActivity to db
-export async function postSubacts(compositeActivityTitle, subactivities, users) {
+export async function postSubacts(compositeActivityTitle, subactivities, users, myID) {
     const groupId = uuidv4(); // Generate a unique ID for the group activity
+    const compositeActivity = {
+        groupName: compositeActivityTitle,
+        groupId: groupId
+    };
+
+    await axios.post('http://localhost:8000/api/calendar/sendCompositeInvite', {
+        "groupId": groupId,
+        "groupName": compositeActivityTitle,
+        "users": users,
+        "creator": myID
+    })
 
     const promises = subactivities.map(subactivity => {
         const { title, deadline } = subactivity;
-        const compositeActivity = {
-            groupName: compositeActivityTitle,
-            groupId: groupId
-        };
-
-        return postActivity(title, deadline, users, compositeActivity);
+        return postActivity(title, deadline, [], myID,compositeActivity,null);
     });
 
     try {

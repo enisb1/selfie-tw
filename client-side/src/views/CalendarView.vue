@@ -533,7 +533,6 @@ export default {
 
     const addActivity = async () => {
       // newActivitySelectedUsers contains the users to invite
-      // TODO: invite them!
       if (!isCompositeActivity.value) {
         if (activityToAddDeadline.value.getTime() <= new Date().getTime())
           activityToAddError.value = "Deadline must be greater than current date"
@@ -547,8 +546,7 @@ export default {
         activityToAddError.value = "At least one subactivity is required"
       }
       else {
-        //TODO: in postSubacts metti solo l'user corrente come partecipante e INVITA ALTRI UTENTI alla compositeActivity
-        await postSubacts(compositeActivityTitle.value, subactivitiesToAdd.value, newActivitySelectedUsers.value.concat([store.state._id]))
+        await postSubacts(compositeActivityTitle.value, subactivitiesToAdd.value, [...newActivitySelectedUsers.value.map(u => u._id)], store.state._id)
         updateAllCalendars()
         toggleAddModal()
       }

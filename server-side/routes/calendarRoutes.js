@@ -3,7 +3,7 @@ import Event from '../models/Event.js'
 import Activity from '../models/Activity.js'
 import Resource from '../models/Resource.js';
 import Project from '../models/Project.js';
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import User from "../models/User.js";
 import Notification from "../models/Notification.js";
 import {mailer, wsConnectionHandler} from "../server-deploy.js";
@@ -79,7 +79,7 @@ router.post("/addActivity", async (req, res) => {
             }
         );
         await activity.save();
-        await sendActivityNotificationToUsers(activity, req.body.users, req.body.creator);
+        if (req.body.compositeActivity === null) await sendActivityNotificationToUsers(activity, req.body.users, req.body.creator);
         await agendaHandler.scheduleActivityNotifications(activity);
         res.status(201).json({ message: 'Data saved successfully', data: activity });
     }catch (error) {
@@ -112,6 +112,37 @@ async function sendActivityNotificationToUsers(activity, users,creator) {
         await mailer.sendMail(`You have been invited to the activity: ${activity.title}`, user.email,activity.title);
     }
 }
+
+router.post("/sendCompositeInvite", async (req, res) => {
+    try {
+        const {groupId, groupName, users, creator} = req.body;
+        for (const userId of users) {
+            const user = await User.findOne({_id: userId});
+            const notification = new Notification({
+                sender: creator,
+                receiver: user.username,
+                time: new Date(),
+                read: false,
+                title: groupName,
+                text: `You have been invited to the composite activity: ${groupName}`,
+                type: "invite",
+                data: {
+                    type: "composite-activity",
+                    id: groupId,
+                    status: "pending"
+                }
+            });
+            await notification.save();
+            await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+            await mailer.sendMail(`You have been invited to the composite activity: ${groupName}`, user.email,groupName);
+        }
+        res.status(201).json({ message: 'Invites sent' });
+    }catch (error) {
+        console.log(error)
+        console.error('Error saving data:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
 
 // Update an activity to add a project ID
 router.put('/updateActivityProjectId/:id', async (req, res) => {

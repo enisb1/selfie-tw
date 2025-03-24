@@ -112,6 +112,9 @@ router.post("/acceptInvite", async (req, res) => {
         } else if (req.body.type === 'project'){
             await Project.updateOne({ _id: req.body.id },{ $push: { members: req.body.userId } });
             await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
+        } else if (req.body.type === 'composite-activity') {
+            await Activity.updateMany({"compositeActivity.groupId": req.body.id}, {$push: {users: req.body.userId}});
+            await Notification.updateOne({ _id: req.body.notificationId },{ $set: { "data.status": "accepted" } });
         }
 
     }catch (error) {
