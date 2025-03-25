@@ -1,4 +1,4 @@
-export const getServerTime = async () => {
+const getServerTime = async () => {
     try {
         const response = await fetch(`http://localhost:8000/api/time/serverTime`);
         if (!response.ok) throw await response.json();
@@ -9,7 +9,7 @@ export const getServerTime = async () => {
     }
 };
 
-export const setNewGlobalTime = async (date) => {
+const setNewGlobalTime = async (date) => {
     try {
         const response = await fetch(`http://localhost:8000/api/time/setNewGlobalTime`, {
             method: 'POST',
@@ -23,7 +23,7 @@ export const setNewGlobalTime = async (date) => {
     }
 };
 
-export const rollBackTime = async () => {
+const rollBackTime = async () => {
     try {
         const response = await fetch(`http://localhost:8000/api/time/rollBackTime`, {
             method: 'POST',
