@@ -41,6 +41,14 @@ async function setNewTime() {
     const timeMachineDateSelector = document.getElementById('timeMachineDateSelector');
     const newDate = new Date(timeMachineDateSelector.value)
     await window.setNewGlobalTime(newDate)
+    if (!projectView.classList.contains('hidden')) { // in project view
+        if (!overviewPage.classList.contains('hidden')) {   // in overview section
+            updateProjectActivities(alphabetOrderButton.classList.contains("bg-secondary"))
+        }
+        else if (!ganttPage.classList.contains('hidden')) { // in gantt section
+            // TODO: update gantt view
+        }
+    }
 }
 
 
@@ -82,7 +90,7 @@ function goToProjectView(project) {
     currentProject = project; // UPDATE current project data
     homeView.classList.add('hidden')
     projectView.classList.remove('hidden')
-    updateProjectActivities()
+    updateProjectActivities(alphabetOrderButton.classList.contains("bg-secondary"))
     goToOverviewPage()
     projectViewName.innerHTML = project.name
 }
@@ -381,10 +389,10 @@ async function displayCompletedActivities(activities) {
 const editedActivityUsers = []
 const editedActivityIds = []
 
+const alphabetOrderButton = document.getElementById("alphabetOrderButton")
+const alphabetOrderImageBlack = document.getElementById("alphabetOrderBlack")
+const alphabetOrderImageWhite = document.getElementById("alphabetOrderWhite")
 function onClickAlphabetOrderButton() {
-    const alphabetOrderButton = document.getElementById("alphabetOrderButton")
-    const alphabetOrderImageBlack = document.getElementById("alphabetOrderBlack")
-    const alphabetOrderImageWhite = document.getElementById("alphabetOrderWhite")
     if (alphabetOrderButton.classList.contains("bg-white")) {
         alphabetOrderButton.classList.remove("bg-white")
         alphabetOrderButton.classList.add("bg-secondary")
@@ -429,7 +437,7 @@ async function showInfoModal(activity) {
         deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
         newDeleteButton.addEventListener('click', async () => {
             await window.deleteActivity(activity._id);
-            updateProjectActivities();
+            updateProjectActivities(alphabetOrderButton.classList.contains("bg-secondary"));
             closeInfoActivityModal();
         });
 
@@ -504,7 +512,7 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
         else
             newActivity.isDone = false
         await window.editActivity(newActivity._id, newActivity)
-        updateProjectActivities()
+        updateProjectActivities(alphabetOrderButton.classList.contains("bg-secondary"))
         closeEditActivityModal()
     }
 });
@@ -732,7 +740,7 @@ async function showEditActivityModal() {
         deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
         newDeleteButton.addEventListener('click', async () => {
             await window.deleteActivity(currentEditedActivity._id)
-            updateProjectActivities()
+            updateProjectActivities(alphabetOrderButton.classList.contains("bg-secondary"))
             closeEditActivityModal()
         })
 
@@ -1123,7 +1131,7 @@ document.getElementById('addActivityForm').addEventListener('submit', async func
         await window.addActivityToProject(currentProject._id, createdActivity._id)
         activityToAddError.innerHTML = ""
         closeAddActivityModal()
-        updateProjectActivities()
+        updateProjectActivities(alphabetOrderButton.classList.contains("bg-secondary"))
     }
 });
 
