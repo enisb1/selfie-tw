@@ -13,10 +13,10 @@ const formatDate = (date) => {
       hour12: false
     });
 }
-const currentDateTimeMachine = document.getElementById('timeMachineCurrentDateValue')
-currentDateTimeMachine.innerHTML = formatDate(new Date())
+
+const currentDateTimeMachine = document.getElementById('timeMachineCurrentDateValue');
 setInterval(async () => {
-    currentDateTimeMachine.innerHTML = formatDate(new Date())
+    currentDateTimeMachine.innerHTML = formatDate(new Date(await window.getServerTime()));
 }, 1000)
 
 function showTimeMachineModal() {
@@ -36,6 +36,13 @@ const dateSelectorFlatpickr = flatpickr(timeMachineDateSelector, {
     dateFormat: "Y-m-d H:i",
     minuteIncrement: 1,
 });
+
+async function setNewTime() {
+    const timeMachineDateSelector = document.getElementById('timeMachineDateSelector');
+    const newDate = new Date(timeMachineDateSelector.value)
+    await window.setNewGlobalTime(newDate)
+}
+
 
 // --- end time machine
 
@@ -222,10 +229,10 @@ async function displayInProgressActivities(activities) {
             let tenDaysAfterDeadline = new Date(deadlineDate);
             tenDaysAfterDeadline.setDate(deadlineDate.getDate() + 10)
             let status = activity.projectData.status
-            if (new Date(activity.deadline).getTime() < new Date().getTime() &&
-                tenDaysAfterDeadline.getTime() < new Date().getTime() && status != 'reactivated')
+            if (new Date(activity.deadline).getTime() < new Date(await window.getServerTime()).getTime() &&
+                tenDaysAfterDeadline.getTime() < new Date(await window.getServerTime()).getTime() && status != 'reactivated')
                 status = 'discarded'
-            else if (new Date(activity.deadline).getTime() < new Date().getTime() && status != 'reactivated')
+            else if (new Date(activity.deadline).getTime() < new Date(await window.getServerTime()).getTime() && status != 'reactivated')
                 status = 'overdue'
             // Add content to the div
             activityDiv.innerHTML = `
@@ -668,13 +675,13 @@ async function showEditActivityModal() {
             inputContainer.classList.remove('hidden')
             outputContainer.classList.add('hidden')
         }
-        else if (currentEditedActivity.projectData.status == 'active' && new Date(currentEditedActivity.deadline).getTime() < new Date().getTime() &&
-            tenDaysAfterDeadline.getTime() < new Date().getTime()) {
+        else if (currentEditedActivity.projectData.status == 'active' && new Date(currentEditedActivity.deadline).getTime() < new Date(await window.getServerTime()).getTime() &&
+            tenDaysAfterDeadline.getTime() < new Date(await window.getServerTime()).getTime()) {
             statuses = ['discarded', 'done']
             inputContainer.classList.remove('hidden')
             outputContainer.classList.remove('hidden')
         }
-        else if (currentEditedActivity.projectData.status == 'active' && new Date(currentEditedActivity.deadline).getTime() < new Date().getTime()) {
+        else if (currentEditedActivity.projectData.status == 'active' && new Date(currentEditedActivity.deadline).getTime() < new Date(await window.getServerTime()).getTime()) {
             statuses = ['overdue', 'done']
             inputContainer.classList.remove('hidden')
             outputContainer.classList.remove('hidden')
@@ -1341,7 +1348,7 @@ let newDeadline = [];
 let countRic = 0
 async function ritardCalc(projectId, projectStart){
     const project = await window.getActivitiesByProject(projectId);
-    //const nowDate = new Date();
+    //const nowDate = new Date(await window.getServerTime());
     let isNormal = false
     let count = 2;
     let isoDelay = "";
