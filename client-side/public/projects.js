@@ -1566,7 +1566,7 @@ async function createGrid(projectId, projectStart) {
 
 
     const dayGrid = document.createElement("div");
-    dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "divide-x", "divide-white", "overflow-auto", "overflow-y-hidden", "pb-4", "-mb-4");
+    dayGrid.classList.add("relative", "w-1/2", "bg-white", "text-white", "font-bold", "grid", "grid-flow-col", "overflow-auto", "overflow-y-hidden", "pb-4", "-mb-4");
 
     
         project.slice().forEach((activity, index) => {
@@ -1585,7 +1585,7 @@ async function createGrid(projectId, projectStart) {
                         
         if(index === project.length-1){
             const colorGrid = document.createElement("div");
-            colorGrid.classList.add("absolute", "left-0", "top-6", "right-2", "bg-white", "grid", "divide-y", "divide-x", "divide-secondary");
+            colorGrid.classList.add("absolute", "left-0", "top-6", "right-0", "bg-white", "grid", "divide-y", "divide-x", "divide-secondary");
             colorGrid.style.gridTemplateColumns =  `repeat(${uniqueDay}, minmax(96px, 1fr))`;
             colorGrid.style.gridTemplateRows =  `repeat(${project.length}, minmax(0, 1fr))`;
             
