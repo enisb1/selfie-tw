@@ -1,5 +1,5 @@
 <template>
-<div :class="{ 'fixed': editorVisible }">
+<div :class="{ 'fixed': editorVisible , 'h-full w-full': inTaskPage || inNotePage }">
     <!--Blur effect-->
     <div v-if="!editorVisible" class="h-14 fixed bottom-0 left-0 right-0 backdrop-blur-xl z-10
                     lg:hidden"></div>
@@ -80,7 +80,7 @@
                             <input class="w-full bg-transparent placeholder:text-slate-400 text-secondary text-sm 
                                           border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease 
                                           focus:outline-none focus:border-secondary hover:border-secondary shadow-sm 
-                                          focus:shadow" placeholder="Type here..." v-model="noteTitle" />
+                                          focus:shadow" placeholder="Type here..." v-model="noteTitle"/>
                         </div>
                     </div>
 
@@ -726,6 +726,7 @@ export default {
             if(newNote.value === true){
             noteBody.value = body
             editorVisible.value = !editorVisible.value
+            noteType.value = "Task"
             addNote()
             }else{
                 uploadNote(body,id)
@@ -738,6 +739,10 @@ export default {
 
         const newNote = ref(false)
         const toggleEditor = () => {
+            if(noteTitle.value === "" || noteCategory.value === ""){
+                alert("Title and Category are required")
+                return
+            }
             editorVisible.value = !editorVisible.value
             newNote.value = showAddModal.value
             console.log(newNote.value)

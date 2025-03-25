@@ -92,7 +92,6 @@ export default {
     
         const toggleSave = (noteBody,id) => {
             emit('save-note',noteBody,id)
-            console.log(noteBody)
         }
 
         const taskTitleInput = ref("")
@@ -104,9 +103,9 @@ export default {
         }
 
         
-        const toggleEditorTask = (id, body) => {
-            console.log(id)
-            emit('add-tasknote', id, body)
+        const toggleEditorTask = (idTask, body) => {
+            console.log("SSSSSS",props.note._id)
+            emit('add-tasknote', idTask, body)
         }
 
         const saveExpiration = (index,noteId,expirationTask) => {
@@ -138,7 +137,8 @@ export default {
             format,
             localNoteBody,
             saveExpiration,
-            deleteTask
+            deleteTask,
+            note
         }
 
     },
