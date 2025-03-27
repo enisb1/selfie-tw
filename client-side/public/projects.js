@@ -1296,8 +1296,9 @@ function isActivityInRitardo(activity, nowDate) {
     return false;
 }
 
-const nowDate = "2025-03-28T11:00:00.000+00:00";
-async function calcoloRitardo(currentActivity, countRic){
+
+
+async function calcoloRitardo(currentActivity, countRic, nowDate){
     
     if(getActivitiesNumberByPhase(currentActivity, currentActivity[countRic].projectData.phase) === 1){
 
@@ -1362,16 +1363,17 @@ let countRic = 0
 async function ritardCalc(projectId, projectStart){
     let project = await window.getActivitiesByProject(projectId);
     project = project.filter(activity => activity.projectData.status !== "done");
-    //const nowDate = new Date(await window.getServerTime());
+    const nowDate = new Date(await window.getServerTime());
     let isNormal = false
     let count = 2;
     let isoDelay = "";
     let currentActivity = false;
     const processedPhases = new Set();
+    console.log(nowDate)
     project.slice().forEach((activity, index) => {
         const phase = activity.projectData.phase;
         
-        console.log(activity.title)
+        
         // Verifica se la fase corrente è già stata elaborata
         if (!processedPhases.has(phase)) {
             // Aggiungi la fase al set delle fasi elaborate
@@ -1380,7 +1382,7 @@ async function ritardCalc(projectId, projectStart){
             
             // Chiama calcoloRitardo per la fase corrente
             if (isActivityInRitardo(activity, nowDate)) {
-                calcoloRitardo(getActivitiesPhase(project, phase), countRic);
+                calcoloRitardo(getActivitiesPhase(project, phase), countRic, nowDate);
             }
         }
     });
@@ -1448,10 +1450,25 @@ function sortByDate(dates) {
         return hourA - hourB;
     });
 }
+
+async function getDoneActivityIds(projectId) {
+    // Ottieni tutte le attività del progetto
+    const activities = await window.getActivitiesByProject(projectId);
+
+    // Filtra le attività con status "done" e mappa i loro ID
+    const doneActivityIds = activities
+        .filter(activity => activity.projectData.status === "done")
+        .map(activity => activity._id);
+
+    return doneActivityIds;
+}
+
   
 async function createGrid(projectId, projectStart) {
     
     let project = await window.getActivitiesByProject(projectId)
+    let idDoneActivity = await getDoneActivityIds(projectId)
+    
     project = project.filter(activity => activity.projectData.status !== "done");
 
     const ganttContainer = document.getElementById('ganttPage');
@@ -1544,16 +1561,16 @@ async function createGrid(projectId, projectStart) {
         // Costruisci le sequenze basate su previous
         const dateMap = new Map();
         dates.forEach(date => dateMap.set(date.id, date));
-        
+        console.log(dates)
         
         dates.forEach(date => {
             
-            if (date.previous === null ) {
+            if (date.previous === null || idDoneActivity.includes(date.previous)) {
                 sortedDates.push(date);
             
                 let currentId = date.id;
                 while (true) {
-                    console.log(currentId)
+                    
                     const nextDate = dates.find(d => d.previous === currentId);
                     
                     if (!nextDate) break;
@@ -1572,7 +1589,7 @@ async function createGrid(projectId, projectStart) {
     }
     
     
-    console.log(sortedDates)
+    console.log("sorted",sortedDates)
     for (const [index, activity] of project.entries()) {
         
         const userNames = await getUserNames(sortedDates[index].owner);
