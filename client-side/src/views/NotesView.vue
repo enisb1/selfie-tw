@@ -260,7 +260,7 @@
 
     <div v-if="editorVisible" class="absolute top-0 h-full w-full">
         <div>
-            <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
+            <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody" :noteUser="noteUser" :noteSecurity="noteSecurity"
             @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @saveExpiration="saveExpiration" @deleteTask="deleteTask"/>
         </div>
     </div>
@@ -373,7 +373,8 @@ export default {
 
         
         const titles = ref(null)
-        const addTasknote = (id, body) => {
+        const addTasknote = async (id, body) => {
+            console.log("ACCI",id)
             if(newNote.value === true){
             editorVisible.value = !editorVisible.value
             showAddModal.value = false
@@ -428,16 +429,20 @@ export default {
         }
 
 
-        //Open note
         const modicated = ref(false)
         const selectedNote = ref("")
+
+        //Carica ed apre la nota
         const openNote = async (id) => {
-            console.log("nota aperta")
             const result = await getNoteById(id)
 
             noteTitle.value = result.title
             noteBody.value = result.bodyNote
             taskBody.value = result.bodyTask
+            noteFormat.value = result.format
+            noteUser.value = result.user
+            noteSecurity.value = result.access
+            console.log()
             
             selectedNote.value = result 
             editorVisible.value = !editorVisible.value
@@ -455,6 +460,7 @@ export default {
             await editNote(id, noteUp)
             
             loadNotesUser()
+            resetValor()
         }
 
         const uploadTask = async (body,id) => {
@@ -465,6 +471,7 @@ export default {
             await editNote(id, noteUp)
             taskBody.value = [] 
             loadNotesUser()
+            resetValor()
         }
 
 
@@ -736,8 +743,9 @@ export default {
             newNote.value = false
         }
         
-
         const newNote = ref(false)
+
+        //Gestore dell'editor (apre/chiude)
         const toggleEditor = () => {
             if(noteTitle.value === "" || noteCategory.value === ""){
                 alert("Title and Category are required")
@@ -745,11 +753,12 @@ export default {
             }
             editorVisible.value = !editorVisible.value
             newNote.value = showAddModal.value
-            console.log(newNote.value)
-            noteBody.value = ""
-            newNote.value = showAddModal.value
+            noteBody.value = ""//da togliere
+            //newNote.value = showAddModal.value
             showAddModal.value = false
             showAddMenu.value = false
+            noteUser.value = store.state.username
+            console.log()
         }
 
         const resetValor = () => {
