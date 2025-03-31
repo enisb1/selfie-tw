@@ -116,7 +116,8 @@ export default {
         }
 
         const deleteTask = async (index,noteId) => {
-            emit('deleteTask',index,noteId)
+            taskBody.splice(index, 1);
+            //emit('deleteTask',index,noteId)
         }
         
         /*watch(() => taskBody.value, (newVal) => {
