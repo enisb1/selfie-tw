@@ -38,13 +38,25 @@ const dateSelectorFlatpickr = flatpickr(timeMachineDateSelector, {
 });
 
 async function setNewTime() {
+    
     const timeMachineDateSelector = document.getElementById('timeMachineDateSelector');
     const newDate = new Date(timeMachineDateSelector.value)
+    console.log("set new time", newDate)
+    await ritardCalc(currentProject._id, currentProject.start, newDate)
+    await refreshGantt()
+    createGrid(currentProject._id, currentProject.start)
     await window.setNewGlobalTime(newDate)
+    
 }
 
-
 // --- end time machine
+
+//refresh DOM
+async function refreshGantt() {
+    const ganttContainer = document.getElementById('ganttPage');
+    ganttContainer.innerHTML = "";
+    await new Promise(resolve => setTimeout(resolve, 50));
+}
 
 updateProjects()
 if (!state.isAdmin) {
@@ -506,6 +518,8 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
         await window.editActivity(newActivity._id, newActivity)
         updateProjectActivities()
         closeEditActivityModal()
+        //calculate delay for the activity
+        ritardCalc(currentProject._id, currentProject.start)
     }
 });
 
@@ -840,7 +854,7 @@ function goToOverviewPage() {
     ganttTitle.classList.remove("border-b-4", "border-secondary")
 }
 
-function goToGanttPage() {
+async function goToGanttPage() {
     overviewPage.classList.add("hidden")
     settingsPage.classList.add("hidden")
     ganttPage.classList.remove("hidden")
@@ -848,8 +862,10 @@ function goToGanttPage() {
     settingsTitle.classList.remove("border-b-4", "border-secondary")
     overviewTitle.classList.remove("border-b-4", "border-secondary")
     ganttTitle.classList.add("border-b-4", "border-secondary")
-    ritardCalc(currentProject._id, currentProject.start)
+    await ritardCalc(currentProject._id, currentProject.start)
+    await refreshGantt()
     createGrid(currentProject._id, currentProject.start)
+
 }
 
 // HOME VIEW
@@ -1299,10 +1315,9 @@ function isActivityInRitardo(activity, nowDate) {
 
 
 async function calcoloRitardo(currentActivity, countRic, nowDate){
-    
+    const deadlineCurrentActivity = new Date(currentActivity[countRic].deadline)
     if(getActivitiesNumberByPhase(currentActivity, currentActivity[countRic].projectData.phase) === 1){
-
-        if(currentActivity[countRic].projectData.isMilestone === true && currentActivity[countRic].deadline < nowDate)
+        if(currentActivity[countRic].projectData.isMilestone === true && deadlineCurrentActivity < nowDate)
         {
             console.log("UNA SOLA ATTIVITA NELLA FASE + MILESTONE")
         }else if(currentActivity[countRic].projectData.contracts === true){
@@ -1358,18 +1373,20 @@ async function calcoloRitardo(currentActivity, countRic, nowDate){
         
     }
 
+   
+
 let newDeadline = [];
 let countRic = 0
-async function ritardCalc(projectId, projectStart){
+async function ritardCalc(projectId, projectStart,timeNow){
     let project = await window.getActivitiesByProject(projectId);
     project = project.filter(activity => activity.projectData.status !== "done");
-    const nowDate = new Date(await window.getServerTime());
+    const nowDate = timeNow ? timeNow : await window.getServerTime()
+    console.log("ritardcalc", nowDate)
     let isNormal = false
     let count = 2;
     let isoDelay = "";
     let currentActivity = false;
     const processedPhases = new Set();
-    console.log(nowDate)
     project.slice().forEach((activity, index) => {
         const phase = activity.projectData.phase;
         
@@ -1378,11 +1395,11 @@ async function ritardCalc(projectId, projectStart){
         if (!processedPhases.has(phase)) {
             // Aggiungi la fase al set delle fasi elaborate
             processedPhases.add(phase);
-            
-            
+            console.log(nowDate)
             // Chiama calcoloRitardo per la fase corrente
             if (isActivityInRitardo(activity, nowDate)) {
                 calcoloRitardo(getActivitiesPhase(project, phase), countRic, nowDate);
+                console.log("calcolato ritardo")
             }
         }
     });
@@ -1470,7 +1487,7 @@ async function createGrid(projectId, projectStart) {
     let idDoneActivity = await getDoneActivityIds(projectId)
     
     project = project.filter(activity => activity.projectData.status !== "done");
-
+    
     const ganttContainer = document.getElementById('ganttPage');
     ganttContainer.innerHTML = '';
 
@@ -1722,7 +1739,7 @@ async function createGrid(projectId, projectStart) {
         dayGrid.appendChild(colorGrid)
         }
     });
-//si può togliere
+
     const uniqueDaysArray = Array.from(uniqueDays).map(day => new Date(day).toISOString());
     uniqueDaysArray.sort((a, b) => new Date(a) - new Date(b));
 
