@@ -134,7 +134,7 @@
                     :class="{'line-through': activity.isDone,'mt-4': indexActivity>0}" 
                     :style="{backgroundColor: 'crimson'}" class="w-full 
                     font-bold truncate px-4 rounded-xl py-2 cursor-pointer">
-                        {{ `DEADLINE: '${activity.title}'` }} 
+                        {{ `${((new Date).getTime() > new Date(activity.deadline).getTime())? 'EXPIRED' : 'DEADLINE'}: '${activity.title}'` }} 
                 </div>
             </div>
         </div>
@@ -226,6 +226,7 @@ import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 import { useStore } from 'vuex';
 import { getExpiringTasksInRange } from '@/apis/note';
+import eventBus from '../../../../script/eventBus.js';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -419,11 +420,14 @@ export default {
             // listen to schedule boxes click event
             window.addEventListener('showScheduleInfoWeekly', toggleScheduleInfoOnFromEvent);
             window.addEventListener('showResourceEventWeekly', toggleResourceEventInfoOnFromEvent);
+
+            eventBus.on('reloadPageInfo', updateCalendar);
         })
 
         onBeforeUnmount(() => {
             // remove event listener when component is destroyed to not make them stack
             window.removeEventListener('showScheduleInfoWeekly', toggleScheduleInfoOnFromEvent);
+            eventBus.off('reloadPageInfo', updateCalendar);
         })
 
         return {

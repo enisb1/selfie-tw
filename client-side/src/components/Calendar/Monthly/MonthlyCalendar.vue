@@ -32,7 +32,7 @@
                 :style="{backgroundColor: event.deadline ? 'crimson' : event.color}" 
                 :class="{'line-through': event.isDone, 'font-bold': event.deadline,'opacity-75': event.startDate, 'event': event.startDate}" 
                 class="px-1 mt-2 truncate cursor-pointer" @click="toggleScheduleInfoOn(event.originalEvent? event.originalEvent : event)">
-                    <p> {{ event.deadline? `DEADLINE: '${event.title}'` : event.title }}</p>
+                    <p> {{ event.deadline? (((new Date).getTime() > new Date(event.deadline).getTime())? `EXPIRED: ${event.title}` : `DEADLINE: ${event.title}`) : event.title }}</p>
                 </div>
                 <div v-else v-for="event in eventsForDay[index+1]" :data-event-id="event._id" :style="{backgroundColor: event.color}"
                     class="px-1 mt-2 truncate cursor-pointer opacity-75 event" @click="toggleResourceEventModalOn(event)">
@@ -54,7 +54,7 @@
                     :class="{'line-through': activity.isDone, 'mt-4': indexActivity>0}" 
                     :style="{backgroundColor: 'crimson', fontStyle: 'bold'}"
                     class="w-full truncate px-4 rounded-xl py-2 font-bold cursor-pointer">
-                        {{ `DEADLINE: '${activity.title}'` }} 
+                        {{ ((new Date).getTime() > new Date(activity.deadline).getTime())? 'EXPIRED' : 'DEADLINE' }}: {{ activity.title }}
                 </div>
             </div>
         </div>
@@ -132,7 +132,7 @@
 </template>
 
 <script>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import DatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import { ref } from 'vue'
@@ -146,6 +146,7 @@ import EventInfoEdit from '../EventInfoEdit.vue'
 import ActivityInfoEdit from '../ActivityInfoEdit.vue'
 import { useStore } from 'vuex'
 import { getExpiringTasksInRange } from '@/apis/note.js'
+import eventBus from '../../../../script/eventBus.js';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -356,6 +357,12 @@ export default {
             });
             // observe the body (where event boxes are added)
             observer.observe(document.body, { childList: true, subtree: true });
+
+            eventBus.on('reloadPageInfo', updateCalendar);
+        })
+
+        onUnmounted(() => {
+            eventBus.off('reloadPageInfo', updateCalendar);
         })
         
         return {

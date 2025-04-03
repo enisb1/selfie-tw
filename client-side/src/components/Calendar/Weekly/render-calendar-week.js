@@ -24,7 +24,7 @@ function createDefaultActivityDiv(activity) {
 
     const title = document.createElement("p");
     title.classList.add("pl-1")
-    title.innerText = `DEADLINE: '${activity.title}'`;
+    title.innerText = `${((new Date).getTime() > new Date(activity.deadline).getTime())? 'EXPIRED' : 'DEADLINE'}: '${activity.title}'`;
     
     activityDiv.appendChild(title);
 
