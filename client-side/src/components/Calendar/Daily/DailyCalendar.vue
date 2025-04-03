@@ -51,7 +51,7 @@
                 <div v-for="(activity, indexActivity) in activities" @click="toggleScheduleInfoOn(activity)" 
                     :class="{'line-through': activity.isDone, 'mt-4': indexActivity>0}" :style="{backgroundColor: 'crimson'}" 
                     class="font-bold w-full truncate px-4 rounded-xl py-2 cursor-pointer">
-                    {{ `DEADLINE: '${activity.title}'` }}
+                    {{ `${((new Date).getTime() > new Date(activity.deadline).getTime())? 'EXPIRED' : 'DEADLINE'}: '${activity.title}'` }}
                 </div>
             </div>
         </div>
@@ -171,6 +171,7 @@ import EventInfoEdit from '../EventInfoEdit.vue';
 import ActivityInfoEdit from '../ActivityInfoEdit.vue';
 import { useStore } from 'vuex';
 import { getExpiringTasksInRange } from '@/apis/note.js';
+import eventBus from '../../../../script/eventBus.js';
 
 export default {
     emits: ['updateAllCalendars'],
@@ -370,11 +371,14 @@ export default {
             // listen to schedule boxes click event
             window.addEventListener('showScheduleInfoDaily', toggleScheduleInfoOnFromEvent);
             window.addEventListener('showResourceEventDaily', toggleResourceEventInfoOnFromEvent);
+
+            eventBus.on('reloadPageInfo', updateCalendar);
         })
         
         onBeforeUnmount(() => {
             // remove event listener when component is destroyed to not make them stack
             window.removeEventListener('showScheduleInfo', toggleScheduleInfoOnFromEvent);
+            eventBus.off('reloadPageInfo', updateCalendar);
         })
 
         return {

@@ -175,12 +175,12 @@ async function displayToDoActivities(activities) {
                 </div>
                 <div class="flex pl-1 gap-1 sm:border-l border-secondary">
                     <button class="w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                    <button class="w-6 h-6" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                    <button class="w-6 h-6 ${(currentProject.owner != state._id)? 'hidden' : ''}" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
                 </div>
             `;
             const hr = document.createElement('hr');
             hr.classList.add("border-gray-400", "border", "mt-px")
-    
+
             // Append the div to the parent container
             todoActivitiesContainer.appendChild(activityDiv);
             todoActivitiesContainer.appendChild(hr)
@@ -633,7 +633,7 @@ document.getElementById('editProjectForm').addEventListener('submit', async func
         newProject.start = startValue
         newProject.end = endValue
         newProject.members = newProject.members.concat(editedProjectIds)
-        await window.editProject(newProject._id, newProject)
+        await window.editProject(newProject._id, newProject, `The owner ${state.username} has edited project ${newProject.name}`)
         currentProject = newProject
         projectViewName.innerHTML = currentProject.name
         updateSettingsPage()
@@ -744,11 +744,6 @@ async function showEditActivityModal() {
             closeEditActivityModal()
         })
 
-        // hide contracts/translates checkbox if user is no project manager
-        if (currentProject.owner != state._id) {
-            document.getElementById('activityToEditContractsDiv').classList.add('hidden')
-        }
-
         modal.open()
     }
 }
@@ -794,7 +789,7 @@ document.getElementById('leaveProjectButton').addEventListener('click', async ()
             newProject.members = newProject.members.filter(m => m != state._id)
             const newOwner = newProject.members[Math.floor(Math.random() * newProject.members.length)] // random member
             newProject.owner = newOwner
-            await window.editProject(newProject._id, newProject)
+            await window.editProject(newProject._id, newProject, `The owner ${state.username} has left project ${newProject.name}`)
             currentProject = newProject
             updateSettingsPage()
         }
@@ -803,7 +798,7 @@ document.getElementById('leaveProjectButton').addEventListener('click', async ()
         // cancella utente dai membri del progetto e da ogni activity del progetto di cui fa parte
         const newProject = structuredClone(currentProject)
         newProject.members = newProject.members.filter(m => m != state._id)
-        await window.editProject(newProject._id, newProject)
+        await window.editProject(newProject._id, newProject, `${state.username} has left project ${newProject.name}`)
         for (const activity of newProject.activities) {
             if (activity.users.includes(state._id)) {
                 const newActivity = structuredClone(activity)
@@ -835,6 +830,11 @@ function goToSettingsPage() {
     else {
         document.getElementById('deleteProjectButton').classList.remove('hidden')
     }
+
+    if (currentProject.owner != state._id) {
+        document.getElementById('editProjectButton').classList.add('hidden')
+    }
+
     updateSettingsPage()
 }
 
@@ -846,6 +846,10 @@ function goToOverviewPage() {
     settingsTitle.classList.remove("border-b-4", "border-secondary")
     overviewTitle.classList.add("border-b-4", "border-secondary")
     ganttTitle.classList.remove("border-b-4", "border-secondary")
+
+    if (currentProject.owner != state._id) {
+        document.getElementById('addActivityButton').classList.add('hidden')
+    }
 }
 
 function goToGanttPage() {
@@ -1021,10 +1025,6 @@ async function showAddActivityModal() {
             opt.textContent = activity.title;
             selectElement.appendChild(opt);
         });
-        // hide contracts/translates checkbox if user is no project manager
-        if (currentProject.owner != state._id) {
-            document.getElementById('activityToAddContractsDiv').classList.add('hidden')
-        }
     }
 }
 

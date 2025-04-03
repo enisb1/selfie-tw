@@ -167,10 +167,11 @@ router.put("/updateWaitingActivable/:id", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
     const projectId = req.params.id;
-    const { name, description, start, end, owner, members } = req.body;
+    const { name, description, start, end, owner, members } = req.body.projectData;
+
+    console.log(req.body.notificationMessage) //TODO: use this message to send a notification to the user when project is edited
 
     try {
-
         const project = await Project.findById(projectId);
         const newMembers = members.filter(member => !project.members.includes(member));
         const oldMembers = project.members.filter(member => members.includes(member));
