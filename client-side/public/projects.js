@@ -633,7 +633,7 @@ document.getElementById('editProjectForm').addEventListener('submit', async func
         newProject.start = startValue
         newProject.end = endValue
         newProject.members = newProject.members.concat(editedProjectIds)
-        await window.editProject(newProject._id, newProject)
+        await window.editProject(newProject._id, newProject, `The owner ${state.username} has edited project ${newProject.name}`)
         currentProject = newProject
         projectViewName.innerHTML = currentProject.name
         updateSettingsPage()
@@ -794,7 +794,7 @@ document.getElementById('leaveProjectButton').addEventListener('click', async ()
             newProject.members = newProject.members.filter(m => m != state._id)
             const newOwner = newProject.members[Math.floor(Math.random() * newProject.members.length)] // random member
             newProject.owner = newOwner
-            await window.editProject(newProject._id, newProject)
+            await window.editProject(newProject._id, newProject, `The owner ${state.username} has left project ${newProject.name}`)
             currentProject = newProject
             updateSettingsPage()
         }
@@ -803,7 +803,7 @@ document.getElementById('leaveProjectButton').addEventListener('click', async ()
         // cancella utente dai membri del progetto e da ogni activity del progetto di cui fa parte
         const newProject = structuredClone(currentProject)
         newProject.members = newProject.members.filter(m => m != state._id)
-        await window.editProject(newProject._id, newProject)
+        await window.editProject(newProject._id, newProject, `${state.username} has left project ${newProject.name}`)
         for (const activity of newProject.activities) {
             if (activity.users.includes(state._id)) {
                 const newActivity = structuredClone(activity)

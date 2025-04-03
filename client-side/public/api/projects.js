@@ -245,14 +245,14 @@ async function updateWaitingActivable(activityId, output) {
     }
 }
 
-async function editProject(projectId, projectData) {
+async function editProject(projectId, projectData, notificationMessage) {
     try {
         const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(projectData)
+            body: JSON.stringify({projectData, notificationMessage})
         });
 
         if (!response.ok) {
