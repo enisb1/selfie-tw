@@ -163,13 +163,13 @@
 
                   <!-- overview page -->
                   <div id="overviewPage" class="px-10">
-                    <div class="flex mt-4">
-                      <button onclick="showAddActivityModal()" class="flex items-center bg-white rounded-lg border border-third px-2 py-1">
+                    <div class="flex mt-4 gap-6">
+                      <button id="addActivityButton" onclick="showAddActivityModal()" class="flex items-center bg-white rounded-lg border border-third px-2 py-1">
                         <img src="./assets/add.png" class="mr-2 h-3.5 w-3.5">
                         <span>Add activity</span>
                       </button>
   
-                      <button id="alphabetOrderButton" onclick="onClickAlphabetOrderButton()" class="relative ml-6 bg-white w-11 h-11 rounded-full border border-third">
+                      <button id="alphabetOrderButton" onclick="onClickAlphabetOrderButton()" class="relative bg-white w-11 h-11 rounded-full border border-third">
                         <img id="alphabetOrderBlack" class="w-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" src="./assets/alphabetical_black.png" alt="alphabet-order">
                         <img id="alphabetOrderWhite" class="w-6 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 hidden" src="./assets/alphabetical_white.png" alt="date order">
                       </button>
