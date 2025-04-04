@@ -1,10 +1,7 @@
 import Router from 'express';
 import Project from '../models/Project.js';
 import Activity from '../models/Activity.js';
-import Notification from "../models/Notification.js";
-import User from "../models/User.js";
-import {wsConnectionHandler} from "../server-deploy.js";
-import {Message} from "../services/wsHandler.js";
+import {sendProjectInviteNotifications, sendProjectNotificationToMembers} from "../services/notifyUtilities.js";
 
 const router = Router();
 
@@ -30,29 +27,7 @@ router.post('/createProject', async (req, res) => {
     }
 });
 
-async function sendProjectInviteNotifications(project, memberIDs, creatorID) {
-    const creator = await User.findOne({_id: creatorID});
 
-    for (const memberID of memberIDs) {
-        const member = await User.findOne({_id: memberID});
-        const notification = new Notification({
-            sender: creator.username,
-            receiver: member.username,
-            time: new Date(),
-            read: false,
-            title: 'Project invitation',
-            text: `You have been invited to join project ${project.name}, created by ${creator.username}.`,
-            type: 'invite',
-            data: {
-                type: "project",
-                id: project._id,
-                status: "pending"
-            }
-        });
-        await notification.save();
-        await wsConnectionHandler.sendPushNotification(new Message('server', member.username, 'notification', notification));
-    }
-}
 
 // Get all projects in which the user participates
 router.get('/projectsByUser/:userId', async (req, res) => {
@@ -169,18 +144,10 @@ router.put("/:id", async (req, res) => {
     const projectId = req.params.id;
     const { name, description, start, end, owner, members } = req.body.projectData;
 
-    console.log(req.body.notificationMessage) //TODO: use this message to send a notification to the user when project is edited
-
     try {
         const project = await Project.findById(projectId);
         const newMembers = members.filter(member => !project.members.includes(member));
         const oldMembers = project.members.filter(member => members.includes(member));
-
-        console.log("membri arrivati dalla put",members);
-        console.log("membri del progetto sul db",project.members);
-
-        console.log("nuovi membri",newMembers);
-        console.log("vecchi membri",oldMembers);
 
         await sendProjectInviteNotifications(project, newMembers, owner);
 
@@ -190,7 +157,11 @@ router.put("/:id", async (req, res) => {
             { new: true }
         );
 
-        console.log("progetto aggiornato",updatedProject);
+        if (project.members.length > members.length) {
+            await sendProjectNotificationToMembers (oldMembers, updatedProject.name, req.body.notificationMessage);
+        } else{
+            await sendProjectNotificationToMembers (oldMembers.filter(member => member !== owner), updatedProject.name, req.body.notificationMessage);
+        }
 
         if (updatedProject) {
             res.status(200).json({

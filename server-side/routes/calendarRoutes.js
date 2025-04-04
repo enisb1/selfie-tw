@@ -10,6 +10,7 @@ import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import {Message} from "../services/wsHandler.js";
 import {agendaHandler} from "../server-deploy.js";
 import multer from 'multer';
+import {sendActivityNotificationToUsers, sendEventNotificationToUsers} from "../services/notifyUtilities.js";
 
 const router = Router();
 
@@ -45,29 +46,6 @@ router.post("/addEvent", async (req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 });
-
-//TODO: sposta questa funzione da qui
-async function sendEventNotificationToUsers(event, users, creator) {
-    for (const userId of users) {
-        const user = await User.findOne({_id: userId});
-        const notification = new Notification({
-            sender: creator,
-            receiver: user.username,
-            time: new Date(),
-            read: false,
-            title: event.title,
-            text: `You have been invited to the event: ${event.title}`,
-            type: "invite",
-            data: {
-                type: "event",
-                id: event._id,
-                status: "pending"
-            }
-        });
-        await notification.save();
-        await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
-    }
-}
 
 router.post("/addActivity", async (req, res) => {
     try {
@@ -111,30 +89,6 @@ router.post("/addActivityNoInvite", async (req, res) => {
     }
 })
 
-
-// TODO: magari sposta questa funzione da qui
-async function sendActivityNotificationToUsers(activity, users,creator) {
-    for (const userId of users) {
-        const user = await User.findOne({_id: userId});
-        const notification = new Notification({
-            sender: creator,
-            receiver: user.username,
-            time: new Date(),
-            read: false,
-            title: activity.title,
-            text: `You have been invited to the activity: ${activity.title}`,
-            type: "invite",
-            data: {
-                type: "activity",
-                id: activity._id,
-                status: "pending"
-            }
-        });
-        await notification.save();
-        await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
-        await mailer.sendMail(`You have been invited to the activity: ${activity.title}`, user.email,activity.title);
-    }
-}
 
 router.post("/sendCompositeInvite", async (req, res) => {
     try {
@@ -553,7 +507,6 @@ router.post('/export', upload.single('file'), async (req, res) => {
         
         if (!file) {
             res.status(400).send({ error: 'No file uploaded' });
-            return;
         }
         else{
             const subject = `Export of ${eventTitle}`;
