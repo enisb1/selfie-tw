@@ -37,16 +37,22 @@ const dateSelectorFlatpickr = flatpickr(timeMachineDateSelector, {
     minuteIncrement: 1,
 });
 
-async function setNewTime() {
-    
+async function setNewTime() {   
     const timeMachineDateSelector = document.getElementById('timeMachineDateSelector');
     const newDate = new Date(timeMachineDateSelector.value)
     await ritardCalc(currentProject._id, currentProject.start, newDate)
     await refreshGantt()
-    await createGrid(currentProject._id, currentProject.start)
     await window.setNewGlobalTime(newDate)
-    
 }
+
+async function resetTime() {
+    const newDate = new Date()
+    await ritardCalc(currentProject._id, currentProject.start, newDate)
+    await refreshGantt()
+    
+    await window.rollBackTime()
+}
+
 
 // --- end time machine
 
@@ -863,7 +869,6 @@ async function goToGanttPage() {
     ganttTitle.classList.add("border-b-4", "border-secondary")
     await ritardCalc(currentProject._id, currentProject.start)
     await refreshGantt()
-    createGrid(currentProject._id, currentProject.start)
 
 }
 
@@ -1292,18 +1297,25 @@ function getActivitiesPhase(activities, phase){
     return activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
 }
 
-function calculateNewDateBasedOnDifference(date1, date2, dataNow) {
+function calculateNewDateBasedOnDifference(date1, date2, dataNow, contracts) {
     const date1Time = new Date(date1).getTime();
     const date2Time = new Date(date2).getTime();
     const dataNowTime = new Date(dataNow).getTime();
 
     // Calcola la differenza in millisecondi
     const differenceInMilliseconds = Math.abs(date1Time - date2Time);
+    
+    if(contracts !== undefined){
+        contracts = new Date(contracts).getTime()
 
-    // Aggiungi la differenza in millisecondi alla data attuale
-    const newDate = new Date(dataNowTime + differenceInMilliseconds);
+        const newDate = new Date(contracts + differenceInMilliseconds);
+        return newDate.toISOString();
+    }
+        // Aggiungi la differenza in millisecondi alla data attuale
+        const newDate = new Date(dataNowTime + differenceInMilliseconds);
+        return newDate.toISOString();
+    
 
-    return newDate.toISOString();
 }
 
 function isActivityInRitardo(activity, nowDate) {
@@ -1315,69 +1327,81 @@ function isActivityInRitardo(activity, nowDate) {
 
 
 async function calcoloRitardo(currentActivity, countRic, nowDate){
-    console.log("WWW",currentActivity[countRic].deadline, nowDate)
     if(getActivitiesNumberByPhase(currentActivity, currentActivity[countRic].projectData.phase) === 1){
-        if(currentActivity[countRic].projectData.isMilestone === true && new Date(currentActivity[countRic].deadline) < nowDate)
+        if(currentActivity[countRic].projectData.isMilestone === true)
         {
             console.log("UNA SOLA ATTIVITA NELLA FASE + MILESTONE")
-        }else if(currentActivity[countRic].projectData.contracts === true){
-            updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
+        }else if(currentActivity[countRic].projectData.contracts === false){
+
+            currentActivity[countRic].deadline = nowDate
             console.log("UNA SOLA ATTIVITA NELLA FASE + NON MILESTONE + TRASLABILE", "deadline aggiornata a:", nowDate)
         
         }else{
-            console.log("UNA SOLA ATTIVITA NELLA FASE + NON MILESTONE + NON TRASLABILE")
+            currentActivity[countRic].deadline = nowDate
+            console.log("UNA SOLA ATTIVITA NELLA FASE + SI CONTRAE")
         }
     }else{
         if(currentActivity[countRic].projectData.isMilestone === true && countRic !== 0){
-            await updateActivityStartDate(currentActivity[countRic].projectData._id,
-                calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, nowDate))
-            currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, nowDate)
-                console.log("MILESTONE", currentActivity[countRic-1].deadline)
+            
+            if(currentActivity[countRic-1].deadline > currentActivity[countRic].deadline){
+                const newDeadline = new Date(currentActivity[countRic].deadline);
+                newDeadline.setHours(newDeadline.getHours() - 1);
+                currentActivity[countRic-1].deadline = newDeadline
+                console.log("TROPPO RITARDO", "deadline aggiornata a:", currentActivity[countRic-1].deadline)
+            }
+            currentActivity[countRic].projectData.startDate = currentActivity[countRic-1].deadline
+                console.log("MILESTONE")
                 return
         }else if(getActivitiesByPhase(currentActivity, currentActivity[countRic].projectData.phase, 
-            currentActivity[countRic].projectData._id) === "No successor" && countRic !== 0 && currentActivity[countRic].projectData.contracts === true){
-                await updateActivityDeadline(currentActivity[countRic].projectData._id,
-                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, nowDate))
-                currentActivity[countRic].deadline = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, nowDate)
-                await updateActivityStartDate(currentActivity[countRic].projectData._id,
-                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate))
+            currentActivity[countRic].projectData._id) === "No successor" && countRic !== 0 && currentActivity[countRic].projectData.contracts === false){
+                
+                currentActivity[countRic].deadline = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, nowDate, currentActivity[countRic].deadline)
+                
                 currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
             console.log("NON MILESTONE + TRASLABILE + NO SUCCESSOR")
         }else if(getActivitiesByPhase(currentActivity, currentActivity[countRic].projectData.phase, 
-            currentActivity[countRic].projectData._id) === "No successor" && currentActivity[countRic].projectData.contracts === false && countRic !== 0){
-                console.log("NON MILESTONE + NON TRASLABILE + NO SUCCESSOR")
+            currentActivity[countRic].projectData._id) === "No successor" && currentActivity[countRic].projectData.contracts === true && countRic !== 0){
+                if(currentActivity[countRic-1].deadline > currentActivity[countRic].deadline){
+                    const newDeadline = new Date(currentActivity[countRic].deadline);
+                    newDeadline.setHours(newDeadline.getHours() - 1);
+                    currentActivity[countRic-1].deadline = newDeadline
+                    console.log("TROPPO RITARDO", "deadline aggiornata a:", currentActivity[countRic-1].deadline)
+                }
+                currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
+    
+                console.log("NON MILESTONE + CONTRAIBILE + NO SUCCESSOR")
         }else{
             const newDeadlineMoreOneHour = new Date(currentActivity[countRic].deadline);
             newDeadlineMoreOneHour.setHours(newDeadlineMoreOneHour.getHours() + 1);
-            if(countRic !== 0 && currentActivity[countRic].projectData.contracts === true){
-                await updateActivityDeadline(currentActivity[countRic].projectData._id,
-                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].deadline))
+            if(countRic !== 0 && currentActivity[countRic].projectData.contracts === false){
+                
+                    
                 currentActivity[countRic].deadline = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].deadline)
-                await updateActivityStartDate(currentActivity[countRic].projectData._id,
-                    calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate))
+                
+                   
                 currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
                 console.log("NON MILESTONE + TRASLABILE + SUCCESSOR")
-            }else if(currentActivity[countRic].projectData.contracts === false && countRic !== 0){
-                console.log("NON MILESTONE + NON TRASLABILE + SUCCESSOR")
+            }else if(currentActivity[countRic].projectData.contracts === true && countRic !== 0){
+                currentActivity[countRic].projectData.startDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
+                console.log("NON MILESTONE + CONTRAIBILE + SUCCESSOR")
             }else{
                 if(currentActivity[countRic].projectData.isMilestone === false && countRic+1 !== currentActivity.length && nowDate > new Date(currentActivity[countRic+1].deadline)){
                     const newDeadline = new Date(currentActivity[countRic+1].deadline);
                     newDeadline.setHours(newDeadline.getHours() - 1);
-                    await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
+                   
                     currentActivity[countRic].deadline = newDeadline
                     editedTooLate = true
                     console.log("TROPPO RITARDO", "deadline aggiornata a:", currentActivity[countRic].deadline)
                 }
                 else if(currentActivity[countRic].projectData.isMilestone === false && newDeadlineMoreOneHour.getTime() !== new Date(currentActivity[countRic+1].deadline).getTime()){
-                        await updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
+                        
                         currentActivity[countRic].deadline = nowDate
                         console.log("primo elemento non milestone")
                 }else{
-                    console.log("primo elemento milestone")
+                    console.log("primo elemento milestone o non traslabile/contraibile")
                     return
                 }}
             countRic++
-            console.log("NON MILESTONE")
             await calcoloRitardo(currentActivity, countRic, nowDate) 
             
         }
@@ -1416,6 +1440,7 @@ async function ritardCalc(projectId, projectStart,timeNow){
             }
         }
     }
+    createGrid(projectId, project)
 
     
 
@@ -1495,12 +1520,12 @@ async function getDoneActivityIds(projectId) {
 
 
   
-async function createGrid(projectId, projectStart) {
-    
-    let project = await window.getActivitiesByProject(projectId)
+async function createGrid(projectId, project) {
+    console.log("PROGETTI PASSATI", project)
+    //let project = await window.getActivitiesByProject(projectId)
     let idDoneActivity = await getDoneActivityIds(projectId)
     
-    project = project.filter(activity => activity.projectData.status !== "done");
+    //project = project.filter(activity => activity.projectData.status !== "done");
     
     const ganttContainer = document.getElementById('ganttPage');
     ganttContainer.innerHTML = '';
@@ -1600,13 +1625,15 @@ async function createGrid(projectId, projectStart) {
                 sortedDates.push(date);
             
                 let currentId = date.id;
+                const visited = new Set([currentId])
+
                 while (true) {
-                    
+
                     const nextDate = dates.find(d => d.previous === currentId);
-                    
-                    if (!nextDate) break;
+                    if (!nextDate || visited.has(nextDate.id)) break;
                     
                     sortedDates.push(nextDate);
+                    visited.add(nextDate.id);
                     currentId = nextDate.id;
                 }
                 
@@ -1620,7 +1647,7 @@ async function createGrid(projectId, projectStart) {
         return users.map(user => user.username).join(", "); 
     }
     
-    
+     
     console.log("sorted",sortedDates)
     for (const [index, activity] of project.entries()) {
         
@@ -1630,7 +1657,7 @@ async function createGrid(projectId, projectStart) {
         const taskGrid = document.createElement("div");
         taskGrid.classList.add("bg-white", "text-secondary", "font-bold", "grid", "grid-cols-4", "divide-x", "divide-y", "divide-secondary");
         taskGrid.innerHTML = ` 
-            <div class="truncate text-center flex items-center justify-center"><span>${sortedDates[index].title}</span><span class="text-xs text-gray-400">[${sortedDates[index].phase}]</span></div>
+            <div class="truncate text-center"><span>${sortedDates[index].title}</span><span class="text-xs text-gray-400">[${sortedDates[index].phase}]</span></div>
             <div class="truncate text-center"><span>${userNames}</span></div>
             <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].start)}</span></div>
             <div class="truncate text-center"><span>${formatDateToDayMonth(sortedDates[index].end)}</span></div>
