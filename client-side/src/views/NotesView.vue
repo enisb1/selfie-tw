@@ -320,6 +320,12 @@ export default {
         //Add Note to NoteView
         const addNote = async () => {
             
+            if(noteFormat.value === "normalNote" || noteFormat.value === "markdownNote"){
+                noteType.value = "Note"
+            }else{
+                noteType.value = "Task"
+            }
+            console.log(noteFormat.value)
             notes.value.push({
                 title: noteTitle.value,
                 bodyNote: noteBody.value,
@@ -374,7 +380,7 @@ export default {
         
         const titles = ref(null)
         const addTasknote = async (id, body) => {
-            console.log("ACCI",id)
+        
             if(newNote.value === true){
             editorVisible.value = !editorVisible.value
             showAddModal.value = false
