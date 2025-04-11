@@ -84,15 +84,7 @@
                         </div>
                     </div>
 
-                    <div class="row title p-2  grid grid-row-2">
-                        <label class="font-semibold py-1">Category</label>
-                        <div class="w-full max-w-sm min-w-[200px]">
-                            <input class="w-full bg-transparent placeholder:text-slate-400 text-secondary text-sm 
-                                          border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease 
-                                          focus:outline-none focus:border-secondary hover:border-secondary shadow-sm 
-                                          focus:shadow" placeholder="Type here..." v-model="noteCategory" />
-                        </div>
-                    </div>
+                    
 
                     <div v-if="!inTaskAdd && !inTaskPage" class="p-2">
                         <div class="font-semibold py-1">Format</div>
@@ -330,7 +322,6 @@ export default {
                 title: noteTitle.value,
                 bodyNote: noteBody.value,
                 bodyTask: taskBody.value,
-                category: noteCategory.value,
                 format: noteFormat.value,
                 access: noteSecurity.value,
                 type: noteType.value,
@@ -338,13 +329,12 @@ export default {
                 userListAccess: currentSelect.value
             })
 
-            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, 
+            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteFormat.value, 
                            noteSecurity.value, noteType.value, noteUser.value, currentSelect.value);
             
             noteTitle.value = "";  
             noteBody.value = "";
             taskBody.value = [];
-            noteCategory.value = "";
             noteFormat.value = "";
             noteSecurity.value = "";
             noteType.value = "Note";
@@ -413,14 +403,14 @@ export default {
         const duplicateNote = async (id) => {
             try {
                 const noteId = await getNoteById(id)
-                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, 
+                console.log(noteId.type)
+                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.format, 
                                noteId.access, noteId.type, noteId.user, noteId.userListAccess);
                 
                 notes.value.push({
                     title: noteId.title,
                     bodyNote: noteId.bodyNote,
                     bodyTask: noteId.bodyTask,
-                    category: noteId.category,
                     format: noteId.format,
                     access: noteId.access,
                     type: noteId.type,
@@ -722,7 +712,7 @@ export default {
         }
         const largeScreen = ref(false)
         const checkScreen = () => {
-            largeScreen.value = window.innerWidth >= 768
+            largeScreen.value = window.innerWidth >= 1024
         }
 
         onMounted(() => {
@@ -753,8 +743,8 @@ export default {
 
         //Gestore dell'editor (apre/chiude)
         const toggleEditor = () => {
-            if(noteTitle.value === "" || noteCategory.value === ""){
-                alert("Title and Category are required")
+            if(noteTitle.value === "" ){
+                alert("Title is required")
                 return
             }
             editorVisible.value = !editorVisible.value
