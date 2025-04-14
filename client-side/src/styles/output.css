@@ -1228,10 +1228,6 @@ video {
   width: 100%;
 }
 
-.min-w-0 {
-  min-width: 0px;
-}
-
 .min-w-24 {
   min-width: 6rem;
 }
@@ -1554,10 +1550,6 @@ video {
 
 .whitespace-pre-wrap {
   white-space: pre-wrap;
-}
-
-.text-wrap {
-  text-wrap: wrap;
 }
 
 .rounded {

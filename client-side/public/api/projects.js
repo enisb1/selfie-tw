@@ -268,7 +268,6 @@ async function editProject(projectId, projectData) {
 }
 
 async function updateActivityStartDate(activityId, newStartDate) {
-    console.log(activityId, newStartDate)
     try {
         const response = await fetch(`http://localhost:8000/api/projects/editStartDate/${activityId}`, {
             method: 'PUT',

@@ -1314,7 +1314,7 @@ function calculateNewDateBasedOnDifference(date1, date2, dataNow, contracts) {
     }
         // Aggiungi la differenza in millisecondi alla data attuale
         const newDate = new Date(dataNowTime + differenceInMilliseconds);
-        newDate.setHours(newDate.getHours() + 1);
+        //newDate.setHours(newDate.getHours() + 1);
         return newDate.toISOString();
     
 
@@ -1373,6 +1373,7 @@ async function calcoloRitardo(currentActivity, countRic, nowDate){
                     console.log("TROPPO RITARDO", "deadline aggiornata medioooo a:", currentActivity[countRic-1].deadline)
                 }
                 currentActivity[countRic].projectData.compressedStartDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
+
                 await updateActivityStartDate(currentActivity[countRic].projectData._id, calculateNewDateBasedOnDifference(currentActivity[countRic-1].deadline, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate))
                 console.log("NON MILESTONE + CONTRAIBILE + NO SUCCESSOR")
         }else{
@@ -1729,17 +1730,17 @@ async function createGrid(projectId, project) {
             
                 uniqueDaysArray.forEach((d => {
                     let classe = "";
-                    let hourStart = extractTimeFromDate(actualyStart) -1
+                    let hourStart = extractTimeFromDate(actualyStart)-1
                     let hourEnd = extractTimeFromDate(actualyEnd) -1 
                     const colorDiv = document.createElement("div");
                     colorDiv.classList.add("truncate", "text-center", "grid", "grid-cols-24");
-                    
-
+                    console.log("hourStart", hourStart, "hourEnd", hourEnd)
+                
                 hours.forEach((hour) => {
-                                
-                if(((formatDateToDayMonth(actualyStart) === formatDateToDayMonth(d) && hourStart === hour)|| 
-                    (formatDateToDayMonth(actualyEnd) === formatDateToDayMonth(d) && hourEnd === hour))){
-
+    
+                if(((formatDateToDayMonth(actualyStart) === formatDateToDayMonth(d) && hourStart == hour)|| 
+                    (formatDateToDayMonth(actualyEnd) === formatDateToDayMonth(d) && hourEnd == hour))){
+                    
                    
                     if(inActivityTime === false){
                         inActivityTime = true;
@@ -1779,7 +1780,10 @@ async function createGrid(projectId, project) {
             
             if(index+1 < project.length){
             actualyStart = sortedDates[index+1].compressedStartDate
+            actualyStart = new Date(actualyStart)
+            actualyStart.setHours(actualyStart.getHours() + 1)
             actualyEnd = sortedDates[index+1].end
+            console.log(extractTimeFromDate(actualyEnd))
             }  
             
             
