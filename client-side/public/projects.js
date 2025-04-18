@@ -507,7 +507,11 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
         newActivity.projectData.isMilestone = document.getElementById("activityToEditIsMilestone").checked
         newActivity.title = document.getElementById("activityToEditTitle").value
         newActivity.users = newActivity.users.concat(editedActivityIds)
-        newActivity.projectData.status = document.getElementById("activityToEditStatusSelect").value
+        let newStatus = document.getElementById("activityToEditStatusSelect").value
+        if (newStatus == 'overdue' || newStatus == 'discarded') {
+            newStatus = 'active'
+        }
+        newActivity.projectData.status = newStatus
         newActivity.projectData.previous = (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity')? previousActivitySelectValue._id : null
         newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
         newActivity.projectData.input = document.getElementById("activityToEditInput").value
