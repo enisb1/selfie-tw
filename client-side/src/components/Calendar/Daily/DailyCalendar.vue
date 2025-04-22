@@ -20,7 +20,7 @@
             <div class="daily_timeslot bg-secondary min-h-16 text-white">09:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">10:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">11:00</div>
-            <div class="daily_timeslot bg-secondary min-h-16 text-white">12:00</div>
+            <div class="daily_timeslot bg-secondary min-h-16 text-white" id="midCalendar">12:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">13:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">14:00</div>
             <div class="daily_timeslot bg-secondary min-h-16 text-white">15:00</div>
@@ -366,6 +366,9 @@ export default {
         onMounted(() => {
             updateCalendar()
             updateHeaderDay()
+
+            const midCalendarEl = document.getElementById('midCalendar')
+            midCalendarEl.scrollIntoView({behavior: 'smooth'})
 
             // listen to schedule boxes click event
             window.addEventListener('showScheduleInfoDaily', toggleScheduleInfoOnFromEvent);
