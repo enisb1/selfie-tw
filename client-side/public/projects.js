@@ -1388,9 +1388,9 @@ async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
             console.log("UNA SOLA ATTIVITA NELLA FASE + NON MILESTONE + TRASLABILE", "deadline aggiornata a:", nowDate)
         
         }else{
+            
             await updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
             currentActivity[countRic].projectData.originalEndDate = nowDate
-            await updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
             console.log("UNA SOLA ATTIVITA NELLA FASE + SI CONTRAE")
         }
     }else{
