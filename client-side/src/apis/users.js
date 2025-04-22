@@ -4,7 +4,7 @@ import axios from 'axios'
 export async function newUser(username,password,email,firstName,lastName,telegram,
     unavailableStart, unavailableEnd, unavailableFrequency, unavailableRepNumber, unavailableRepDate){
     try {
-        const response = await axios.post(`http://localhost:8000/api/login/addUser`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/login/addUser`, {
             username: username,
             password: password,
             email: email,
@@ -26,7 +26,7 @@ export async function newUser(username,password,email,firstName,lastName,telegra
 // check user password
 export async function checkUserPassword(username,password) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/login/passwordCheck`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/login/passwordCheck`, {
             username: username,
             password: password
         });
@@ -39,7 +39,7 @@ export async function checkUserPassword(username,password) {
 // check if username is available
 export async function checkUsername(username) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/login/checkUsername`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/login/checkUsername`, {
             username: username
         });
         return response.data;
@@ -51,7 +51,7 @@ export async function checkUsername(username) {
 // get all users
 export async function getAllUsers() {
     try {
-        const response = await axios.get(`http://localhost:8000/api/login/allUsers`);
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/login/allUsers`);
         return response.data.users;
     } catch (error) {
         throw error.response.data;
@@ -60,7 +60,7 @@ export async function getAllUsers() {
 
 export async function updateUnavailability(userId, updatedData) {
     try {
-        const response = await axios.put(`http://localhost:8000/api/login/updateUnavailability/${userId}`, updatedData);
+        const response = await axios.put(`https://site232418.tw.cs.unibo.it/api/login/updateUnavailability/${userId}`, updatedData);
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -69,7 +69,7 @@ export async function updateUnavailability(userId, updatedData) {
 
 export async function getUser(userId) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/login/getUser/${userId}`);
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/login/getUser/${userId}`);
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -78,7 +78,7 @@ export async function getUser(userId) {
 
 export async function getUsers(userIds) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/login/getUsers`, { userIds });
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/login/getUsers`, { userIds });
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -87,7 +87,7 @@ export async function getUsers(userIds) {
 
 export async function getUserIdsByEmails(emails) {
     try {
-        const response = await axios.post('http://localhost:8000/api/login/getUserIdsByEmails', { emails });
+        const response = await axios.post('https://site232418.tw.cs.unibo.it/api/login/getUserIdsByEmails', { emails });
         return response.data;
     } catch (error) {
         throw error.response.data;
@@ -96,7 +96,7 @@ export async function getUserIdsByEmails(emails) {
 
 export async function checkUsernameResourcesUsers(username) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/login/checkUsernameResourcesUsers/${username}`);
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/login/checkUsernameResourcesUsers/${username}`);
         return response.data;
     } catch (error) {
         console.error('Error checking username:', error);

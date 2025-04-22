@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export async function postSettingsPom(workTime, relaxTime, cycleNum, user) {
-    await axios.post('http://localhost:8000/api/pomodoro/addSettingsPom', {
+    await axios.post('https://site232418.tw.cs.unibo.it/api/pomodoro/addSettingsPom', {
                      "workTime":workTime.value, 
                      "relaxTime":relaxTime.value, 
                      "cycleNum":cycleNum.value, 
@@ -11,7 +11,7 @@ export async function postSettingsPom(workTime, relaxTime, cycleNum, user) {
 
 export async function getSettingsPomUser(username){
     try {
-        const response = await axios.get(`http://localhost:8000/api/pomodoro/getUserSettingsPom`, {
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/pomodoro/getUserSettingsPom`, {
             params: {
                 user:username
             }

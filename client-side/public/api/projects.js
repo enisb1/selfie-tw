@@ -1,6 +1,6 @@
 async function userExists(username) {
     try {
-        const response = await fetch(`http://localhost:8000/api/login/userExists/${username}`);
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/login/userExists/${username}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -14,7 +14,7 @@ async function userExists(username) {
 // post event to db using fetch
 async function postActivity(title, deadline, userIds, projectData) {
     try {
-        const response = await fetch('http://localhost:8000/api/calendar/addActivityNoInvite', {
+        const response = await fetch('https://site232418.tw.cs.unibo.it/api/calendar/addActivityNoInvite', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -41,7 +41,7 @@ async function postActivity(title, deadline, userIds, projectData) {
 
 async function createProject(name, description, start, end, owner, members, activities) {
     try {
-        const response = await fetch('http://localhost:8000/api/projects/createProject', {
+        const response = await fetch('https://site232418.tw.cs.unibo.it/api/projects/createProject', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -70,7 +70,7 @@ async function createProject(name, description, start, end, owner, members, acti
 
 async function updateActivityProjectId(activityId, projectId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/calendar/updateActivityProjectId/${activityId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/calendar/updateActivityProjectId/${activityId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -93,7 +93,7 @@ async function updateActivityProjectId(activityId, projectId) {
 
 async function getProjectsByUser(userId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/projectsByUser/${userId}`);
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/projectsByUser/${userId}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -106,7 +106,7 @@ async function getProjectsByUser(userId) {
 
 async function getActivitiesByProject(projectId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/activitiesByProject/${projectId}`);
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/activitiesByProject/${projectId}`);
         if (!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -119,7 +119,7 @@ async function getActivitiesByProject(projectId) {
 
 async function addActivityToProject(projectId, activityId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/addActivityToProject/${projectId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/addActivityToProject/${projectId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -140,7 +140,7 @@ async function addActivityToProject(projectId, activityId) {
 
 async function getUsers(userIds) {
     try {
-        const response = await fetch('http://localhost:8000/api/login/getUsers', {
+        const response = await fetch('https://site232418.tw.cs.unibo.it/api/login/getUsers', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -161,7 +161,7 @@ async function getUsers(userIds) {
 
 async function editActivity(activityId, updatedData) {
     try {
-        const response = await fetch(`http://localhost:8000/api/calendar/activities/${activityId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/calendar/activities/${activityId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -182,7 +182,7 @@ async function editActivity(activityId, updatedData) {
 
 async function getActivitiesByIds(activityIds) {
     try {
-        const response = await fetch('http://localhost:8000/api/calendar/getActivitiesByIds', {
+        const response = await fetch('https://site232418.tw.cs.unibo.it/api/calendar/getActivitiesByIds', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -203,7 +203,7 @@ async function getActivitiesByIds(activityIds) {
 
 async function deleteActivity(activityId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/calendar/activities/${activityId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/calendar/activities/${activityId}`, {
             method: 'DELETE'
         });
 
@@ -221,7 +221,7 @@ async function deleteActivity(activityId) {
 
 async function updateWaitingActivable(activityId, output) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/updateWaitingActivable/${activityId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/updateWaitingActivable/${activityId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -243,7 +243,7 @@ async function updateWaitingActivable(activityId, output) {
 
 async function editProject(projectId, projectData, notificationMessage) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/${projectId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -265,7 +265,7 @@ async function editProject(projectId, projectData, notificationMessage) {
 
 async function updateActivityStartDate(activityId, newStartDate) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/editStartDate/${activityId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/editStartDate/${activityId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -286,7 +286,7 @@ async function updateActivityStartDate(activityId, newStartDate) {
 
 async function updateActivityDeadline(activityId, newDeadline) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/editDeadline/${activityId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/editDeadline/${activityId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -307,7 +307,7 @@ async function updateActivityDeadline(activityId, newDeadline) {
 
 async function deleteProject(projectId) {
     try {
-        const response = await fetch(`http://localhost:8000/api/projects/${projectId}`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/${projectId}`, {
             method: 'DELETE'
         });
 

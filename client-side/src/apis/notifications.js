@@ -3,7 +3,7 @@ import axios from 'axios'
 // get all notifications
 export async function getNotifications(username) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/getNotifications`,
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/getNotifications`,
             {
                 receiver: username,
             });
@@ -16,7 +16,7 @@ export async function getNotifications(username) {
 // get new notifications
 export async function getNewNotifications(username) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/getNewNotifications`,
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/getNewNotifications`,
             {
                 receiver: username,
             });
@@ -29,7 +29,7 @@ export async function getNewNotifications(username) {
 // send new message
 export async function sendNotification(sender,receiver,text) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/addNotification`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/addNotification`, {
             sender: sender,
             receiver: receiver,
             time: new Date(),
@@ -47,7 +47,7 @@ export async function sendNotification(sender,receiver,text) {
 // mark notification as read
 export async function readNotification(id) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/readNotification`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/readNotification`, {
             _id: id
         });
         return response.data;
@@ -59,7 +59,7 @@ export async function readNotification(id) {
 // accept activity invite
 export async function acceptInvite(id,userId,notificationId,type) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/acceptInvite`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/acceptInvite`, {
             id: id,
             userId: userId,
             notificationId: notificationId,
@@ -74,7 +74,7 @@ export async function acceptInvite(id,userId,notificationId,type) {
 // decline activity invite
 export async function declineInvite(id) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/declineInvite`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/declineInvite`, {
             id: id,
         });
         return response.data;
@@ -86,7 +86,7 @@ export async function declineInvite(id) {
 // send pomodoro configuration
 export async function sharePomodoroConfig(sender,receiver,minuteStudy,minuteRelax,numCycles) {
     try {
-        const response = await axios.post(`http://localhost:8000/api/notifications/sharePomodoroConfig`, {
+        const response = await axios.post(`https://site232418.tw.cs.unibo.it/api/notifications/sharePomodoroConfig`, {
             sender: sender,
             receiver: receiver,
             minuteStudy: minuteStudy,

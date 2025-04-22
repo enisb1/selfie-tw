@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export async function postNote(title, bodyNote, bodyTask, format, access, type, user, userListAccess) {
-    await axios.post('http://localhost:8000/api/note/addNote', {"title": title, "bodyNote": bodyNote, "bodyTask": bodyTask, 
+    await axios.post('https://site232418.tw.cs.unibo.it/api/note/addNote', {"title": title, "bodyNote": bodyNote, "bodyTask": bodyTask, 
                                                                 "format": format, "access": access,
                                                                 "type": type, "user": user, "userListAccess": userListAccess
     })
@@ -12,7 +12,7 @@ export async function getExpiringTasksInRange(startDate, endDate, username) {
     const startStringUTC = new Date(startDate).toISOString();
     const endStringUTC = new Date(endDate).toISOString();
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/tasks`, {
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/note/tasks`, {
             params: {
                 start: startStringUTC,
                 end: endStringUTC,
@@ -28,12 +28,12 @@ export async function getExpiringTasksInRange(startDate, endDate, username) {
 
 export async function deleteNote(noteId) {
     
-    await axios.delete(`http://localhost:8000/api/note/deleteNote/${noteId}`)
+    await axios.delete(`https://site232418.tw.cs.unibo.it/api/note/deleteNote/${noteId}`)
 }
 
 export async function getNoteById(id) {
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/getNoteId/${id}`)
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/note/getNoteId/${id}`)
         return response.data       
     } catch (error) {
         console.error("Error retrieving note: ", error)
@@ -42,12 +42,12 @@ export async function getNoteById(id) {
 }
 
 export async function editNote(noteId, updatedData) {
-    await axios.put(`http://localhost:8000/api/note/editNote/${noteId}`, updatedData)
+    await axios.put(`https://site232418.tw.cs.unibo.it/api/note/editNote/${noteId}`, updatedData)
 }
 
 export async function getNoteUser(username, access){
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/getUserNote`, {
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/note/getUserNote`, {
             params: {
                 user:username, 
                 access:access
@@ -62,7 +62,7 @@ export async function getNoteUser(username, access){
 
 export async function getUserSelectNote(username, access){
     try {
-        const response = await axios.get(`http://localhost:8000/api/note/getUserSelectNote`, {
+        const response = await axios.get(`https://site232418.tw.cs.unibo.it/api/note/getUserSelectNote`, {
             params: {
                 user:username, 
                 access:access
