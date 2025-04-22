@@ -459,16 +459,14 @@ async function addUserToEditedActivityList() {
     let exists = false
     let user_id = ''
     const activityToEditError = document.getElementById("activityToEditError")
-    //TODO: check if it's not already contained in current activity, and check if it's contained in project
-    // and if it's != from current user... if all of this is correct then OK!
+    // check if it's a valid user to add
     if (userToAddInput.value !== '' && userToAddInput.value !== state.username && 
         !editedActivityUsers.includes(userToAddInput.value)) {
         const existsObject = await window.userExists(userToAddInput.value)
         exists = existsObject.exists
         user_id = existsObject.id
     }
-    // check if it's in current project and if it's NOT contained in current activity (else it would duplicate)
-    if (exists && currentProject.members.includes(user_id)) {
+    if (exists && currentProject.members.includes(userToAddInput.value)) {
         editedActivityUsers.push(userToAddInput.value)
         editedActivityIds.push(user_id)
         userToAddInput.value = ''
@@ -476,7 +474,7 @@ async function addUserToEditedActivityList() {
         updateEditedActivityAddedUsersInput()
     }
     else {
-        activityToEditError.innerHTML = "User not valid"
+        document.getElementById("activityToEditError").innerHTML = "User is not valid"
     }
 }
 
@@ -1157,15 +1155,14 @@ async function addUserToNewActivityList() {
     const userToAddInput = document.getElementById("newActivityUsersInput")
     let exists = false
     let user_id = ''
-    // TODO: check if it's different from current user and also if it's
-    // contained in the project's ids
+    // check if it's a valid user to add
     if (userToAddInput.value !== '' && userToAddInput.value !== state.username 
             && !newActivityUsers.includes(userToAddInput.value)) {
         const existsObject = await window.userExists(userToAddInput.value)
         exists = existsObject.exists
         user_id = existsObject.id
     }       
-    if (exists) {
+    if (exists && currentProject.members.includes(userToAddInput.value)) {
         newActivityUsers.push(userToAddInput.value)
         newActivityIds.push(user_id)
         userToAddInput.value = ''
@@ -1173,7 +1170,7 @@ async function addUserToNewActivityList() {
         updateNewActivityUsersInput()
     }
     else {
-        document.getElementById("activityToAddError").innerHTML = "User doesn't exist"
+        document.getElementById("activityToAddError").innerHTML = "User is not valid"
     }
 }
 
