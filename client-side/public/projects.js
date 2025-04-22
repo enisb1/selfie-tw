@@ -1225,7 +1225,6 @@ function formatDateToDayMonth(dateString) {
 }
 
 function extractTimeFromDate(dateString) {
-    console.log("datastringa",dateString)
     const date = new Date(dateString); // Converte la stringa in oggetto Date
     const hours = date.getHours().toString().padStart(2, '0'); // Estrai le ore, aggiungi lo 0 se necessario
     return `${hours}`; // Combina ore e minuti in formato HH:mm
@@ -1299,16 +1298,53 @@ function getActivitiesNumberByPhase(activities, phase) {
     return activitiesForPhase.length;
 }
 
-function getActivitiesPhase(activities, phase){
+/*function getActivitiesPhase(activities, phase){
     let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
     return activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
+
+    
+}*/
+
+async function getActivitiesPhase(activities, phase) {
+    // Filtra le attività per la fase specificata
+    //let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
+    let activitiesForPhase = await sortedActivity(activities)
+    // Ordina le attività per data di inizio
+    //activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
+    // Dividi le attività in sequenze basate su 'previous'
+    let sequences = [];
+    let sequence = []
+    let count = 0
+    console.log(activitiesForPhase, "prova")
+    for (const activity of activitiesForPhase) {
+        if (activity.projectData.previous === null && sequence.length !== 0) {
+            sequences.push(sequence);
+            console.log(sequences, "entarta")
+            sequence = []
+            sequence.push(activity);
+            if(count === activitiesForPhase.length - 1){
+                sequences.push(sequence);
+                console.log(sequences)
+                return sequences
+            }
+
+        }else{
+            sequence.push(activity);
+            console.log(sequence, "entarta2")
+            if(count === activitiesForPhase.length - 1){
+                sequences.push(sequence);
+                console.log(sequences)
+                return sequences
+            }
+        }
+        count++
+    }
 }
 
 function calculateNewDateBasedOnDifference(date1, date2, dataNow, contracts) {
     const date1Time = new Date(date1).getTime();
     const date2Time = new Date(date2).getTime();
     const dataNowTime = new Date(dataNow).getTime();
-    console.log(date1, date2, dataNow, contracts)
     // Calcola la differenza in millisecondi
     const differenceInMilliseconds = Math.abs(date1Time - date2Time);
     
@@ -1331,10 +1367,17 @@ function isActivityInRitardo(activity, nowDate) {
     return false;
 }
 
+let oldSequence = null
 
 
-
-async function calcoloRitardo(currentActivity, countRic, nowDate){
+async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
+    console.log(currentActivity[countRic].deadline > nowDate)
+    if(sequence !== oldSequence && currentActivity[countRic].projectData.status !== "active"){
+        console.log("prossima sequenza in orario o inattiva")
+        return
+    }
+        
+    oldSequence = sequence
     if(getActivitiesNumberByPhase(currentActivity, currentActivity[countRic].projectData.phase) === 1){
         if(currentActivity[countRic].projectData.isMilestone === true)
         {
@@ -1424,7 +1467,7 @@ async function calcoloRitardo(currentActivity, countRic, nowDate){
                     return
                 }}
             countRic++
-            await calcoloRitardo(currentActivity, countRic, nowDate) 
+            await calcoloRitardo(currentActivity, countRic, nowDate, sequence) 
             
         }
     }
@@ -1442,7 +1485,7 @@ async function ritardCalc(projectId, projectStart,timeNow){
     const nowDate = timeNow ? timeNow : await window.getServerTime()
     let isNormal = false
     let count = 2;
-    let isoDelay = "";
+    let sequenceActivity = [];
     let currentActivity = false;
     editedTooLate = false
     const processedPhases = new Set();
@@ -1454,11 +1497,16 @@ async function ritardCalc(projectId, projectStart,timeNow){
         if (!processedPhases.has(phase)) {
             // Aggiungi la fase al set delle fasi elaborate
             processedPhases.add(phase);
-            console.log(nowDate)
             // Chiama calcoloRitardo per la fase corrente
             if (isActivityInRitardo(activity, nowDate)) {
-                await calcoloRitardo(getActivitiesPhase(project, phase), countRic, nowDate);
-                console.log("calcolato ritardo")
+                //sequenceActivity = getActivitiesPhase(project, phase)
+                sequenceActivity = await sortedActivity(project)
+                console.log("WWWWWw", sequenceActivity)
+                for(let i=0; sequenceActivity.length > i; i++){
+                    console.log("SEQUENCE", sequenceActivity[i])
+                    await calcoloRitardo(sequenceActivity[i], countRic, nowDate, i);
+                    console.log("calcolato ritardo")
+                }
             }
         }
     }
@@ -1541,9 +1589,42 @@ async function getDoneActivityIds(projectId) {
 }
 
 
+
+
+async function sortedActivity(activities) {
+    const activityMap = new Map(activities.map(activity => [activity._id, activity]));
+    const visited = new Set();
+    const allChains = [];
+
+    // Trova tutte le attività iniziali (quelle con previous === null)
+    const startActivities = activities.filter(a => a.projectData?.previous === null);
+
+    for (const start of startActivities) {
+        const chain = [];
+        let current = start;
+
+        while (current && !visited.has(current._id)) {
+            chain.push(current);
+            visited.add(current._id);
+            current = activities.find(a => a.projectData?.previous === current._id);
+        }
+
+        allChains.push(chain);
+    }
+
+    // Se vuoi un singolo array piatto, decommenta la riga sotto
+    // const flatSorted = allChains.flat();
+
+    console.log("Catene trovate:", allChains.map(c => c.map(a => a)));
+    return allChains; // oppure `flatSorted` se vuoi tutto insieme
+}
+
+
+    
+
+
   
 async function createGrid(projectId, project) {
-    console.log("PROGETTI PASSATI", project)
     //let project = await window.getActivitiesByProject(projectId)
     let idDoneActivity = await getDoneActivityIds(projectId)
     
@@ -1613,7 +1694,6 @@ async function createGrid(projectId, project) {
             dates.push(activityStructure) 
             
         }    
-        console.log("dates", dates)
         dates.sort((a, b) => {
             // Ordina per fase in ordine crescente
             const phaseComparison = a.phase.localeCompare(b.phase);
@@ -1801,7 +1881,6 @@ async function createGrid(projectId, project) {
             actualyStart = new Date(actualyStart)
             actualyStart.setHours(actualyStart.getHours())
             actualyEnd = sortedDates[index+1].originalEndDate
-            console.log(extractTimeFromDate("bhoooo",actualyEnd, actualyStart))
             }  
             
             
