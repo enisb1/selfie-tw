@@ -296,7 +296,7 @@ async function updateActivityDeadline(activityId, newDeadline) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ deadline: newDeadline })
+            body: JSON.stringify({ originalEndDate: newDeadline })
         });
 
         if (!response.ok) {

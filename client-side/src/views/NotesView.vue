@@ -311,10 +311,11 @@ export default {
 
         //Add Note to NoteView
         const addNote = async () => {
-            
+            console.log("weygregrgegerygre")
             if(noteFormat.value === "normalNote" || noteFormat.value === "markdownNote"){
                 noteType.value = "Note"
             }else{
+                noteFormat.value = "Task"
                 noteType.value = "Task"
             }
             console.log(noteFormat.value)

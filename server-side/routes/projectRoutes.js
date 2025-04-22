@@ -129,11 +129,11 @@ router.put('/editStartDate/:activityId', async (req, res) => {
 // Update activity deadline by activity ID
 router.put('/editDeadline/:activityId', async (req, res) => {
     const { activityId } = req.params;
-    const { deadline } = req.body;
+    const { originalEndDate } = req.body;
     try {
         const updatedActivity = await Activity.findOneAndUpdate(
             { 'projectData._id': activityId },
-            { 'deadline': new Date(deadline) },
+            { 'projectData.originalEndDate': new Date(originalEndDate) },
             { new: true }
         );
         

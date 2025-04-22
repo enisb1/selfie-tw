@@ -11,6 +11,7 @@ const projectDataSchema = new mongoose.Schema({
     input: String,
     output: String,
     compressedStartDate: Date,
+    originalEndDate: Date,
 });
 
 const activitySchema = new mongoose.Schema({
