@@ -1369,6 +1369,18 @@ function isActivityInRitardo(activity, nowDate) {
 
 let oldSequence = null
 
+function isOneHourDifference(date1, date2) {
+    console.log(date1, date2)
+    const time1 = new Date(date1).getTime();
+    const time2 = new Date(date2).getTime();
+
+    // Calcola la differenza in millisecondi
+    const differenceInMilliseconds = Math.abs(time1 - time2);
+    console.log(differenceInMilliseconds, "differenza")
+    // Confronta la differenza con un'ora in millisecondi (3600000 ms)
+    return differenceInMilliseconds <= 3600000;
+}
+
 
 async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
     console.log(currentActivity[countRic].deadline > nowDate)
@@ -1388,7 +1400,11 @@ async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
             console.log("UNA SOLA ATTIVITA NELLA FASE + NON MILESTONE + TRASLABILE", "deadline aggiornata a:", nowDate)
         
         }else{
-            
+            if(countRic === 0 && new Date(currentActivity[countRic].projectData.originalEndDate) < new Date(nowDate)){
+                await updateActivityDeadline(currentActivity[countRic].projectData._id, currentActivity[countRic].deadline)
+                currentActivity[countRic].projectData.originalEndDate = currentActivity[countRic].deadlin
+                console.log("UNA SOLA ATTIVITA NELLA FASE + SI CONTRAEEE")
+            }
             await updateActivityDeadline(currentActivity[countRic].projectData._id, nowDate)
             currentActivity[countRic].projectData.originalEndDate = nowDate
             console.log("UNA SOLA ATTIVITA NELLA FASE + SI CONTRAE")
@@ -1400,7 +1416,11 @@ async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
                 const newDeadline = new Date(currentActivity[countRic].projectData.originalEndDate);
                 newDeadline.setHours(newDeadline.getHours() - 1);
                 currentActivity[countRic-1].projectData.originalEndDate = newDeadline
-                await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
+                
+                if(isOneHourDifference(new Date(currentActivity[countRic-1].projectData.originalEndDate), new Date(currentActivity[countRic].projectData.originalEndDate)) === false){
+                    await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
+                    console.log("forse si")
+                }
                 console.log("TROPPO RITARDO", "deadline aggiornata sopraaa a:", currentActivity[countRic-1].projectData.originalEndDate)
             }
             await updateActivityStartDate(currentActivity[countRic].projectData._id, currentActivity[countRic-1].projectData.originalEndDate)
@@ -1423,8 +1443,11 @@ async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
                     const newDeadline = new Date(currentActivity[countRic].projectData.originalEndDate);
                     newDeadline.setHours(newDeadline.getHours() - 1);
                     currentActivity[countRic-1].projectData.originalEndDate = newDeadline
-                    await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
-                    
+                    console.log("TTTTT", currentActivity[countRic-1].deadline)
+                    if(isOneHourDifference(new Date(currentActivity[countRic-1].projectData.originalEndDate), new Date(currentActivity[countRic].projectData.originalEndDate)) === false){
+                        //currentActivity[countRic-1].projectData.originalEndDate = newDeadline
+                        await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
+                    }
                     console.log("TROPPO RITARDO", "deadline aggiornata medioooo a:", currentActivity[countRic-1].projectData.originalEndDate)
                 }
                 currentActivity[countRic].projectData.compressedStartDate = calculateNewDateBasedOnDifference(currentActivity[countRic-1].projectData.originalEndDate, currentActivity[countRic].projectData.startDate, currentActivity[countRic].projectData.startDate)
@@ -1457,8 +1480,9 @@ async function calcoloRitardo(currentActivity, countRic, nowDate, sequence){
                     const newDeadline = new Date(currentActivity[countRic+1].projectData.originalEndDate);
                     newDeadline.setHours(newDeadline.getHours() - 1);
                     currentActivity[countRic].projectData.originalEndDate = newDeadline
-                    await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
-                    editedTooLate = true
+                    if(isOneHourDifference(new Date(currentActivity[countRic].projectData.originalEndDate), new Date(currentActivity[countRic+1].projectData.originalEndDate)) === false){
+                        await updateActivityDeadline(currentActivity[countRic].projectData._id, newDeadline)
+                    }
 
                     console.log("TROPPO RITARDO", "deadline aggiornata sottoooo a:", currentActivity[countRic].projectData.originalEndDate)
             
