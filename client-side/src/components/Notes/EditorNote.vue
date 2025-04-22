@@ -59,14 +59,13 @@
 
 <script>
 
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { marked } from 'marked'
 import SingleNote from '@/components/Notes/SingleNote.vue'
 import SingleTask from '@/components/Notes/SingleTask.vue';
 import { format } from 'date-fns'
 import Modal from '@/components/Modal.vue';
 import DatePicker from '@vuepic/vue-datepicker';
-import { getNoteById, editNote } from '@/apis/note'
 
 export default {
     props: ['note','noteFormat','noteTitle', 'noteBody', 'task','taskBody', 'noteUser', 'noteSecurity'],
@@ -106,7 +105,6 @@ export default {
 
         
         const toggleEditorTask = (id, body) => {
-            console.log(body) 
             emit('add-tasknote', id, body)
         }
 

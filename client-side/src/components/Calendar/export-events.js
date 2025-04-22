@@ -10,7 +10,6 @@ export async function getCalendarOptions(event, currentUserId) {
             email: user.email
         }
     });
-    console.log(attendees)
 
     // recurrence
     const recurrence = {

@@ -112,9 +112,6 @@ export async function postEvent(title, location, start, end, frequency, repetiti
         "notify15Before": notify15Before, "notify30Before": notify30Before, "notify1HourBefore": notify1HourBefore, 
         "notify1DayBefore": notify1DayBefore, "pomodoroSettings": pomodoroSettings}
     )
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 // post activity to db
@@ -123,7 +120,6 @@ export async function postActivity(title, deadline, userIds, myId, compositeActi
         "isDone": false, "users": userIds, "creator": myId, "compositeActivity": compositeActivity, "projectData": projectData}
     )
     .then(({data}) => {
-        console.log(data);
         return data.data;
     })
 }
@@ -150,7 +146,6 @@ export async function postSubacts(compositeActivityTitle, subactivities, users, 
 
     try {
         const results = await Promise.all(promises);
-        console.log('Subactivities posted:', results);
         return results;
     } catch (error) {
         console.error('Error posting subactivities:', error);
@@ -170,33 +165,21 @@ export async function updateActivityProjectId(activityId, projectId) {
 // edit activity
 export async function editActivity(activityId, updatedData) {
     await axios.put(`http://localhost:8000/api/calendar/activities/${activityId}`, updatedData)
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 // delete event
 export async function deleteEvent(eventId) {
     await axios.delete(`http://localhost:8000/api/calendar/events/${eventId}`)
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 // delete event
 export async function deleteActivity(activityId) {
     await axios.delete(`http://localhost:8000/api/calendar/activities/${activityId}`)
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 // edit event
 export async function editEvent(eventId, updatedData) {
     await axios.put(`http://localhost:8000/api/calendar/events/${eventId}`, updatedData)
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 // get all resources
@@ -221,9 +204,6 @@ export async function getResourcesFromIds(resources) {
 // post resource
 export async function postResource(username) {
     await axios.post('http://localhost:8000/api/calendar/addResource', {"username": username})
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 export async function removeResourceFromEvent(resourceId, eventId) {
@@ -238,9 +218,6 @@ export async function removeResourceFromEvent(resourceId, eventId) {
 // delete resource from collection of resources and from each event that uses it
 export async function deleteResource(resourceId) {
     await axios.delete(`http://localhost:8000/api/calendar/resources/${resourceId}`)
-    .then(({data}) => {
-        console.log(data);
-    })
 }
 
 export async function getEventsByResource(resourceId) {
@@ -257,8 +234,6 @@ export async function deleteActivitiesByGroup(groupName, groupId) {
         const response = await axios.delete('http://localhost:8000/api/calendar/deleteByGroup', {
             data: { groupName, groupId }
         });
-
-        console.log('Activities deleted:', response.data);
         return response.data;
     } catch (error) {
         console.error('Error deleting activities:', error);

@@ -174,7 +174,6 @@ async function editActivity(activityId, updatedData) {
         }
 
         const data = await response.json();
-        console.log(data);
         return data; // Return the response data
     } catch (error) {
         throw new Error(`Error editing activity: ${error.message}`);
@@ -203,7 +202,6 @@ async function getActivitiesByIds(activityIds) {
 }
 
 async function deleteActivity(activityId) {
-    console.log(activityId)
     try {
         const response = await fetch(`http://localhost:8000/api/calendar/activities/${activityId}`, {
             method: 'DELETE'
@@ -214,7 +212,6 @@ async function deleteActivity(activityId) {
         }
 
         const data = await response.json();
-        console.log(data);
         return data; // Return the response data
     } catch (error) {
         console.error(`Error deleting activity: ${error.message}`);
@@ -237,7 +234,6 @@ async function updateWaitingActivable(activityId, output) {
         }
 
         const data = await response.json();
-        console.log(data);
         return data; // Return the response data
     } catch (error) {
         console.error(`Error updating activities: ${error.message}`);
@@ -282,7 +278,6 @@ async function updateActivityStartDate(activityId, newStartDate) {
         }
 
         const data = await response.json();
-        console.log('Activity updated:', data);
         return data; // Return the response data
     } catch (error) {
         console.error('Error updating activity start date:', error);
@@ -304,7 +299,6 @@ async function updateActivityDeadline(activityId, newDeadline) {
         }
 
         const data = await response.json();
-        console.log('Activity updated:', data);
         return data; // Return the response data
     } catch (error) {
         console.error('Error updating activity deadline date:', error);

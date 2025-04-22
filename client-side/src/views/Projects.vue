@@ -256,7 +256,6 @@
       const inHome = ref(true)
       const homePage = async () => {
         projects.value = await getProjectsByUser(store.state._id)
-        console.log(projects.value)
         inHome.value = true
         inProject.value = false
       }

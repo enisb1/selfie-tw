@@ -311,14 +311,12 @@ export default {
 
         //Add Note to NoteView
         const addNote = async () => {
-            console.log("weygregrgegerygre")
             if(noteFormat.value === "normalNote" || noteFormat.value === "markdownNote"){
                 noteType.value = "Note"
             }else{
                 noteFormat.value = "Task"
                 noteType.value = "Task"
             }
-            console.log(noteFormat.value)
             notes.value.push({
                 title: noteTitle.value,
                 bodyNote: noteBody.value,
@@ -360,9 +358,6 @@ export default {
                 selectNotes.value = fetchNotesSelectNotes;
                 
                 notes.value = [...fetchNotes, ...fetchNotesPublicNotes, ...fetchNotesSelectNotes];
-
-                
-                console.log(notes.value)
             } catch (error) {
                 console.error("Errore durante il caricamento delle noteUser: ", error);
             }
@@ -391,7 +386,6 @@ export default {
         const deleteNoteView = async (id) => {
             try {
                 const result = await deleteNote(id)
-                console.log(result)
                 notes.value = notes.value.filter(note => note._id !== id)
 
             } catch (error) {
@@ -404,7 +398,6 @@ export default {
         const duplicateNote = async (id) => {
             try {
                 const noteId = await getNoteById(id)
-                console.log(noteId.type)
                 await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.format, 
                                noteId.access, noteId.type, noteId.user, noteId.userListAccess);
                 
@@ -439,7 +432,6 @@ export default {
             noteFormat.value = result.format
             noteUser.value = result.user
             noteSecurity.value = result.access
-            console.log()
             
             selectedNote.value = result 
             editorVisible.value = !editorVisible.value
@@ -447,7 +439,6 @@ export default {
 
 
         const uploadNote = async (body,id) => {
-            console.log("nota salvata")
             const noteUp = await getNoteById(id)
 
             noteBody.value = body
@@ -461,7 +452,6 @@ export default {
         }
 
         const uploadTask = async (body,id) => {
-            console.log(id)
             const noteUp = await getNoteById(id)
             taskBody.value = body
             noteUp.bodyTask = taskBody.value 
@@ -511,58 +501,48 @@ export default {
                 return notes.value.filter(note => note.type === filter.value)
             
             }else if(filter.value === "Date" && inNotePage.value === true){
-                console.log("data note funziona")
                 showFilterModal.value = false
                 filteredNotes = notes.value.filter(note => note.type === "Note")
                 return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
 
             }else if(filter.value === "Date" && inTaskPage.value === true){
-                console.log("data task funziona")
                 showFilterModal.value = false
                 filteredNotes = notes.value.filter(note => note.type === "Task")
                 return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
             
             }else if(filter.value === "Date"){
-                console.log("Data Funziona")
                 showFilterModal.value = false
                 return filteredNotes.sort((a, b) => new Date(formatDate(b.updatedAt)) - new Date(formatDate(a.updatedAt)))
 
             }else if(filter.value === "Title" && inNotePage.value === true){
-                console.log("title note funziona")
                 showFilterModal.value = false
                 filteredNotes = notes.value.filter(note => note.type === "Note")
                 return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
 
             }else if(filter.value === "Title" && inTaskPage.value === true){
-                console.log("title task funziona")
                 showFilterModal.value = false
                 filteredNotes = notes.value.filter(note => note.type === "Task")
                 return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
 
             }else if(filter.value === "Title"){
-                console.log("Titolo Funziona")
                 showFilterModal.value = false
                 return filteredNotes.sort((a, b) => a.title.localeCompare(b.title))
 
             }else if(filter.value === "Length" && inNotePage.value === true){
-                console.log("length note funziona")
                 showFilterModal.value = false
                 filteredNotes = notes.value.filter(note => note.type === "Note")
                 return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
 
             }else if(filter.value === "Length" && inTaskPage.value === true){
-                console.log("length task funziona")
                 showFilterModal.value = false
                 filteredNotes = notes.value.filter(note => note.type === "Task")
                 return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
             
             }else if(filter.value === "Length"){
-                console.log("Lunghezza Funziona")
                 showFilterModal.value = false
                 return filteredNotes.sort((a,b) => a.bodyNote.length - b.bodyNote.length)
 
             }else if(filter.value === "Category"){
-                console.log("Categoria")
                 showFilterModal.value = false
 
             }
@@ -763,7 +743,6 @@ export default {
             showAddModal.value = false
             showAddMenu.value = false
             noteUser.value = store.state.username
-            console.log()
         }
 
         const resetValor = () => {
@@ -780,7 +759,6 @@ export default {
 
         const handleSubmit = (event) => {
             event.preventDefault()
-            console.log("dati salvati")
         }
 
         const fetchUsers = async () => {

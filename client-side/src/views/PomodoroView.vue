@@ -426,7 +426,6 @@ export default {
                         study: 30
                     }
                 ]
-            console.log(user, minSetStudy, minSetRelax, numSetCycle)
             postSettingsPom(minSetStudy, minSetRelax, numSetCycle, user)
         }
 
@@ -460,7 +459,6 @@ export default {
                                 time.value = formatTime(mRelax.value)
                             }
                         }, 1000)
-                        console.log(nCicle.value)
                     }else{
                         buttonText.value = "PLAY"
                         clearInterval(interval)

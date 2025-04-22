@@ -57,9 +57,4 @@ document.getElementById("SaveButton").addEventListener("click", e => {
     let note_title = title_tag.value,
     note_category = category_tag.value,
     note_access = access_tag.value;
-
-    if(note_title || note_category){
-    console.log(note_title, note_category, note_access);
-    }
-
 })
