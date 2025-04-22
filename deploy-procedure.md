@@ -2,7 +2,7 @@
 
 ssh to unibo student machine\
 go to /home/web/site232418/selfie-tw\
-go to branch 'deploy'\
+go to branch 'DEPLOY'\
 run 'git pull' to get latest version
 
 cd to client-side\
