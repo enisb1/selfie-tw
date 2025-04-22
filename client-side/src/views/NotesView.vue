@@ -748,6 +748,14 @@ export default {
                 alert("Title is required")
                 return
             }
+            else if (noteFormat.value === "") {
+                alert("Note format is required")
+                return
+            }
+            else if (noteSecurity.value === "") {
+                alert("Access is required")
+                return
+            }
             editorVisible.value = !editorVisible.value
             newNote.value = showAddModal.value
             noteBody.value = ""//da togliere
