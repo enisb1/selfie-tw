@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export async function postNote(title, bodyNote, bodyTask, category, format, access, type, user, userListAccess) {
+export async function postNote(title, bodyNote, bodyTask, format, access, type, user, userListAccess) {
     await axios.post('http://localhost:8000/api/note/addNote', {"title": title, "bodyNote": bodyNote, "bodyTask": bodyTask, 
-                                                                "category": category, "format": format, "access": access,
+                                                                "format": format, "access": access,
                                                                 "type": type, "user": user, "userListAccess": userListAccess
     })
     .then(({data}) => {

@@ -1,11 +1,11 @@
 <template>
   <!--NoteEditor-->
     <div class="absolute bottom-0 h-full w-full bg-white mb-4">
-        <div v-if="note.format == 'normalNote' || noteFormat == 'normalNote'" class="p-4 z-10">
+        <div v-if="noteFormat == 'normalNote'" class="p-4 z-10">
             <button @click="toggleSave(noteBody,note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
             <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                Author: {{ note.user }} 
-                Access: {{ note.access }} 
+                Author: {{ noteUser }} 
+                Access: {{ noteSecurity }} 
             </span>
             
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
@@ -13,11 +13,11 @@
                         class="w-full"></textarea>
 
         </div>
-        <div v-else-if="note.format == 'markdownNote' || noteFormat == 'markdownNote'" class="p-4 z-10">
+        <div v-else-if="noteFormat == 'markdownNote'" class="p-4 z-10">
             <button @click="toggleSave(localNoteBody, note._id)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
             <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                Author: {{ note.user }} 
-                Access: {{ note.access }} 
+                Author: {{ noteUser }} 
+                Access: {{ noteSecurity }} 
             </span>
             <h1 class="font-bold text-2xl mt-8 mb-6"> {{ noteTitle }} </h1>
             <textarea v-model="localNoteBody" rows="12" cols="50" placeholder="Write your text in markdown here..." 
@@ -28,20 +28,20 @@
         <div v-else class="p-4 z-10">
             <button @click="toggleEditorTask(note._id,taskBody)" class="w-4"><img src="@/images/returnButton.png" alt="returnButton"></button>
             <span class="fixed top-16 left-1/2 -translate-x-1/2 text-secondary text-center min-w-72"> 
-                Author: {{ note.user }} 
-                Access: {{ note.access }} 
+                Author: {{ noteUser }} 
+                Access: {{ noteSecurity }} 
             </span>
             <div class="relative mt-3">
-                <input class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border
+                <input id="taskInput" class="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border
                                 border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none 
                                 focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow" v-model="taskTitleInput">
-                <label class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all 
+                <label for="taskInput" class="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all 
                                   transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs 
                                   peer-focus:text-slate-400 peer-focus:scale-90">
                         Write the task to add here...
                 </label>
             </div>
-            <button @click="addTask(taskTitle,taskDone,note._id)" class="p-4 w-full my-4 bg-secondary text-white rounded-xl font-bold">Add task</button>
+            <button @click="addTaskBody(taskTitle,taskDone,note._id)" class="p-4 w-full my-4 bg-secondary text-white rounded-xl font-bold">Add task</button>
             <h1 class="font-bold text-2xl mt-6 mb-4  text-secondary overflow-hidden text-center md:text-start"> {{ noteTitle }} </h1>
             <div class="relative h-screen w-full">
             <div class="absolute w-full top-0 bottom-72 overflow-scroll">
@@ -69,7 +69,7 @@ import DatePicker from '@vuepic/vue-datepicker';
 import { getNoteById, editNote } from '@/apis/note'
 
 export default {
-    props: ['note','noteFormat','noteTitle', 'noteBody', 'task','taskBody'],
+    props: ['note','noteFormat','noteTitle', 'noteBody', 'task','taskBody', 'noteUser', 'noteSecurity'],
 
     components: {
         SingleNote,
@@ -79,7 +79,9 @@ export default {
     },
 
     setup(props, {emit}){
-        const {note, noteFormat, noteTitle, noteBody, tasks, taskBody} = props
+        const {note, noteFormat, noteTitle, noteBody, tasks, taskBody, noteUser, noteSecurity} = props
+
+    
 
         const localNoteBody = ref(props.noteBody)
         const convertedMarkdown = ref(marked(noteBody)) 
@@ -87,39 +89,41 @@ export default {
 
         watch(() => localNoteBody.value, (newVal) => {
             convertedMarkdown.value = marked(newVal)
-            console.log("modi")
         })
     
-        const toggleSave = (noteBody,id) => {
+        const toggleSave = (noteBody,id) => {  
             emit('save-note',noteBody,id)
         }
 
         const taskTitleInput = ref("")
-        const addTask = (taskTitle, taskdone, id) => {
+        const addTaskBody = (taskTitle, taskdone, id) => {
             taskTitle = taskTitleInput.value
             if(taskTitle === "") return   
-            emit('add-task',taskTitle,taskdone, id)
+            taskBody.push({title: taskTitle, done: taskdone})
+            //emit('add-task',taskTitle,taskdone, id)
             taskTitleInput.value = ""
         }
 
         
-        const toggleEditorTask = (idTask, body) => {
-            console.log("SSSSSS",props.note._id)
-            emit('add-tasknote', idTask, body)
+        const toggleEditorTask = (id, body) => {
+            console.log(body) 
+            emit('add-tasknote', id, body)
         }
 
         const saveExpiration = (index,noteId,expirationTask) => {
-            emit('saveExpiration',index,noteId,expirationTask)
+            taskBody[index].expiration = expirationTask
+            //emit('saveExpiration',index,noteId,expirationTask)
         }
 
         const deleteTask = async (index,noteId) => {
-            emit('deleteTask',index,noteId)
+            taskBody.splice(index, 1);
+            //emit('deleteTask',index,noteId)
         }
         
-        watch(() => taskBody.value, (newVal) => {
+        /*watch(() => taskBody.value, (newVal) => {
             taskBody.value = newVal
             console.log(newVal)
-        })
+        })*/
 
         return{
             toggleSave,
@@ -128,7 +132,7 @@ export default {
             noteTitle,
             noteBody,
             noteFormat,
-            addTask,
+            addTaskBody,
             toggleEditorTask,
             tasks,
             taskBody,
@@ -138,7 +142,9 @@ export default {
             localNoteBody,
             saveExpiration,
             deleteTask,
-            note
+            note,
+            noteUser,
+            noteSecurity
         }
 
     },

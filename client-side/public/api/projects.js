@@ -274,7 +274,7 @@ async function updateActivityStartDate(activityId, newStartDate) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ startDate: newStartDate })
+            body: JSON.stringify({ compressedStartDate: newStartDate })
         });
 
         if (!response.ok) {
@@ -296,7 +296,7 @@ async function updateActivityDeadline(activityId, newDeadline) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ deadline: newDeadline })
+            body: JSON.stringify({ originalEndDate: newDeadline })
         });
 
         if (!response.ok) {

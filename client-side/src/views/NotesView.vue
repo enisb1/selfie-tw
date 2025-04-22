@@ -84,15 +84,7 @@
                         </div>
                     </div>
 
-                    <div class="row title p-2  grid grid-row-2">
-                        <label class="font-semibold py-1">Category</label>
-                        <div class="w-full max-w-sm min-w-[200px]">
-                            <input class="w-full bg-transparent placeholder:text-slate-400 text-secondary text-sm 
-                                          border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease 
-                                          focus:outline-none focus:border-secondary hover:border-secondary shadow-sm 
-                                          focus:shadow" placeholder="Type here..." v-model="noteCategory" />
-                        </div>
-                    </div>
+                    
 
                     <div v-if="!inTaskAdd && !inTaskPage" class="p-2">
                         <div class="font-semibold py-1">Format</div>
@@ -260,7 +252,7 @@
 
     <div v-if="editorVisible" class="absolute top-0 h-full w-full">
         <div>
-            <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody"
+            <EditorNote :note="selectedNote" :noteFormat="noteFormat" :noteBody="noteBody" :noteTitle="noteTitle" :taskBody="taskBody" :noteUser="noteUser" :noteSecurity="noteSecurity"
             @save-note="toggleSave" @add-task="addTask" @add-tasknote="addTasknote" @saveExpiration="saveExpiration" @deleteTask="deleteTask"/>
         </div>
     </div>
@@ -319,12 +311,18 @@ export default {
 
         //Add Note to NoteView
         const addNote = async () => {
-            
+            console.log("weygregrgegerygre")
+            if(noteFormat.value === "normalNote" || noteFormat.value === "markdownNote"){
+                noteType.value = "Note"
+            }else{
+                noteFormat.value = "Task"
+                noteType.value = "Task"
+            }
+            console.log(noteFormat.value)
             notes.value.push({
                 title: noteTitle.value,
                 bodyNote: noteBody.value,
                 bodyTask: taskBody.value,
-                category: noteCategory.value,
                 format: noteFormat.value,
                 access: noteSecurity.value,
                 type: noteType.value,
@@ -332,13 +330,12 @@ export default {
                 userListAccess: currentSelect.value
             })
 
-            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteCategory.value, noteFormat.value, 
+            await postNote(noteTitle.value, noteBody.value, taskBody.value, noteFormat.value, 
                            noteSecurity.value, noteType.value, noteUser.value, currentSelect.value);
             
             noteTitle.value = "";  
             noteBody.value = "";
             taskBody.value = [];
-            noteCategory.value = "";
             noteFormat.value = "";
             noteSecurity.value = "";
             noteType.value = "Note";
@@ -373,7 +370,8 @@ export default {
 
         
         const titles = ref(null)
-        const addTasknote = (id, body) => {
+        const addTasknote = async (id, body) => {
+        
             if(newNote.value === true){
             editorVisible.value = !editorVisible.value
             showAddModal.value = false
@@ -406,14 +404,14 @@ export default {
         const duplicateNote = async (id) => {
             try {
                 const noteId = await getNoteById(id)
-                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.category, noteId.format, 
+                console.log(noteId.type)
+                await postNote(noteId.title, noteId.bodyNote, noteId.bodyTask, noteId.format, 
                                noteId.access, noteId.type, noteId.user, noteId.userListAccess);
                 
                 notes.value.push({
                     title: noteId.title,
                     bodyNote: noteId.bodyNote,
                     bodyTask: noteId.bodyTask,
-                    category: noteId.category,
                     format: noteId.format,
                     access: noteId.access,
                     type: noteId.type,
@@ -428,16 +426,20 @@ export default {
         }
 
 
-        //Open note
         const modicated = ref(false)
         const selectedNote = ref("")
+
+        //Carica ed apre la nota
         const openNote = async (id) => {
-            console.log("nota aperta")
             const result = await getNoteById(id)
 
             noteTitle.value = result.title
             noteBody.value = result.bodyNote
             taskBody.value = result.bodyTask
+            noteFormat.value = result.format
+            noteUser.value = result.user
+            noteSecurity.value = result.access
+            console.log()
             
             selectedNote.value = result 
             editorVisible.value = !editorVisible.value
@@ -455,6 +457,7 @@ export default {
             await editNote(id, noteUp)
             
             loadNotesUser()
+            resetValor()
         }
 
         const uploadTask = async (body,id) => {
@@ -465,6 +468,7 @@ export default {
             await editNote(id, noteUp)
             taskBody.value = [] 
             loadNotesUser()
+            resetValor()
         }
 
 
@@ -709,7 +713,7 @@ export default {
         }
         const largeScreen = ref(false)
         const checkScreen = () => {
-            largeScreen.value = window.innerWidth >= 768
+            largeScreen.value = window.innerWidth >= 1024
         }
 
         onMounted(() => {
@@ -736,20 +740,22 @@ export default {
             newNote.value = false
         }
         
-
         const newNote = ref(false)
+
+        //Gestore dell'editor (apre/chiude)
         const toggleEditor = () => {
-            if(noteTitle.value === "" || noteCategory.value === ""){
-                alert("Title and Category are required")
+            if(noteTitle.value === "" ){
+                alert("Title is required")
                 return
             }
             editorVisible.value = !editorVisible.value
             newNote.value = showAddModal.value
-            console.log(newNote.value)
-            noteBody.value = ""
-            newNote.value = showAddModal.value
+            noteBody.value = ""//da togliere
+            //newNote.value = showAddModal.value
             showAddModal.value = false
             showAddMenu.value = false
+            noteUser.value = store.state.username
+            console.log()
         }
 
         const resetValor = () => {

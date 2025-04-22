@@ -365,9 +365,9 @@
                     <input id="activityToAddPhase" class="border border-third" type="text" maxlength="20" required>
                   </div>
 
-                  <!-- invite users -->
+                  <!-- add users -->
                   <div class="mt-4">
-                    <p id="activityToAddUsersParagraph" class="font-semibold text-base">Invite users</p>
+                    <p id="activityToAddUsersParagraph" class="font-semibold text-base">Add users</p>
                     <div class="flex">
                         <input id="newActivityUsersInput" type="text" placeholder="Enter username">
                         <button type="button" onclick="addUserToNewActivityList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
@@ -396,7 +396,7 @@
                   </div>
 
                   <div class="mt-4" id="activityToAddContractsDiv">
-                    <p class="font-semibold text-base">Contract else translate if previous activity is overdue</p>
+                    <p class="font-semibold text-base">Contracts if previous activity is overdue (else translates)</p>
                     <input id="activityToAddContracts" type="checkbox">
                   </div>
 
@@ -432,7 +432,7 @@
               <p id="infoActivityDeadline"></p>
             </div>
 
-            <!-- invite users -->
+            <!-- users -->
             <div class="mt-4">
               <p class="font-semibold text-base">Users</p>
               <p id="infoActivityUsers"></p>
@@ -500,9 +500,9 @@
                 <input id="activityToEditTitle" class="border border-third" type="text" maxlength="20">
               </div>
 
-              <!-- invite users -->
+              <!-- add users -->
               <div class="mt-4">
-                <p class="font-semibold text-base">Invite new users</p>
+                <p class="font-semibold text-base">Add users</p>
                 <div class="flex">
                     <input id="editActivityUsersInput" type="text" placeholder="Enter username">
                     <button type="button" onclick="addUserToEditedActivityList()" class="ml-2 bg-secondary p-1 text-white">Add user</button>
@@ -572,7 +572,7 @@
               Set new date
             </button>
 
-            <button onclick="rollBackTime()" class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg shadow-md hover:bg-gray-400 transition">
+            <button onclick="resetTime()" class="w-full bg-gray-300 text-gray-800 py-2 rounded-lg shadow-md hover:bg-gray-400 transition">
               Reset real date
             </button>
           </div>
