@@ -91,17 +91,17 @@ representation.
 - **mongoose**: Mongoose is an Object Data Modeling (ODM) library for MongoDB that is used for interacting with the database.
 - **ws**: ws is a WebSocket library for Node.js that is used for handling WebSocket connections.
 - **agenda**: Agenda is a job scheduling library for Node.js that is used for scheduling the tasks and events notifications of the users.
-- **fake-timers**: Fake Timers is a library that is used for mocking timers. We mainly used it with the time machine.
+- **fake-timers**: Fake Timers is a library that is used for mocking timers. We used it for the time machine.
 - **nodemailer**: Nodemailer is a library used for sending emails to the users.
 - **bcrypt**: Bcrypt is a library used for hashing passwords.
 - **axios**: Axios is a promise-based HTTP client for the browser and Node.js. It is used for making HTTP requests to the server.
-- **express**: Express is a web application framework for Node.js. It is used for building the server-side of the application.
+- **express**: Express is a web application framework for Node.js. It is used to handle routing in the server-side of the application.
 - **vuex**: Vuex is a state management pattern + library for Vue.js applications. It is used for managing the state of the application.
 
 ## AI usage
 Some of the members of the group have used Github Copilot as an assistant.
 In particular, they started using it around mid development, to facilitate and speed up the development process.
-It helped with code completion and with repetitive tasks such as http requests.
+It helped with code completion and with repetitive tasks such as HTTP requests.
 Of course, AI has not been of much use with tasks that had to do with the intrinsic complication of the project, due to its difficulty in understanding the project's logic
 
 ## Contributors
