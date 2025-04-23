@@ -17,6 +17,9 @@ import {Mailer} from "./services/mailer.js";
 import {TimeMachineController} from "./services/timeMachine.js";
 import timeRoutes from './routes/timeMachineRoutes.js'
 import projectRoutes from './routes/projectRoutes.js'
+import dotenv from 'dotenv'
+
+dotenv.config({path: './.env.local'});
 
 const app = express();
 const PORT = 8000;
@@ -25,7 +28,7 @@ app.use(cors());
 app.use(express.json());
 
 //TODO: set up env variables for mongo uri parameters
-const mongouri = `mongodb+srv://bencio003:74TG73rgjIbrzp4Q@tecweb18.wgvir.mongodb.net/tw18_db?retryWrites=true&w=majority&appName=Tecweb18`
+const mongouri = process.env.MONGO_URI
 
 mongoose.connect(mongouri)
     .then(() => {
