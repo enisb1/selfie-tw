@@ -655,7 +655,9 @@ document.getElementById('editProjectForm').addEventListener('submit', async func
         newProject.end = endValue
         newProject.members = newProject.members.concat(editedProjectIds)
         await window.editProject(newProject._id, newProject, `The owner ${state.username} has edited project ${newProject.name}`)
+        let oldMembers = currentProject.members
         currentProject = newProject
+        currentProject.members = oldMembers
         projectViewName.innerHTML = currentProject.name
         updateSettingsPage()
         closeEditProjectModal()
