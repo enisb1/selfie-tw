@@ -12,7 +12,7 @@ export class WebSocketService {
 
     connect(store) {
         this.store = store;
-        this.socket = new WebSocket(`ws://localhost:8000/?username=${this.store.state.username}`);
+        this.socket = new WebSocket(`ws://site232418.tw.cs.unibo.it/?username=${this.store.state.username}`);
         this.socket.onmessage = this.handleMessage.bind(this);
         this.socket.onclose = this.disconnect.bind(this);
     }
