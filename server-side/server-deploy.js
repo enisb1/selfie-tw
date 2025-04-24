@@ -10,7 +10,6 @@ import mongoose from 'mongoose';
 import {wsHandler} from "./services/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 import pomodoroRoutes from './routes/pomodoroRoutes.js'
-//import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
 import {AgendaHandler} from "./services/agendaHandler.js";
 import {Mailer} from "./services/mailer.js";
@@ -19,7 +18,11 @@ import timeRoutes from './routes/timeMachineRoutes.js'
 import projectRoutes from './routes/projectRoutes.js'
 import dotenv from 'dotenv'
 
-dotenv.config({path: './.env.local'});
+// __dirname is not defined in es modules but only in commonjs
+// so this is needed in order to use it
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+dotenv.config({ path: path.resolve(__dirname, '.env.local') });
 
 const app = express();
 const PORT = 8000;
@@ -27,7 +30,6 @@ const PORT = 8000;
 app.use(cors());
 app.use(express.json());
 
-//TODO: set up env variables for mongo uri parameters
 const mongouri = process.env.MONGO_URI
 
 mongoose.connect(mongouri)
@@ -60,17 +62,14 @@ app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
 app.use("/api/pomodoro", pomodoroRoutes)
-//app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
 app.use("/api/time", timeRoutes)
 app.use("/api/projects", projectRoutes)
 
-//https://iamwebwiz.medium.com/how-to-fix-dirname-is-not-defined-in-es-module-scope-34d94a86694d
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Serve static files from the client-side/dist directory
 const client_dist_path = __dirname + '/../client-side/dist';
 app.use(express.static(client_dist_path)); // serve static files to make those resources accessible to index.html
-// for any request received by the server, respond with the static file index.html 
+// for any request received by the server, respond with the static file index.html
 // (vue router will handle the front-end routing)
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname + '/../client-side/dist' + '/index.html'));
