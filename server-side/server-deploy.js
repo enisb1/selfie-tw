@@ -10,7 +10,6 @@ import mongoose from 'mongoose';
 import {wsHandler} from "./services/wsHandler.js";
 import noteRoutes from './routes/noteRoutes.js'
 import pomodoroRoutes from './routes/pomodoroRoutes.js'
-//import categoryRoutes from './routes/categoryRoutes.js'
 import chatRoutes from './routes/chatRoutes.js'
 import {AgendaHandler} from "./services/agendaHandler.js";
 import {Mailer} from "./services/mailer.js";
@@ -57,7 +56,6 @@ app.use("/api/login", loginRoutes)
 app.use("/api/notifications", notificationRoutes)
 app.use("/api/note", noteRoutes)
 app.use("/api/pomodoro", pomodoroRoutes)
-//app.use("/api/category", categoryRoutes)
 app.use("/api/chat", chatRoutes)
 app.use("/api/time", timeRoutes)
 app.use("/api/projects", projectRoutes)
