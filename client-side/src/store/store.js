@@ -12,7 +12,6 @@ export const store = createStore({
         lastName: '',
         isAResource: false,
         isAdmin: false,
-        telegram: '',
         __v: 0,
         isLoggedIn: false,
         pushNotification: null,
@@ -37,7 +36,6 @@ export const store = createStore({
             state.lastName = user.lastName;
             state.isAResource = user.isAResource;
             state.isAdmin = user.isAdmin;
-            state.telegram = user.telegram;
             state.__v = user.__v;
             state.isLoggedIn = true;
             state.unavailableStart = user.unavailableStart;
@@ -55,7 +53,6 @@ export const store = createStore({
             state.lastName = '';
             state.isAResource = false;
             state.isAdmin = false;
-            state.telegram = '';
             state.__v = 0;
             state.isLoggedIn = false;
             state.unavailableStart = null;
@@ -74,7 +71,6 @@ export const store = createStore({
                 state.lastName = localStorage.getItem('lastName');
                 state.isAResource = localStorage.getItem('isAResource');
                 state.isAdmin = localStorage.getItem('isAdmin');
-                state.telegram = localStorage.getItem('telegram');
                 state.__v = localStorage.getItem('__v');
                 state.isLoggedIn = localStorage.getItem('isLoggedIn');
                 state.pushNotification = localStorage.getItem('pushNotification');

@@ -40,13 +40,6 @@
             class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-third leading-tight focus:outline-none focus:shadow-outline">
         </div>
 
-        <!-- Telegram -->
-        <div class="mb-6">
-        <label for="telegram" class="block text-third text-sm font-bold mb-2">Telegram</label>
-        <input v-model="telegram" type="text" id="telegram" name="telegram"
-            class="shadow appearance-none border border-secondary rounded w-full py-2 px-3 text-third leading-tight focus:outline-none focus:shadow-outline">
-        </div>
-
         <!-- Sign Up -->
         <div class="flex items-center justify-between">
         <button type="submit" class="bg-secondary text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline hover:bg-third">
@@ -87,7 +80,6 @@
       let username = ref('');
       let password = ref('');
       let email = ref('');
-      let telegram = ref('');
 
       const register = async () => {
         const data = await checkUsername(username.value);
@@ -98,7 +90,7 @@
         }else {
           try {
             let resp = await newUser(username.value, password.value, email.value, 
-              name.value, surname.value, telegram.value, null, null, "none", null, null)
+              name.value, surname.value, null, null, "none", null, null)
 
             if (resp.message === "Data saved successfully") {
               store.commit('setUser', resp.user);
@@ -124,7 +116,6 @@
         username,
         password,
         email,
-        telegram,
         register,
         messageError,
         triggerModal,
