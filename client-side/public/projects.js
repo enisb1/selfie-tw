@@ -474,7 +474,7 @@ async function addUserToEditedActivityList() {
         exists = existsObject.exists
         user_id = existsObject.id
     }
-    if (exists && currentProject.members.includes(userToAddInput.value)) {
+    if (exists && currentProject.members.includes(user_id)) {
         editedActivityUsers.push(userToAddInput.value)
         editedActivityIds.push(user_id)
         userToAddInput.value = ''
@@ -1172,7 +1172,7 @@ async function addUserToNewActivityList() {
         exists = existsObject.exists
         user_id = existsObject.id
     }       
-    if (exists && currentProject.members.includes(userToAddInput.value)) {
+    if (exists && currentProject.members.includes(user_id)) {
         newActivityUsers.push(userToAddInput.value)
         newActivityIds.push(user_id)
         userToAddInput.value = ''
