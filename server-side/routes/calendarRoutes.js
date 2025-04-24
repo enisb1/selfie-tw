@@ -10,7 +10,11 @@ import {mailer, wsConnectionHandler} from "../server-deploy.js";
 import {Message} from "../services/wsHandler.js";
 import {agendaHandler} from "../server-deploy.js";
 import multer from 'multer';
-import {sendActivityNotificationToUsers, sendEventNotificationToUsers} from "../services/notifyUtilities.js";
+import {
+    sendActivityNotificationToUsers,
+    sendEventNotificationToUsers,
+    sendProjectNotificationToMembers
+} from "../services/notifyUtilities.js";
 
 const router = Router();
 
@@ -81,6 +85,11 @@ router.post("/addActivityNoInvite", async (req, res) => {
             }
         );
         await activity.save();
+
+        if (activity.projectData !== null) {
+            const project = await Project.findById(activity.projectData.projectId);
+            await sendProjectNotificationToMembers(activity.users.filter(member => member !== project.owner), project.name, `New activity ${activity.title} added to the project ${project.name}`, false);
+        }
         res.status(201).json({ message: 'Data saved successfully', data: activity });
     }catch (error) {
         console.log(error)
@@ -241,6 +250,9 @@ router.put("/activities/:id", async (req,res) => {
         if (updatedActivity) {
             await agendaHandler.dropScheduledActivityNotifications(activityId);
             await agendaHandler.scheduleActivityNotifications(updatedActivity);
+            if (updatedActivity.projectData !== null) {
+                await sendProjectNotificationToMembers(updatedActivity.users, updatedActivity.title, `The owner has modified the activity ${updatedActivity.title}`, false);
+            }
           res.status(200).json({ message: 'Activity updated successfully', activity: updatedActivity });
         } else {
           res.status(404).json({ message: 'Activity not found' });
