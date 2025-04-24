@@ -13,7 +13,7 @@ export class Mailer {
         });
     }
 
-    async sendMail(message, receiver, subject = 'Nuova Notifica') {
+    async sendMail(message, receiver, subject = 'New Notification') {
         const mailOptions = {
             from: 'noreply.selfie.tw@gmail.com',
             to: receiver,
@@ -23,7 +23,7 @@ export class Mailer {
         try {
             const info = await this.transporter.sendMail(mailOptions);
         } catch (error) {
-            console.error('Errore invio della mail:', error);
+            console.error('Failed to send email:', error);
         }
     }
 

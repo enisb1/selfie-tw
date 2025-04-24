@@ -86,5 +86,6 @@ export async function sendProjectNotificationToMembers(users, projectTitle,messa
         });
         await notification.save();
         await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+        await mailer.sendMail(message, user.email,projectTitle);
     }
 }
