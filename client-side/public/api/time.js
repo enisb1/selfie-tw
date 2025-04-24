@@ -1,6 +1,6 @@
 const getServerTime = async () => {
     try {
-        const response = await fetch(`http://site232418.tw.cs.unibo.it/api/time/serverTime`);
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/time/serverTime`);
         if (!response.ok) throw await response.json();
         const data = await response.json();
         return data.data;
@@ -11,7 +11,7 @@ const getServerTime = async () => {
 
 const setNewGlobalTime = async (date) => {
     try {
-        const response = await fetch(`http://site232418.tw.cs.unibo.it/api/time/setNewGlobalTime`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/time/setNewGlobalTime`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ date }),
@@ -25,7 +25,7 @@ const setNewGlobalTime = async (date) => {
 
 const rollBackTime = async () => {
     try {
-        const response = await fetch(`http://site232418.tw.cs.unibo.it/api/time/rollBackTime`, {
+        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/time/rollBackTime`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
         });
