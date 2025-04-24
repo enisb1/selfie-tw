@@ -21,7 +21,6 @@ router.post("/addUser", async (req, res) => {
             lastName: req.body.lastName,
             isAResource: false,
             isAdmin: false,
-            telegram: req.body.telegram,
             unavailableStart: req.body.unavailableStart,
             unavailableEnd: req.body.unavailableEnd,
             unavailableFrequency: req.body.unavailableFrequency,

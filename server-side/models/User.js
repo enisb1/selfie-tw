@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
     lastName: String,
     isAResource: Boolean,
     isAdmin: Boolean,
-    telegram: String,
     unavailableStart: Date,
     unavailableEnd: Date,
     unavailableFrequency: String,

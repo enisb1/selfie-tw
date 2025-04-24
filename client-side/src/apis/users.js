@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // register new user
-export async function newUser(username,password,email,firstName,lastName,telegram,
+export async function newUser(username,password,email,firstName,lastName,
     unavailableStart, unavailableEnd, unavailableFrequency, unavailableRepNumber, unavailableRepDate){
     try {
         const response = await axios.post(`http://localhost:8000/api/login/addUser`, {
@@ -10,7 +10,6 @@ export async function newUser(username,password,email,firstName,lastName,telegra
             email: email,
             firstName: firstName,
             lastName: lastName,
-            telegram: telegram,
             unavailableStart: unavailableStart,
             unavailableEnd: unavailableEnd,
             unavailableFrequency, unavailableFrequency,
