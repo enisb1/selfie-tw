@@ -518,9 +518,16 @@ document.getElementById('editActivityForm').addEventListener('submit', async fun
             newStatus = 'active'
         }
         newActivity.projectData.status = newStatus
-        newActivity.projectData.previous = (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity')? previousActivitySelectValue._id : null
-        newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
+        newActivity.projectData.previous = null
         newActivity.projectData.input = document.getElementById("activityToEditInput").value
+        if (newStatus == 'activable' && previousActivitySelectValue) {
+            newActivity.projectData.previous = (previousActivitySelectValue && previousActivitySelectValue!= 'Select previous activity')? previousActivitySelectValue._id : null
+            if (previousActivitySelectValue.isDone)
+                newActivity.projectData.input = previousActivitySelectValue.projectData.output
+            else
+                newActivity.projectData.status = newStatus = 'waitingActivable';
+        }
+        newActivity.projectData.contracts = document.getElementById("activityToEditContracts").checked
         newActivity.projectData.output = document.getElementById("activityToEditOutput").value
         // set correct isDone
         if (newActivity.projectData.status == 'done') {
@@ -740,23 +747,28 @@ async function showEditActivityModal() {
             statusSelect.appendChild(option);
         });
 
-        // previous activity select
-        const activities = await window.getActivitiesByProject(currentProject._id)
-        let activitiesSamePhase = activities.filter(activity => activity.projectData.phase == currentEditedActivity.projectData.phase)
-        const selectElement = document.getElementById('previousActivitySelectEdit');
-        selectElement.innerHTML = '' // reset from previous options
-        const opt = document.createElement('option');
-        opt.value = null
-        opt.textContent = 'Select previous activity';
-        selectElement.appendChild(opt);
-        activitiesSamePhase.forEach((activity) => {
+        if (currentEditedActivity.projectData.status != 'activable')
+            document.getElementById("editActivityPreviousActivityDiv").classList.add("hidden")
+        else {
+            document.getElementById("editActivityPreviousActivityDiv").classList.remove("hidden")
+            // previous activity select
+            const activities = await window.getActivitiesByProject(currentProject._id)
+            let activitiesSamePhase = activities.filter(activity => activity.projectData.phase == currentEditedActivity.projectData.phase)
+            const selectElement = document.getElementById('previousActivitySelectEdit');
+            selectElement.innerHTML = '' // reset from previous options
             const opt = document.createElement('option');
-            opt.value = JSON.stringify(activity);
-            opt.textContent = activity.title;
+            opt.value = null
+            opt.textContent = 'Select previous activity';
             selectElement.appendChild(opt);
-        });
-        // set current edited activity's previous activity
-        selectElement.value = JSON.stringify(activitiesSamePhase.find(activity => currentEditedActivity.projectData.previous == activity._id))
+            activitiesSamePhase.forEach((activity) => {
+                const opt = document.createElement('option');
+                opt.value = JSON.stringify(activity);
+                opt.textContent = activity.title;
+                selectElement.appendChild(opt);
+            });
+            // set current edited activity's previous activity
+            selectElement.value = JSON.stringify(activitiesSamePhase.find(activity => currentEditedActivity.projectData.previous == activity._id))
+        }
         
         const deleteButton = document.getElementById("editActivityDelete");
         const newDeleteButton = deleteButton.cloneNode(true);
