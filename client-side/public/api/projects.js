@@ -68,29 +68,6 @@ async function createProject(name, description, start, end, owner, members, acti
     }
 }
 
-async function updateActivityProjectId(activityId, projectId) {
-    try {
-        const response = await fetch(`https://site232418.tw.cs.unibo.it/api/calendar/updateActivityProjectId/${activityId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                projectId: projectId
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-
-        const data = await response.json();
-        return data; // Return the response data
-    } catch (error) {
-        throw new Error(`Error updating activity project ID: ${error.message}`);
-    }
-}
-
 async function getProjectsByUser(userId) {
     try {
         const response = await fetch(`https://site232418.tw.cs.unibo.it/api/projects/projectsByUser/${userId}`);
@@ -327,7 +304,6 @@ async function deleteProject(projectId) {
 window.userExists = userExists;
 window.postActivity = postActivity;
 window.createProject = createProject;
-window.updateActivityProjectId = updateActivityProjectId;
 window.getProjectsByUser = getProjectsByUser;
 window.getActivitiesByProject = getActivitiesByProject;
 window.addActivityToProject = addActivityToProject;

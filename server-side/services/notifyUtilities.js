@@ -72,7 +72,7 @@ export async function sendProjectInviteNotifications(project, memberIDs, creator
     }
 }
 
-export async function sendProjectNotificationToMembers(users, projectTitle,message) {
+export async function sendProjectNotificationToMembers(users, projectTitle,message, sendEmail = true) {
     for (const userId of users) {
         const user = await User.findOne({_id: userId});
         const notification = new Notification({
@@ -86,5 +86,6 @@ export async function sendProjectNotificationToMembers(users, projectTitle,messa
         });
         await notification.save();
         await wsConnectionHandler.sendPushNotification(new Message('server', user.username, 'notification', notification));
+        if (sendEmail) await mailer.sendMail(message, user.email,projectTitle);
     }
 }
