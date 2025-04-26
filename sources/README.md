@@ -105,18 +105,18 @@ Of course, AI has not been of much use with tasks that had to do with the intrin
 
 ## Contributors
 
-- **Brajevic Enis**:
+- **Brajevic Enis (enis.brajevic@studio.unibo.it)**:
   - calendar (management of events and activities)
   - admin (management of resources)
   - projects
   - server setup and deploy
   - home view (preview of calendar and projects)
-- **Mazzotti Enrico**
+- **Mazzotti Enrico (enrico.mazzotti2@studio.unibo.it)**
   - user authentication
   - notification system
   - chat system
   - time machine
-- **Orsi Cristian**
+- **Orsi Cristian (cristian.orsi2@studio.unibo.it)**
   - projects (Gantt chart)
   - pomodoro
   - notes and tasklists
