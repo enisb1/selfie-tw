@@ -10,7 +10,7 @@
 
 ## Description
 Selfie is a comprehensive web application designed to support university students in managing their academic and personal lives effectively. Developed as a final project for the Web Technologies course at the University of Bologna,
-Selfie integrates calendar-based event scheduling, note-taking, productivity tracking via the Pomodoro technique, and advanced project management tools within a single responsive interface.
+Selfie integrates calendar-based event scheduling, note-taking, productivity tracking via the Pomodoro technique, and advanced project management tools within a single responsive interface. It provides a responsive and modular interface optimized for both desktop and mobile usage.
 
 The project is structured as a full-stack application, built with a client-server architecture using Vue.js, vanilla JavaScript, Node.js, and MongoDB, and deployed via Docker containers on university servers.
 
@@ -56,10 +56,8 @@ client-side/
 ├── tailwind.config.js
 ├── ..
 ```
-
-The client-side provides a responsive and modular interface optimized for both desktop and mobile usage. It includes reusable components, routing via Vue Router, and state
-management via Vuex. Each main view corresponds to a core feature of the application, such as Calendar, Notes, Pomodoro.
-Most of the client-side has been developed using Vue.js, while the Projects Management section has been developed using only Vanilla JS.
+The client-side is designed to fully leverage the capabilities of Vue, with reusable components, routing via Vue Router, and state management via Vuex. Each main view corresponds to a core feature of the application, such as Calendar, Notes, Pomodoro.
+While most of the client-side has been developed using Vue.js, the Projects Management section has been developed using only Vanilla JS (with the help of Web Components) for didactic purposes.
 Tailwind has been used as a CSS framework to provide a clean and slick UI.
 
 ### Server-Side
@@ -82,12 +80,13 @@ server-side/
 ├── package.json
 ├── package-lock.json
 ```
-The backend uses Node.js, Express and Mongoose to handle user authentication, data management, and communication with 
-a MongoDB database. Express is used to route API calls and Mongoose models are used for schema-based data 
+The backend uses Node.js, Express and Mongoose to handle user authentication, notifications, and data storage on a MongoDB database. Express is used to route API calls and Mongoose models are used for schema-based data 
 representation. 
 
 ## Some of the libraries we have used
 
+- **rrule**: RRule is a JavaScript library that helps work with recurrent dates through recurrence rules.
+- **datebook**: Datebook is a JavaScript library that helps in the creation of calendar files (.ics) and their sharing.
 - **mongoose**: Mongoose is an Object Data Modeling (ODM) library for MongoDB that is used for interacting with the database.
 - **ws**: ws is a WebSocket library for Node.js that is used for handling WebSocket connections.
 - **agenda**: Agenda is a job scheduling library for Node.js that is used for scheduling the tasks and events notifications of the users.
@@ -122,41 +121,3 @@ Of course, AI has not been of much use with tasks that had to do with the intrin
   - pomodoro
   - notes and tasklists
   - home view (preview of pomodoro and notes)
-
-## Setup development
-To install the project, follow these steps:
-1. Clone the repository:  
-   ```bash
-   git clone <repository-url>
-   cd <repository-folder>
-   ```
-2. Install dependencies for the frontend:  
-   ```bash
-    cd client-side
-    npm install
-    ```
-3. Install dependencies for the backend:
-
-    ```bash
-     cd ../server-side
-     npm install
-     ```
-4. Start the backend server:
-    ```bash
-   npm start
-   ```
-5. Start the frontend development server:
-   ```bash
-    cd ../client-side
-    npm run serve
-    ```
-6. Open your browser and navigate to `http://localhost:8080` to view the application.
-
-
-
-
-
-
-
-
-
