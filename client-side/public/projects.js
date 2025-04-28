@@ -1208,23 +1208,22 @@ function clearNewActivityUsers() {
 //--------------------------------------
 
 function getDayFromISODate(isoDateString) {
-    // Spezza la stringa ISO per ottenere la parte della data
-    const datePart = isoDateString.split("T")[0]; // "2024-12-26"
-    const day = datePart.split("-")[2]; // Prende la terza parte (il giorno)
-    return parseInt(day, 10); // Converte il giorno in un numero
+    const datePart = isoDateString.split("T")[0]; 
+    const day = datePart.split("-")[2]; 
+    return parseInt(day, 10);
 }
 
 function formatISODate(isoDateString) {
     const date = new Date(isoDateString);
 
     // Estrarre ore e minuti
-    const hours = date.getUTCHours().toString().padStart(2, '0'); // Ora in formato 24 ore
+    const hours = date.getUTCHours().toString().padStart(2, '0');
     const minutes = date.getUTCMinutes().toString().padStart(2, '0');
 
     // Giorno
     const day = date.getUTCDate();
 
-    // Mese (in formato abbreviato)
+    // Mese
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     const month = monthNames[date.getUTCMonth()];
 
@@ -1235,16 +1234,16 @@ function formatISODate(isoDateString) {
 }
 
 function formatDateToDayMonth(dateString) {
-    const date = new Date(dateString); // Converte la stringa in un oggetto Date
-    const day = date.getDate(); // Ottiene il giorno
-    const month = date.toLocaleString("en-US", { month: "short" }); // Ottiene il mese abbreviato (es. "Dec")
+    const date = new Date(dateString); 
+    const day = date.getDate(); 
+    const month = date.toLocaleString("en-US", { month: "short" });
     return `${day} ${month}`;
 }
 
 function extractTimeFromDate(dateString) {
-    const date = new Date(dateString); // Converte la stringa in oggetto Date
-    const hours = date.getHours().toString().padStart(2, '0'); // Estrai le ore, aggiungi lo 0 se necessario
-    return `${hours}`; // Combina ore e minuti in formato HH:mm
+    const date = new Date(dateString); 
+    const hours = date.getHours().toString().padStart(2, '0'); 
+    return `${hours}`;
 }
 
 function getFullIsoDifference(date1, date2) {
@@ -1260,7 +1259,6 @@ function getFullIsoDifference(date1, date2) {
     const minutes = Math.floor((differenceInMs % (60 * 60 * 1000)) / (60 * 1000));
     const seconds = Math.floor((differenceInMs % (60 * 1000)) / 1000);
 
-    // Formatta in uno stile simile a ISO
     return `P${days}D${hours.toString().padStart(2, '0')}H${minutes.toString().padStart(2, '0')}M${seconds.toString().padStart(2, '0')}S`;
 }
 
@@ -1290,19 +1288,15 @@ function addDurationToDate(isoDate, duration) {
 }
 
 function getActivitiesByPhase(activities, phase, currentActivityId) {
-    // Filtra le attività per la fase specificata
     let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
 
-    // Ordina le attività per data di inizio
     activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
-    
-    // Trova l'indice dell'attività corrente
     const currentIndex = activitiesForPhase.findIndex(activity => activity.projectData._id === currentActivityId);
     
     if(activitiesForPhase.length === 1){
         return "Unique";
     }
-    // Restituisci l'attività successiva se esiste, altrimenti null
+
     if (currentIndex !== -1 && currentIndex < activitiesForPhase.length - 1) {
         return activitiesForPhase[currentIndex + 1];
     } else {
@@ -1315,20 +1309,8 @@ function getActivitiesNumberByPhase(activities, phase) {
     return activitiesForPhase.length;
 }
 
-/*function getActivitiesPhase(activities, phase){
-    let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
-    return activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
-
-    
-}*/
-
 async function getActivitiesPhase(activities, phase) {
-    // Filtra le attività per la fase specificata
-    //let activitiesForPhase = activities.filter(activity => activity.projectData.phase === phase);
     let activitiesForPhase = await sortedActivity(activities)
-    // Ordina le attività per data di inizio
-    //activitiesForPhase.sort((a, b) => new Date(a.projectData.startDate) - new Date(b.projectData.startDate));
-    // Dividi le attività in sequenze basate su 'previous'
     let sequences = [];
     let sequence = []
     let count = 0
@@ -1788,10 +1770,14 @@ async function createGrid(projectId, project) {
             
 
             dates.forEach(date => {
-            const day = new Date(date.compressedStartDate).toISOString().split('T')[0]; 
-            uniqueDays.add(day);
-            const endDay = new Date(date.originalEndDate).toISOString().split('T')[0]; 
-            uniqueDays.add(endDay);
+                const day = new Date(date.compressedStartDate) 
+                day.setHours(day.getHours() + 2)
+                const formattedStartDay = day.toISOString().split('T')[0];
+                uniqueDays.add(formattedStartDay);
+                const endDay = new Date(date.originalEndDate)
+                endDay.setHours(endDay.getHours() + 2)
+                const formattedEndDay = endDay.toISOString().split('T')[0];
+                uniqueDays.add(formattedEndDay);
             });
             
             uniqueDay = uniqueDays.size;
@@ -1811,7 +1797,7 @@ async function createGrid(projectId, project) {
             let oldStart = "";
             let oldEnd = "";
             let stato = "";
-            let hours = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24];
+            let hours = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23];
             let inActivityTime = false;
             const uniqueDaysArray = Array.from(uniqueDays).map(day => new Date(day).toISOString());
             uniqueDaysArray.sort((a, b) => new Date(a) - new Date(b));
@@ -1863,8 +1849,6 @@ async function createGrid(projectId, project) {
                         
                     }   
                 }
-                
-                
         
                 const hourDiv = document.createElement("div");
                 hourDiv.classList.add("truncate", "text-center", classe);
