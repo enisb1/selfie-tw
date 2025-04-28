@@ -53,14 +53,14 @@
                 <div class="mt-4">
                     <p class="font-semibold text-base">Start</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="unavailableStartToSet" 
-                    :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" :start-time="startTime" required teleport></DatePicker>
                 </div>
                 
                 <!-- end date -->
                 <div class="mt-4 sm:ml-4">
                     <p class="font-semibold text-base">End</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="unavailableEndToSet" 
-                    :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" :start-time="startTime" required teleport></DatePicker>
                 </div>
             </div>
             
@@ -104,7 +104,7 @@
                 <input id="repetition_number" min="0" type="number" v-model="unavailableRepNumberToSet" 
                 :disabled="isRepNumberDisabled" @input="toggleRepInputs('number')" :required="isRepNumberRequired">
                 <!-- repetition date -->
-                <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" v-model="unavailableRepDateToSet" 
+                <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" teleport v-model="unavailableRepDateToSet" 
                             :format="formatDateNoTime" :enable-time-picker="false" :disabled="isRepDateDisabled" 
                             :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')">
                 </DatePicker>

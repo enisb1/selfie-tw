@@ -165,7 +165,7 @@ async function displayToDoActivities(activities) {
             // Add content to the div
             activityDiv.innerHTML = `
                 <!-- title -->
-                <div class="w-2/12 truncate">
+                <div class="w-1/2 sm:w-2/12 truncate">
                     <span>${activity.title}</span>
                 </div>
                 <!-- users -->
@@ -262,32 +262,32 @@ async function displayInProgressActivities(activities) {
             // Add content to the div
             activityDiv.innerHTML = `
                 <!-- title -->
-                <div class="w-2/12 truncate">
+                <div class="w-1/2 sm:w-2/12 truncate">
                     <span>${activity.title}</span>
                 </div>
                 <!-- users -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
                 </div>
                 <!-- start -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${startString}</span>
                 </div>
                 <!-- deadline -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${deadlineString}</span>
                 </div>
                 <!-- milestone or not-->
-                <div class="w-1/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-1/12 border-l border-secondary truncate">
                     <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
                 </div>
                 <!-- status -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <div class="ml-1">
                         ${status}
                     </div>
                 </div>
-                <div class="w-1/12 border-l border-secondary">
+                <div class="flex pl-1 gap-1 sm:border-l border-secondary">
                     <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
                     <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
                 </div>
@@ -350,32 +350,32 @@ async function displayCompletedActivities(activities) {
             // Add content to the div
             activityDiv.innerHTML = `
                 <!-- title -->
-                <div class="w-2/12 truncate">
+                <div class="w-1/2 sm:w-2/12 truncate">
                     <span>${activity.title}</span>
                 </div>
                 <!-- users -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${users.map(u => u.username).join(", ")}</span>
                 </div>
                 <!-- start -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${startString}</span>
                 </div>
                 <!-- deadline -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <span class="ml-1">${deadlineString}</span>
                 </div>
                 <!-- milestone or not-->
-                <div class="w-1/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-1/12 border-l border-secondary truncate">
                     <span class="ml-1">${activity.projectData.isMilestone? 'Milestone' : 'Normal'}</span>
                 </div>
                 <!-- status -->
-                <div class="w-2/12 border-l border-secondary truncate">
+                <div class="hidden sm:block w-2/12 border-l border-secondary truncate">
                     <div class="ml-1">
                         ${activity.projectData.status}
                     </div>
                 </div>
-                <div class="w-1/12 border-l border-secondary">
+                <div class="flex pl-1 gap-1 sm:border-l border-secondary">
                     <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
                     <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
                 </div>

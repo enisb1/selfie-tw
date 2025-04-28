@@ -217,7 +217,7 @@
             <div class="mt-4">
                 <p class="font-semibold text-base">Start of cycle</p>
                 <DatePicker class="mt-px inline-block w-auto" v-model="pomodoroEventStartDate" 
-                    :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" :start-time="startTime" required teleport></DatePicker>
             </div>
 
             <button type="submit" class="w-full mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 

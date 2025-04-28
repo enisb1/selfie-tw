@@ -45,7 +45,7 @@
                 <div class="mt-4">
                     <p class="font-semibold text-base">Deadline</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="editedActivityDeadline"
-                        :format="formatDate" minutes-increment="5" required></DatePicker>
+                        :format="formatDate" minutes-increment="5" required teleport></DatePicker>
                 </div>
             </div>
             
