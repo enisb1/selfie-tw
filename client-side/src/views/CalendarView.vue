@@ -352,6 +352,7 @@ export default {
       activityToAddDeadline.value = null
       newActivitySelectedUsers.value = []
       inAddActivity.value = false
+      inImportEvent.value = false
       inAddEvent.value = true
       notify15Before.value = false
       notify30Before.value = false
