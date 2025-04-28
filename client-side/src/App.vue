@@ -60,7 +60,8 @@
               class="mt-2 w-full border border-gray-300 rounded-lg p-2"
               v-model="dateSelector"
               :format="formatDate"
-              minutes-increment="1">
+              minutes-increment="1"
+              teleport>
           </DatePicker>
         </div>
 

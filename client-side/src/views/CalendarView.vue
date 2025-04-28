@@ -85,14 +85,14 @@
         <div class="mt-4">
           <p class="font-semibold text-base">Starts</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddStartDate" 
-            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required teleport></DatePicker>
         </div>
         
         <!-- end date -->
         <div class="mt-4 sm:ml-4">
           <p class="font-semibold text-base">Ends</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="eventToAddEndDate" 
-            :format="formatDate" minutes-increment="5" :start-time="startTime" required></DatePicker>
+            :format="formatDate" minutes-increment="5" :start-time="startTime" required teleport></DatePicker>
         </div>
       </div>
 
@@ -137,7 +137,7 @@
         <input id="repetition_number" min="0" type="number" v-model="eventToAddRepetitionNumber" 
           :disabled="isRepetitionNumberDisabled" @input="toggleRepInputs('number')" :required="isRepNumberRequired">
         <!-- repetition date -->
-        <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" v-model="eventToAddRepetitionDate" 
+        <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" teleport v-model="eventToAddRepetitionDate" 
                     :format="formatDateNoTime" :enable-time-picker="false" :disabled="isRepetitionDateDisabled" 
                     :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')">
         </DatePicker>
@@ -213,7 +213,7 @@
         <div class="mt-4">
           <p class="font-semibold text-base">{{ isCompositeActivity? 'Subactivity deadline' : 'Deadline' }}</p>
           <DatePicker class="mt-px inline-block w-auto" v-model="activityToAddDeadline"
-            :format="formatDate" minutes-increment="5" :start-time="startTime" :required="!isCompositeActivity"></DatePicker>
+            :format="formatDate" minutes-increment="5" :start-time="startTime" :required="!isCompositeActivity" teleport></DatePicker>
         </div>
         
         <div class="flex mt-4" :class="{ 'hidden': !isCompositeActivity }">

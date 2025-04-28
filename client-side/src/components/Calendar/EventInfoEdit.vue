@@ -84,14 +84,14 @@
                 <div class="mt-4">
                     <p class="font-semibold text-base">Starts</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="editedEventStart" 
-                    :format="formatDate" minutes-increment="5" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" required teleport></DatePicker>
                 </div>
                 
                 <!-- end date -->
                 <div class="mt-4 sm:ml-4">
                     <p class="font-semibold text-base">Ends</p>
                     <DatePicker class="mt-px inline-block w-auto" v-model="editedEventEnd" 
-                    :format="formatDate" minutes-increment="5" required></DatePicker>
+                    :format="formatDate" minutes-increment="5" required teleport></DatePicker>
                 </div>
             </div>
 
@@ -138,7 +138,7 @@
                 <input name="repNumber" id="repetition_number" min="0" class="mt-px" type="number" v-model="editedEventRepNumber" 
                     :disabled="isEditedRepNumberDisabled" :required="isRepNumberRequired" @input="toggleRepInputs('number')">
                 <!-- repetition date -->
-                <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" v-model="editedEventRepDate" 
+                <DatePicker name="repDate" class="inline-block w-auto mt-2 sm:ml-4" teleport v-model="editedEventRepDate" 
                     :enable-time-picker="false" :disabled="isEditedRepDateDisabled" 
                     :format="formatDateNoTime" :required="isRepDateRequired" @update:model-value="toggleRepInputs('date')">
                 </DatePicker>
