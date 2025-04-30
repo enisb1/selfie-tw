@@ -198,41 +198,41 @@ router.post('/getActivitiesByIds', async (req, res) => {
 });
 
 // delete activity given id
-//TODO: delete these activities from project activities as well (check if project activities are needed, else delete)
 router.delete("/activities/:id", async (req, res) => {
   const activityId = req.params.id;
+  console.log(activityId)
   try {
       // Delete the specified activity
       const result = await Activity.findByIdAndDelete(activityId);
 
       if (result) {
-          await agendaHandler.dropScheduledActivityNotifications(activityId);
-        
-          // Update activities that have the deleted activity's ID as the 'previous' field in projectData
-          const relatedActivities = await Activity.updateMany(
-              { 'projectData.previous': activityId },
-              { $set: { 'projectData.previous': null } }
-          );
 
-          // Remove the activity from the project's 'activities' field
-          const projectId = result.projectData.projectId;
-          const projectUpdateResult = await Project.findByIdAndUpdate(
-              projectId,
-              { $pull: { activities: activityId } },
-              { new: true }
-          );
+        await agendaHandler.dropScheduledActivityNotifications(activityId);
 
-          res.status(200).json({
-              message: 'Activity deleted successfully',
-              activity: result,
-              relatedActivitiesUpdated: relatedActivities.nModified,
-              projectUpdateResult: projectUpdateResult
-          });
+        if (result.projectData != null) {
+            // Update activities that have the deleted activity's ID as the 'previous' field in projectData
+            await Activity.updateMany(
+                { 'projectData.previous': activityId },
+                { $set: { 'projectData.previous': null } }
+            );
+            // Remove the activity from the project's 'activities' field
+            const projectId = result.projectData.projectId;
+            await Project.findByIdAndUpdate(
+                projectId,
+                { $pull: { activities: activityId } },
+                { new: true }
+            );
+        }
+
+        res.status(200).json({
+            message: 'Activity deleted successfully',
+            activity: result
+        });
       } else {
-          res.status(404).json({ message: 'Activity not found' });
+        res.status(404).json({ message: 'Activity not found' });
       }
   } catch (error) {
-      res.status(500).json({ message: 'Error deleting activity', error: error.message });
+    res.status(500).json({ message: 'Error deleting activity', error: error.message });
   }
 });
 

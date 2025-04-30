@@ -172,7 +172,7 @@ export async function deleteEvent(eventId) {
     await axios.delete(`http://localhost:8000/api/calendar/events/${eventId}`)
 }
 
-// delete event
+// delete activity
 export async function deleteActivity(activityId) {
     await axios.delete(`http://localhost:8000/api/calendar/activities/${activityId}`)
 }

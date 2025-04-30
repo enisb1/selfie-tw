@@ -1,13 +1,15 @@
 <template>
     <div class="flex flex-col">
         <!-- Modify and go back button (note: cannot edit activity if it's DONE)-->
-        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity && !activityObject.expiringTask" type="button" 
+        <button @click="toggleEditActivity" v-show="!activityObject.isDone && !showEditActivity && !activityObject.expiringTask && !activityObject.projectData" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/edit.png" alt="edit"></button>
         <button @click="toggleEditActivity" v-show="!activityObject.isDone && showEditActivity && !activityObject.expiringTask" type="button" 
             class="mt-4 w-6 h-6"><img src="../../images/returnButton.png" alt="edit"></button>
 
         <!-- Activity info-->
         <div v-show="!showEditActivity" class="flex flex-col">
+            <p v-show="activityObject.projectData">Project activities are modifiable only in the Projects Management view</p>
+
             <!-- deadline -->
             <div class="mt-4">
                 <p class="font-semibold text-base">Deadline</p>
@@ -47,7 +49,11 @@
                     <DatePicker class="mt-px inline-block w-auto" v-model="editedActivityDeadline"
                         :format="formatDate" minutes-increment="5" required teleport></DatePicker>
                 </div>
+
+                <div class="bg-red-400 text-white font-bold mt-2 
+                inline px-2 text-center mx-auto self-center">{{ activityEditError }}</div>
             </div>
+
             
             <div class="flex justify-evenly">
                 <!-- done button -->
@@ -61,7 +67,7 @@
         <!-- buttons -->
         <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
             <!-- delete button -->
-            <button @click="deleteActivityObject" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+            <button @click="deleteActivityObject" v-show="!activityObject.projectData" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
             <!-- delete for you button -->
             <!-- delete composite -->
@@ -94,11 +100,13 @@ export default {
         const editedActivityTitle = ref()
         const participants = ref(['You'])
         const editedActivityDeadline = ref()
+        const activityEditError = ref('')
         const toggleEditActivity = () => {
             // if it's about to be toggled on update data inside
             if (!showEditActivity.value) {
                 editedActivityTitle.value = props.activityObject.title
                 editedActivityDeadline.value = new Date(props.activityObject.deadline)
+                activityEditError.value = ''
             }
             showEditActivity.value = !showEditActivity.value
         }
@@ -116,19 +124,25 @@ export default {
         }
 
         const deleteActivityObject = async () => {
+            console.log(props.activityObject._id)
             await deleteActivity(props.activityObject._id)
             emit('updateAllCalendars')
             emit('close')
         }
 
         const applyEdits = async () => {
-            // create updatedActivity object
-            const updatedActivity = structuredClone(props.activityObject)
-            updatedActivity.title = editedActivityTitle.value
-            updatedActivity.deadline = editedActivityDeadline.value
-            await editActivity(props.activityObject._id, updatedActivity)
-            emit('updateAllCalendars')
-            emit('close')
+            if (new Date(editedActivityDeadline.value) < new Date()) {
+                activityEditError.value = 'Deadline cannot be in the past'
+            }
+            else {
+                // create updatedActivity object
+                const updatedActivity = structuredClone(props.activityObject)
+                updatedActivity.title = editedActivityTitle.value
+                updatedActivity.deadline = editedActivityDeadline.value
+                await editActivity(props.activityObject._id, updatedActivity)
+                emit('updateAllCalendars')
+                emit('close')
+            }
         }
 
         const setActivityDone = async () => {
@@ -174,7 +188,8 @@ export default {
             setActivityDone,
             deleteCompositeActivity,
             participants,
-            deleteUserFromActivity
+            deleteUserFromActivity,
+            activityEditError
         }
     }
 }
