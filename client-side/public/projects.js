@@ -289,7 +289,7 @@ async function displayInProgressActivities(activities) {
                 </div>
                 <div class="flex pl-1 gap-1 sm:border-l border-secondary">
                     <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                    <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                    <button class="w-6 h-6 mr-2 ${(currentProject.owner != state._id)? 'hidden' : ''}" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
                 </div>
             `;
             const hr = document.createElement('hr');
@@ -377,7 +377,7 @@ async function displayCompletedActivities(activities) {
                 </div>
                 <div class="flex pl-1 gap-1 sm:border-l border-secondary">
                     <button class="ml-1 w-6 h-6" id="infoActivity${activityNumber}"><img src="./assets/information.png"></img></button>
-                    <button class="w-6 h-6 mr-2" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
+                    <button class="w-6 h-6 mr-2 ${(currentProject.owner != state._id)? 'hidden' : ''}" id="editActivity${activityNumber}"><img src="./assets/edit_vector.png"></img></button>
                 </div>
             `;
             const hr = document.createElement('hr');

@@ -172,7 +172,7 @@ export async function deleteEvent(eventId) {
     await axios.delete(`https://site232418.tw.cs.unibo.it/api/calendar/events/${eventId}`)
 }
 
-// delete event
+// delete activity
 export async function deleteActivity(activityId) {
     await axios.delete(`https://site232418.tw.cs.unibo.it/api/calendar/activities/${activityId}`)
 }
