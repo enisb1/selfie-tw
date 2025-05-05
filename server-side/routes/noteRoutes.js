@@ -121,5 +121,30 @@ router.get('/getUserSelectNote', async(req, res) => {
     }
 })
 
+// Update bodyTask objects based on title and expiration
+router.put('/updateTasks', async (req, res) => {
+    const { title, expiration } = req.body;
+
+    try {
+        const result = await Note.updateMany(
+            { "bodyTask.title": title, "bodyTask.expiration": expiration },
+            {
+                $set: {
+                    "bodyTask.$[elem].expiration": null,
+                    "bodyTask.$[elem].done": true
+                }
+            },
+            {
+                arrayFilters: [{ "elem.title": title, "elem.expiration": expiration }]
+            }
+        );
+
+        res.status(200).json({ message: 'Tasks updated successfully', result });
+    } catch (error) {
+        console.error('Error updating tasks:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 
 export default router;
