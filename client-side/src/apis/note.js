@@ -77,7 +77,7 @@ export async function getUserSelectNote(username, access){
     
 export async function setTaskDone(title, expiration) {
     try {
-        const response = await axios.put('http://localhost:8000/api/note/updateTasks', {
+        const response = await axios.put('https://site232418.tw.cs.unibo.it/api/note/updateTasks', {
             title: title,
             expiration: expiration
         });
