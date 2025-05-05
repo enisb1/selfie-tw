@@ -105,7 +105,7 @@ export default {
 
         // Aggiungere un'ora
         date.setUTCHours(date.getUTCHours() + 1);
-
+        
         // Giorno
         const day = date.getUTCDate();
 
@@ -117,9 +117,9 @@ export default {
         const year = date.getUTCFullYear();
 
         // Ora e minuti
-        const hours = date.getUTCHours().toString().padStart(2, '0');
+        const hours = (date.getUTCHours()+1).toString().padStart(2, '0');
         const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-
+        
         return `${day} ${month} ${year} ${hours}:${minutes}`;
      }
 
