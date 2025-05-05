@@ -38,7 +38,7 @@
       <h3 class="font-semibold text-lg text-secondary truncate"> {{ task.title }} </h3>
   </label>
   </div>
-  <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatISODate(task.expiration) }}</span>
+  <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatExpirationDate(task.expiration) }}</span>
   <div class="flex items-center">
       <button @click="deleteTask"><img src="@/images/deletesecondary.png" alt="delete" class="w-4 h-4 mr-4"></button>
       <button @click="openExiparation"><img src="@/images/schedule.png" alt="schedule" class="w-4 h-4"></button>
@@ -100,26 +100,23 @@ export default {
       }
       const startTime = ref({ hours: 12, minutes: 30 })
 
-      function formatISODate(isoDateString) {
-        const date = new Date(isoDateString);
+      function formatExpirationDate(dateString) {
+        const date = new Date(dateString);
 
-        // Aggiungere un'ora
-        date.setUTCHours(date.getUTCHours() + 1);
-        
         // Giorno
-        const day = date.getUTCDate();
+        const day = date.getDate()
 
         // Mese (in formato abbreviato)
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        const month = monthNames[date.getUTCMonth()];
+        const month = monthNames[date.getMonth()]
 
         // Anno
-        const year = date.getUTCFullYear();
+        const year = date.getFullYear()
 
         // Ora e minuti
-        const hours = (date.getUTCHours()+1).toString().padStart(2, '0');
-        const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-        
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+
         return `${day} ${month} ${year} ${hours}:${minutes}`;
      }
 
@@ -138,9 +135,9 @@ export default {
         openExiparation,
         exiparationVisible,
         saveExpiration,
-        formatISODate,
-        expirationTask,
         formatDate,
+        expirationTask,
+        formatExpirationDate,
         startTime,
         deleteTask
       }
