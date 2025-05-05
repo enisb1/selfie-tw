@@ -728,7 +728,7 @@ export default {
                 alert("Title is required")
                 return
             }
-            else if (noteFormat.value === "") {
+            else if ((inNotePage.value && noteFormat.value === "") || (inNoteAdd.value && inAllPage.value && noteFormat.value === "")) {
                 alert("Note format is required")
                 return
             }
