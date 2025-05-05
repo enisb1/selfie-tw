@@ -15,7 +15,7 @@
       before:bg-secondary/40 before:opacity-0 before:transition-opacity checked:border-secondary/80 checked:bg-secondary
       checked:before:bg-secondary/40 hover:before:opacity-10"
       v-model="task.done"  
-
+      @change="handleCheck"
     />
     <span class="pointer-events-none absolute top-2/4 left-2/4 -translate-y-2/4 -translate-x-2/4 text-white opacity-0 transition-opacity peer-checked:opacity-100">
       <svg
@@ -38,10 +38,10 @@
       <h3 class="font-semibold text-lg text-secondary truncate"> {{ task.title }} </h3>
   </label>
   </div>
-  <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ formatExpirationDate(task.expiration) }}</span>
+  <span v-if="task.expiration !== undefined" class="text-slate-700 text-sm">{{ task.expiration? formatExpirationDate(task.expiration) : ''}}</span>
   <div class="flex items-center">
       <button @click="deleteTask"><img src="@/images/deletesecondary.png" alt="delete" class="w-4 h-4 mr-4"></button>
-      <button @click="openExiparation"><img src="@/images/schedule.png" alt="schedule" class="w-4 h-4"></button>
+      <button @click="openExiparation" v-show="!task.done"><img src="@/images/schedule.png" alt="schedule" class="w-4 h-4"></button>
   </div>
 <Modal @click.self="openExiparation" v-show="exiparationVisible">
             <div class="h-full w-full
@@ -126,10 +126,13 @@ export default {
 
     const deleteTask = () => {
         emit('deleteTask', props.task) 
-      }
-   
-  
+    }
 
+    const handleCheck = () => {
+       if (props.task.done) {
+         props.task.expiration = undefined
+       }
+     }
         
       return{
         openExiparation,
@@ -139,7 +142,8 @@ export default {
         expirationTask,
         formatExpirationDate,
         startTime,
-        deleteTask
+        deleteTask,
+        handleCheck
       }
     }
 

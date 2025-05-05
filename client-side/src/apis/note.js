@@ -75,4 +75,15 @@ export async function getUserSelectNote(username, access){
     }
 }
     
-  
+export async function setTaskDone(title, expiration) {
+    try {
+        const response = await axios.put('http://localhost:8000/api/note/updateTasks', {
+            title: title,
+            expiration: expiration
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating tasks:', error);
+        throw error;
+    }
+}

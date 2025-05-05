@@ -66,8 +66,10 @@
         <!-- buttons -->
         <div class="flex flex-row justify-evenly" v-show="!showEditActivity">
             <!-- delete button -->
-            <button @click="deleteActivityObject" v-show="!activityObject.projectData" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
-                 text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <button @click="deleteActivityObject" v-show="!activityObject.projectData && !activityObject.expiringTask" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Delete</button>
+            <button @click="completeTask" v-show="activityObject.expiringTask" type="button" class="w-1/3 mt-4 rounded-md bg-secondary px-3 py-2 text-md font-semibold 
+                text-white shadow-sm ring-1 ring-inset ring-gray-300">Complete task</button>
             <!-- delete for you button -->
             <!-- delete composite -->
             <button v-if="activityObject.compositeActivity" @click="deleteCompositeActivity()" type="button" class="w-1/3 mt-4 rounded-md bg-red-500 px-3 py-2 text-md font-semibold 
@@ -83,6 +85,7 @@ import { onMounted, ref } from 'vue';
 import { editActivity, deleteActivitiesByGroup, deleteActivity } from '@/apis/calendar';
 import { getUsers } from '@/apis/users';
 import { useStore } from 'vuex';
+import { setTaskDone } from '@/apis/note';
 
 export default {
     emits: ['updateAllCalendars', 'close'],
@@ -175,6 +178,12 @@ export default {
             }
         })
 
+        const completeTask = async () => {
+             await setTaskDone(props.activityObject.title, props.activityObject.deadline)
+             emit('updateAllCalendars')
+             emit('close')
+        }
+
         return {
             showEditActivity,
             toggleEditActivity,
@@ -187,7 +196,8 @@ export default {
             deleteCompositeActivity,
             participants,
             deleteUserFromActivity,
-            activityEditError
+            activityEditError,
+            completeTask
         }
     }
 }
