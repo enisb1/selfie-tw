@@ -24,7 +24,7 @@ router.get('/tasks', async (req, res) => {
         const notes = await Note.find({
             $and: [
                 { 'bodyTask.expiration': { $gte: start, $lte: end } },
-                { $or: [{ user: username }, { userListAccess: username }] }
+                { $or: [{ user: username }, { userListAccess: username }, { access: 'publicAccess' }] }
             ]
         });
 
