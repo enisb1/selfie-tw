@@ -4,9 +4,7 @@
 - [Description](#description)
 - [Project Structure and Used Technologies](#project-structure-and-used-technologies)
 - [Some of the libraries we have used](#some-of-the-libraries-we-have-used)
-- [AI usage](#ai-usage)
 - [Contributors](#contributors)
-- [Setup development](#setup-development)
 
 ## Description
 Selfie is a comprehensive web application designed to support university students in managing their academic and personal lives effectively. Developed as a final project for the Web Technologies course at the University of Bologna,
@@ -27,6 +25,11 @@ rules and rich notifications.
 users and invites (for events, activities or projects).
 - **Time Machine**: A unique feature to simulate different dates and times, enabling immediate feedback on scheduling and 
 notifications in the case of the project's presentation.
+
+<div style="text-align: center;">
+  <img src="./calendar-overview.png" alt="Calendar view" width="70%"/>
+  <figcaption>Calendar view</figcaption>
+</div>
 
 ## Project Structure and Used Technologies
 The project is organized in two main folders:
@@ -96,12 +99,6 @@ representation.
 - **axios**: Axios is a promise-based HTTP client for the browser and Node.js. It is used for making HTTP requests to the server.
 - **express**: Express is a web application framework for Node.js. It is used to handle routing in the server-side of the application.
 - **vuex**: Vuex is a state management pattern + library for Vue.js applications. It is used for managing the state of the application.
-
-## AI usage
-Some of the members of the group have used Github Copilot as an assistant.
-In particular, they started using it around mid development, to facilitate and speed up the development process.
-It helped with code completion and with repetitive tasks such as HTTP requests.
-Of course, AI has not been of much use with tasks that had to do with the intrinsic complication of the project, due to its difficulty in understanding the project's logic
 
 ## Contributors
 
