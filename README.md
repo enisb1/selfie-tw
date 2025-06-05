@@ -30,8 +30,8 @@ notifications in the case of the project's presentation.
 
 <br>
 
+Calendar view:
 ![alt Calendar view](./calendar-overview.png)
-*<p style="text-align: center">Calendar view</p>*
 
 ## Project Structure and Used Technologies
 The project is organized in two main folders:
