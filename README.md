@@ -5,6 +5,7 @@
 - [Project Structure and Used Technologies](#project-structure-and-used-technologies)
 - [Some of the libraries we have used](#some-of-the-libraries-we-have-used)
 - [Contributors](#contributors)
+- [Setup development](#setup-development)
 
 ## Description
 Selfie is a comprehensive web application designed to support university students in managing their academic and personal lives effectively. Developed as a final project for the Web Technologies course at the University of Bologna,
@@ -116,3 +117,31 @@ representation.
   - pomodoro
   - notes and tasklists
   - home view (preview of pomodoro and notes)
+
+## Setup development
+To install the project, follow these steps:
+1. Clone the repository:  
+   ```bash
+   git clone <repository-url>
+   cd <repository-folder>
+   ```
+2. Install dependencies for the frontend:  
+   ```bash
+    cd client-side
+    npm install
+    ```
+3. Install dependencies for the backend:
+    ```bash
+     cd ../server-side
+     npm install
+     ```
+4. Start the backend server:
+    ```bash
+   npm start
+   ```
+5. Start the frontend development server:
+   ```bash
+    cd ../client-side
+    npm run serve
+    ```
+6. Open your browser and navigate to `http://localhost:8080` to view the application.
