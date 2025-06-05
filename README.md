@@ -4,7 +4,9 @@
 - [Description](#description)
 - [Project Structure and Used Technologies](#project-structure-and-used-technologies)
 - [Some of the libraries we have used](#some-of-the-libraries-we-have-used)
+- [AI usage](#ai-usage)
 - [Contributors](#contributors)
+- [Setup development](#setup-development)
 
 ## Description
 Selfie is a comprehensive web application designed to support university students in managing their academic and personal lives effectively. Developed as a final project for the Web Technologies course at the University of Bologna,
@@ -26,10 +28,10 @@ users and invites (for events, activities or projects).
 - **Time Machine**: A unique feature to simulate different dates and times, enabling immediate feedback on scheduling and 
 notifications in the case of the project's presentation.
 
-<div style="text-align: center;">
-  <img src="./calendar-overview.png" alt="Calendar view" width="70%"/>
-  <figcaption>Calendar view</figcaption>
-</div>
+<br>
+
+![alt Calendar view](./calendar-overview.png)
+*<p style="text-align: center">Calendar view</p>*
 
 ## Project Structure and Used Technologies
 The project is organized in two main folders:
